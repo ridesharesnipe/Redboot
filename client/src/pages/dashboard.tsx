@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Child } from "@shared/schema";
+import { Anchor, Crown, LogOut, Camera, Mic, Map, User, TrendingUp, Plus } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -99,7 +100,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
-              <i className="fas fa-anchor text-secondary-foreground text-lg"></i>
+              <Anchor className="text-secondary-foreground text-lg" />
             </div>
             <h1 className="font-pirate text-xl text-primary" data-testid="text-app-title">
               Red Boot's Adventure
@@ -111,7 +112,7 @@ export default function Dashboard() {
             </span>
             <Link href="/subscribe">
               <Button className="bg-accent text-accent-foreground hover:bg-accent/90" data-testid="button-upgrade">
-                <i className="fas fa-crown mr-2"></i>Upgrade
+                <Crown className="w-4 h-4 mr-2" />Upgrade
               </Button>
             </Link>
             <Button 
@@ -119,7 +120,7 @@ export default function Dashboard() {
               onClick={handleLogout}
               data-testid="button-logout"
             >
-              <i className="fas fa-sign-out-alt"></i>
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -141,7 +142,7 @@ export default function Dashboard() {
           <Link href="/photo-capture">
             <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-accent text-accent-foreground">
               <CardContent className="pt-0">
-                <i className="fas fa-camera text-3xl mb-3"></i>
+                <Camera className="w-8 h-8 mb-3" />
                 <h3 className="font-bold text-lg mb-2" data-testid="text-action-photo-title">Capture Word List</h3>
                 <p className="text-sm opacity-90" data-testid="text-action-photo-desc">
                   Take a photo of homework spelling lists
@@ -152,7 +153,7 @@ export default function Dashboard() {
 
           <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-secondary text-secondary-foreground">
             <CardContent className="pt-0">
-              <i className="fas fa-microphone text-3xl mb-3"></i>
+              <Mic className="w-8 h-8 mb-3" />
               <h3 className="font-bold text-lg mb-2" data-testid="text-action-test-title">Weekly Test</h3>
               <p className="text-sm opacity-90" data-testid="text-action-test-desc">
                 Friday test simulator with voice prompts
@@ -162,7 +163,7 @@ export default function Dashboard() {
 
           <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-primary text-primary-foreground">
             <CardContent className="pt-0">
-              <i className="fas fa-map text-3xl mb-3"></i>
+              <Map className="w-8 h-8 mb-3" />
               <h3 className="font-bold text-lg mb-2" data-testid="text-action-map-title">Treasure Map</h3>
               <p className="text-sm opacity-90" data-testid="text-action-map-desc">
                 View progress and achievements
@@ -184,7 +185,7 @@ export default function Dashboard() {
                 <Card key={child.id} className="p-4 hover:shadow-md transition-shadow">
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="w-12 h-12 bg-pirate-400 rounded-full flex items-center justify-center">
-                      <i className="fas fa-child text-pirate-50"></i>
+                      <User className="w-5 h-5 text-pirate-50" />
                     </div>
                     <div>
                       <h4 className="font-bold text-foreground" data-testid={`text-child-name-${child.id}`}>
@@ -218,7 +219,7 @@ export default function Dashboard() {
                           size="icon"
                           data-testid={`button-view-progress-${child.id}`}
                         >
-                          <i className="fas fa-chart-line"></i>
+                          <TrendingUp className="w-4 h-4" />
                         </Button>
                       </Link>
                     </div>
@@ -230,7 +231,7 @@ export default function Dashboard() {
               <Dialog open={showAddChild} onOpenChange={setShowAddChild}>
                 <DialogTrigger asChild>
                   <Card className="p-4 border-2 border-dashed border-border hover:border-accent hover:text-accent transition-colors cursor-pointer flex flex-col items-center justify-center text-muted-foreground min-h-[200px]">
-                    <i className="fas fa-plus text-2xl mb-2"></i>
+                    <Plus className="w-6 h-6 mb-2" />
                     <span className="font-medium" data-testid="button-add-pirate">Add New Pirate</span>
                   </Card>
                 </DialogTrigger>
