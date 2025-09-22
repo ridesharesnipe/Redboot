@@ -65,9 +65,10 @@ export default function RedBootCharacter({
           className="w-full h-full object-contain"
           style={{
             filter: expression === "default" 
-              ? 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))'
-              : 'drop-shadow(0 8px 12px rgba(0,0,0,0.4))',
-            background: 'transparent'
+              ? 'contrast(1.3) saturate(1.2) brightness(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))'
+              : 'contrast(1.2) saturate(1.1) brightness(1.05) drop-shadow(0 8px 12px rgba(0,0,0,0.4))',
+            background: 'transparent',
+            mixBlendMode: 'darken'
           }}
         />
       </div>
