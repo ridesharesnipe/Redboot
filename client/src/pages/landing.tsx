@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
+import { Compass, Telescope, Swords, MapPin } from "lucide-react";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -14,7 +15,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
-              <i className="fas fa-anchor text-secondary-foreground text-lg"></i>
+              <Compass className="text-secondary-foreground w-5 h-5" />
             </div>
             <h1 className="font-pirate text-xl text-primary">Red Boot's Adventure</h1>
           </div>
@@ -71,7 +72,7 @@ export default function Landing() {
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <div className="w-16 h-16 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <i className="fas fa-camera text-accent-foreground text-2xl"></i>
+                  <Telescope className="text-accent-foreground w-8 h-8" />
                 </div>
                 <h3 className="font-bold text-lg mb-2" data-testid="text-feature-photo-title">
                   Photo Capture
@@ -85,7 +86,7 @@ export default function Landing() {
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <div className="w-16 h-16 bg-secondary rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <i className="fas fa-gamepad text-secondary-foreground text-2xl"></i>
+                  <Swords className="text-secondary-foreground w-8 h-8" />
                 </div>
                 <h3 className="font-bold text-lg mb-2" data-testid="text-feature-game-title">
                   Pirate Adventure
@@ -99,7 +100,7 @@ export default function Landing() {
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <i className="fas fa-chart-line text-primary-foreground text-2xl"></i>
+                  <MapPin className="text-primary-foreground w-8 h-8" />
                 </div>
                 <h3 className="font-bold text-lg mb-2" data-testid="text-feature-progress-title">
                   Progress Tracking
