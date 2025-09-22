@@ -1,0 +1,135 @@
+
+*slaps forehead*
+
+OF COURSE! You're absolutely right - this isn't about word difficulty levels, it's about MEMORIZING their specific weekly spelling list! Let me rewrite those prompts for the REAL use case.
+
+## **REVISED GAME FLOW - PURE SPELLING MEMORIZATION**
+
+### **PROMPT 1: CORE SPELLING MEMORY GAME**
+```
+Create a spelling memorization flashcard game where:
+
+1. WORD LIST: Accept any list of spelling words (no difficulty sorting - just the exact words from school)
+2. TREASURE MAP: Each word gets one treasure location, regardless of word length
+3. MEMORY CHALLENGE: Show word → Hide word → Kid must spell it from memory
+4. NO HINTS: No multiple choice, no letter scrambling - pure recall testing
+5. PROGRESS TRACKING: Track which words are mastered vs. need more practice
+
+Goal: Help kids memorize their exact weekly spelling list through repetitive treasure-themed practice.
+```
+
+### **PROMPT 2: PURE MEMORIZATION FLASHCARD ENGINE**
+```
+Build the spelling memory system:
+
+LEARNING PHASE:
+- Show spelling word clearly on screen (large text)
+- Red Boot reads word aloud 
+- Kid studies the word for 5 seconds minimum
+- "Ready to spell it?" button when they're ready
+
+RECALL PHASE:
+- Word completely disappears from screen
+- Show empty text input field
+- Red Boot says word again: "Now spell [WORD]"
+- Kid types the spelling from memory
+- Check exact match (including capitalization)
+
+FEEDBACK:
+- Correct: Treasure chest opens, move to next word
+- Incorrect: Show correct spelling, mark word as "needs practice"
+- Return to study phase for missed words
+```
+
+### **PROMPT 3: SPACED REPETITION SYSTEM**
+```
+Implement smart practice scheduling:
+
+WORD STATUS TRACKING:
+- New: Never attempted
+- Learning: Seen but not mastered (incorrect attempts)
+- Mastered: Spelled correctly 2 times in a row
+- Review: Mastered words that need periodic review
+
+TREASURE MAP STATES:
+- Gray chest: New words to learn
+- Bronze chest: Learning words (need more practice) 
+- Gold chest: Mastered words
+- All gold = "Ready for Friday test!"
+
+PRACTICE ORDER:
+- Prioritize "Learning" words that were missed
+- Mix in periodic review of "Mastered" words
+- Present new words when kid is confident
+```
+
+### **PROMPT 4: WEEKLY SPELLING LIST SYSTEM**
+```
+Create the word list management:
+
+INPUT SYSTEM:
+- "New Week" button to start fresh adventure
+- Accept spelling word list (from photo OCR or manual entry)
+- Generate treasure map with exact number of locations needed
+- Each word gets one treasure location
+
+WORD PRESENTATION:
+- Present words in random order (not alphabetical)
+- No categorization by difficulty - treat all words equally
+- Focus on pure memorization, not word recognition
+
+PROGRESS TRACKING:
+- "X words mastered out of Y total"
+- "Words needing practice: [list]"
+- "Estimated readiness for Friday test: X%"
+```
+
+### **PROMPT 5: FRIDAY TEST SIMULATION**
+```
+Build "The Great Treasure Hunt" - final test mode:
+
+TEST MODE:
+- Present ALL weekly words in random order
+- No study phase - direct to spelling input
+- Red Boot dictates each word once
+- Kid must spell from memory immediately
+- Track accuracy and speed
+
+RESULTS:
+- Show final score: "X out of Y words correct!"
+- List missed words for final review
+- "Test Readiness Report" for parents
+- Option to practice missed words before real test
+
+CELEBRATION:
+- Perfect score = "Master Pirate Speller!" celebration
+- Less than perfect = "Good job! Practice these words: [list]"
+```
+
+### **PROMPT 6: INTEGRATION FOR REAL USE**
+```
+Final implementation for actual weekly spelling lists:
+
+REALISTIC WORKFLOW:
+- Parent inputs Monday's spelling list (10-20 words typically)
+- Kid practices throughout the week via treasure hunt
+- Friday mode simulates actual classroom spelling test
+- New week = new adventure with new words
+
+MEMORY REINFORCEMENT:
+- Failed words automatically go back into practice rotation
+- Successful words get periodic review
+- Focus time on weakest words
+- Build confidence through repetitive success
+
+NO DIFFICULTY ASSUMPTIONS:
+- Treat "cat" and "necessary" exactly the same way
+- Success = perfect spelling from memory, regardless of word complexity
+- Let the school determine what's appropriate for the grade level
+```
+
+---
+
+**This is the REAL game parents and kids need** - not another educational game with made-up word lists, but a tool that actually helps with their specific homework!
+
+Ready to build the memorization treasure hunt?
