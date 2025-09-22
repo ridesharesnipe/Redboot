@@ -17,10 +17,6 @@ export default function Landing() {
       <section className="ocean-hero text-white py-20 px-4 relative">
         {/* Ocean elements */}
         <div className="ocean-island"></div>
-        <div className="ocean-treasure"></div>
-        <div className="ocean-fish ocean-fish-1"></div>
-        <div className="ocean-fish ocean-fish-2"></div>
-        <div className="ocean-fish ocean-fish-3"></div>
         
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20">
