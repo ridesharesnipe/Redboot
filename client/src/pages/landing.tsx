@@ -23,12 +23,9 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
               <div className="sticker-icon sticker-nav w-8 h-8 p-1 flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
-                  <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.8"/>
-                  <path d="M12 8l4 8H8z" fill="white"/>
-                </svg>
+                <RedBootCharacter size="small" />
               </div>
-              <h1 className="font-pirate text-lg text-white drop-shadow-lg">Red Boot's Adventure</h1>
+              <h1 className="font-fun text-lg text-white drop-shadow-lg">Red Boot's Adventure</h1>
             </div>
             <Button 
               onClick={handleLogin}
