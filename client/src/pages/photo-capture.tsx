@@ -10,7 +10,7 @@ import RedBootCharacter from "@/components/RedBootCharacter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Camera, RefreshCw, Save, Play, ArrowLeft } from "lucide-react";
+import { Camera, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
 
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
@@ -120,7 +120,9 @@ export default function PhotoCapturePage() {
               <RedBootCharacter size="large" animated className="mb-8" />
               <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20 shadow-2xl">
                 <CardContent className="pt-0">
-                  <div className="text-8xl mb-6">🏴‍☠️</div>
+                  <div className="mb-6">
+                    <Flag className="w-20 h-20 mx-auto text-white" />
+                  </div>
                   <h2 className="text-4xl font-pirate mb-6 text-white" data-testid="text-capture-title">
                     Create Your Treasure Maps!
                   </h2>
@@ -137,19 +139,19 @@ export default function PhotoCapturePage() {
                   {/* Tips */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <div className="text-3xl mb-2">☀️</div>
+                      <Sun className="w-8 h-8 mb-2 mx-auto" />
                       <div className="font-bold text-sm">Good Light</div>
                     </div>
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <div className="text-3xl mb-2">📖</div>
+                      <BookOpen className="w-8 h-8 mb-2 mx-auto" />
                       <div className="font-bold text-sm">Clear Text</div>
                     </div>
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <div className="text-3xl mb-2">🎯</div>
+                      <Target className="w-8 h-8 mb-2 mx-auto" />
                       <div className="font-bold text-sm">Hold Steady</div>
                     </div>
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <div className="text-3xl mb-2">🌊</div>
+                      <Waves className="w-8 h-8 mb-2 mx-auto" />
                       <div className="font-bold text-sm">No Shadows</div>
                     </div>
                   </div>
@@ -183,7 +185,9 @@ export default function PhotoCapturePage() {
                 <RedBootCharacter size="medium" animated className="mb-6" />
                 <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border-4 border-white/20 shadow-2xl">
                   <CardContent className="pt-0">
-                    <div className="text-6xl mb-6">🎉</div>
+                    <div className="mb-6">
+                      <PartyPopper className="w-16 h-16 mx-auto text-white" />
+                    </div>
                     <h2 className="text-3xl font-pirate mb-4 text-white" data-testid="text-success-title">
                       Treasure Maps Created!
                     </h2>
@@ -237,7 +241,10 @@ export default function PhotoCapturePage() {
                 <Card className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
                   <CardHeader>
                     <CardTitle className="text-lg text-center text-white/80" data-testid="text-original-image">
-                      Original Photo 📸
+                      <div className="flex items-center gap-2">
+                        <Camera className="w-4 h-4" />
+                        Original Photo
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
