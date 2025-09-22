@@ -58,9 +58,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/children/:id', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
       const child = await storage.getChild(req.params.id);
       if (!child) {
         return res.status(404).json({ message: "Child not found" });
+      }
+      if (child.parentId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
       }
       res.json(child);
     } catch (error) {
@@ -70,8 +74,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Word lists routes
-  app.get('/api/children/:childId/wordlists', isAuthenticated, async (req, res) => {
+  app.get('/api/children/:childId/wordlists', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const child = await storage.getChild(req.params.childId);
+      if (!child || child.parentId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       const wordLists = await storage.getWordLists(req.params.childId);
       res.json(wordLists);
     } catch (error) {
@@ -80,8 +89,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/children/:childId/wordlists', isAuthenticated, async (req, res) => {
+  app.post('/api/children/:childId/wordlists', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const child = await storage.getChild(req.params.childId);
+      if (!child || child.parentId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       const wordListData = insertWordListSchema.parse({
         ...req.body,
         childId: req.params.childId,
@@ -115,8 +129,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Progress routes
-  app.get('/api/children/:childId/progress', isAuthenticated, async (req, res) => {
+  app.get('/api/children/:childId/progress', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const child = await storage.getChild(req.params.childId);
+      if (!child || child.parentId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       const progress = await storage.getProgress(req.params.childId);
       res.json(progress);
     } catch (error) {
@@ -125,8 +144,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/children/:childId/progress', isAuthenticated, async (req, res) => {
+  app.post('/api/children/:childId/progress', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const child = await storage.getChild(req.params.childId);
+      if (!child || child.parentId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       const progressData = insertProgressSchema.parse({
         ...req.body,
         childId: req.params.childId,
@@ -167,11 +191,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return;
     }
     
-    if (!user.email) {
-      throw new Error('No user email on file');
-    }
-
     try {
+      if (!user.email) {
+        return res.status(400).json({ message: "No user email on file" });
+      }
       const customer = await stripe.customers.create({
         email: user.email,
         name: `${user.firstName} ${user.lastName}`,
