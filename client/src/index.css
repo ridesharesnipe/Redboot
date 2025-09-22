@@ -40,7 +40,7 @@
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --font-pirate: 'Pirata One', cursive;
-  --font-fun: 'Fredoka One', cursive;
+  --font-fun: 'Inter', system-ui, sans-serif;
   --radius: 0.75rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169, 89.1213%, 53.1373%, 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169, 89.1213%, 53.1373%, 0.00);
