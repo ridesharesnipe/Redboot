@@ -6,6 +6,7 @@ import SaltyCharacter from "@/components/SaltyCharacter";
 import RayRayCharacter from "@/components/RayRayCharacter";
 import { Camera, Swords, Map, Users } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
+import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -92,8 +93,12 @@ export default function Landing() {
           <p className="text-xl text-gray-600 mb-12">Join Red Boot and his friends on the greatest spelling adventure!</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="mb-4">
-                <RedBootCharacter size="medium" animated />
+              <div className="mb-4 flex justify-center">
+                <img 
+                  src={redBootCrew} 
+                  alt="Red Boot the Brave Captain" 
+                  className="w-40 h-40 object-contain"
+                />
               </div>
               <h3 className="font-bold text-lg text-green-700 mb-2">Red Boot</h3>
               <p className="text-sm text-gray-600">The Brave Captain</p>
