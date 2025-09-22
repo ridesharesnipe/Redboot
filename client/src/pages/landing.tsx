@@ -5,6 +5,7 @@ import OceanBlueCharacter from "@/components/OceanBlueCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
 import RayRayCharacter from "@/components/RayRayCharacter";
 import { Camera, Swords, Map, Users } from "lucide-react";
+import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -21,11 +22,15 @@ export default function Landing() {
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
-              <div className="sticker-icon sticker-nav w-8 h-8 p-1 flex items-center justify-center">
-                <RedBootCharacter size="small" />
+            <div className="flex items-center space-x-4 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
+              <div className="flex-shrink-0">
+                <img 
+                  src={redBootIcon} 
+                  alt="Red Boot Icon" 
+                  className="w-10 h-10 object-contain rounded-lg"
+                />
               </div>
-              <h1 className="font-fun text-lg text-white drop-shadow-lg">Red Boot's Adventure</h1>
+              <h1 className="font-fun text-lg text-white drop-shadow-lg whitespace-nowrap">Red Boot's Adventure</h1>
             </div>
             <Button 
               onClick={handleLogin}
