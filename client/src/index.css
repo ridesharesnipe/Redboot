@@ -242,6 +242,67 @@
   background: linear-gradient(135deg, #A8E6CF 0%, #C8F7C5 100%);
 }
 
+/* Pirate Flashcard Styles */
+.treasure-map-card {
+  position: relative;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(139, 69, 19, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(205, 133, 63, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(160, 82, 45, 0.05) 0%, transparent 50%);
+}
+
+.treasure-map-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(45deg, #D4A574, #E6C589, #F4E4BC, #D4A574);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: source-out;
+}
+
+.treasure-map-card::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 1px dashed rgba(139, 69, 19, 0.3);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* 3D Flip Animation */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Enhanced Flashcard Hover Effects */
+.flashcard-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.flashcard-hover:hover {
+  transform: translateY(-4px) scale(1.02) rotateX(5deg);
+  box-shadow: 0 15px 35px rgba(139, 69, 19, 0.3), 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
 /* Font Utilities */
 .font-pirate {
   font-family: var(--font-pirate);

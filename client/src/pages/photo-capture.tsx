@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PhotoCapture from "@/components/PhotoCapture";
+import FlashcardGrid from "@/components/FlashcardGrid";
+import RedBootCharacter from "@/components/RedBootCharacter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Camera, RefreshCw, Save, Play, ArrowLeft } from "lucide-react";
 
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
@@ -25,8 +28,8 @@ export default function PhotoCapturePage() {
       setExtractedWords(data.words);
       setIsProcessing(false);
       toast({
-        title: "Words Extracted!",
-        description: `Found ${data.words.length} words in your spelling list.`,
+        title: "Treasure Maps Created!",
+        description: `Ahoy! Found ${data.words.length} treasure words in your photo!`,
       });
     },
     onError: (error) => {
@@ -43,8 +46,8 @@ export default function PhotoCapturePage() {
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to extract words from image. Please try again.",
+        title: "Arrr! Something went wrong!",
+        description: "Failed to extract words from image. Please try again, matey!",
         variant: "destructive",
       });
     },
@@ -64,10 +67,19 @@ export default function PhotoCapturePage() {
   const handleSaveWords = () => {
     // In a real implementation, this would save the words to a word list
     toast({
-      title: "Words Saved!",
-      description: "Your spelling words have been added to the word list.",
+      title: "Treasure Maps Saved!",
+      description: `${extractedWords.length} pirate flashcards have been added to your collection!`,
     });
     setLocation("/");
+  };
+
+  const handleStartPractice = () => {
+    // Navigate to game with these words
+    toast({
+      title: "Starting Adventure!", 
+      description: "Get ready to practice with your treasure map words!",
+    });
+    setLocation("/game");
   };
 
   const removeWord = (wordToRemove: string) => {
@@ -75,164 +87,168 @@ export default function PhotoCapturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600">
       {/* Header */}
-      <div className="bg-card border-b border-border px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Button 
-            variant="ghost"
-            onClick={() => setLocation("/")}
-            data-testid="button-back"
-          >
-            <i className="fas fa-arrow-left mr-2"></i>
-            Back to Dashboard
-          </Button>
-          <h1 className="text-xl font-bold" data-testid="text-page-title">
-            Capture Spelling List
-          </h1>
-        </div>
+      <div className="p-4 flex items-center justify-between relative">
+        <Button 
+          variant="ghost" 
+          onClick={() => setLocation("/")}
+          className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2"
+          data-testid="button-back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Harbor
+        </Button>
+        <h1 className="text-3xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
+          <Camera className="w-8 h-8" />
+          Treasure Map Creator
+        </h1>
+        <div className="w-32"></div>
       </div>
 
-      <div className="max-w-2xl mx-auto p-6">
-        {/* Page Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-fun text-foreground mb-4" data-testid="text-capture-title">
-            Capture Spelling List
-          </h2>
-          <p className="text-muted-foreground" data-testid="text-capture-subtitle">
-            Take a photo of your child's spelling homework and we'll extract the words automatically
-          </p>
-        </div>
+      <div className="px-4 pb-8">
+        <div className="max-w-6xl mx-auto">
+          {!capturedImage ? (
+            /* Photo Capture Screen */
+            <div className="text-center mb-8">
+              <RedBootCharacter size="large" animated className="mb-8" />
+              <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20 shadow-2xl">
+                <CardContent className="pt-0">
+                  <div className="text-8xl mb-6">🏴‍☠️</div>
+                  <h2 className="text-4xl font-pirate mb-6 text-white" data-testid="text-capture-title">
+                    Create Your Treasure Maps!
+                  </h2>
+                  <p className="text-blue-100 mb-8 text-xl leading-relaxed" data-testid="text-capture-instructions">
+                    "Ahoy matey! Take a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
+                  </p>
+                  
+                  <Card className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                    <CardContent className="pt-0">
+                      <PhotoCapture onCapture={handleImageCapture} />
+                    </CardContent>
+                  </Card>
 
-        {!capturedImage ? (
-          /* Camera Interface */
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-center" data-testid="text-camera-instructions">
-                Position Your Spelling List
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PhotoCapture onCapture={handleImageCapture} />
-              <div className="mt-4 text-center">
-                <p className="text-muted-foreground mb-4" data-testid="text-photo-tips">
-                  Make sure the words are clearly visible and well-lit
-                </p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Badge variant="secondary">Good lighting</Badge>
-                  <Badge variant="secondary">Clear text</Badge>
-                  <Badge variant="secondary">No shadows</Badge>
-                  <Badge variant="secondary">Hold steady</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          /* Results Interface */
-          <div className="space-y-6">
-            {/* Captured Image Preview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span data-testid="text-captured-image-title">Captured Image</span>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleRetake}
-                    data-testid="button-retake"
-                  >
-                    <i className="fas fa-camera mr-2"></i>
-                    Retake Photo
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                  <img 
-                    src={capturedImage} 
-                    alt="Captured spelling list" 
-                    className="w-full h-full object-cover"
-                    data-testid="img-captured"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* OCR Results */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span data-testid="text-detected-words-title">
-                    Detected Words
-                    {isProcessing && (
-                      <span className="ml-2 text-sm font-normal text-muted-foreground">
-                        Processing...
-                      </span>
-                    )}
-                  </span>
-                  {extractedWords.length > 0 && (
-                    <Badge variant="secondary" data-testid="text-word-count">
-                      {extractedWords.length} words found
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isProcessing ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mr-3" />
-                    <span data-testid="text-processing">Extracting words from image...</span>
-                  </div>
-                ) : extractedWords.length > 0 ? (
-                  <>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                      {extractedWords.map((word, index) => (
-                        <div 
-                          key={index}
-                          className="bg-muted p-3 rounded-lg text-center relative group"
-                        >
-                          <span className="font-medium" data-testid={`text-word-${index}`}>
-                            {word}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeWord(word)}
-                            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                            data-testid={`button-remove-word-${index}`}
-                          >
-                            <i className="fas fa-times text-xs"></i>
-                          </Button>
-                        </div>
-                      ))}
+                  {/* Tips */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
+                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
+                      <div className="text-3xl mb-2">☀️</div>
+                      <div className="font-bold text-sm">Good Light</div>
                     </div>
-                    <div className="flex space-x-4">
+                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
+                      <div className="text-3xl mb-2">📖</div>
+                      <div className="font-bold text-sm">Clear Text</div>
+                    </div>
+                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
+                      <div className="text-3xl mb-2">🎯</div>
+                      <div className="font-bold text-sm">Hold Steady</div>
+                    </div>
+                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
+                      <div className="text-3xl mb-2">🌊</div>
+                      <div className="font-bold text-sm">No Shadows</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : isProcessing ? (
+            /* Processing Screen */
+            <div className="text-center">
+              <RedBootCharacter size="large" animated className="mb-8" />
+              <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-12 text-center border-4 border-white/20 shadow-2xl">
+                <CardContent className="pt-0">
+                  <div className="text-8xl mb-8">🗺️</div>
+                  <h2 className="text-4xl font-pirate mb-8 text-white" data-testid="text-processing-title">
+                    Creating Your Treasure Maps...
+                  </h2>
+                  <div className="flex justify-center mb-8">
+                    <RefreshCw className="w-16 h-16 animate-spin text-yellow-300" />
+                  </div>
+                  <p className="text-blue-100 text-xl leading-relaxed" data-testid="text-processing-message">
+                    "Arrr! I'm using me magic compass to find all the treasure words in your photo!"
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            /* Results Screen */
+            <div className="space-y-8">
+              {/* Success Message */}
+              <div className="text-center">
+                <RedBootCharacter size="medium" animated className="mb-6" />
+                <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border-4 border-white/20 shadow-2xl">
+                  <CardContent className="pt-0">
+                    <div className="text-6xl mb-6">🎉</div>
+                    <h2 className="text-3xl font-pirate mb-4 text-white" data-testid="text-success-title">
+                      Treasure Maps Created!
+                    </h2>
+                    <p className="text-blue-100 mb-8 text-xl" data-testid="text-success-message">
+                      "Ahoy! I found {extractedWords.length} treasure words in your photo! They're now beautiful treasure map flashcards!"
+                    </p>
+                    <div className="flex gap-4 justify-center flex-wrap">
+                      <Button 
+                        onClick={handleRetake}
+                        variant="outline"
+                        className="border-2 border-white text-white hover:bg-white hover:text-cyan-600 px-6 py-3 rounded-2xl"
+                        data-testid="button-retake"
+                      >
+                        <Camera className="w-5 h-5 mr-2" />
+                        Take Another Photo
+                      </Button>
                       <Button 
                         onClick={handleSaveWords}
-                        className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                        className="bg-emerald-500 text-white hover:bg-emerald-600 px-6 py-3 rounded-2xl"
                         data-testid="button-save-words"
                       >
-                        <i className="fas fa-check mr-2"></i>
-                        Save Word List
+                        <Save className="w-5 h-5 mr-2" />
+                        Save Flashcards
                       </Button>
                       <Button 
-                        variant="outline"
-                        onClick={handleRetake}
-                        data-testid="button-edit-words"
+                        onClick={handleStartPractice}
+                        className="bg-treasure-500 text-white hover:bg-treasure-600 px-6 py-3 rounded-2xl"
+                        data-testid="button-start-practice"
                       >
-                        <i className="fas fa-edit mr-2"></i>
-                        Edit Words
+                        <Play className="w-5 h-5 mr-2" />
+                        Start Adventure!
                       </Button>
                     </div>
-                  </>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground" data-testid="text-no-words">
-                    No words detected. Please try taking another photo with better lighting.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Flashcard Grid */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border-2 border-white/10">
+                <FlashcardGrid
+                  words={extractedWords}
+                  onRemoveWord={removeWord}
+                  onStartPractice={handleStartPractice}
+                  showRemoveButtons={true}
+                  title="Your Pirate Treasure Maps"
+                />
+              </div>
+
+              {/* Original Photo (Small) */}
+              {capturedImage && (
+                <Card className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-center text-white/80" data-testid="text-original-image">
+                      Original Photo 📸
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-center">
+                      <img 
+                        src={capturedImage} 
+                        alt="Original spelling list photo" 
+                        className="max-h-40 rounded-lg shadow-lg opacity-75 hover:opacity-100 transition-opacity border-2 border-white/20"
+                        data-testid="image-captured"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
