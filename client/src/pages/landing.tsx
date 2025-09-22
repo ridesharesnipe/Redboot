@@ -7,7 +7,7 @@ import SaltyCharacter from "@/components/SaltyCharacter";
 import RayRayCharacter from "@/components/RayRayCharacter";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
-import { Camera, Swords, Map, Users } from "lucide-react";
+import { Camera, Swords, Map, Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 
@@ -78,10 +78,7 @@ export default function Landing() {
               size="lg"
               data-testid="button-start-adventure"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="mr-2">
-                <path d="M3 18h18l-9-15z" fill="currentColor" opacity="0.8"/>
-                <path d="M12 8v6M8 12h8" stroke="white" strokeWidth="2"/>
-              </svg>
+              <Compass className="w-5 h-5 mr-2" />
               Start Adventure
             </Button>
             <Button 
@@ -91,10 +88,7 @@ export default function Landing() {
               size="lg"
               data-testid="button-watch-demo"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="mr-2">
-                <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.8"/>
-                <path d="M10 8l6 4-6 4z" fill="white"/>
-              </svg>
+              <Play className="w-5 h-5 mr-2" />
               Watch Demo
             </Button>
           </div>
@@ -226,17 +220,13 @@ export default function Landing() {
                 <ul className="text-left space-y-3 mb-8">
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <Check className="w-3 h-3" />
                     </div>
                     <span className="text-gray-700">Red Boot character</span>
                   </li>
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <Check className="w-3 h-3" />
                     </div>
                     <span className="text-gray-700">1 word list per week</span>
                   </li>
@@ -254,7 +244,7 @@ export default function Landing() {
 
             <Card className="p-8 bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white border-4 border-yellow-300 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-white text-orange-500 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                ⭐ POPULAR
+                <Star className="w-4 h-4 inline mr-1" />POPULAR
               </div>
               <CardContent className="pt-6 relative z-10">
                 <h3 className="text-2xl font-bold mb-4" data-testid="text-plan-premium-title">Premium Adventure</h3>
@@ -262,25 +252,19 @@ export default function Landing() {
                 <ul className="text-left space-y-3 mb-8">
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4" stroke="orange" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <Check className="w-3 h-3 text-orange-600" />
                     </div>
                     <span>All 4 characters</span>
                   </li>
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4" stroke="orange" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <Check className="w-3 h-3 text-orange-600" />
                     </div>
                     <span>Unlimited word lists</span>
                   </li>
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4" stroke="orange" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <Check className="w-3 h-3 text-orange-600" />
                     </div>
                     <span>Advanced analytics</span>
                   </li>
