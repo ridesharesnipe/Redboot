@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TreasureMap from "@/components/TreasureMap";
+import { ArrowLeft, Trophy, Flame, Crown, Ship, Map } from "lucide-react";
 import type { Child, Progress, WordList } from "@shared/schema";
 
 export default function ProgressPage() {
@@ -50,7 +51,7 @@ export default function ProgressPage() {
               onClick={() => setLocation("/")}
               data-testid="button-back"
             >
-              <i className="fas fa-arrow-left mr-2"></i>
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
           </div>
@@ -83,7 +84,7 @@ export default function ProgressPage() {
           <Card className="p-4 text-center shadow-lg">
             <CardContent className="pt-4">
               <div className="w-12 h-12 bg-treasure-500 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <i className="fas fa-trophy text-treasure-50"></i>
+                <Trophy className="w-8 h-8 text-treasure-50" />
               </div>
               <h4 className="font-bold text-foreground" data-testid="text-badge-first-treasure">First Treasure</h4>
               <p className="text-xs text-muted-foreground">Completed first word list</p>
@@ -95,9 +96,9 @@ export default function ProgressPage() {
               <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
                 (child.weeklyStreak || 0) >= 5 ? 'bg-secondary' : 'bg-muted'
               }`}>
-                <i className={`fas fa-fire ${
+                <Flame className={`w-8 h-8 ${
                   (child.weeklyStreak || 0) >= 5 ? 'text-secondary-foreground' : 'text-muted-foreground'
-                }`}></i>
+                }`} />
               </div>
               <h4 className={`font-bold ${
                 (child.weeklyStreak || 0) >= 5 ? 'text-foreground' : 'text-muted-foreground'
@@ -113,9 +114,9 @@ export default function ProgressPage() {
               <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
                 averageAccuracy >= 100 ? 'bg-accent' : 'bg-muted'
               }`}>
-                <i className={`fas fa-crown ${
+                <Crown className={`w-8 h-8 ${
                   averageAccuracy >= 100 ? 'text-accent-foreground' : 'text-muted-foreground'
-                }`}></i>
+                }`} />
               </div>
               <h4 className={`font-bold ${
                 averageAccuracy >= 100 ? 'text-foreground' : 'text-muted-foreground'
@@ -131,9 +132,9 @@ export default function ProgressPage() {
               <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
                 (child.unlockedCharacters || []).length >= 4 ? 'bg-primary' : 'bg-muted'
               }`}>
-                <i className={`fas fa-ship ${
+                <Ship className={`w-8 h-8 ${
                   (child.unlockedCharacters || []).length >= 4 ? 'text-primary-foreground' : 'text-muted-foreground'
-                }`}></i>
+                }`} />
               </div>
               <h4 className={`font-bold ${
                 (child.unlockedCharacters || []).length >= 4 ? 'text-foreground' : 'text-muted-foreground'
@@ -190,7 +191,7 @@ export default function ProgressPage() {
                   <div key={session.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-                        <i className="fas fa-map text-accent-foreground"></i>
+                        <Map className="w-4 h-4 text-accent-foreground" />
                       </div>
                       <div>
                         <h4 className="font-bold" data-testid={`text-session-${index}-title`}>

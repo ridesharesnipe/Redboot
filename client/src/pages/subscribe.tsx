@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { ArrowLeft, Lock, Shield, Check, Users, CreditCard, Crown, Fish, Dog, Telescope } from "lucide-react";
 
 // Mock Stripe setup for development - will be replaced with real keys later
 const MOCK_STRIPE_KEY = 'pk_test_mock_key_for_development';
@@ -76,13 +77,13 @@ const SubscribeForm = () => {
           </>
         ) : (
           <>
-            <i className="fas fa-lock mr-2"></i>
+            <Lock className="w-4 h-4 mr-2" />
             Start Premium Adventure
           </>
         )}
       </Button>
       <p className="text-center text-muted-foreground text-sm">
-        <i className="fas fa-shield-alt mr-1"></i>
+        <Shield className="w-4 h-4 mr-1" />
         Secure payment • Cancel anytime • 7-day free trial
       </p>
     </form>
@@ -148,7 +149,7 @@ export default function Subscribe() {
               onClick={() => setLocation("/")}
               data-testid="button-back"
             >
-              <i className="fas fa-arrow-left mr-2"></i>
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
             <h1 className="text-xl font-bold" data-testid="text-page-title">
@@ -220,27 +221,27 @@ export default function Subscribe() {
               <CardContent>
                 <ul className="space-y-3">
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-3"></i>
+                    <Check className="w-4 h-4 text-white mr-3" />
                     <span>All 4 characters (Red Boot, Ray Ray, Salty, Ocean Blue)</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-3"></i>
+                    <Check className="w-4 h-4 text-white mr-3" />
                     <span>Unlimited word lists</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-3"></i>
+                    <Check className="w-4 h-4 text-white mr-3" />
                     <span>Advanced progress analytics</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-3"></i>
+                    <Check className="w-4 h-4 text-white mr-3" />
                     <span>Photo word list capture</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-3"></i>
+                    <Check className="w-4 h-4 text-white mr-3" />
                     <span>Test simulator with voice recording</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-3"></i>
+                    <Check className="w-4 h-4 text-white mr-3" />
                     <span>Priority support</span>
                   </li>
                 </ul>
@@ -251,7 +252,7 @@ export default function Subscribe() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center" data-testid="text-characters-title">
-                  <i className="fas fa-users mr-2 text-secondary"></i>
+                  <Users className="w-4 h-4 mr-2 text-secondary" />
                   Meet Your Crew
                 </CardTitle>
               </CardHeader>
@@ -259,28 +260,28 @@ export default function Subscribe() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-pirate-50 rounded-lg">
                     <div className="w-12 h-12 bg-pirate-400 rounded-full mx-auto mb-2 flex items-center justify-center">
-                      <i className="fas fa-hat-cowboy text-pirate-50"></i>
+                      <Crown className="w-6 h-6 text-pirate-50" />
                     </div>
                     <div className="font-bold text-sm">Red Boot</div>
                     <div className="text-xs text-muted-foreground">Free • Wild Captain</div>
                   </div>
                   <div className="text-center p-3 bg-ocean-50 rounded-lg border-2 border-accent">
                     <div className="w-12 h-12 bg-ocean-400 rounded-full mx-auto mb-2 flex items-center justify-center">
-                      <i className="fas fa-fish text-ocean-50"></i>
+                      <Fish className="w-6 h-6 text-ocean-50" />
                     </div>
                     <div className="font-bold text-sm">Ray Ray</div>
                     <div className="text-xs text-accent font-medium">Premium • Gentle Guide</div>
                   </div>
                   <div className="text-center p-3 bg-amber-50 rounded-lg border-2 border-accent">
                     <div className="w-12 h-12 bg-amber-400 rounded-full mx-auto mb-2 flex items-center justify-center">
-                      <i className="fas fa-dog text-amber-50"></i>
+                      <Dog className="w-6 h-6 text-amber-50" />
                     </div>
                     <div className="font-bold text-sm">Salty</div>
                     <div className="text-xs text-accent font-medium">Premium • Puppy Friend</div>
                   </div>
                   <div className="text-center p-3 bg-blue-50 rounded-lg border-2 border-accent">
                     <div className="w-12 h-12 bg-blue-400 rounded-full mx-auto mb-2 flex items-center justify-center">
-                      <i className="fas fa-telescope text-blue-50"></i>
+                      <Telescope className="w-6 h-6 text-blue-50" />
                     </div>
                     <div className="font-bold text-sm">Ocean Blue</div>
                     <div className="text-xs text-accent font-medium">Premium • Smart Explorer</div>
@@ -295,7 +296,7 @@ export default function Subscribe() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-center" data-testid="text-payment-title">
-                  <i className="fas fa-credit-card mr-2 text-treasure-500"></i>
+                  <CreditCard className="w-4 h-4 mr-2 text-treasure-500" />
                   Payment Information
                 </CardTitle>
                 <p className="text-center text-muted-foreground text-sm">
@@ -312,7 +313,7 @@ export default function Subscribe() {
             {/* Security Badges */}
             <div className="flex justify-center space-x-4">
               <Badge variant="secondary" className="px-3 py-1">
-                <i className="fas fa-shield-alt mr-1"></i>
+                <Shield className="w-4 h-4 mr-1" />
                 SSL Secured
               </Badge>
               <Badge variant="secondary" className="px-3 py-1">

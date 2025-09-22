@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Play, Volume2, SkipBack, SkipForward, Clock } from "lucide-react";
 import type { Child, WordList } from "@shared/schema";
 
 export default function TestSimulator() {
@@ -146,7 +147,7 @@ export default function TestSimulator() {
               onClick={() => setLocation("/")}
               data-testid="button-back"
             >
-              <i className="fas fa-arrow-left mr-2"></i>
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
             <h1 className="text-xl font-bold" data-testid="text-page-title">
@@ -325,7 +326,7 @@ export default function TestSimulator() {
                     className="bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-3"
                     data-testid="button-start-test"
                   >
-                    <i className="fas fa-play mr-2"></i>
+                    <Play className="w-4 h-4 mr-2" />
                     Start Test
                   </Button>
                 </div>
@@ -343,7 +344,7 @@ export default function TestSimulator() {
                   </h4>
                   <div className="w-24 h-24 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer"
                        onClick={() => speakWord(words[currentWordIndex])}>
-                    <i className="fas fa-volume-up text-primary-foreground text-2xl"></i>
+                    <Volume2 className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <p className="text-muted-foreground" data-testid="text-listen-instruction">
                     Listen carefully and write the word
@@ -370,7 +371,7 @@ export default function TestSimulator() {
                     className="flex-1"
                     data-testid="button-previous-word"
                   >
-                    <i className="fas fa-backward mr-2"></i>Previous
+                    <SkipBack className="w-4 h-4 mr-2" />Previous
                   </Button>
                   <Button 
                     variant="outline"
@@ -386,13 +387,13 @@ export default function TestSimulator() {
                     data-testid="button-next-word"
                   >
                     {currentWordIndex === words.length - 1 ? "Finish" : "Next"}
-                    <i className="fas fa-forward ml-2"></i>
+                    <SkipForward className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
 
                 <div className="text-center">
                   <div className="inline-flex items-center space-x-2 bg-muted rounded-full px-4 py-2">
-                    <i className="fas fa-clock text-muted-foreground"></i>
+                    <Clock className="w-4 h-4 text-muted-foreground" />
                     <span className="font-bold text-foreground" data-testid="text-timer">
                       0:{timeRemaining.toString().padStart(2, '0')}
                     </span>
