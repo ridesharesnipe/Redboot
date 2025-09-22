@@ -1,0 +1,67 @@
+## **Complete Replit Agent Prompt for Your Spelling App**
+
+```
+I have a React spelling app with a pirate theme for kids to practice weekly school spelling tests. 
+Streamline it to this exact simple flow based on proven memory research:
+
+PARENT SETUP (Monday, 30 seconds):
+1. Add simple camera/upload button for parent to photograph the spelling word list from school
+2. Use Tesseract.js OCR to extract words from the image
+3. Show extracted words in an editable list for parent to verify/correct any OCR errors
+4. Save to localStorage as 'currentWeekWords' with structure: {words: [], practiceData: {}, weekStart: Date}
+5. Automatically clear and prompt for new words each Monday
+
+DAILY PRACTICE (5-10 minutes):
+Use research-proven active recall + spaced repetition method:
+
+1. Select 10 words automatically using this algorithm:
+   - New words (never practiced): Show daily
+   - Learning words (correct 1-2 times): Show every 2 days  
+   - Mastered words (correct 3+ times): Show once before Friday
+   - Trouble words (wrong yesterday): Show today
+
+2. For each word:
+   - Captain Red Boot says the word clearly using speech synthesis
+   - Child types the spelling (cannot see the word)
+   - If CORRECT: Play treasure chest sound, show gold coins animation, mark word with correctCount++
+   - If WRONG: Play gentle "try again" sound, show correct spelling for 3 seconds in large letters, then have child retype it
+   - Track: {word, correctCount, lastPracticed, totalAttempts}
+
+3. End of practice:
+   - Show treasure earned (1 coin per correct answer)
+   - Red Boot says encouraging phrase
+   - Save all progress to localStorage
+
+FRIDAY TEST MODE:
+1. Simulate real spelling test conditions:
+   - Red Boot says each word once
+   - No visual hints or second chances
+   - Child types and moves to next word
+   - At end: Show score (8/10 correct) and which words were missed
+   - If 100%: Big celebration with Red Boot saying "Perfect score, ye magnificent pirate!"
+
+PARENT PROGRESS VIEW:
+Simple icon in corner that shows:
+- This week's words with color dots (green=mastered, yellow=learning, red=needs work)
+- Days practiced this week (Mon✓ Tue✓ Wed...)  
+- "Ready for test?" indicator based on practice data
+
+TECHNICAL REQUIREMENTS:
+- Keep existing AudioContext for sounds and voices (just use these 4 sounds: treasure_chest_open, spell_incorrect, ship_bell_success, cannon_achievement)
+- Use existing pirate character voices but reduce to just 2 variations per event
+- Store everything in localStorage (no backend needed)
+- Make it work perfectly on mobile phones (parents will use their phones to photograph lists)
+- Remove all these features: multiple game modes, complex progression systems, focus mode toggle, multiple difficulty levels, photo history, collaboration features
+- Keep the app under 500KB total
+
+UI SIMPLIFICATION:
+- Main screen: Just big "Start Practice" button and treasure count
+- Practice screen: Just input field and skip button
+- Parent setup: Just camera button and word list verification
+- Remove all other screens and navigation
+
+The key is making this dead simple: Parent snaps photo Monday → Kid practices daily with smart spaced repetition → Ready for Friday test. 
+No configuration, no options, just one proven method that works.
+```
+
+This single prompt tells Replit Agent exactly what to build - a streamlined, research-backed spelling practice app that solves the real problem parents face every week.
