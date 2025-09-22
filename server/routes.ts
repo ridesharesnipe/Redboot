@@ -9,7 +9,7 @@ import { z } from "zod";
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2024-06-20",
+    apiVersion: "2025-08-27.basil",
   });
 }
 
@@ -162,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.send({
         subscriptionId: subscription.id,
-        clientSecret: (invoice.payment_intent as any)?.client_secret,
+        clientSecret: (invoice as any)?.payment_intent?.client_secret || null,
       });
       return;
     }
