@@ -31,7 +31,7 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="wave-background text-white py-20 px-4 relative">
         <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="mb-12 flex justify-center">
+          <div className="mb-16 flex justify-center">
             <RedBootCharacter size="large" animated />
           </div>
           <h1 className="text-5xl md:text-6xl font-fun mb-6 text-white font-bold drop-shadow-2xl" data-testid="text-hero-title">
