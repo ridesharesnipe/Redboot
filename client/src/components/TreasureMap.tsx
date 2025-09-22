@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
+import { Check, MapPin, Lock } from "lucide-react";
 import type { WordList, Progress } from "@shared/schema";
 
 interface TreasureMapProps {
@@ -54,13 +55,13 @@ export default function TreasureMap({ wordLists, progress, childId }: TreasureMa
                     }`}
                     data-testid={`week-${weekNumber}-${status}`}
                   >
-                    <i className={`text-xl ${
-                      status === 'completed' 
-                        ? 'fas fa-check text-secondary-foreground' 
-                        : status === 'current' 
-                        ? 'fas fa-map-marker-alt text-accent-foreground' 
-                        : 'fas fa-lock text-muted-foreground'
-                    }`}></i>
+                    {status === 'completed' ? (
+                      <Check className="w-6 h-6 text-secondary-foreground" />
+                    ) : status === 'current' ? (
+                      <MapPin className="w-6 h-6 text-accent-foreground" />
+                    ) : (
+                      <Lock className="w-6 h-6 text-muted-foreground" />
+                    )}
                   </div>
                 </Link>
                 <h4 className={`font-bold text-sm ${

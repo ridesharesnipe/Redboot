@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { Anchor, Coins, Map, Flag, Compass, Swords, Gem, TreePine } from "lucide-react";
 
 interface PirateFlashcardProps {
   word: string;
@@ -76,10 +77,18 @@ export default function PirateFlashcard({
       )}>
         {/* Treasure Map Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-2 left-2 text-amber-800 text-xs">⚓</div>
-          <div className="absolute top-2 right-2 text-amber-800 text-xs">🧭</div>
-          <div className="absolute bottom-2 left-2 text-amber-800 text-xs">⚔️</div>
-          <div className="absolute bottom-2 right-2 text-amber-800 text-xs">💰</div>
+          <div className="absolute top-2 left-2 text-amber-800 text-xs">
+            <Anchor className="w-3 h-3" />
+          </div>
+          <div className="absolute top-2 right-2 text-amber-800 text-xs">
+            <Compass className="w-3 h-3" />
+          </div>
+          <div className="absolute bottom-2 left-2 text-amber-800 text-xs">
+            <Swords className="w-3 h-3" />
+          </div>
+          <div className="absolute bottom-2 right-2 text-amber-800 text-xs">
+            <Coins className="w-3 h-3" />
+          </div>
         </div>
 
         {/* Aged Paper Effect */}
@@ -115,10 +124,18 @@ export default function PirateFlashcard({
       )}>
         {/* Treasure Map Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-2 left-2 text-emerald-800 text-xs">🗺️</div>
-          <div className="absolute top-2 right-2 text-emerald-800 text-xs">🏴‍☠️</div>
-          <div className="absolute bottom-2 left-2 text-emerald-800 text-xs">💎</div>
-          <div className="absolute bottom-2 right-2 text-emerald-800 text-xs">🏝️</div>
+          <div className="absolute top-2 left-2 text-emerald-800 text-xs">
+            <Map className="w-3 h-3" />
+          </div>
+          <div className="absolute top-2 right-2 text-emerald-800 text-xs">
+            <Flag className="w-3 h-3" />
+          </div>
+          <div className="absolute bottom-2 left-2 text-emerald-800 text-xs">
+            <Gem className="w-3 h-3" />
+          </div>
+          <div className="absolute bottom-2 right-2 text-emerald-800 text-xs">
+            <TreePine className="w-3 h-3" />
+          </div>
         </div>
 
         {/* Content */}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAudio } from "@/contexts/AudioContext";
+import { Flag } from "lucide-react";
 import redBootSplash from "@assets/1758566743495_1758576984375.jpg";
 
 interface SplashScreenProps {
@@ -107,7 +108,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Pirate-themed loading text */}
         <div className="mb-6">
           <p className="text-2xl md:text-3xl text-white font-bold drop-shadow-lg font-sans">
-            🏴‍☠️ Preparing the ship for adventure... 🏴‍☠️
+            <div className="flex items-center gap-2">
+              <Flag className="w-5 h-5" />
+              Preparing the ship for adventure...
+              <Flag className="w-5 h-5" />
+            </div>
           </p>
         </div>
 
