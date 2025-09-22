@@ -32,8 +32,14 @@ export default function RedBootCharacter({
         alt="Red Boot the Pirate Captain"
         className={cn(
           sizeClasses[size],
-          "object-contain drop-shadow-xl"
+          "object-contain drop-shadow-2xl"
         )}
+        style={{
+          background: 'transparent',
+          filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
+          maskImage: 'radial-gradient(circle at 50% 45%, black 35%, transparent 50%)',
+          WebkitMaskImage: 'radial-gradient(circle at 50% 45%, black 35%, transparent 50%)'
+        }}
       />
       
       {/* Character name label for large size */}
