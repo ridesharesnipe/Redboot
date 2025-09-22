@@ -27,6 +27,10 @@ export default function PhotoCapturePage() {
     onSuccess: (data) => {
       setExtractedWords(data.words);
       setIsProcessing(false);
+      
+      // Save words to localStorage for the game to use
+      localStorage.setItem('spellingWords', JSON.stringify(data.words));
+      
       toast({
         title: "Treasure Maps Created!",
         description: `Ahoy! Found ${data.words.length} treasure words in your photo!`,
@@ -74,12 +78,14 @@ export default function PhotoCapturePage() {
   };
 
   const handleStartPractice = () => {
-    // Navigate to game with these words
+    // Save words to localStorage and navigate to game
+    localStorage.setItem('spellingWords', JSON.stringify(extractedWords));
+    
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",
     });
-    setLocation("/game");
+    setLocation("/game/1"); // Use a dummy childId for now
   };
 
   const removeWord = (wordToRemove: string) => {
