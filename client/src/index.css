@@ -121,24 +121,299 @@
   50% { transform: translateY(-10px); }
 }
 
-.wave-background {
-  background: linear-gradient(135deg, #0891b2 0%, #0369a1 50%, #1e40af 100%);
+/* Ocean Hero Background */
+.ocean-hero {
   position: relative;
   overflow: hidden;
-  background-image: 
-    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  min-height: 100vh;
+  background: linear-gradient(to bottom, 
+    #87CEEB 0%,     /* Sky blue */
+    #4682B4 30%,    /* Steel blue */
+    #1e3a8a 60%,    /* Deep blue */
+    #0c4a6e 100%    /* Ocean deep */
+  );
 }
 
-.wave-background::before {
+/* Animated waves */
+.ocean-hero::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.8) 0%, rgba(3, 105, 161, 0.9) 50%, rgba(30, 64, 175, 0.95) 100%);
-  pointer-events: none;
+  left: 0;
+  width: 200%;
+  height: 200px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23ffffff20"></path></svg>') repeat-x;
+  animation: wave 10s linear infinite;
+  opacity: 0.6;
+}
+
+.ocean-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 150px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" fill="%23ffffff40"></path></svg>') repeat-x;
+  animation: wave-reverse 8s linear infinite;
+  opacity: 0.4;
+}
+
+@keyframes wave {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes wave-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Beautiful tropical island */
+.ocean-island {
+  position: absolute;
+  right: 8%;
+  bottom: 12%;
+  width: 200px;
+  height: 120px;
+  background: linear-gradient(135deg, #90EE90 0%, #32CD32 50%, #228B22 100%);
+  border-radius: 60% 40% 80% 20% / 50% 60% 40% 50%;
+  z-index: 2;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Palm tree trunk */
+.ocean-island::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 60%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 70px;
+  background: linear-gradient(to right, #D2691E 0%, #8B4513 50%, #654321 100%);
+  border-radius: 8px;
+  box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Palm fronds */
+.ocean-island::after {
+  content: '';
+  position: absolute;
+  top: -55px;
+  left: 60%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 30px;
+  background: radial-gradient(ellipse at center, #32CD32 0%, #228B22 70%);
+  border-radius: 50%;
+  box-shadow: 
+    -25px -8px 0 -5px #32CD32,
+    25px -8px 0 -5px #32CD32,
+    -35px -20px 0 -8px #228B22,
+    35px -20px 0 -8px #228B22,
+    0 -25px 0 -5px #32CD32;
+}
+
+/* Beautiful treasure chest on beach */
+.ocean-treasure {
+  position: absolute;
+  left: 12%;
+  bottom: 18%;
+  width: 90px;
+  height: 60px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #DAA520 100%);
+  border-radius: 12px;
+  z-index: 3;
+  animation: treasure-sparkle 4s ease-in-out infinite;
+  border: 3px solid #B8860B;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+}
+
+/* Treasure chest lid */
+.ocean-treasure::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -3px;
+  right: -3px;
+  height: 25px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border-radius: 12px 12px 6px 6px;
+  border: 3px solid #B8860B;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Treasure chest lock and sparkles */
+.ocean-treasure::after {
+  content: '✨';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  animation: float 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+@keyframes treasure-sparkle {
+  0%, 100% { 
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.2); 
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.4); 
+    transform: scale(1.05);
+  }
+}
+
+/* Colorful tropical fish */
+.ocean-fish {
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  z-index: 2;
+}
+
+.ocean-fish-1 {
+  right: -80px;
+  animation: fish-swim-1 18s linear infinite;
+}
+
+.ocean-fish-2 {
+  right: -80px;
+  animation: fish-swim-2 22s linear infinite;
+  animation-delay: -8s;
+}
+
+.ocean-fish-3 {
+  right: -80px;
+  animation: fish-swim-3 16s linear infinite;
+  animation-delay: -15s;
+}
+
+/* Orange clownfish */
+.ocean-fish-1::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 50px;
+  height: 24px;
+  background: linear-gradient(135deg, #FF6347 0%, #FF4500 50%, #FF8C00 100%);
+  border-radius: 25px 5px 25px 5px;
+  border: 2px solid #FFD700;
+}
+
+.ocean-fish-1::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 0;
+  height: 0;
+  border-left: 20px solid #FF6347;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+}
+
+/* Blue tang fish */
+.ocean-fish-2::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  width: 55px;
+  height: 28px;
+  background: linear-gradient(135deg, #4169E1 0%, #0000FF 50%, #1E90FF 100%);
+  border-radius: 30px 8px 30px 8px;
+  border: 2px solid #00BFFF;
+}
+
+.ocean-fish-2::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  width: 0;
+  height: 0;
+  border-left: 22px solid #4169E1;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+}
+
+/* Yellow tropical fish */
+.ocean-fish-3::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  width: 45px;
+  height: 20px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFFF00 50%, #FFA500 100%);
+  border-radius: 20px 3px 20px 3px;
+  border: 2px solid #FF6347;
+}
+
+.ocean-fish-3::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 0;
+  height: 0;
+  border-left: 18px solid #FFD700;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+}
+
+@keyframes fish-swim-1 {
+  0% { right: -80px; top: 55%; }
+  25% { top: 50%; }
+  50% { top: 58%; }
+  75% { top: 52%; }
+  100% { right: 110%; top: 60%; }
+}
+
+@keyframes fish-swim-2 {
+  0% { right: -80px; top: 65%; }
+  25% { top: 70%; }
+  50% { top: 62%; }
+  75% { top: 68%; }
+  100% { right: 110%; top: 58%; }
+}
+
+@keyframes fish-swim-3 {
+  0% { right: -80px; top: 72%; }
+  25% { top: 68%; }
+  50% { top: 75%; }
+  75% { top: 70%; }
+  100% { right: 110%; top: 65%; }
+}
+
+/* Children's book style icons */
+.sticker-icon {
+  @apply rounded-2xl ring-4 ring-white shadow-xl p-4 transform transition-all duration-200;
+}
+
+.sticker-icon:hover {
+  @apply scale-110 shadow-2xl;
+}
+
+.sticker-camera {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+}
+
+.sticker-adventure {
+  background: linear-gradient(135deg, #4ECDC4 0%, #7FDBDA 100%);
+}
+
+.sticker-progress {
+  background: linear-gradient(135deg, #FFE66D 0%, #FFF29E 100%);
+}
+
+.sticker-nav {
+  background: linear-gradient(135deg, #A8E6CF 0%, #C8F7C5 100%);
 }
 
 /* Font Utilities */

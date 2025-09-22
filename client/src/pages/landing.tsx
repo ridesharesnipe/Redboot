@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
-import { Compass, Telescope, Swords, MapPin } from "lucide-react";
+import OceanBlueCharacter from "@/components/OceanBlueCharacter";
+import SaltyCharacter from "@/components/SaltyCharacter";
+import RayRayCharacter from "@/components/RayRayCharacter";
+import { Camera, Swords, Map, Users } from "lucide-react";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -10,29 +13,41 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="bg-card border-b border-border px-4 py-3 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
-              <Compass className="text-secondary-foreground w-5 h-5" />
+      {/* Hero Section with Ocean Background */}
+      <section className="ocean-hero text-white py-20 px-4 relative">
+        {/* Ocean elements */}
+        <div className="ocean-island"></div>
+        <div className="ocean-treasure"></div>
+        <div className="ocean-fish ocean-fish-1"></div>
+        <div className="ocean-fish ocean-fish-2"></div>
+        <div className="ocean-fish ocean-fish-3"></div>
+        
+        {/* Floating Navigation */}
+        <nav className="absolute top-4 left-4 right-4 z-20">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
+              <div className="sticker-icon sticker-nav w-8 h-8 p-1 flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.8"/>
+                  <path d="M12 8l4 8H8z" fill="white"/>
+                </svg>
+              </div>
+              <h1 className="font-pirate text-lg text-white drop-shadow-lg">Red Boot's Adventure</h1>
             </div>
-            <h1 className="font-pirate text-xl text-primary">Red Boot's Adventure</h1>
+            <Button 
+              onClick={handleLogin}
+              className="bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-2xl font-bold hover:bg-white/30 transition-all shadow-lg border border-white/30"
+              data-testid="button-login"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
+                <path d="M12 2l3 7h7l-6 5 2 7-6-5-6 5 2-7-6-5h7z" fill="currentColor"/>
+              </svg>
+              Start Adventure
+            </Button>
           </div>
-          <Button 
-            onClick={handleLogin}
-            className="bg-accent text-accent-foreground hover:bg-accent/90"
-            data-testid="button-login"
-          >
-            <i className="fas fa-crown mr-2"></i>Start Adventure
-          </Button>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="wave-background text-white py-20 px-4 relative">
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="mb-16 flex justify-center">
+        </nav>
+        <div className="max-w-6xl mx-auto text-center relative z-10 pt-16">
+          <div className="mb-20 flex justify-center">
             <RedBootCharacter size="large" animated />
           </div>
           <h1 className="text-5xl md:text-6xl font-fun mb-6 text-white font-bold drop-shadow-2xl" data-testid="text-hero-title">
@@ -44,69 +59,124 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
               onClick={handleLogin}
-              className="bg-treasure-500 text-treasure-50 px-8 py-4 rounded-xl font-bold text-lg hover:bg-treasure-600 transition-all transform hover:scale-105 shadow-lg"
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-xl border-4 border-white/30"
               size="lg"
               data-testid="button-start-adventure"
             >
-              <i className="fas fa-ship mr-2"></i>Start Adventure
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="mr-2">
+                <path d="M3 18h18l-9-15z" fill="currentColor" opacity="0.8"/>
+                <path d="M12 8v6M8 12h8" stroke="white" strokeWidth="2"/>
+              </svg>
+              Start Adventure
             </Button>
             <Button 
               variant="outline" 
-              className="border-2 border-white bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-blue-600 transition-all shadow-lg"
+              className="border-4 border-white bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-blue-600 transition-all shadow-xl"
               size="lg"
               data-testid="button-watch-demo"
             >
-              <i className="fas fa-play mr-2"></i>Watch Demo
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="mr-2">
+                <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.8"/>
+                <path d="M10 8l6 4-6 4z" fill="white"/>
+              </svg>
+              Watch Demo
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 bg-muted">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-fun text-center text-foreground mb-12" data-testid="text-features-title">
-            Treasure Hunt Features
+      {/* Character Crew Section */}
+      <section className="py-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-4xl font-fun text-foreground mb-6" data-testid="text-crew-title">
+            Meet Your Pirate Crew!
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+          <p className="text-xl text-gray-600 mb-12">Join Red Boot and his friends on the greatest spelling adventure!</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="mb-4">
+                <RedBootCharacter size="medium" animated />
+              </div>
+              <h3 className="font-bold text-lg text-green-700 mb-2">Red Boot</h3>
+              <p className="text-sm text-gray-600">The Brave Captain</p>
+              <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">FREE</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="mb-4">
+                <OceanBlueCharacter size="medium" animated />
+              </div>
+              <h3 className="font-bold text-lg text-purple-700 mb-2">Ocean Blue</h3>
+              <p className="text-sm text-gray-600">Smart Explorer</p>
+              <div className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">PREMIUM</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="mb-4">
+                <SaltyCharacter size="medium" animated />
+              </div>
+              <h3 className="font-bold text-lg text-amber-700 mb-2">Salty</h3>
+              <p className="text-sm text-gray-600">Loyal Companion</p>
+              <div className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">PREMIUM</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="mb-4">
+                <RayRayCharacter size="medium" animated />
+              </div>
+              <h3 className="font-bold text-lg text-cyan-700 mb-2">Ray Ray</h3>
+              <p className="text-sm text-gray-600">Ocean Guide</p>
+              <div className="bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">PREMIUM</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-white to-green-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-fun text-center text-foreground mb-16" data-testid="text-features-title">
+            Amazing Pirate Features
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-green-300 bg-gradient-to-br from-green-100 via-emerald-50 to-white relative overflow-hidden">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <Telescope className="text-accent-foreground w-8 h-8" />
+                <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-green-200">
+                  <Camera className="text-white w-12 h-12" strokeWidth={2.5} />
                 </div>
-                <h3 className="font-bold text-lg mb-2" data-testid="text-feature-photo-title">
+                <h3 className="font-bold text-2xl mb-4 text-green-800" data-testid="text-feature-photo-title">
                   Photo Capture
                 </h3>
-                <p className="text-muted-foreground" data-testid="text-feature-photo-desc">
-                  Take photos of spelling homework and automatically extract word lists
+                <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-photo-desc">
+                  Snap photos of homework with Red Boot's magic camera and watch spelling words appear like treasure!
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+            <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-50 to-white relative overflow-hidden">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-secondary rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <Swords className="text-secondary-foreground w-8 h-8" />
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-purple-200">
+                  <Swords className="text-white w-12 h-12" strokeWidth={2.5} />
                 </div>
-                <h3 className="font-bold text-lg mb-2" data-testid="text-feature-game-title">
-                  Pirate Adventure
+                <h3 className="font-bold text-2xl mb-4 text-purple-800" data-testid="text-feature-game-title">
+                  Epic Adventures
                 </h3>
-                <p className="text-muted-foreground" data-testid="text-feature-game-desc">
-                  Practice spelling with Red Boot in exciting treasure hunt adventures
+                <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-game-desc">
+                  Battle spelling monsters with Ocean Blue and discover hidden treasures across magical islands!
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+            <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-cyan-300 bg-gradient-to-br from-cyan-100 via-blue-50 to-white relative overflow-hidden">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <MapPin className="text-primary-foreground w-8 h-8" />
+                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-cyan-200">
+                  <Map className="text-white w-12 h-12" strokeWidth={2.5} />
                 </div>
-                <h3 className="font-bold text-lg mb-2" data-testid="text-feature-progress-title">
-                  Progress Tracking
+                <h3 className="font-bold text-2xl mb-4 text-cyan-800" data-testid="text-feature-progress-title">
+                  Treasure Maps
                 </h3>
-                <p className="text-muted-foreground" data-testid="text-feature-progress-desc">
-                  Watch progress on interactive treasure maps with achievements
+                <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-progress-desc">
+                  Follow Ray Ray through underwater adventures and track your spelling progress on magical treasure maps!
                 </p>
               </CardContent>
             </Card>
@@ -115,30 +185,38 @@ export default function Landing() {
       </section>
 
       {/* Pricing Preview */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-fun text-foreground mb-8" data-testid="text-pricing-title">
+          <h2 className="text-4xl font-fun text-foreground mb-12" data-testid="text-pricing-title">
             Choose Your Adventure
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="p-6 border-2 border-border">
+            <Card className="p-8 border-4 border-blue-200 bg-gradient-to-b from-blue-50 to-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <CardContent className="pt-6">
-                <h3 className="text-xl font-bold mb-2" data-testid="text-plan-free-title">Free Adventure</h3>
-                <div className="text-3xl font-bold text-foreground mb-4" data-testid="text-plan-free-price">$0</div>
-                <ul className="text-left space-y-2 mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-blue-700" data-testid="text-plan-free-title">Free Adventure</h3>
+                <div className="text-4xl font-bold text-blue-600 mb-6" data-testid="text-plan-free-price">$0</div>
+                <ul className="text-left space-y-3 mb-8">
                   <li className="flex items-center">
-                    <i className="fas fa-check text-secondary mr-2"></i>
-                    Red Boot character
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span className="text-gray-700">Red Boot character</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-secondary mr-2"></i>
-                    1 word list per week
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span className="text-gray-700">1 word list per week</span>
                   </li>
                 </ul>
                 <Button 
                   onClick={handleLogin}
                   variant="outline" 
-                  className="w-full"
+                  className="w-full py-3 text-lg font-bold border-2 border-blue-400 text-blue-600 hover:bg-blue-50 rounded-xl"
                   data-testid="button-free-plan"
                 >
                   Start Free
@@ -146,27 +224,42 @@ export default function Landing() {
               </CardContent>
             </Card>
 
-            <Card className="p-6 bg-gradient-to-br from-treasure-400 to-treasure-600 text-treasure-50">
-              <CardContent className="pt-6">
-                <h3 className="text-xl font-bold mb-2" data-testid="text-plan-premium-title">Premium Adventure</h3>
-                <div className="text-3xl font-bold mb-4" data-testid="text-plan-premium-price">$2.99/mo</div>
-                <ul className="text-left space-y-2 mb-6">
+            <Card className="p-8 bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white border-4 border-yellow-300 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
+              <div className="absolute top-2 right-2 bg-white text-orange-500 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                ⭐ POPULAR
+              </div>
+              <CardContent className="pt-6 relative z-10">
+                <h3 className="text-2xl font-bold mb-4" data-testid="text-plan-premium-title">Premium Adventure</h3>
+                <div className="text-4xl font-bold mb-6" data-testid="text-plan-premium-price">$2.99/mo</div>
+                <ul className="text-left space-y-3 mb-8">
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-2"></i>
-                    All 4 characters
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12l2 2 4-4" stroke="orange" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span>All 4 characters</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-2"></i>
-                    Unlimited word lists
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12l2 2 4-4" stroke="orange" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span>Unlimited word lists</span>
                   </li>
                   <li className="flex items-center">
-                    <i className="fas fa-check text-white mr-2"></i>
-                    Advanced analytics
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12l2 2 4-4" stroke="orange" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span>Advanced analytics</span>
                   </li>
                 </ul>
                 <Button 
                   onClick={handleLogin}
-                  className="w-full bg-white text-treasure-600 hover:bg-treasure-50"
+                  className="w-full py-3 text-lg font-bold bg-white text-orange-600 hover:bg-yellow-50 rounded-xl shadow-lg border-2 border-white"
                   data-testid="button-premium-plan"
                 >
                   Start 7-Day Free Trial
