@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
@@ -6,18 +6,36 @@ import OceanBlueCharacter from "@/components/OceanBlueCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
 import RayRayCharacter from "@/components/RayRayCharacter";
 import DemoModal from "@/components/DemoModal";
+import { useAudio } from "@/contexts/AudioContext";
 import { Camera, Swords, Map, Users } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 
 export default function Landing() {
   const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const { playSound, startBackgroundMusic, playCharacterVoice } = useAudio();
+
+  // Start ocean ambient music when landing page loads
+  useEffect(() => {
+    startBackgroundMusic('ocean_ambient');
+    // Red Boot welcome message
+    const timer = setTimeout(() => {
+      playCharacterVoice('red_boot_welcome');
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [startBackgroundMusic, playCharacterVoice]);
 
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    playSound('anchor_button_click');
+    playCharacterVoice('red_boot_ahoy');
+    setTimeout(() => {
+      window.location.href = "/api/login";
+    }, 500);
   };
 
   const handleDemo = () => {
+    playSound('compass_navigation');
     setIsDemoOpen(true);
   };
 

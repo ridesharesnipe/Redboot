@@ -12,6 +12,7 @@ import PhotoCapture from "@/pages/photo-capture";
 import TestSimulator from "@/pages/test-simulator";
 import Subscribe from "@/pages/subscribe";
 import NotFound from "@/pages/not-found";
+import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -38,10 +39,13 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AudioProvider>
+        <TooltipProvider>
+          <Toaster />
+          <AudioControls />
+          <Router />
+        </TooltipProvider>
+      </AudioProvider>
     </QueryClientProvider>
   );
 }
