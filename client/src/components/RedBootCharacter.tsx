@@ -68,7 +68,7 @@ export default function RedBootCharacter({
               ? 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))'
               : 'drop-shadow(0 8px 12px rgba(0,0,0,0.4))',
             background: 'transparent',
-            clipPath: 'circle(48% at center)'
+            clipPath: 'circle(50% at center)'
           }}
         />
       </div>
