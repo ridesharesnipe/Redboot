@@ -4,25 +4,25 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(39, 39%, 97%);
-  --foreground: hsl(222, 84%, 5%);
+  --background: hsl(200, 25%, 97%);
+  --foreground: hsl(222, 84%, 4%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222, 84%, 5%);
+  --card-foreground: hsl(222, 84%, 4%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(222, 84%, 5%);
-  --primary: hsl(215, 19%, 35%);
+  --popover-foreground: hsl(222, 84%, 4%);
+  --primary: hsl(205, 60%, 40%);
   --primary-foreground: hsl(210, 40%, 98%);
   --secondary: hsl(160, 84%, 39%);
-  --secondary-foreground: hsl(151, 81%, 96%);
-  --muted: hsl(210, 40%, 96%);
-  --muted-foreground: hsl(215, 16%, 47%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(205, 30%, 95%);
+  --muted-foreground: hsl(215, 16%, 35%);
   --accent: hsl(38, 92%, 50%);
   --accent-foreground: hsl(48, 100%, 96%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(214, 32%, 91%);
-  --input: hsl(214, 32%, 91%);
-  --ring: hsl(215, 19%, 35%);
+  --border: hsl(205, 25%, 88%);
+  --input: hsl(205, 25%, 88%);
+  --ring: hsl(205, 60%, 40%);
   --chart-1: hsl(215, 19%, 35%);
   --chart-2: hsl(160, 84%, 39%);
   --chart-3: hsl(38, 92%, 50%);
@@ -122,10 +122,23 @@
 }
 
 .wave-background {
-  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  background: linear-gradient(135deg, #0891b2 0%, #0369a1 50%, #1e40af 100%);
+  position: relative;
+  overflow: hidden;
   background-image: 
     radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+}
+
+.wave-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.8) 0%, rgba(3, 105, 161, 0.9) 50%, rgba(30, 64, 175, 0.95) 100%);
+  pointer-events: none;
 }
 
 /* Font Utilities */

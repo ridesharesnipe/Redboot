@@ -29,15 +29,15 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="wave-background text-white py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
+      <section className="wave-background text-white py-20 px-4 relative">
+        <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="mb-8 flex justify-center">
             <RedBootCharacter size="large" animated />
           </div>
-          <h1 className="text-5xl md:text-6xl font-fun mb-6" data-testid="text-hero-title">
+          <h1 className="text-5xl md:text-6xl font-fun mb-6 text-white font-bold drop-shadow-2xl" data-testid="text-hero-title">
             Ahoy, Matey!
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-blue-100" data-testid="text-hero-subtitle">
+          <p className="text-xl md:text-2xl mb-8 text-white font-semibold drop-shadow-lg" data-testid="text-hero-subtitle">
             Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -51,7 +51,7 @@ export default function Landing() {
             </Button>
             <Button 
               variant="outline" 
-              className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-primary transition-all"
+              className="border-2 border-white bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-blue-600 transition-all shadow-lg"
               size="lg"
               data-testid="button-watch-demo"
             >
