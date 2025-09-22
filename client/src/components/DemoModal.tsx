@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Camera, FileText, GamepadIcon, Trophy, ChevronLeft, ChevronRight, X } from "lucide-react";
 import RedBootCharacter from "@/components/RedBootCharacter";
+import { useAudio } from "@/contexts/AudioContext";
 
 interface DemoModalProps {
   isOpen: boolean;
@@ -51,17 +52,21 @@ const demoSteps = [
 
 export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const { playSound, playCharacterVoice, startBackgroundMusic, stopBackgroundMusic } = useAudio();
 
   const nextStep = () => {
+    playSound('compass_navigation');
     if (currentStep < demoSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       // On the last step, close modal and return to landing page
+      playSound('ship_bell_success');
       onClose();
     }
   };
 
   const prevStep = () => {
+    playSound('anchor_button_click');
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
@@ -190,7 +195,10 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={onClose}
+                onClick={() => {
+                  playSound('anchor_button_click');
+                  onClose();
+                }}
                 className="h-8 w-8 p-0"
                 data-testid="button-demo-close"
               >
@@ -334,8 +342,12 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               <p className="text-sm text-gray-600 mb-2">Ready to start your adventure?</p>
               <Button
                 onClick={() => {
-                  onClose();
-                  window.location.href = "/api/login";
+                  playSound('cannon_achievement');
+                  playCharacterVoice('red_boot_adventure_complete');
+                  setTimeout(() => {
+                    onClose();
+                    window.location.href = "/api/login";
+                  }, 600);
                 }}
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-bold"
                 data-testid="button-demo-signup"

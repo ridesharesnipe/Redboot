@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import RedBootCharacter from "./RedBootCharacter";
 import { Volume2, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { useAudio } from "@/contexts/AudioContext";
 
 export type WordStatus = "new" | "learning" | "mastered" | "review";
 
@@ -23,6 +24,9 @@ interface SpellingMemoryGameProps {
 }
 
 export default function SpellingMemoryGame({ words, onComplete, onExit }: SpellingMemoryGameProps) {
+  // Audio context
+  const { playSound, playCharacterVoice, setFocusMode } = useAudio();
+  
   // Game state
   const [gamePhase, setGamePhase] = useState<"study" | "recall" | "feedback">("study");
   const [userInput, setUserInput] = useState("");
@@ -67,6 +71,12 @@ export default function SpellingMemoryGame({ words, onComplete, onExit }: Spelli
     }
   }, [gamePhase, currentWord]);
 
+  // Enable focus mode during active spelling recall
+  useEffect(() => {
+    setFocusMode(gamePhase === "recall");
+    return () => setFocusMode(false); // Reset on unmount
+  }, [gamePhase, setFocusMode]);
+
   const speakWord = (word: string) => {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(word);
@@ -97,6 +107,16 @@ export default function SpellingMemoryGame({ words, onComplete, onExit }: Spelli
     setLastResult(isCorrect ? "correct" : "incorrect");
     setGamePhase("feedback");
 
+    // Play appropriate sound effect and character voice
+    if (isCorrect) {
+      playSound('spell_correct');
+      playSound('ship_bell_success', 0.5);
+      playCharacterVoice('red_boot_great_job');
+    } else {
+      playSound('spell_incorrect');
+      playCharacterVoice('red_boot_try_again');
+    }
+
     // Update word progress
     setWordProgress(prev => prev.map(wp => {
       if (wp.word === currentWord) {
@@ -111,8 +131,11 @@ export default function SpellingMemoryGame({ words, onComplete, onExit }: Spelli
           if (updated.correctCount >= 2) {
             if (updated.status === "learning" || updated.status === "new") {
               updated.status = "mastered";
+              // Extra celebration for mastery
+              setTimeout(() => playSound('treasure_chest_open'), 500);
             } else if (updated.status === "review") {
               updated.status = "mastered"; // Review word successfully completed
+              setTimeout(() => playSound('treasure_chest_open'), 500);
             }
           } else if (updated.status === "new") {
             updated.status = "learning";
