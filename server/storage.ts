@@ -85,7 +85,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createChild(child: InsertChild): Promise<Child> {
-    const [newChild] = await db.insert(children).values([child]).returning();
+    const [newChild] = await db.insert(children).values(child).returning();
     return newChild;
   }
 
@@ -113,7 +113,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWordList(wordListData: InsertWordList): Promise<WordList> {
-    const [wordList] = await db.insert(wordLists).values([wordListData]).returning();
+    const [wordList] = await db.insert(wordLists).values(wordListData).returning();
     return wordList;
   }
 
@@ -127,7 +127,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createProgress(progressData: InsertProgress): Promise<Progress> {
-    const [newProgress] = await db.insert(progress).values([progressData]).returning();
+    const [newProgress] = await db.insert(progress).values(progressData).returning();
     return newProgress;
   }
 
