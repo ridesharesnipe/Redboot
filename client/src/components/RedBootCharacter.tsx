@@ -13,9 +13,9 @@ export default function RedBootCharacter({
   className 
 }: RedBootCharacterProps) {
   const sizeClasses = {
-    small: "w-16 h-16",
-    medium: "w-32 h-32",
-    large: "w-64 h-64"
+    small: "w-20 h-20",
+    medium: "w-40 h-40", 
+    large: "w-80 h-80"
   };
 
   return (
@@ -27,20 +27,26 @@ export default function RedBootCharacter({
       )}
       data-testid="character-red-boot"
     >
-      <img 
-        src={redBootImage}
-        alt="Red Boot the Pirate Captain"
+      <div 
         className={cn(
           sizeClasses[size],
-          "object-contain drop-shadow-2xl"
+          "relative overflow-hidden rounded-full"
         )}
         style={{
-          background: 'transparent',
-          filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
-          maskImage: 'radial-gradient(circle at 50% 45%, black 35%, transparent 50%)',
-          WebkitMaskImage: 'radial-gradient(circle at 50% 45%, black 35%, transparent 50%)'
+          background: 'transparent'
         }}
-      />
+      >
+        <img 
+          src={redBootImage}
+          alt="Red Boot the Pirate Captain"
+          className="w-full h-full object-cover"
+          style={{
+            filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
+            mixBlendMode: 'multiply',
+            background: 'transparent'
+          }}
+        />
+      </div>
       
       {/* Character name label for large size */}
       {size === "large" && (
