@@ -537,3 +537,14 @@
 .wave1 { animation-delay: 0s; }
 .wave2 { animation-delay: 1s; left: -50%; }
 .wave3 { animation-delay: 2s; left: -25%; }
+
+/* Red Boot character with clean background */
+.red-boot-clean {
+  /* Remove checkered background by making white/light colors transparent */
+  filter: drop-shadow(8px 8px 0px rgba(0,0,0,0.3));
+  background: transparent;
+  /* Use mix-blend-mode to help remove white background */
+  mix-blend-mode: darken;
+  /* Additional effect to clean the background */
+  image-rendering: crisp-edges;
+}
