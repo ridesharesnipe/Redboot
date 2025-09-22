@@ -55,6 +55,9 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   const nextStep = () => {
     if (currentStep < demoSteps.length - 1) {
       setCurrentStep(currentStep + 1);
+    } else {
+      // On the last step, close modal and return to landing page
+      onClose();
     }
   };
 
@@ -110,12 +113,16 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
           <div className="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-lg border-2 border-purple-200">
             <div className="bg-white p-4 rounded-lg shadow-lg mb-4">
               <div className="text-center mb-4">
-                <div className="w-24 h-24 mx-auto mb-3">
-                  <RedBootCharacter size="medium" expression="thinking" />
-                </div>
                 <div className="bg-purple-100 p-4 rounded-lg mb-4">
-                  <h3 className="text-2xl font-bold text-purple-800 mb-2">ADVENTURE</h3>
-                  <p className="text-purple-600">Study this word carefully!</p>
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <div className="w-16 h-16 flex-shrink-0">
+                      <RedBootCharacter size="small" expression="thinking" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-purple-800 mb-2">ADVENTURE</h3>
+                      <p className="text-purple-600">Study this word carefully!</p>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex justify-center gap-2 mb-3">
                   <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
@@ -135,11 +142,15 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
           <div className="bg-gradient-to-br from-orange-50 to-red-100 p-6 rounded-lg border-2 border-orange-200">
             <div className="bg-white p-4 rounded-lg shadow-lg mb-4">
               <div className="text-center mb-4">
-                <div className="w-24 h-24 mx-auto mb-3">
-                  <RedBootCharacter size="medium" expression="celebrating" />
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <div className="w-16 h-16 flex-shrink-0">
+                    <RedBootCharacter size="small" expression="celebrating" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-orange-800 mb-2">Friday Test Simulation</h3>
+                    <p className="text-orange-600">Listen and spell each word</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-orange-800 mb-2">Friday Test Simulation</h3>
-                <p className="text-orange-600 mb-4">Listen and spell each word</p>
                 <div className="bg-orange-100 p-4 rounded-lg">
                   <p className="text-orange-800 font-medium">🔊 "Spell the word: ADVENTURE"</p>
                   <input 
@@ -335,11 +346,10 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
 
             <Button
               onClick={nextStep}
-              disabled={currentStep === demoSteps.length - 1}
               className="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white"
               data-testid="button-demo-next"
             >
-              Next
+              {currentStep === demoSteps.length - 1 ? "Back to Home" : "Next"}
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
