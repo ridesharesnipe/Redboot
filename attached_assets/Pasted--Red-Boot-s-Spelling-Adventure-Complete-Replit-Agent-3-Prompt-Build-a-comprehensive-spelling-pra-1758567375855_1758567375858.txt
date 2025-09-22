@@ -1,0 +1,242 @@
+# Red Boot's Spelling Adventure - Complete Replit Agent 3 Prompt
+
+Build a comprehensive spelling practice web app called "Red Boot's Spelling Adventure" that maximizes ALL Replit Agent 3 capabilities.
+
+## CORE REQUIREMENTS:
+
+### Authentication & User Management
+- Use **Replit Auth** for parent accounts with social sign-in (Google, GitHub)
+- Allow parents to add multiple children under one account
+- Each child gets their own progress tracking and character unlocks
+- Store all data in Replit's built-in database
+
+### Database Schema (Use Replit Database)
+```
+Users table (auto-created by Replit Auth):
+- id, email, profile
+
+Children table:
+- id, parent_id, name, age, grade
+- unlocked_characters (JSON array)
+- total_points, weekly_streak
+
+WordLists table:
+- id, child_id, week_number, words (JSON array)
+- created_date, test_date
+- practice_count, best_score
+
+Progress table:
+- id, child_id, word_list_id, character_used
+- correct_words, incorrect_words, time_spent
+- completed_at
+```
+
+### Payment Integration (Stripe)
+- Free tier: Red Boot only, 1 word list per week
+- Premium ($2.99/month): All 4 characters, unlimited lists, progress analytics
+- Use Stripe for subscription management
+- 7-day free trial for new users
+
+## FOUR CHARACTER MODES:
+
+### 1. RED BOOT - The Wild Captain (Free)
+```javascript
+// Character personality config
+const redBoot = {
+  name: "Red Boot",
+  voiceStyle: "loud, enthusiastic, pirate accent",
+  animations: {
+    correct: "goldToothSparkle",
+    incorrect: "encouragingWink",
+    streak: "treasureChestOpen"
+  },
+  sounds: {
+    correct: "arrr_success.mp3",
+    incorrect: "try_again_matey.mp3"
+  },
+  mode: "Treasure Hunt Spelling"
+}
+```
+
+Features:
+- Words appear in treasure chests
+- Sword-fighting animation for wrong letters
+- Gold doubloons earned for correct answers
+- Special "ARRR!" sound effects
+
+### 2. RAY RAY - The Gentle Guide (Premium)
+```javascript
+const rayRay = {
+  name: "Ray Ray",
+  voiceStyle: "soft, patient, calming",
+  animations: {
+    correct: "gentleSwim",
+    incorrect: "patientFloat",
+    streak: "bubbleParty"
+  },
+  mode: "Ocean Flow Practice"
+}
+```
+
+Features:
+- Words float by as bubbles
+- Underwater ambiance sounds
+- No time pressure
+- Gentle encouragement messages
+
+### 3. SALTY - The Puppy Friend (Premium)
+```javascript
+const salty = {
+  name: "Salty",
+  voiceStyle: "excited, high-energy, playful",
+  animations: {
+    correct: "tailWag",
+    incorrect: "playfulBounce",
+    streak: "backflip"
+  },
+  mode: "Puppy Power Sprint"
+}
+```
+
+Features:
+- Fetch-the-letters game
+- 60-second speed rounds
+- Bone rewards for streaks
+- Barking celebrations
+
+### 4. OCEAN BLUE - The Smart Explorer (Premium)
+```javascript
+const oceanBlue = {
+  name: "Ocean Blue",
+  voiceStyle: "intelligent, strategic, teaching",
+  animations: {
+    correct: "telescopeSparkle",
+    incorrect: "thoughtfulNod",
+    streak: "rainbowHairGlow"
+  },
+  mode: "Pattern Detective"
+}
+```
+
+Features:
+- Telescope reveals word patterns
+- Color-codes similar endings
+- Teaches spelling rules
+- Strategy tips appear
+
+## KEY FEATURES TO IMPLEMENT:
+
+### Photo-to-Word List (OCR)
+```javascript
+// Use browser camera API
+async function captureSpellingList() {
+  // Take photo of paper list
+  // Use Tesseract.js for OCR
+  // Parse words into array
+  // Save to database
+}
+```
+
+### Weekly Test Simulator
+- Friday Test Mode that mimics real test conditions
+- Parent/teacher voice recording option
+- 10-second pause between words
+- Final score with missed words highlighted
+
+### Progress Visualization
+- Interactive treasure map that fills as child practices
+- Weekly streak counter with pirate badges
+- Character-specific achievements
+- Parent dashboard with analytics
+
+### Gamification System
+```javascript
+const rewards = {
+  points: {
+    correct: 10,
+    streak: 50,
+    perfect: 100
+  },
+  unlocks: {
+    100: "Salty character",
+    250: "Ray Ray character", 
+    500: "Ocean Blue character",
+    1000: "Golden Ship background"
+  }
+}
+```
+
+### Smart Reminders (Automation Agent)
+Create a separate automation that:
+- Sends Thursday evening reminder emails
+- Highlights problem words from practice
+- Suggests which character to use based on child's learning style
+- Friday morning "Good luck!" message
+
+## TECHNICAL IMPLEMENTATION:
+
+### Frontend (React)
+- Mobile-first responsive design
+- Touch/swipe gestures for letter selection
+- Smooth animations using Framer Motion
+- Progressive Web App for offline capability
+
+### Backend
+- RESTful API for word list management
+- WebSocket for real-time progress updates
+- Scheduled jobs for reminder emails
+- Analytics tracking for learning patterns
+
+### Testing Requirements
+- Use Agent 3's automated browser testing
+- Test all 4 character modes
+- Verify payment flow with Stripe test mode
+- Check mobile responsiveness
+- Test offline mode functionality
+
+### Performance Optimizations
+- Lazy load character assets
+- Cache word lists locally
+- Optimize images with WebP
+- Use CDN for audio files
+- Implement virtual scrolling for long word lists
+
+## DEPLOYMENT:
+
+### Production Setup
+- Deploy to Replit with custom domain
+- Set up SSL certificate
+- Configure production database
+- Enable Stripe production mode
+- Set up email service for reminders
+
+### Marketing Landing Page
+Include:
+- Hero section with Red Boot character
+- "How it works" with 3 simple steps
+- Testimonials section (placeholder)
+- Pricing comparison table
+- FAQ section
+- Email capture for newsletter
+
+## SPECIAL INSTRUCTIONS FOR AGENT 3:
+
+1. **Use Extended Thinking** for architecture decisions
+2. **Enable App Testing** to verify all character modes work
+3. **Use Max Autonomy** to build the complete system
+4. **Search web** for best practices in educational apps for kids
+5. **Generate placeholder artwork** for initial version
+6. **Set up Stripe** in test mode initially
+7. **Create seed data** with sample word lists for testing
+
+## SUCCESS METRICS TO TRACK:
+- User registration rate
+- Free to paid conversion
+- Daily active users
+- Average practice time
+- Word accuracy improvement
+- Parent satisfaction score
+
+Build this as a production-ready application that can handle thousands of users, with emphasis on fun, engaging interactions that make spelling practice something kids actually want to do.
+
+IMPORTANT: Start with Red Boot character fully functional, then add other characters incrementally. Focus on making the core spelling practice loop addictive and fun.
