@@ -1,20 +1,24 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import OceanBlueCharacter from "@/components/OceanBlueCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
 import RayRayCharacter from "@/components/RayRayCharacter";
+import DemoModal from "@/components/DemoModal";
 import { Camera, Swords, Map, Users } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 
 export default function Landing() {
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
   const handleLogin = () => {
     window.location.href = "/api/login";
   };
 
   const handleDemo = () => {
-    alert("🏴‍☠️ Ahoy! Welcome to Red Boot's Spelling Adventure demo!\n\n📸 Take photos of your homework\n🎮 Practice spelling with Red Boot and crew\n🏆 Master your words through fun adventures\n\nSign up to start your spelling journey!");
+    setIsDemoOpen(true);
   };
 
   return (
@@ -275,6 +279,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Demo Modal */}
+      <DemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
     </div>
   );
 }
