@@ -42,7 +42,8 @@ export default function OceanBlueCharacter({
           className="w-full h-full object-cover"
           style={{
             filter: 'contrast(1.1) saturate(1.2) drop-shadow(0 8px 12px rgba(0,0,0,0.2))',
-            background: 'transparent'
+            background: 'transparent',
+            mixBlendMode: 'multiply'
           }}
         />
       </div>
