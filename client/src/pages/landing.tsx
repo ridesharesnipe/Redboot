@@ -13,6 +13,10 @@ export default function Landing() {
     window.location.href = "/api/login";
   };
 
+  const handleDemo = () => {
+    alert("🏴‍☠️ Ahoy! Welcome to Red Boot's Spelling Adventure demo!\n\n📸 Take photos of your homework\n🎮 Practice spelling with Red Boot and crew\n🏆 Master your words through fun adventures\n\nSign up to start your spelling journey!");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Ocean Background */}
@@ -22,7 +26,7 @@ export default function Landing() {
         
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="max-w-7xl mx-auto flex items-center justify-center">
             <div className="flex items-center space-x-4 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
               <div className="flex-shrink-0">
                 <img 
@@ -33,16 +37,6 @@ export default function Landing() {
               </div>
               <h1 className="font-fun text-lg text-white drop-shadow-lg whitespace-nowrap">Red Boot's Adventure</h1>
             </div>
-            <Button 
-              onClick={handleLogin}
-              className="bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-2xl font-bold hover:bg-white/30 transition-all shadow-lg border border-white/30"
-              data-testid="button-login"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
-                <path d="M12 2l3 7h7l-6 5 2 7-6-5-6 5 2-7-6-5h7z" fill="currentColor"/>
-              </svg>
-              Start Adventure
-            </Button>
           </div>
         </nav>
         <div className="max-w-6xl mx-auto text-center relative z-10 pt-16">
@@ -69,6 +63,7 @@ export default function Landing() {
               Start Adventure
             </Button>
             <Button 
+              onClick={handleDemo}
               variant="outline" 
               className="border-4 border-white bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-blue-600 transition-all shadow-xl"
               size="lg"
