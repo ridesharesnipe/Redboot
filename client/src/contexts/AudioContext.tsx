@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
+import { Volume2, Music, Music2, Flag, Target } from 'lucide-react';
 
 // Audio settings interface
 interface AudioSettings {
@@ -238,7 +239,7 @@ export function AudioControls() {
       <div className="flex flex-col gap-2">
         {/* Master Volume */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">🔊</span>
+          <Volume2 className="w-4 h-4" />
           <input
             type="range"
             min="0"
@@ -260,7 +261,10 @@ export function AudioControls() {
               onChange={(e) => updateSettings({ soundEffectsEnabled: e.target.checked })}
               data-testid="toggle-sound-effects"
             />
-            🎵 Effects
+            <div className="flex items-center gap-1">
+              <Music className="w-3 h-3" />
+              Effects
+            </div>
           </label>
           
           <label className="flex items-center gap-2 text-xs">
@@ -270,7 +274,10 @@ export function AudioControls() {
               onChange={(e) => updateSettings({ backgroundMusicEnabled: e.target.checked })}
               data-testid="toggle-background-music"
             />
-            🎼 Music
+            <div className="flex items-center gap-1">
+              <Music2 className="w-3 h-3" />
+              Music
+            </div>
           </label>
           
           <label className="flex items-center gap-2 text-xs">
@@ -280,7 +287,10 @@ export function AudioControls() {
               onChange={(e) => updateSettings({ characterVoiceEnabled: e.target.checked })}
               data-testid="toggle-character-voice"
             />
-            🏴‍☠️ Voice
+            <div className="flex items-center gap-1">
+              <Flag className="w-3 h-3" />
+              Voice
+            </div>
           </label>
           
           <label className="flex items-center gap-2 text-xs">
@@ -290,7 +300,10 @@ export function AudioControls() {
               onChange={(e) => setFocusMode(e.target.checked)}
               data-testid="toggle-focus-mode"
             />
-            🎯 Focus
+            <div className="flex items-center gap-1">
+              <Target className="w-3 h-3" />
+              Focus
+            </div>
           </label>
         </div>
       </div>
