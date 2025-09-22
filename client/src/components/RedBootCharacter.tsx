@@ -59,15 +59,13 @@ export default function RedBootCharacter({
           background: 'transparent'
         }}
       >
-        <img 
-          src={characterImage}
-          alt={`Red Boot the Pirate Captain - ${expression}`}
-          className="w-full h-full object-contain"
+        <div 
+          className="w-full h-full"
           style={{
+            background: `url(${characterImage}) center/contain no-repeat`,
             filter: expression === "default" 
               ? 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))'
               : 'drop-shadow(0 8px 12px rgba(0,0,0,0.4))',
-            background: 'transparent',
             mixBlendMode: 'multiply'
           }}
         />
