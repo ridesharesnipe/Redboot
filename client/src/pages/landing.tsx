@@ -94,11 +94,13 @@ export default function Landing() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="mb-4 flex justify-center">
-                <img 
-                  src={redBootCrew} 
-                  alt="Red Boot the Brave Captain" 
-                  className="w-40 h-40 object-contain"
-                />
+                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
+                  <img 
+                    src={redBootCrew} 
+                    alt="Red Boot the Brave Captain" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
               <h3 className="font-bold text-lg text-green-700 mb-2">Red Boot</h3>
               <p className="text-sm text-gray-600">The Brave Captain</p>
@@ -106,8 +108,10 @@ export default function Landing() {
             </div>
             
             <div className="text-center">
-              <div className="mb-4">
-                <OceanBlueCharacter size="medium" animated />
+              <div className="mb-4 flex justify-center">
+                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
+                  <OceanBlueCharacter size="medium" animated />
+                </div>
               </div>
               <h3 className="font-bold text-lg text-purple-700 mb-2">Ocean Blue</h3>
               <p className="text-sm text-gray-600">Smart Explorer</p>
@@ -115,8 +119,10 @@ export default function Landing() {
             </div>
             
             <div className="text-center">
-              <div className="mb-4">
-                <SaltyCharacter size="medium" animated />
+              <div className="mb-4 flex justify-center">
+                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
+                  <SaltyCharacter size="medium" animated />
+                </div>
               </div>
               <h3 className="font-bold text-lg text-amber-700 mb-2">Salty</h3>
               <p className="text-sm text-gray-600">Loyal Companion</p>
@@ -124,8 +130,10 @@ export default function Landing() {
             </div>
             
             <div className="text-center">
-              <div className="mb-4">
-                <RayRayCharacter size="medium" animated />
+              <div className="mb-4 flex justify-center">
+                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
+                  <RayRayCharacter size="medium" animated />
+                </div>
               </div>
               <h3 className="font-bold text-lg text-cyan-700 mb-2">Ray Ray</h3>
               <p className="text-sm text-gray-600">Ocean Guide</p>
