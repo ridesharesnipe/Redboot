@@ -76,7 +76,7 @@ export default function RedBootCharacter({
       {size === "large" && (
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
           <div className="font-pirate text-red-500 text-4xl drop-shadow-lg">Red Boot</div>
-          <div className="font-pirate text-blue-100 text-xl drop-shadow-md">Speller of the Seven Seas</div>
+          <div className="font-pirate text-black text-xl drop-shadow-md">Speller of the Seven Seas</div>
         </div>
       )}
     </div>
