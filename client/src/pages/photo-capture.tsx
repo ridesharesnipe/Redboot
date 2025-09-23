@@ -40,7 +40,7 @@ export default function PhotoCapturePage() {
       title: "Treasure Maps Saved!",
       description: `${extractedWords.length} pirate flashcards have been added to your collection!`,
     });
-    setLocation("/");
+    setLocation("/dashboard");
   };
 
   const handleStartPractice = () => {
