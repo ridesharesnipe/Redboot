@@ -141,7 +141,6 @@ function App() {
     <AudioProvider>
       <TooltipProvider>
         <Toaster />
-        <AudioControls />
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
           <div className="container mx-auto p-4">
             {renderCurrentView()}
