@@ -387,6 +387,14 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               </Button>
             </div>
           </CardContent>
+          {/* Red Boot Character Image */}
+          <div className="flex justify-center pb-6">
+            <img 
+              src="/attached_assets/17586521525263241886792965623303_1758652161458.png" 
+              alt="Red Boot the Pirate"
+              className="w-48 h-48 object-contain drop-shadow-xl"
+            />
+          </div>
         </Card>
       </div>
     );
