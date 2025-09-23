@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Camera, FileText, GamepadIcon, Trophy, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Upload, FileText, GamepadIcon, Trophy, ChevronLeft, ChevronRight, X } from "lucide-react";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useAudio } from "@/contexts/AudioContext";
 
@@ -14,10 +14,10 @@ interface DemoModalProps {
 const demoSteps = [
   {
     id: 1,
-    title: "📸 Capture Your Homework",
-    subtitle: "Take a photo of your spelling list",
-    description: "Use Red Boot's magic camera to snap a photo of your weekly spelling homework. Our advanced text recognition will extract all the words automatically!",
-    icon: <Camera className="w-12 h-12 text-blue-600" />,
+    title: "📤 Upload Your Homework",
+    subtitle: "Upload a photo of your spelling list",
+    description: "First, take a photo of your weekly spelling homework with your phone's camera. Then upload it here and Red Boot's magic text recognition will extract all the words automatically!",
+    icon: <Upload className="w-12 h-12 text-blue-600" />,
     mockup: "photo-capture",
     features: ["Smart text recognition", "Multiple word detection", "Instant processing"]
   },
@@ -82,13 +82,13 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
             <div className="bg-white p-4 rounded-lg shadow-lg mb-4">
               <div className="flex items-center justify-center h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300">
                 <div className="text-center">
-                  <Camera className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500 font-medium">Tap to capture homework photo</p>
+                  <Upload className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500 font-medium">Tap to upload homework photo</p>
                 </div>
               </div>
             </div>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold" data-testid="button-demo-capture">
-              📸 Capture Spelling List
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold" data-testid="button-demo-upload">
+              📤 Upload Spelling List
             </Button>
           </div>
         );
