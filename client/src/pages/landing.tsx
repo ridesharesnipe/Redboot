@@ -34,7 +34,11 @@ export default function Landing({ onStart }: LandingProps) {
   };
 
   const handleLogin = () => {
-    initializeAudio();
+    // Initialize audio without the automatic welcome message
+    if (!audioInitialized) {
+      setAudioInitialized(true);
+      startBackgroundMusic('ocean_ambient');
+    }
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');
     setTimeout(() => {
