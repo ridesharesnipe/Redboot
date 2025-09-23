@@ -112,13 +112,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
         {/* Pirate-themed loading text */}
         <div className="mb-6">
-          <p className="text-2xl md:text-3xl text-white font-bold drop-shadow-lg font-sans">
+          <div className="text-2xl md:text-3xl text-white font-bold drop-shadow-lg font-sans">
             <div className="flex items-center gap-2">
               <Flag className="w-5 h-5" />
               Preparing the ship for adventure...
               <Flag className="w-5 h-5" />
             </div>
-          </p>
+          </div>
         </div>
 
         {/* Countdown with treasure chest style */}
