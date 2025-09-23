@@ -346,7 +346,8 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                   playCharacterVoice('red_boot_adventure_complete');
                   setTimeout(() => {
                     onClose();
-                    window.location.href = "/api/login";
+                    // Navigate to dashboard to start the real adventure
+                    window.location.href = "/dashboard";
                   }, 600);
                 }}
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-bold"
