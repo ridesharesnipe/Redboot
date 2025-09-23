@@ -132,6 +132,37 @@ export class SpellingStorage {
     return weekData.words;
   }
 
+  // Get treasure road progress for celebrations
+  getTreasureProgress(): {
+    totalWords: number;
+    masteredWords: number;
+    newlyMastered: number;
+  } {
+    const weekData = this.getCurrentWeek();
+    const masteredWords = Object.values(weekData.practiceData).filter(
+      word => word.status === 'mastered'
+    ).length;
+    
+    // For simplicity, we'll calculate newly mastered based on recent progress
+    // In a more sophisticated version, we could track this per session
+    const newlyMastered = Math.max(0, masteredWords - (this.getLastSessionMasteredCount() || 0));
+    
+    return {
+      totalWords: weekData.words.length,
+      masteredWords,
+      newlyMastered
+    };
+  }
+
+  // Track mastered words from last session (simplified for now)
+  private getLastSessionMasteredCount(): number {
+    // This is a simplified version - in practice you'd want more sophisticated tracking
+    const weekData = this.getCurrentWeek();
+    return Object.values(weekData.practiceData).filter(
+      word => word.status === 'mastered' && word.correctCount >= 3
+    ).length - 1; // Assume 1 less than current for demo purposes
+  }
+
   // Get practice statistics for parent dashboard
   getPracticeStats(): {
     totalWords: number;
