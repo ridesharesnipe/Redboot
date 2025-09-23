@@ -246,13 +246,12 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               </Button>
               <Button 
                 onClick={() => {
-                  setShowNewWeekPrompt(false);
-                  // Populate default data when continuing current week
+                  // Populate default data FIRST, then dismiss prompt to avoid race condition
                   const saved = localStorage.getItem('currentSpellingWords');
                   if (saved) {
                     try {
                       const { words, savedDate } = JSON.parse(saved);
-                      setStats({
+                      const newStats = {
                         totalWords: words?.length || 0,
                         newWords: 0,
                         learningWords: 0, 
@@ -261,16 +260,21 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                         daysThisWeek: [false, false, false, false, false],
                         readyForTest: false,
                         treasureCount: 0
-                      });
-                      setWeekData({
+                      };
+                      const newWeekData = {
                         words: words || [],
                         practiceData: {},
                         weekStart: new Date(savedDate || Date.now()),
                         practiceHistory: []
-                      });
+                      };
+                      
+                      // Set both states, then dismiss prompt
+                      setStats(newStats);
+                      setWeekData(newWeekData);
+                      setShowNewWeekPrompt(false);
                     } catch (e) {
                       // Set safe defaults if parse fails
-                      setStats({
+                      const defaultStats = {
                         totalWords: 0,
                         newWords: 0,
                         learningWords: 0, 
@@ -279,14 +283,40 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                         daysThisWeek: [false, false, false, false, false],
                         readyForTest: false,
                         treasureCount: 0
-                      });
-                      setWeekData({
+                      };
+                      const defaultWeekData = {
                         words: [],
                         practiceData: {},
                         weekStart: new Date(),
                         practiceHistory: []
-                      });
+                      };
+                      
+                      setStats(defaultStats);
+                      setWeekData(defaultWeekData);
+                      setShowNewWeekPrompt(false);
                     }
+                  } else {
+                    // No saved data - set empty defaults and dismiss prompt
+                    const defaultStats = {
+                      totalWords: 0,
+                      newWords: 0,
+                      learningWords: 0, 
+                      masteredWords: 0,
+                      troubleWords: 0,
+                      daysThisWeek: [false, false, false, false, false],
+                      readyForTest: false,
+                      treasureCount: 0
+                    };
+                    const defaultWeekData = {
+                      words: [],
+                      practiceData: {},
+                      weekStart: new Date(),
+                      practiceHistory: []
+                    };
+                    
+                    setStats(defaultStats);
+                    setWeekData(defaultWeekData);
+                    setShowNewWeekPrompt(false);
                   }
                 }}
                 variant="outline"

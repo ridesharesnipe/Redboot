@@ -25,14 +25,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [isWordSpoken, setIsWordSpoken] = useState(false);
   const [showTreasureRoad, setShowTreasureRoad] = useState(false);
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
-  const [treasureMilestones] = useState(() => {
+  
+  // Calculate milestones dynamically based on actual word count
+  const getTreasureMilestones = () => {
     const total = practiceWords.length;
+    if (total === 0) return []; // No milestones if no words
     if (total <= 12) {
-      return [2, 4, 6, 8, 10, 12];
+      return [2, 4, 6, 8, 10, 12].filter(m => m <= total);
     } else {
       return [3, 5, 7, 10, 13, total];
     }
-  });
+  };
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
@@ -87,7 +90,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       [practiceWords.length]: { name: 'Ultimate Treasure', icon: 'lni-crown' }
     };
     
-    if (treasureMilestones.includes(correctCount)) {
+    const milestones = getTreasureMilestones();
+    console.log('🏴‍☠️ Checking treasure milestone:', correctCount, 'against milestones:', milestones);
+    
+    if (milestones.includes(correctCount)) {
       const treasure = treasureMap[correctCount];
       if (treasure) {
         setCurrentTreasure(treasure.name);
@@ -170,7 +176,23 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         const utterance = new SpeechSynthesisUtterance(word);
         utterance.rate = 0.8; // Slower for clarity
         utterance.volume = 0.9;
-        utterance.onend = () => setIsWordSpoken(true);
+        
+        // Fallback timeout in case speech synthesis fails silently
+        const fallbackTimer = setTimeout(() => {
+          console.log('Speech synthesis fallback timeout, enabling input');
+          setIsWordSpoken(true);
+        }, 3000);
+        
+        // Set up event handlers
+        utterance.onend = () => {
+          clearTimeout(fallbackTimer);
+          setIsWordSpoken(true);
+        };
+        utterance.onerror = () => {
+          console.log('Speech synthesis error, enabling input anyway');
+          clearTimeout(fallbackTimer);
+          setIsWordSpoken(true);
+        };
         
         // Try to get a good voice
         const voices = speechSynthesis.getVoices();
@@ -180,7 +202,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         
         if (goodVoice) utterance.voice = goodVoice;
         
-        speechSynthesis.speak(utterance);
+        try {
+          speechSynthesis.speak(utterance);
+        } catch (error) {
+          console.error('Speech synthesis failed:', error);
+          clearTimeout(fallbackTimer);
+          setIsWordSpoken(true);
+        }
       } else {
         setIsWordSpoken(true);
       }
