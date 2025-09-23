@@ -1,12 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
-import { Camera, Upload, Check, X, Edit, Loader } from 'lucide-react';
-// Lazy-load tesseract.js to keep bundle size small
+import { Camera, Upload, Check, X, Edit, Loader, ArrowLeft } from 'lucide-react';
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
@@ -30,13 +29,21 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   const { toast } = useToast();
   const { playSound } = useAudio();
 
+  // Auto-start camera when component mounts
+  useEffect(() => {
+    startCamera();
+    return () => {
+      stopCamera(); // Cleanup on unmount
+    };
+  }, []);
+
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'environment', // Use back camera on mobile
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 1920, min: 1280 },
+          height: { ideal: 1080, min: 720 }
         }
       });
       
@@ -49,12 +56,11 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      // Fallback to file input if camera access fails
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = handleFileUpload;
-      input.click();
+      toast({
+        title: "Camera Access Failed",
+        description: "Please allow camera access or upload an image instead.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -66,7 +72,6 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   };
 
-  // Handle camera cancel - also calls onCancel
   const handleCameraCancel = () => {
     stopCamera();
     if (onCancel) {
@@ -91,7 +96,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     ctx.drawImage(video, 0, 0);
 
     // Convert to base64 image data
-    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
     
     stopCamera();
     setCapturedImage(imageData);
@@ -138,7 +143,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       // Configure for better spelling word recognition
       await worker.setParameters({
         tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ',
-        tessedit_pageseg_mode: '6', // Uniform block of text
+        tessedit_pageseg_mode: 6, // Uniform block of text
       });
 
       // Perform OCR
@@ -267,167 +272,220 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     input.click();
   };
 
+  const retakePhoto = () => {
+    setCapturedImage(null);
+    setIsProcessing(false);
+    setShowWordList(false);
+    startCamera();
+  };
+
   // Show word verification screen if words were extracted
   if (showWordList) {
     return (
-      <Card className="border-2 border-border">
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-4 text-center" style={{ fontFamily: 'var(--font-pirate)' }}>
-            Verify Your Spelling Words
-          </h2>
-          
-          <p className="text-muted-foreground text-center mb-6">
-            Check that each word is spelled correctly. You can edit or remove any words.
-          </p>
+      <div className="min-h-screen bg-background p-4">
+        <Card className="border-2 border-border max-w-2xl mx-auto">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold mb-4 text-center" style={{ fontFamily: 'var(--font-pirate)' }}>
+              Verify Your Spelling Words
+            </h2>
+            
+            <p className="text-muted-foreground text-center mb-6">
+              Check that each word is spelled correctly. You can edit or remove any words.
+            </p>
 
-          <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
-            {editableWords.map((word, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="w-8 text-sm text-muted-foreground">{index + 1}.</span>
-                <Input
-                  value={word}
-                  onChange={(e) => updateWord(index, e.target.value)}
-                  className="flex-1"
-                  placeholder="Enter spelling word"
-                  data-testid={`input-word-${index}`}
-                />
-                <Button
-                  onClick={() => removeWord(index)}
-                  variant="outline"
-                  size="sm"
-                  className="text-red-600 hover:text-red-700"
-                  data-testid={`button-remove-word-${index}`}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
+            <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
+              {editableWords.map((word, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="w-8 text-sm text-muted-foreground">{index + 1}.</span>
+                  <Input
+                    value={word}
+                    onChange={(e) => updateWord(index, e.target.value)}
+                    className="flex-1"
+                    placeholder="Enter spelling word"
+                    data-testid={`input-word-${index}`}
+                  />
+                  <Button
+                    onClick={() => removeWord(index)}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                    data-testid={`button-remove-word-${index}`}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
 
-          <div className="flex gap-3 mb-6">
-            <Button onClick={addWord} variant="outline" className="flex-1" data-testid="button-add-word">
-              <Edit className="w-4 h-4 mr-2" />
-              Add Word
-            </Button>
-          </div>
+            <div className="flex gap-3 mb-6">
+              <Button onClick={addWord} variant="outline" className="flex-1" data-testid="button-add-word">
+                <Edit className="w-4 h-4 mr-2" />
+                Add Word
+              </Button>
+            </div>
 
-          <div className="flex gap-3">
-            <Button onClick={cancelVerification} variant="outline" className="flex-1" data-testid="button-cancel-words">
-              Cancel
-            </Button>
-            <Button onClick={saveWords} className="flex-1 bg-green-600 hover:bg-green-700" data-testid="button-save-words">
-              <Check className="w-4 h-4 mr-2" />
-              Save Words ({editableWords.filter(w => w.trim()).length})
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex gap-3">
+              <Button onClick={cancelVerification} variant="outline" className="flex-1" data-testid="button-cancel-words">
+                Cancel
+              </Button>
+              <Button onClick={saveWords} className="flex-1 bg-green-600 hover:bg-green-700" data-testid="button-save-words">
+                <Check className="w-4 h-4 mr-2" />
+                Save Words ({editableWords.filter(w => w.trim()).length})
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
-  return (
-    <Card className="border-2 border-dashed border-border">
-      <CardContent className="p-8">
-        {isProcessing && (
-          <div className="text-center mb-6">
-            <Loader className="w-8 h-8 animate-spin mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              Extracting words from image... {ocrProgress}%
+  // FULLSCREEN CAMERA VIEW
+  if (isCameraActive) {
+    return (
+      <div className="fixed inset-0 bg-black z-50 flex flex-col">
+        {/* Back button */}
+        <div className="absolute top-4 left-4 z-10">
+          <Button
+            onClick={handleCameraCancel}
+            variant="outline"
+            size="sm"
+            className="bg-black/50 text-white border-white/30 hover:bg-black/70"
+            data-testid="button-cancel-camera"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+        </div>
+
+        {/* Fullscreen camera */}
+        <div className="flex-1 relative">
+          <video 
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            autoPlay
+            playsInline
+            muted
+            data-testid="camera-video"
+          />
+          
+          {/* Overlay guide */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-4 right-4 text-center">
+              <div className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm inline-block">
+                📝 Position your spelling list in the frame
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Capture button at bottom */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <Button 
+            onClick={capturePhoto}
+            className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-lg hover:bg-gray-100"
+            data-testid="button-capture-photo"
+          >
+            <Camera className="w-8 h-8 text-black" />
+          </Button>
+        </div>
+
+        {/* Hidden canvas for photo capture */}
+        <canvas ref={canvasRef} className="hidden" />
+      </div>
+    );
+  }
+
+  // Processing screen
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="border-2 border-border max-w-md mx-auto">
+          <CardContent className="p-8 text-center">
+            <Loader className="w-12 h-12 animate-spin mx-auto mb-4 text-primary" />
+            <h3 className="text-lg font-bold mb-2">Extracting Words...</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Reading your spelling list... {ocrProgress}%
             </p>
-            <div className="w-full bg-muted rounded-full h-2 mt-2">
+            <div className="w-full bg-muted rounded-full h-3">
               <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300" 
+                className="bg-primary h-3 rounded-full transition-all duration-300" 
                 style={{ width: `${ocrProgress}%` }}
               />
             </div>
-          </div>
-        )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-        {capturedImage && !showWordList && !isProcessing && (
-          <div className="mb-6">
-            <img 
-              src={capturedImage} 
-              alt="Captured spelling list" 
-              className="w-full max-w-md mx-auto rounded-lg shadow-lg"
-            />
-          </div>
-        )}
-
-        {!isCameraActive && !isProcessing ? (
-          <div className="text-center">
-            <div className="w-24 h-24 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
-              <Camera className="text-accent-foreground w-8 h-8" />
-            </div>
-            <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-camera-ready">
-              Capture Spelling List
-            </h3>
-            <p className="text-muted-foreground mb-6" data-testid="text-camera-instructions">
-              Take a photo of your child's spelling homework
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
-                onClick={startCamera}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                data-testid="button-open-camera"
-                disabled={isProcessing}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Use Camera
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={triggerFileUpload}
-                data-testid="button-upload-file"
-                disabled={isProcessing}
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Image
-              </Button>
-            </div>
-          </div>
-        ) : !isProcessing ? (
-          <div className="space-y-4">
-            <div className="relative bg-black rounded-lg overflow-hidden">
-              <video 
-                ref={videoRef}
-                className="w-full h-auto max-h-96 object-cover"
-                autoPlay
-                playsInline
-                muted
-                data-testid="camera-video"
-              />
-              <div className="absolute inset-0 border-2 border-accent/50 rounded-lg pointer-events-none">
-                <div className="absolute top-4 left-4 right-4 text-center">
-                  <div className="bg-black/50 text-white px-3 py-1 rounded text-sm inline-block">
-                    Position spelling list in frame
-                  </div>
-                </div>
+  // Default: Start screen or photo preview
+  return (
+    <div className="min-h-screen bg-background p-4">
+      <Card className="border-2 border-dashed border-border max-w-md mx-auto">
+        <CardContent className="p-8">
+          {capturedImage ? (
+            <div className="text-center">
+              <div className="mb-6">
+                <img 
+                  src={capturedImage} 
+                  alt="Captured spelling list" 
+                  className="w-full rounded-lg shadow-lg"
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={retakePhoto}
+                  variant="outline"
+                  className="flex-1"
+                  data-testid="button-retake-photo"
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Retake
+                </Button>
+                <Button 
+                  onClick={() => processImage(capturedImage)}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  data-testid="button-process-image"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Process
+                </Button>
               </div>
             </div>
-            
-            <div className="flex justify-center space-x-4">
-              <Button 
-                onClick={capturePhoto}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 px-8"
-                data-testid="button-capture-photo"
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Capture Photo
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleCameraCancel}
-                data-testid="button-cancel-camera"
-              >
-                Cancel
-              </Button>
+          ) : (
+            <div className="text-center">
+              <div className="w-24 h-24 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
+                <Camera className="text-accent-foreground w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-camera-ready">
+                Capture Spelling List
+              </h3>
+              <p className="text-muted-foreground mb-6" data-testid="text-camera-instructions">
+                Take a photo of your child's spelling homework
+              </p>
+              <div className="flex flex-col gap-3">
+                <Button 
+                  onClick={startCamera}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 text-lg"
+                  data-testid="button-open-camera"
+                >
+                  <Camera className="w-5 h-5 mr-2" />
+                  Open Camera
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={triggerFileUpload}
+                  className="w-full py-4 text-lg"
+                  data-testid="button-upload-file"
+                >
+                  <Upload className="w-5 h-5 mr-2" />
+                  Upload Image
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : null}
-        
-        {/* Hidden canvas for photo capture */}
-        <canvas ref={canvasRef} className="hidden" />
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
