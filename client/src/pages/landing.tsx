@@ -39,7 +39,7 @@ export default function Landing({ onStart }: LandingProps) {
     playCharacterVoice('red_boot_ahoy');
     setTimeout(() => {
       onStart?.();
-    }, 500);
+    }, 3000);
   };
 
   const handleDemo = () => {
