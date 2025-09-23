@@ -67,22 +67,29 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
         </nav>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-4 sm:pt-8">
-          <div className="mb-8 sm:mb-12 md:mb-16 flex justify-center">
-            <div className="relative flex items-center justify-center float-animation landscape-reduce">
-              <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto">
+          <div className="mb-8 sm:mb-12 md:mb-16 flex flex-col items-center justify-center">
+            {/* Empty white circle for design */}
+            <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto mb-6 flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
+                <span className="text-6xl">⚓</span>
+              </div>
+            </div>
+            
+            {/* Red Boot floating below */}
+            <div className="relative float-animation landscape-reduce">
+              <div className="relative">
                 <img 
                   src={redBootLandingHead}
                   alt="Red Boot the Pirate Captain"
-                  className="w-full h-full object-cover scale-110"
+                  className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full border-4 border-white shadow-2xl"
                   style={{
                     filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.4))',
-                    transform: 'scale(1.1)'
                   }}
                 />
-              </div>
-              <div className="absolute -bottom-12 sm:-bottom-14 md:-bottom-16 lg:-bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-                <div className="fluid-heading-md drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
-                <div className="fluid-heading-sm drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
+                <div className="absolute -bottom-8 sm:-bottom-10 left-1/2 transform -translate-x-1/2 text-center">
+                  <div className="fluid-heading-md drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
+                  <div className="fluid-heading-sm drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
+                </div>
               </div>
             </div>
           </div>
