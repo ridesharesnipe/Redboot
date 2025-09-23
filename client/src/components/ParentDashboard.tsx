@@ -395,7 +395,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           <img 
             src={redBootImage} 
             alt="Red Boot the Pirate"
-            className="w-80 h-80 object-contain drop-shadow-xl"
+            className="w-96 h-96 object-contain drop-shadow-xl"
           />
         </div>
       </div>
