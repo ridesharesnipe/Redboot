@@ -24,10 +24,60 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [isComplete, setIsComplete] = useState(false);
   const [isWordSpoken, setIsWordSpoken] = useState(false);
   const [showTreasureRoad, setShowTreasureRoad] = useState(false);
+  const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
+  const [treasureMilestones] = useState(() => {
+    const total = practiceWords.length;
+    if (total <= 12) {
+      return [2, 4, 6, 8, 10, 12];
+    } else {
+      return [3, 5, 7, 10, 13, total];
+    }
+  });
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
   const { playSound, playCharacterVoice } = useAudio();
+
+  // Add treasure checking function
+  const checkForTreasure = (correctCount: number) => {
+    const treasureMap: Record<number, { name: string; icon: string }> = {
+      2: { name: 'Silver Coins', icon: 'lni-coin' },
+      3: { name: 'Silver Coins', icon: 'lni-coin' },
+      4: { name: 'Emeralds', icon: 'lni-diamond' },
+      5: { name: 'Emeralds', icon: 'lni-diamond' },
+      6: { name: 'Rubies', icon: 'lni-heart' },
+      7: { name: 'Rubies', icon: 'lni-heart' },
+      8: { name: 'Diamonds', icon: 'lni-diamond' },
+      10: { name: 'Diamonds', icon: 'lni-diamond' },
+      13: { name: 'Gold Coins', icon: 'lni-coin' },
+      [practiceWords.length]: { name: 'Ultimate Treasure', icon: 'lni-crown' }
+    };
+    
+    if (treasureMilestones.includes(correctCount)) {
+      const treasure = treasureMap[correctCount];
+      if (treasure) {
+        setCurrentTreasure(treasure.name);
+        setShowTreasureRoad(true);
+        playSound('cannon_achievement');
+        
+        // Hide after 5 seconds and continue
+        setTimeout(() => {
+          setShowTreasureRoad(false);
+          setCurrentTreasure(null);
+          // Move to next word automatically
+          if (currentWordIndex < practiceWords.length - 1) {
+            setCurrentWordIndex(currentWordIndex + 1);
+            setUserInput('');
+            setShowFeedback(false);
+            setIsWordSpoken(false);
+          }
+        }, 5000);
+        
+        return true; // Treasure was shown
+      }
+    }
+    return false; // No treasure this time
+  };
 
   // Initialize practice session
   useEffect(() => {
@@ -110,10 +160,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     // Note: Simplified storage approach - tracking handled locally
     
     if (correct) {
-      setCorrectCount(prev => prev + 1);
+      const newCorrectCount = correctCount + 1;
+      setCorrectCount(newCorrectCount);
       setTreasureEarned(prev => prev + 1);
       playSound('spell_correct');
       playCharacterVoice('red_boot_great_job');
+      
+      // Check if we hit a treasure milestone
+      const treasureShown = checkForTreasure(newCorrectCount);
+      
+      if (!treasureShown) {
+        // Normal flow - move to next word after brief delay (only in feedback view)
+        // The nextWord function will handle this transition
+      }
     } else {
       playSound('spell_incorrect');
       playCharacterVoice('red_boot_try_again');
@@ -138,16 +197,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       };
       setSessionResults(results);
       
-      // Show treasure road if there are accomplishments
-      if (finalCorrect > 0) {
+      // Check for final treasure milestone
+      const treasureShown = checkForTreasure(finalCorrect);
+      
+      if (!treasureShown) {
+        // Show completion celebration immediately if no treasure milestone reached
         playSound('cannon_achievement');
         playCharacterVoice('red_boot_adventure_complete');
-        setShowTreasureRoad(true);
-      } else {
-        // No accomplishments, go directly to completion
         setTimeout(() => {
           onComplete(results);
         }, 2000);
+      } else {
+        // Treasure milestone will handle the completion after its display
+        setTimeout(() => {
+          onComplete(results);
+        }, 6000); // Give treasure road time to show
       }
     } else {
       setCurrentWordIndex(prev => prev + 1);
@@ -166,7 +230,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     speakCurrentWord();
   };
 
-  // Handle treasure road close
+  // Handle treasure road close (not needed with new system)
   const handleTreasureRoadClose = () => {
     setShowTreasureRoad(false);
     if (sessionResults) {
@@ -238,6 +302,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   const currentWord = practiceWords[currentWordIndex];
   const progress = ((currentWordIndex + 1) / practiceWords.length) * 100;
+
+  // Show treasure road during milestone celebrations
+  if (showTreasureRoad) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
+        <div className="flex items-center justify-center min-h-screen">
+          <TreasureRoad
+            totalWords={practiceWords.length}
+            masteredWords={correctCount}
+            treasureJustUnlocked={currentTreasure}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card className="max-w-2xl mx-auto">
