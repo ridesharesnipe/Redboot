@@ -3,6 +3,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global mobile overflow handling */
+html, body {
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 :root {
   --background: hsl(200, 25%, 97%);
   --foreground: hsl(222, 84%, 4%);
@@ -126,12 +136,21 @@
   position: relative;
   overflow: hidden;
   min-height: 100vh;
+  min-height: 100svh; /* Dynamic viewport height for mobile */
+  padding-top: max(2.5rem, env(safe-area-inset-top)); /* Safe area for notched devices */
   background: linear-gradient(to bottom, 
     #87CEEB 0%,     /* Sky blue */
     #4682B4 30%,    /* Steel blue */
     #1e3a8a 60%,    /* Deep blue */
     #0c4a6e 100%    /* Ocean deep */
   );
+}
+
+/* Enhanced support for dynamic viewport */
+@supports (height: 100dvh) {
+  .ocean-hero {
+    min-height: 100dvh;
+  }
 }
 
 /* Animated waves */

@@ -18,20 +18,23 @@ interface LandingProps {
 
 export default function Landing({ onStart }: LandingProps) {
   const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const [audioInitialized, setAudioInitialized] = useState(false);
   const { playSound, startBackgroundMusic, playCharacterVoice } = useAudio();
 
-  // Start ocean ambient music when landing page loads
-  useEffect(() => {
-    startBackgroundMusic('ocean_ambient');
-    // Red Boot welcome message
-    const timer = setTimeout(() => {
-      playCharacterVoice('red_boot_welcome');
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [startBackgroundMusic, playCharacterVoice]);
+  // Initialize audio on first user interaction (mobile-friendly)
+  const initializeAudio = () => {
+    if (!audioInitialized) {
+      setAudioInitialized(true);
+      startBackgroundMusic('ocean_ambient');
+      // Welcome message after audio context is unlocked
+      setTimeout(() => {
+        playCharacterVoice('red_boot_welcome');
+      }, 500);
+    }
+  };
 
   const handleLogin = () => {
+    initializeAudio();
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');
     setTimeout(() => {
@@ -40,21 +43,22 @@ export default function Landing({ onStart }: LandingProps) {
   };
 
   const handleDemo = () => {
+    initializeAudio();
     playSound('compass_navigation');
     setIsDemoOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100svh] bg-background overflow-x-hidden">
       {/* Hero Section with Ocean Background */}
-      <section className="ocean-hero text-white py-20 px-4 relative">
+      <section className="ocean-hero text-white py-10 md:py-20 px-4 relative min-h-[100svh] overflow-x-hidden">
         {/* Ocean elements */}
         <div className="ocean-island"></div>
         
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20">
           <div className="max-w-7xl mx-auto flex items-center justify-center">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black whitespace-nowrap" style={{ 
+            <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-center" style={{ 
               fontFamily: "'Pirata One', cursive", 
               fontWeight: '900',
               color: '#FFD700',
@@ -65,7 +69,7 @@ export default function Landing({ onStart }: LandingProps) {
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
           <div className="mb-16 flex justify-center">
             <div className="relative flex items-center justify-center float-animation">
-              <div className="w-[32rem] h-[32rem] md:w-[40rem] md:h-[40rem] relative overflow-hidden rounded-full bg-white border-8 border-white shadow-2xl">
+              <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl aspect-square relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto">
                 <img 
                   src={redBootLandingHead}
                   alt="Red Boot the Pirate Captain"
@@ -75,22 +79,22 @@ export default function Landing({ onStart }: LandingProps) {
                   }}
                 />
               </div>
-              <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-                <div className="text-5xl md:text-6xl drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
-                <div className="text-xl md:text-2xl drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
+              <div className="absolute -bottom-16 md:-bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+                <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
+                <div className="text-lg sm:text-xl md:text-2xl drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
               </div>
             </div>
           </div>
-          <h1 className="text-7xl md:text-9xl lg:text-[12rem] mb-24 md:mb-28 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] mb-12 sm:mb-16 md:mb-24 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
-          <p className="text-2xl md:text-4xl lg:text-5xl mb-12 text-white font-semibold drop-shadow-lg max-w-5xl mx-auto" data-testid="text-hero-subtitle">
+          <p className="text-lg sm:text-xl md:text-3xl lg:text-4xl mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-w-5xl mx-auto px-4" data-testid="text-hero-subtitle">
             Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
             <Button 
               onClick={handleLogin}
-              className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-xl border-4 border-white/30"
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-xl border-4 border-white/30 w-full sm:w-auto min-h-[48px]"
               size="lg"
               data-testid="button-start-adventure"
             >
@@ -100,7 +104,7 @@ export default function Landing({ onStart }: LandingProps) {
             <Button 
               onClick={handleDemo}
               variant="outline" 
-              className="border-4 border-white bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-blue-600 transition-all shadow-xl"
+              className="border-4 border-white bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg hover:bg-white hover:text-blue-600 transition-all shadow-xl w-full sm:w-auto min-h-[48px]"
               size="lg"
               data-testid="button-watch-demo"
             >
