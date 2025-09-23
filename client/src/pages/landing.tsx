@@ -67,7 +67,7 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
         </nav>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
-          <div className="mb-16 flex justify-center">
+          <div className="mb-8 sm:mb-12 md:mb-16 flex justify-center">
             <div className="relative flex items-center justify-center float-animation landscape-reduce">
               <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto">
                 <img 
@@ -79,7 +79,7 @@ export default function Landing({ onStart }: LandingProps) {
                   }}
                 />
               </div>
-              <div className="absolute -bottom-16 md:-bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+              <div className="absolute -bottom-12 sm:-bottom-14 md:-bottom-16 lg:-bottom-20 left-1/2 transform -translate-x-1/2 text-center">
                 <div className="fluid-heading-md drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
                 <div className="fluid-heading-sm drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
               </div>

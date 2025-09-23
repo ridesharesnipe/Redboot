@@ -155,10 +155,10 @@ button, [role="button"], a {
   gap: clamp(1rem, 3vw, 2rem);
 }
 
-/* Character/logo sizing with aspect ratio preservation */
+/* Character/logo sizing with aspect ratio preservation - optimized for Android */
 .character-container {
   width: 100%;
-  max-width: clamp(300px, 40vw, 600px);
+  max-width: clamp(200px, 30vw, 400px);
   aspect-ratio: 1;
 }
 

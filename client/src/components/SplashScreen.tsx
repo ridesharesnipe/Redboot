@@ -90,7 +90,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Red Boot character - centered and large */}
         <div className="mb-12 flex justify-center">
           <div className="relative transform animate-float">
-            <div className="w-[32rem] h-[32rem] md:w-[42rem] md:h-[42rem] lg:w-[48rem] lg:h-[48rem] relative overflow-hidden rounded-full bg-white border-8 border-white shadow-2xl">
+            <div className="w-[16rem] h-[16rem] sm:w-[20rem] sm:h-[20rem] md:w-[24rem] md:h-[24rem] lg:w-[28rem] lg:h-[28rem] relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl">
               <img 
                 src={redBootSplash} 
                 alt="Red Boot the Pirate" 
