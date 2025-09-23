@@ -71,15 +71,15 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
       {/* Main content */}
       <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
-        {/* Title with simple children's book styling */}
-        <div className="mb-12 transform animate-bounce-gentle">
-          <h1 className="text-7xl md:text-9xl lg:text-[10rem] font-bold text-white mb-6 drop-shadow-2xl tracking-wide font-sans" 
+        {/* Title with mobile-optimized sizing */}
+        <div className="mb-4 sm:mb-8 transform animate-bounce-gentle">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-bold text-white mb-2 sm:mb-4 drop-shadow-2xl tracking-wide font-sans" 
               style={{ 
                 textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
               }}>
             Red Boot's
           </h1>
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
+          <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
               style={{ 
                 textShadow: '4px 4px 0px #cc8400, 8px 8px 0px rgba(0,0,0,0.2)'
               }}>
@@ -87,49 +87,50 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </h2>
         </div>
 
-        {/* Red Boot character - centered and large */}
-        <div className="mb-12 flex justify-center">
+        {/* Red Boot character - mobile optimized */}
+        <div className="mb-4 sm:mb-8 flex justify-center">
           <div className="relative transform animate-float">
-            <div className="w-[16rem] h-[16rem] sm:w-[20rem] sm:h-[20rem] md:w-[24rem] md:h-[24rem] lg:w-[28rem] lg:h-[28rem] relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl">
+            <div className="w-[12rem] h-[12rem] sm:w-[16rem] sm:h-[16rem] md:w-[20rem] md:h-[20rem] lg:w-[24rem] lg:h-[24rem] relative overflow-hidden rounded-full bg-white border-4 md:border-6 border-white shadow-2xl">
               <img 
                 src={redBootSplash} 
                 alt="Red Boot the Pirate" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover scale-110"
                 style={{
-                  filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 20px 30px rgba(0,0,0,0.4))',
+                  filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 20px rgba(0,0,0,0.4))',
+                  transform: 'scale(1.1)'
                 }}
               />
             </div>
-            {/* Speech bubble */}
-            <div className="absolute -top-12 -right-12 bg-white rounded-3xl px-8 py-6 border-6 border-gray-800 transform rotate-12 animate-pulse">
-              <p className="text-3xl md:text-4xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
+            {/* Speech bubble - mobile optimized */}
+            <div className="absolute -top-6 sm:-top-10 -right-6 sm:-right-10 bg-white rounded-2xl px-3 sm:px-6 py-2 sm:py-4 border-3 sm:border-4 border-gray-800 transform rotate-12 animate-pulse">
+              <p className="text-lg sm:text-2xl md:text-3xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
                 Ahoy Matey!
               </p>
-              <div className="absolute bottom-0 left-10 w-0 h-0 border-l-6 border-r-6 border-t-12 border-transparent border-t-white transform translate-y-3"></div>
+              <div className="absolute bottom-0 left-6 sm:left-8 w-0 h-0 border-l-3 border-r-3 border-t-6 sm:border-l-4 sm:border-r-4 sm:border-t-8 border-transparent border-t-white transform translate-y-2"></div>
             </div>
           </div>
         </div>
 
-        {/* Unique app messaging */}
-        <div className="mb-8">
-          <div className="text-xl md:text-2xl text-yellow-200 font-bold drop-shadow-lg mb-4" style={{ fontFamily: "'Pirata One', cursive" }}>
+        {/* Unique app messaging - mobile compact */}
+        <div className="mb-4 sm:mb-6 px-2">
+          <div className="text-sm sm:text-lg md:text-xl text-yellow-200 font-bold drop-shadow-lg mb-2" style={{ fontFamily: "'Pirata One', cursive" }}>
             The Ultimate Pirate Spelling Adventure App!
           </div>
-          <div className="text-lg md:text-xl text-white font-bold drop-shadow-lg mb-2" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <div className="text-xs sm:text-base md:text-lg text-white font-bold drop-shadow-lg mb-1" style={{ fontFamily: "'Pirata One', cursive" }}>
             Breaking New Ground - No Other App Does This!
           </div>
-          <div className="text-base md:text-lg text-sky-200 font-bold drop-shadow-lg" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <div className="text-xs sm:text-sm md:text-base text-sky-200 font-bold drop-shadow-lg" style={{ fontFamily: "'Pirata One', cursive" }}>
             Revolutionary Pirate Learning Adventure
           </div>
         </div>
 
-        {/* Pirate-themed loading text */}
-        <div className="mb-6">
-          <div className="text-2xl md:text-3xl text-white font-bold drop-shadow-lg font-sans">
-            <div className="flex items-center gap-2">
-              <Flag className="w-5 h-5" />
-              Preparing the ship for adventure...
-              <Flag className="w-5 h-5" />
+        {/* Pirate-themed loading text - mobile compact */}
+        <div className="mb-3 sm:mb-4">
+          <div className="text-lg sm:text-xl md:text-2xl text-white font-bold drop-shadow-lg font-sans">
+            <div className="flex items-center justify-center gap-2">
+              <Flag className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="text-center">Preparing the ship for adventure...</span>
+              <Flag className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
         </div>
