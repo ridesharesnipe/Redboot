@@ -102,7 +102,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             </div>
             {/* Speech bubble */}
             <div className="absolute -top-12 -right-12 bg-white rounded-3xl px-8 py-6 border-6 border-gray-800 transform rotate-12 animate-pulse">
-              <p className="text-3xl md:text-4xl font-bold text-gray-800 font-sans">
+              <p className="text-3xl md:text-4xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
                 Ahoy Matey!
               </p>
               <div className="absolute bottom-0 left-10 w-0 h-0 border-l-6 border-r-6 border-t-12 border-transparent border-t-white transform translate-y-3"></div>
