@@ -77,7 +77,7 @@ export default function Landing() {
               </div>
               <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center">
                 <div className="text-5xl md:text-6xl drop-shadow-lg text-sky-300" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
-                <div className="text-xl md:text-2xl drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>The Pirate Captain</div>
+                <div className="text-xl md:text-2xl drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
               </div>
             </div>
           </div>
