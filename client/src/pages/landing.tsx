@@ -53,11 +53,12 @@ export default function Landing({ onStart }: LandingProps) {
       {/* Hero Section with Ocean Background */}
       <section className="ocean-hero text-white py-10 md:py-20 px-4 relative min-h-[100svh] overflow-x-hidden safe-area-bottom">
         {/* Ocean elements */}
-        <div className="absolute top-32 right-16 z-10">
-          <i className="lni lni-island text-green-400 text-6xl drop-shadow-lg" style={{ 
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            padding: '12px',
-            borderRadius: '50%'
+        <div className="absolute top-20 left-8 z-10 animate-pulse">
+          <i className="lni lni-island text-green-400 text-8xl drop-shadow-2xl" style={{ 
+            backgroundColor: 'rgba(34,197,94,0.2)',
+            padding: '16px',
+            borderRadius: '50%',
+            border: '3px solid rgba(34,197,94,0.3)'
           }}>🏝️</i>
         </div>
         
