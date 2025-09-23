@@ -50,14 +50,14 @@ export default function Landing() {
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20">
           <div className="max-w-7xl mx-auto flex items-center justify-center">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl text-yellow-400 drop-shadow-2xl font-black whitespace-nowrap" style={{ 
+            <h1 className="text-5xl md:text-7xl lg:text-8xl drop-shadow-2xl font-black whitespace-nowrap" style={{ 
               fontFamily: "'Pirata One', cursive", 
               fontWeight: '900',
-              background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24)',
+              background: 'linear-gradient(45deg, #A67C00, #FFD700, #FFBF00, #FFD218, #FFD700)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              textShadow: '0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4)'
+              textShadow: '0 0 30px rgba(255, 215, 0, 0.9), 0 0 60px rgba(255, 215, 0, 0.5), 0 0 90px rgba(255, 191, 0, 0.3)'
             }}>Red Boot's Adventure</h1>
           </div>
         </nav>
