@@ -21,14 +21,19 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
   // Calculate milestones based on word count - with proper treasure icons and chests
   const getMilestones = () => {
     if (totalWords <= 12) {
-      return [
+      const baseMilestones = [
         { words: 2, treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', position: 16, isChest: false },
         { words: 4, treasure: 'Emeralds', icon: '💚', color: 'text-emerald-600', position: 33, isChest: false },
         { words: 6, treasure: 'Rubies', icon: '❤️', color: 'text-red-600', position: 50, isChest: false },
         { words: 8, treasure: 'Diamonds', icon: '💎', color: 'text-blue-500', position: 67, isChest: true },
-        { words: 10, treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', position: 83, isChest: true },
-        { words: 12, treasure: 'Ultimate Treasure', icon: '👑', color: 'text-purple-600', position: 95, isChest: true }
+        { words: 10, treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', position: 83, isChest: true }
       ];
+      
+      // Only show milestones that are <= totalWords, always include final treasure at totalWords
+      const validMilestones = baseMilestones.filter(m => m.words <= totalWords);
+      validMilestones.push({ words: totalWords, treasure: 'Ultimate Treasure', icon: '👑', color: 'text-purple-600', position: 95, isChest: true });
+      
+      return validMilestones;
     } else {
       return [
         { words: 3, treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', position: 16, isChest: false },
