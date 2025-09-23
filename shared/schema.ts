@@ -77,6 +77,16 @@ export const progress = pgTable("progress", {
   completedAt: timestamp("completed_at").defaultNow(),
 });
 
+// Photos table for storing spelling list photos
+export const photos = pgTable("photos", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  objectPath: varchar("object_path").notNull(), // Path to the photo in object storage
+  wordsCount: integer("words_count").default(0), // Number of words extracted
+  extractedWords: jsonb("extracted_words").$type<string[]>().default([]), // Words found in photo
+  capturedAt: timestamp("captured_at").defaultNow(),
+  weekStart: timestamp("week_start").notNull(), // Week the photo belongs to
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   children: many(children),
@@ -133,6 +143,11 @@ export const insertProgressSchema = createInsertSchema(progress).omit({
   completedAt: true,
 });
 
+export const insertPhotoSchema = createInsertSchema(photos).omit({
+  id: true,
+  capturedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -142,3 +157,5 @@ export type InsertWordList = z.infer<typeof insertWordListSchema>;
 export type WordList = typeof wordLists.$inferSelect;
 export type InsertProgress = z.infer<typeof insertProgressSchema>;
 export type Progress = typeof progress.$inferSelect;
+export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
+export type Photo = typeof photos.$inferSelect;
