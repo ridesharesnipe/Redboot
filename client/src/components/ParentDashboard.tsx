@@ -392,7 +392,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         {/* Red Boot Character Image - Outside the yellow box */}
         <div className="flex justify-center mt-6">
           <img 
-            src="/attached_assets/17586521525263241886792965623303_1758652161458.png" 
+            src="/attached_assets/unnamed (2)_1758652426094.png" 
             alt="Red Boot the Pirate"
             className="w-48 h-48 object-contain drop-shadow-xl"
           />
