@@ -291,7 +291,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
               Ahoy! New Week Ahead!
             </h2>
-            <p className="text-lg text-amber-800 mb-6">
+            <p className="text-lg text-amber-800 mb-4">
               Time to chart new waters, matey! Upload this week's spelling treasure map to continue your adventure.
             </p>
             <div className="flex gap-4 justify-center">
@@ -387,15 +387,16 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               </Button>
             </div>
           </CardContent>
-          {/* Red Boot Character Image */}
-          <div className="flex justify-center pb-6">
-            <img 
-              src="/attached_assets/17586521525263241886792965623303_1758652161458.png" 
-              alt="Red Boot the Pirate"
-              className="w-48 h-48 object-contain drop-shadow-xl"
-            />
-          </div>
         </Card>
+        
+        {/* Red Boot Character Image - Outside the yellow box */}
+        <div className="flex justify-center mt-6">
+          <img 
+            src="/attached_assets/17586521525263241886792965623303_1758652161458.png" 
+            alt="Red Boot the Pirate"
+            className="w-48 h-48 object-contain drop-shadow-xl"
+          />
+        </div>
       </div>
     );
   }
