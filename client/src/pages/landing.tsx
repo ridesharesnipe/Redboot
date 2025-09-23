@@ -76,12 +76,12 @@ export default function Landing() {
                 />
               </div>
               <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-                <div className="text-4xl md:text-5xl drop-shadow-lg text-sky-300" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
-                <div className="text-lg md:text-xl drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>The Pirate Captain</div>
+                <div className="text-5xl md:text-6xl drop-shadow-lg text-sky-300" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
+                <div className="text-xl md:text-2xl drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>The Pirate Captain</div>
               </div>
             </div>
           </div>
-          <h1 className="text-7xl md:text-9xl lg:text-[12rem] mb-20 md:mb-24 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <h1 className="text-7xl md:text-9xl lg:text-[12rem] mb-24 md:mb-28 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
           <p className="text-2xl md:text-4xl lg:text-5xl mb-12 text-white font-semibold drop-shadow-lg max-w-5xl mx-auto" data-testid="text-hero-subtitle">
