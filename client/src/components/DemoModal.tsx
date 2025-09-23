@@ -16,7 +16,7 @@ const demoSteps = [
     id: 1,
     title: "📤 Upload Your Homework",
     subtitle: "Upload a photo of your spelling list",
-    description: "First, take a photo of your weekly spelling homework with your phone's camera. Then upload it here and Red Boot's magic text recognition will extract all the words automatically!",
+    description: "Upload a photo or screenshot of your weekly spelling homework and Red Boot's magic text recognition will extract all the words automatically!",
     icon: <Upload className="w-12 h-12 text-blue-600" />,
     mockup: "photo-capture",
     features: ["Smart text recognition", "Multiple word detection", "Instant processing"]

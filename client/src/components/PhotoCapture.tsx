@@ -144,8 +144,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       
       playSound('ship_bell_success');
       toast({
-        title: "Photo Saved! 📸",
-        description: `Found ${words.length} words. Photo saved to your device.`,
+        title: "Image Uploaded! 📤",
+        description: `Found ${words.length} words. Saved in your browser storage.`,
       });
 
     } catch (error) {
