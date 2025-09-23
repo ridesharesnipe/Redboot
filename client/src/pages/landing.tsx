@@ -88,7 +88,7 @@ export default function Landing({ onStart }: LandingProps) {
           <h1 className="fluid-heading-xl mb-6 sm:mb-8 md:mb-12 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
-          <div className="mb-12 sm:mb-16 md:mb-24 flex justify-center">
+          <div className="mb-6 sm:mb-8 md:mb-10 flex justify-center">
             <i className="lni lni-compass text-8xl text-yellow-400 drop-shadow-lg" style={{ 
               fontFamily: 'LineIcons', 
               fontStyle: 'normal',
