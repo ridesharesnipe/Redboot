@@ -100,44 +100,44 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         </div>
         
         {/* Vibrant Daytime Treasure Trail - Brilliant Sky & Sun-Drenched */}
-        <div className="relative h-96 bg-gradient-to-b from-blue-400 via-sky-300 to-emerald-200 rounded-3xl overflow-hidden shadow-2xl border-4 border-yellow-400">
+        <div className="relative h-48 bg-gradient-to-b from-blue-400 via-sky-300 to-emerald-200 rounded-2xl overflow-hidden shadow-2xl border-2 border-yellow-400">
           
           {/* Brilliant Blue Sky with Fluffy White Clouds */}
           <div className="absolute inset-0">
             {/* Brilliant blue sky background */}
-            <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-blue-500 via-sky-400 to-sky-300"></div>
+            <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-500 via-sky-400 to-sky-300"></div>
             
             {/* Fluffy white clouds */}
-            <div className="absolute top-4 left-8 w-16 h-8 bg-white rounded-full opacity-90 shadow-lg"></div>
-            <div className="absolute top-3 left-12 w-12 h-6 bg-white rounded-full opacity-80"></div>
-            <div className="absolute top-2 right-12 w-20 h-10 bg-white rounded-full opacity-90 shadow-lg"></div>
-            <div className="absolute top-4 right-16 w-14 h-7 bg-white rounded-full opacity-80"></div>
-            <div className="absolute top-8 left-1/3 w-18 h-9 bg-white rounded-full opacity-85 shadow-md"></div>
+            <div className="absolute top-2 left-8 w-12 h-6 bg-white rounded-full opacity-90 shadow-lg"></div>
+            <div className="absolute top-1 left-12 w-10 h-5 bg-white rounded-full opacity-80"></div>
+            <div className="absolute top-1 right-12 w-14 h-7 bg-white rounded-full opacity-90 shadow-lg"></div>
+            <div className="absolute top-2 right-16 w-10 h-5 bg-white rounded-full opacity-80"></div>
+            <div className="absolute top-4 left-1/3 w-12 h-6 bg-white rounded-full opacity-85 shadow-md"></div>
             
             {/* Lush tropical ground areas */}
-            <div className="absolute top-32 left-0 right-0 bottom-0 bg-gradient-to-b from-emerald-300 via-green-400 to-green-500"></div>
+            <div className="absolute top-16 left-0 right-0 bottom-0 bg-gradient-to-b from-emerald-300 via-green-400 to-green-500"></div>
             
             {/* Stylized Lush Palm Trees - Vector Art Style */}
-            <div className="absolute bottom-4 left-2">
-              <div className="text-7xl transform rotate-12 filter drop-shadow-lg">🌴</div>
+            <div className="absolute bottom-2 left-1">
+              <div className="text-4xl transform rotate-12 filter drop-shadow-lg">🌴</div>
               <div className="absolute inset-0 bg-gradient-to-t from-green-600 to-transparent opacity-20 rounded-full"></div>
             </div>
-            <div className="absolute bottom-8 right-4">
-              <div className="text-6xl transform -rotate-12 filter drop-shadow-lg">🌴</div>
+            <div className="absolute bottom-4 right-2">
+              <div className="text-4xl transform -rotate-12 filter drop-shadow-lg">🌴</div>
               <div className="absolute inset-0 bg-gradient-to-t from-green-600 to-transparent opacity-20 rounded-full"></div>
             </div>
             <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
-              <div className="text-5xl transform rotate-45 filter drop-shadow-md">🌴</div>
+              <div className="text-3xl transform rotate-45 filter drop-shadow-md">🌴</div>
             </div>
             <div className="absolute top-1/2 right-0 transform -translate-y-1/2">
-              <div className="text-5xl transform -rotate-45 filter drop-shadow-md">🌴</div>
+              <div className="text-3xl transform -rotate-45 filter drop-shadow-md">🌴</div>
             </div>
             
             {/* Tropical flowers for vibrant atmosphere */}
-            <div className="absolute top-1/4 left-1/4 text-4xl opacity-70 filter drop-shadow-sm">🌺</div>
-            <div className="absolute bottom-1/4 right-1/4 text-4xl opacity-70 filter drop-shadow-sm">🌸</div>
-            <div className="absolute top-3/4 left-1/6 text-3xl opacity-60">🌼</div>
-            <div className="absolute top-1/6 right-1/6 text-3xl opacity-60">🌼</div>
+            <div className="absolute top-1/4 left-1/4 text-2xl opacity-70 filter drop-shadow-sm">🌺</div>
+            <div className="absolute bottom-1/4 right-1/4 text-2xl opacity-70 filter drop-shadow-sm">🌸</div>
+            <div className="absolute top-3/4 left-1/6 text-xl opacity-60">🌼</div>
+            <div className="absolute top-1/6 right-1/6 text-xl opacity-60">🌼</div>
           </div>
           
           {/* Sun-Drenched Golden Sandy Trail - 3D Depth & Dynamic Lighting */}
