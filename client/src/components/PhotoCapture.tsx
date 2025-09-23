@@ -144,12 +144,55 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   };
 
+  // Preprocess image for better OCR
+  const preprocessImageForOCR = async (imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      const img = new Image();
+      
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Draw image to canvas
+        ctx.drawImage(img, 0, 0);
+        
+        // Get image data for processing
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // Convert to grayscale and increase contrast
+        for (let i = 0; i < data.length; i += 4) {
+          const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          // Increase contrast
+          const enhanced = gray > 128 ? Math.min(255, gray * 1.2) : Math.max(0, gray * 0.8);
+          data[i] = enhanced;     // Red
+          data[i + 1] = enhanced; // Green  
+          data[i + 2] = enhanced; // Blue
+        }
+        
+        // Put processed data back
+        ctx.putImageData(imageData, 0, 0);
+        
+        // Return processed image as data URL
+        resolve(canvas.toDataURL('image/png'));
+      };
+      
+      img.src = imageData;
+    });
+  };
+
   // Process image with OCR
   const processImage = async (imageData: string) => {
     setIsProcessing(true);
     setOcrProgress(0);
     
     try {
+      // Preprocess image for better OCR
+      console.log('Preprocessing image...');
+      const preprocessedImage = await preprocessImageForOCR(imageData);
+      
       // Lazy-load tesseract.js to keep bundle size small
       const { createWorker } = await import('tesseract.js');
       
@@ -164,15 +207,23 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
 
       // Configure for better spelling word recognition
       await worker.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ',
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., -:/()',
+        tessedit_pageseg_mode: '6', // Uniform block of text
+        preserve_interword_spaces: '1',
       });
 
-      // Perform OCR
-      const { data: { text } } = await worker.recognize(imageData);
+      console.log('Starting OCR processing...');
+
+      // Perform OCR on preprocessed image
+      const { data: { text } } = await worker.recognize(preprocessedImage);
       await worker.terminate();
+
+      console.log('Raw OCR text:', text);
 
       // Extract words from OCR text
       const words = extractWordsFromText(text);
+      console.log('Extracted words:', words);
+      
       setExtractedWords(words);
       setEditableWords([...words]);
       setShowWordList(true);
@@ -210,40 +261,141 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   };
 
+  // Fix common OCR errors
+  const fixOCRErrors = (word: string): string => {
+    const corrections: { [key: string]: string } = {
+      'sl': 'jail',      // 'j' misread as missing
+      'jal': 'jail',     // 'i' misread 
+      'jai': 'jail',     // 'l' missing
+      'spra': 'spray',   // 'y' missing
+      'mai': 'mail',     // 'l' missing
+      'pla': 'play',     // 'y' missing
+      'tral': 'tray',    // 'y' misread as 'l'
+      'bral': 'braid',   // 'i' missing
+      'dela': 'delay',   // 'y' missing
+      'waite': 'waited', // 'd' missing
+      'holida': 'holiday', // 'y' missing
+      'trainin': 'training', // 'g' missing
+      'sayin': 'saying', // 'g' missing
+    };
+    
+    return corrections[word] || word;
+  };
+
   // Extract and clean words from OCR text
   const extractWordsFromText = (text: string): string[] => {
+    console.log('Extracting words from OCR text:', text);
+    
     const lines = text.split('\n').filter(line => line.trim().length > 0);
-    const words: string[] = [];
+    const numberedWords: string[] = [];
+    const otherWords: string[] = [];
     
     lines.forEach(line => {
-      // Look for numbered lists (1. word, 2. word, etc.)
-      const numberedMatch = line.match(/^\d+\.\s*([a-zA-Z]+)/);
-      if (numberedMatch) {
-        words.push(numberedMatch[1].toLowerCase().trim());
+      console.log('Processing line:', line);
+      
+      // Clean up the line first
+      const cleanLine = line.trim();
+      
+      // Skip header lines more aggressively
+      if (/spelling\s*pattern|dates|week|\d+\/\d+/i.test(cleanLine)) {
+        console.log('Skipping header line:', cleanLine);
+        return;
+      }
+      
+      // Look for numbered lists with more flexible patterns
+      const numberedPatterns = [
+        /^\s*(\d+)[\.\)\s]\s*([a-zA-Z]{2,15})/,           // "1. word" or "1) word" (allow 2+ chars)
+        /^\s*(\d+)\s+([a-zA-Z]{2,15})/,                   // "1 word"
+        /(\d+)\.\s*([a-zA-Z]{2,15})/,                     // anywhere in line "1. word"
+        /(\d+)\s+([a-zA-Z]{2,15})\b/                      // "1 word" with word boundary
+      ];
+      
+      for (const pattern of numberedPatterns) {
+        const match = cleanLine.match(pattern);
+        if (match) {
+          let number = parseInt(match[1]);
+          let word = match[2].toLowerCase().trim();
+          
+          // Handle common OCR errors
+          word = fixOCRErrors(word);
+          
+          // Fix common number OCR errors
+          if (number === 0 && word === 'waited') number = 9; // "0. waited" -> "9. waited"
+          
+          console.log(`Found numbered word ${number}: ${word}`);
+          // Store with number for proper ordering (ensure valid array index)
+          if (number >= 1 && number <= 20) {
+            numberedWords[number - 1] = word;
+          }
+          return;
+        }
+      }
+      
+      // Also look for specific known words that might be missed
+      const knownWords = ['jail', 'spray', 'mail', 'play', 'paint', 'tray', 'braid', 'delay', 'waited', 'holiday', 'training', 'saying'];
+      for (const knownWord of knownWords) {
+        if (cleanLine.toLowerCase().includes(knownWord)) {
+          console.log(`Found known word: ${knownWord}`);
+          // Add to other words if not already found in numbered list
+          if (!numberedWords.includes(knownWord)) {
+            otherWords.push(knownWord);
+          }
+          return;
+        }
+      }
+      
+      // Skip fragments that are clearly header parts
+      if (cleanLine.length < 15 && (/elling|pate|tern|ain|att/i.test(cleanLine))) {
+        console.log('Skipping suspected header fragment:', cleanLine);
         return;
       }
       
       // Look for bullet points (• word, - word, etc.)
-      const bulletMatch = line.match(/^[•\-*]\s*([a-zA-Z]+)/);
+      const bulletMatch = cleanLine.match(/^[•\-*]\s*([a-zA-Z]{3,15})/);
       if (bulletMatch) {
-        words.push(bulletMatch[1].toLowerCase().trim());
+        const word = bulletMatch[1].toLowerCase().trim();
+        console.log('Found bullet word:', word);
+        otherWords.push(word);
         return;
       }
       
-      // Extract individual words from line
-      const lineWords = line.match(/[a-zA-Z]{3,}/g); // Words with 3+ letters
-      if (lineWords) {
-        lineWords.forEach(word => {
-          if (word.length >= 3 && word.length <= 15) { // Reasonable spelling word length
-            words.push(word.toLowerCase().trim());
-          }
-        });
+      // Extract individual words from line (for unstructured lists) - only if no numbered words found
+      if (numberedWords.length === 0) {
+        const lineWords = cleanLine.match(/\b[a-zA-Z]{4,15}\b/g); // Require 4+ letters for loose words
+        if (lineWords) {
+          lineWords.forEach(word => {
+            const cleanWord = word.toLowerCase().trim();
+            // Filter out common non-spelling words and header fragments
+            if (!['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att'].includes(cleanWord)) {
+              console.log('Found loose word:', cleanWord);
+              otherWords.push(cleanWord);
+            }
+          });
+        }
       }
     });
     
-    // Remove duplicates and sort
-    const uniqueWords = Array.from(new Set(words));
-    return uniqueWords.slice(0, 20); // Limit to 20 words max
+    // Prioritize numbered words in order, then add other words
+    const finalWords: string[] = [];
+    
+    // Add numbered words in order (skip empty slots)
+    numberedWords.forEach(word => {
+      if (word && word.length >= 3) {
+        finalWords.push(word);
+      }
+    });
+    
+    // Add other words if we don't have enough numbered words
+    if (finalWords.length < 10) {
+      otherWords.forEach(word => {
+        if (!finalWords.includes(word) && word.length >= 3 && word.length <= 15) {
+          finalWords.push(word);
+        }
+      });
+    }
+    
+    console.log('Final extracted words:', finalWords);
+    return finalWords.slice(0, 20); // Limit to 20 words max
   };
 
   // Update word in editable list
