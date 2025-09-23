@@ -211,11 +211,11 @@ export default function Landing({ onStart }: LandingProps) {
             <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-50 to-white relative overflow-hidden">
               <CardContent className="pt-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-purple-200">
-                  <i className="lni lni-sword text-orange-400 text-5xl drop-shadow-lg" style={{ 
+                  <i className="lni lni-game text-orange-400 text-5xl drop-shadow-lg" style={{ 
                     backgroundColor: 'rgba(255,255,255,0.2)',
                     padding: '8px',
                     borderRadius: '50%'
-                  }}></i>
+                  }}>⚔️</i>
                 </div>
                 <h3 className="font-bold text-2xl mb-4 text-purple-800" data-testid="text-feature-game-title">
                   Epic Adventures
@@ -229,11 +229,11 @@ export default function Landing({ onStart }: LandingProps) {
             <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-cyan-300 bg-gradient-to-br from-cyan-100 via-blue-50 to-white relative overflow-hidden">
               <CardContent className="pt-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-cyan-200">
-                  <i className="lni lni-map text-red-400 text-5xl drop-shadow-lg" style={{ 
+                  <i className="lni lni-world text-red-400 text-5xl drop-shadow-lg" style={{ 
                     backgroundColor: 'rgba(255,255,255,0.2)',
                     padding: '8px',
                     borderRadius: '50%'
-                  }}></i>
+                  }}>🗺️</i>
                 </div>
                 <h3 className="font-bold text-2xl mb-4 text-cyan-800" data-testid="text-feature-progress-title">
                   Treasure Maps
