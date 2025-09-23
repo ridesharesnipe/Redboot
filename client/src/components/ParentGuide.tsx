@@ -273,21 +273,27 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
               <Crown className="w-6 h-6 text-red-600 mt-1" />
               <div>
                 <h4 className="font-bold text-red-800">When to Take the Test</h4>
-                <p className="text-gray-700">The "👑 Final Treasure Hunt" button will be enabled when your child has practiced enough. This usually happens by Thursday.</p>
+                <p className="text-gray-700">The "👑 Final Treasure Hunt" button will be enabled when your child has practiced enough. This usually happens by Thursday after 2-3 practice sessions.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Clock className="w-6 h-6 text-red-600 mt-1" />
               <div>
-                <h4 className="font-bold text-red-800">Realistic Test Conditions</h4>
-                <p className="text-gray-700">The test simulates real school conditions with proper timing, minimal distractions, and the same format as classroom tests.</p>
+                <h4 className="font-bold text-red-800">How the Test Works</h4>
+                <p className="text-gray-700">
+                  1. Click "👑 Final Treasure Hunt" from your dashboard<br/>
+                  2. Red Boot will speak each word clearly<br/>
+                  3. Your child types the spelling in the text box<br/>
+                  4. They press Enter or click Next to move to the next word<br/>
+                  5. No going back - just like a real school test!
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Star className="w-6 h-6 text-red-600 mt-1" />
               <div>
-                <h4 className="font-bold text-red-800">Detailed Results</h4>
-                <p className="text-gray-700">After the test, you'll see exactly which words your child got right or wrong, their overall score, and time spent.</p>
+                <h4 className="font-bold text-red-800">After the Test</h4>
+                <p className="text-gray-700">You'll see a detailed treasure map showing: overall score percentage, which words were correct/incorrect, time spent, and a celebration message. Results are automatically saved to track your child's weekly progress!</p>
               </div>
             </div>
             <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
@@ -315,7 +321,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
           <div className="space-y-4">
             <div>
               <h4 className="font-bold text-purple-800 mb-2">Camera Not Working?</h4>
-              <p className="text-gray-700">Make sure your browser has camera permissions enabled. You can also upload a photo from your device instead of taking a live photo.</p>
+              <p className="text-gray-700">Make sure your browser has camera permissions enabled. If your device doesn't have a camera, look for the "Upload Image" button to select a photo from your device files instead.</p>
             </div>
             <div>
               <h4 className="font-bold text-purple-800 mb-2">Words Not Extracted Correctly?</h4>
