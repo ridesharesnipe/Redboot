@@ -97,7 +97,7 @@ export default function Landing({ onStart }: LandingProps) {
             }}>🧭</i>
           </div>
           <div className="relative">
-            <div className="absolute top-0 right-16 -z-10 animate-pulse">
+            <div className="absolute -top-4 right-16 -z-10 animate-pulse">
               <i className="lni lni-island text-green-400 drop-shadow-2xl" style={{ 
                 fontSize: '12rem',
                 backgroundColor: 'rgba(34,197,94,0.15)',
