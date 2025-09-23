@@ -558,7 +558,11 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           ) : (
             <div className="text-center">
               <div className="mb-4 flex justify-center">
-                <i className="lni lni-anchor text-black" style={{ fontSize: '6rem' }}></i>
+                <i className="lni lni-anchor text-gray-600" style={{ 
+                  fontSize: '6rem',
+                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.4)'
+                }}></i>
               </div>
               <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-upload-ready">
                 Upload Spelling List Photo
