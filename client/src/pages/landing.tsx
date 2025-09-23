@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
-import OceanBlueCharacter from "@/components/OceanBlueCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
-import RayRayCharacter from "@/components/RayRayCharacter";
+import DiegoCharacter from "@/components/DiegoCharacter";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
 import { Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
@@ -141,10 +140,11 @@ export default function Landing({ onStart }: LandingProps) {
             Meet Your Pirate Crew!
           </h2>
           <p className="text-xl text-gray-600 mb-12">Join Red Boot and his friends on the greatest spelling adventure!</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
+            {/* Red Boot - Top */}
             <div className="text-center">
               <div className="mb-4 flex justify-center">
-                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
+                <div className="w-48 h-48 relative overflow-hidden rounded-3xl bg-transparent">
                   <img 
                     src={redBootCrew} 
                     alt="Red Boot the Brave Captain" 
@@ -152,42 +152,21 @@ export default function Landing({ onStart }: LandingProps) {
                   />
                 </div>
               </div>
-              <h3 className="font-bold text-lg text-green-700 mb-2">Red Boot</h3>
-              <p className="text-sm text-gray-600">The Brave Captain</p>
-              <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">FREE</div>
+              <h3 className="font-bold text-xl text-green-700 mb-2">Red Boot</h3>
+              <p className="text-base text-gray-600">The Brave Captain</p>
+              <div className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full mt-2 inline-block">FREE</div>
             </div>
             
+            {/* Diego - Bottom */}
             <div className="text-center">
               <div className="mb-4 flex justify-center">
-                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
-                  <OceanBlueCharacter size="medium" animated />
+                <div className="w-48 h-48 relative overflow-hidden rounded-3xl bg-transparent">
+                  <DiegoCharacter size="medium" animated />
                 </div>
               </div>
-              <h3 className="font-bold text-lg text-purple-700 mb-2">Ocean Blue</h3>
-              <p className="text-sm text-gray-600">Smart Explorer</p>
-              <div className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">PREMIUM</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
-                  <SaltyCharacter size="medium" animated />
-                </div>
-              </div>
-              <h3 className="font-bold text-lg text-amber-700 mb-2">Salty</h3>
-              <p className="text-sm text-gray-600">Loyal Companion</p>
-              <div className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">PREMIUM</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="w-40 h-40 relative overflow-hidden rounded-3xl bg-transparent">
-                  <RayRayCharacter size="medium" animated />
-                </div>
-              </div>
-              <h3 className="font-bold text-lg text-cyan-700 mb-2">Ray Ray</h3>
-              <p className="text-sm text-gray-600">Ocean Guide</p>
-              <div className="bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full mt-2 inline-block">PREMIUM</div>
+              <h3 className="font-bold text-xl text-brown-700 mb-2">Diego the Pup Pup</h3>
+              <p className="text-base text-gray-600">Loyal First Mate</p>
+              <div className="bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full mt-2 inline-block">FREE</div>
             </div>
           </div>
         </div>
@@ -231,7 +210,7 @@ export default function Landing({ onStart }: LandingProps) {
                   Epic Adventures
                 </h3>
                 <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-game-desc">
-                  Battle spelling monsters with Ocean Blue and discover hidden treasures across magical islands!
+                  Battle spelling monsters with Red Boot and Diego and discover hidden treasures across magical islands!
                 </p>
               </CardContent>
             </Card>
@@ -249,7 +228,7 @@ export default function Landing({ onStart }: LandingProps) {
                   Treasure Maps
                 </h3>
                 <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-progress-desc">
-                  Follow Ray Ray through underwater adventures and track your spelling progress on magical treasure maps!
+                  Follow Diego the Pup Pup through pirate adventures and track your spelling progress on magical treasure maps!
                 </p>
               </CardContent>
             </Card>

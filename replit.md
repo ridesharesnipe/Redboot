@@ -26,7 +26,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Game Engine Components
 - **Memory Training**: Spaced repetition system for word memorization with learning phases (study → recall → feedback)
-- **Character System**: Four unlockable pirate characters (Red Boot, Ocean Blue, Salty, Ray Ray) with unique personalities
+- **Character System**: Pirate characters including Red Boot (the brave captain) and Diego the Pup Pup (his loyal first mate) with unique personalities
 - **Progress Tracking**: Comprehensive analytics including accuracy rates, time spent, weekly streaks, and mastery levels
 - **Test Simulation**: Friday test simulator with realistic timing and parent voice recording features
 
