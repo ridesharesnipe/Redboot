@@ -65,11 +65,15 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto text-center relative z-10 pt-16">
           <div className="mb-20 flex justify-center">
             <div className="relative flex items-center justify-center float-animation">
-              <div className="w-80 h-80 relative overflow-hidden rounded-full" style={{ background: 'transparent' }}>
+              <div className="w-80 h-80 relative overflow-hidden rounded-full border-8 border-amber-400 bg-gradient-to-br from-amber-100 to-amber-200 shadow-2xl" 
+                   style={{ 
+                     background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #F59E0B 100%)',
+                     boxShadow: '0 0 30px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.3)'
+                   }}>
                 <img 
                   src={redBootLandingHead}
                   alt="Red Boot the Pirate Captain"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain p-2"
                   style={{
                     filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
                     background: 'transparent'
