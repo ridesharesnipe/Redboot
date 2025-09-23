@@ -74,7 +74,7 @@ export default function PhotoCapturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600">
       {/* Header */}
       <div className="p-4 flex items-center justify-between relative">
         <Button 
@@ -86,8 +86,8 @@ export default function PhotoCapturePage() {
           <ArrowLeft className="w-5 h-5" />
           Back to Harbor
         </Button>
-        <h1 className="text-3xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
-          <i className="lni lni-upload" style={{ fontSize: '2rem' }}></i>
+        <h1 className="text-5xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
+          <i className="lni lni-scroll" style={{ fontSize: '3rem' }}></i>
           Treasure Map Creator
         </h1>
         <div className="w-32"></div>
@@ -109,10 +109,10 @@ export default function PhotoCapturePage() {
                   <div className="mb-6">
                     <i className="lni lni-flag" style={{ fontSize: '5rem', color: '#000' }}></i>
                   </div>
-                  <h2 className="text-4xl font-pirate mb-6 text-white" data-testid="text-capture-title">
+                  <h2 className="text-6xl font-pirate mb-6 text-white" data-testid="text-capture-title">
                     Create Your Treasure Maps!
                   </h2>
-                  <p className="text-blue-600 mb-8 text-xl leading-relaxed" data-testid="text-capture-instructions">
+                  <p className="text-blue-100 mb-8 text-3xl leading-relaxed" data-testid="text-capture-instructions">
                     "Ahoy matey! Upload a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
                   </p>
                   
