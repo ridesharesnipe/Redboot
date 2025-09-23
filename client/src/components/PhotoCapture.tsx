@@ -510,7 +510,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
                 Upload Spelling List Photo
               </h3>
               <p className="text-muted-foreground mb-6" data-testid="text-upload-instructions">
-                Take a photo with your camera app, then upload it here
+                Upload a photo of your spelling homework here
               </p>
               <div className="flex flex-col gap-3">
                 <Button 

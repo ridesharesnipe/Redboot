@@ -1,20 +1,18 @@
 import { useState, useEffect } from "react";
+import { Router, Route, Switch, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SplashScreen from "@/components/SplashScreen";
 import Landing from "@/pages/landing";
+import PhotoCapturePage from "@/pages/photo-capture";
 import ParentDashboard from "@/components/ParentDashboard";
-import PhotoCapture from "@/components/PhotoCapture";
 import SimplePractice from "@/components/SimplePractice";
 import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
 
-type AppView = 'splash' | 'landing' | 'dashboard' | 'photo' | 'practice' | 'test' | 'guide';
-
 function App() {
-  const [currentView, setCurrentView] = useState<AppView>('splash');
   const [showSplash, setShowSplash] = useState(true);
 
   // Show splash screen only on first load
@@ -25,54 +23,11 @@ function App() {
       sessionStorage.setItem('redboot-splash-shown', 'true');
     } else {
       setShowSplash(false);
-      setCurrentView('landing');
     }
   }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
-    setCurrentView('landing');
-  };
-
-  const handleTakePhoto = () => {
-    setCurrentView('photo');
-  };
-
-  const handleViewPractice = () => {
-    setCurrentView('practice');
-  };
-
-  const handleStartTest = () => {
-    setCurrentView('test');
-  };
-
-  const handleViewGuide = () => {
-    setCurrentView('guide');
-  };
-
-  const handleBackToDashboard = () => {
-    setCurrentView('dashboard');
-  };
-
-  const handleWordsExtracted = (words: string[]) => {
-    // Words are already saved to localStorage by PhotoCapture component
-    setCurrentView('dashboard');
-  };
-
-  const handlePracticeComplete = (score: { correct: number; total: number; treasureEarned: number }) => {
-    // Show completion message and return to dashboard
-    setCurrentView('dashboard');
-  };
-
-  const handleTestComplete = (results: { 
-    score: number; 
-    total: number; 
-    percentage: number; 
-    results: any[];
-    timeSpent: number;
-  }) => {
-    // Show test results and return to dashboard
-    setCurrentView('dashboard');
   };
 
   // Show splash screen for first-time visitors
@@ -87,83 +42,75 @@ function App() {
     );
   }
 
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'landing':
-        return <Landing onStart={() => setCurrentView('dashboard')} />;
-      
-      case 'dashboard':
-        return (
-          <ParentDashboard
-            onTakePhoto={handleTakePhoto}
-            onViewPractice={handleViewPractice}
-            onStartTest={handleStartTest}
-            onViewGuide={handleViewGuide}
-          />
-        );
-      
-      case 'photo':
-        return (
-          <div className="container mx-auto p-4">
-            <PhotoCapture
-              onCapture={(imageData) => {
-                // Image captured and processed
-                console.log('Image captured:', imageData.length, 'characters');
-              }}
-              onWordsExtracted={handleWordsExtracted}
-              onCancel={handleBackToDashboard}
-            />
-          </div>
-        );
-      
-      case 'practice':
-        return (
-          <div className="container mx-auto p-4">
-            <SimplePractice
-              onComplete={handlePracticeComplete}
-              onCancel={handleBackToDashboard}
-            />
-          </div>
-        );
-      
-      case 'test':
-        return (
-          <div className="container mx-auto p-4">
-            <FridayTest
-              onComplete={handleTestComplete}
-              onCancel={handleBackToDashboard}
-            />
-          </div>
-        );
-      
-      case 'guide':
-        return (
-          <div className="container mx-auto p-4">
-            <ParentGuide onBack={handleBackToDashboard} />
-          </div>
-        );
-      
-      default:
-        return (
-          <ParentDashboard
-            onTakePhoto={handleTakePhoto}
-            onViewPractice={handleViewPractice}
-            onStartTest={handleStartTest}
-            onViewGuide={handleViewGuide}
-          />
-        );
-    }
+  // Route components with navigation handling
+  const LandingRoute = () => {
+    const [, setLocation] = useLocation();
+    return <Landing onStart={() => setLocation('/dashboard')} />;
+  };
+  
+  const DashboardRoute = () => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <ParentDashboard
+          onTakePhoto={() => setLocation('/photo-capture')}
+          onViewPractice={() => setLocation('/practice')}
+          onStartTest={() => setLocation('/test')}
+          onViewGuide={() => setLocation('/guide')}
+        />
+      </div>
+    );
+  };
+  
+  const PracticeRoute = () => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <SimplePractice
+          onComplete={() => setLocation('/dashboard')}
+          onCancel={() => setLocation('/dashboard')}
+        />
+      </div>
+    );
+  };
+  
+  const TestRoute = () => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <FridayTest
+          onComplete={() => setLocation('/dashboard')}
+          onCancel={() => setLocation('/dashboard')}
+        />
+      </div>
+    );
+  };
+  
+  const GuideRoute = () => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <ParentGuide onBack={() => setLocation('/dashboard')} />
+      </div>
+    );
   };
 
   return (
     <AudioProvider>
       <TooltipProvider>
         <Toaster />
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
-          <div className="container mx-auto p-4">
-            {renderCurrentView()}
+        <Router>
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
+            <Switch>
+              <Route path="/" component={LandingRoute} />
+              <Route path="/photo-capture" component={PhotoCapturePage} />
+              <Route path="/dashboard" component={DashboardRoute} />
+              <Route path="/practice" component={PracticeRoute} />
+              <Route path="/test" component={TestRoute} />
+              <Route path="/guide" component={GuideRoute} />
+            </Switch>
           </div>
-        </div>
+        </Router>
       </TooltipProvider>
     </AudioProvider>
   );
