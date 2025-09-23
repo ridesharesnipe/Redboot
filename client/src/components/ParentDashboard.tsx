@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { spellingStorage } from '@/lib/localStorage';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
 import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2 } from 'lucide-react';
 
@@ -25,6 +24,9 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     treasureCount: number;
   } | null>(null);
 
+  // Week detection state
+  const [showNewWeekPrompt, setShowNewWeekPrompt] = useState(false);
+
   const [weekData, setWeekData] = useState<{
     words: string[];
     practiceData: { [word: string]: any };
@@ -36,13 +38,63 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const [showPhotoHistory, setShowPhotoHistory] = useState(false);
   const [storageSize, setStorageSize] = useState<string>('');
 
+  // Check if new week detection is needed
+  const checkIfNewWeek = () => {
+    const saved = localStorage.getItem('currentSpellingWords');
+    if (!saved) return true;
+    
+    try {
+      const { savedDate } = JSON.parse(saved);
+      if (!savedDate) return true;
+      
+      const lastDate = new Date(savedDate);
+      const now = new Date();
+      const daysSince = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      return daysSince >= 7; // New week if 7+ days
+    } catch (e) {
+      return true;
+    }
+  };
+
+  const checkWeekStatus = () => {
+    if (checkIfNewWeek()) {
+      setShowNewWeekPrompt(true);
+    } else {
+      // Load current words and basic stats
+      const saved = localStorage.getItem('currentSpellingWords');
+      if (saved) {
+        try {
+          const { words, savedDate } = JSON.parse(saved);
+          setStats({
+            totalWords: words?.length || 0,
+            newWords: 0,
+            learningWords: 0, 
+            masteredWords: 0,
+            troubleWords: 0,
+            daysThisWeek: [false, false, false, false, false],
+            readyForTest: false,
+            treasureCount: 0
+          });
+          
+          // Set weekData to prevent null reference errors
+          setWeekData({
+            words: words || [],
+            practiceData: {},
+            weekStart: new Date(savedDate || Date.now()),
+            practiceHistory: []
+          });
+        } catch (e) {
+          console.error('Failed to parse words:', e);
+        }
+      }
+    }
+  };
+
   // Load stats and photos on component mount
   useEffect(() => {
     try {
-      const currentStats = spellingStorage.getPracticeStats();
-      const currentWeek = spellingStorage.getCurrentWeek();
-      setStats(currentStats);
-      setWeekData(currentWeek);
+      checkWeekStatus();
       loadPhotos();
       loadStorageSize();
     } catch (error) {
@@ -81,10 +133,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   // Refresh stats (useful for parent to check progress)
   const refreshStats = () => {
     try {
-      const currentStats = spellingStorage.getPracticeStats();
-      const currentWeek = spellingStorage.getCurrentWeek();
-      setStats(currentStats);
-      setWeekData(currentWeek);
+      checkWeekStatus();
     } catch (error) {
       console.error('Error refreshing stats:', error);
     }
@@ -172,7 +221,88 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     }
   };
 
-  if (!stats || !weekData) {
+  // Show new week prompt if needed
+  if (showNewWeekPrompt) {
+    return (
+      <div className="text-center">
+        <Card className="max-w-2xl mx-auto bg-gradient-to-br from-amber-100 to-yellow-100 border-4 border-amber-300">
+          <CardContent className="p-8">
+            <div className="text-6xl mb-4">🗓️</div>
+            <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+              Ahoy! New Week Ahead!
+            </h2>
+            <p className="text-lg text-amber-800 mb-6">
+              Time to chart new waters, matey! Upload this week's spelling treasure map to continue your adventure.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button 
+                onClick={() => {
+                  onTakePhoto();
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+                data-testid="button-upload-new-week"
+              >
+                📤 Upload New Week's Words
+              </Button>
+              <Button 
+                onClick={() => {
+                  setShowNewWeekPrompt(false);
+                  // Populate default data when continuing current week
+                  const saved = localStorage.getItem('currentSpellingWords');
+                  if (saved) {
+                    try {
+                      const { words, savedDate } = JSON.parse(saved);
+                      setStats({
+                        totalWords: words?.length || 0,
+                        newWords: 0,
+                        learningWords: 0, 
+                        masteredWords: 0,
+                        troubleWords: 0,
+                        daysThisWeek: [false, false, false, false, false],
+                        readyForTest: false,
+                        treasureCount: 0
+                      });
+                      setWeekData({
+                        words: words || [],
+                        practiceData: {},
+                        weekStart: new Date(savedDate || Date.now()),
+                        practiceHistory: []
+                      });
+                    } catch (e) {
+                      // Set safe defaults if parse fails
+                      setStats({
+                        totalWords: 0,
+                        newWords: 0,
+                        learningWords: 0, 
+                        masteredWords: 0,
+                        troubleWords: 0,
+                        daysThisWeek: [false, false, false, false, false],
+                        readyForTest: false,
+                        treasureCount: 0
+                      });
+                      setWeekData({
+                        words: [],
+                        practiceData: {},
+                        weekStart: new Date(),
+                        practiceHistory: []
+                      });
+                    }
+                  }
+                }}
+                variant="outline"
+                className="px-6 py-3"
+                data-testid="button-continue-current-week"
+              >
+                Continue Current Week
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!stats) {
     return (
       <Card className="max-w-4xl mx-auto bg-gradient-to-br from-blue-900 to-indigo-800 border-2 border-amber-400">
         <CardContent className="p-8 text-center">
@@ -209,7 +339,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   🏴‍☠️ Captain's Adventure Log 🏴‍☠️
                 </CardTitle>
                 <p className="text-amber-200 mt-1 text-lg">
-                  ⚓ Week of {weekData.weekStart.toLocaleDateString()} ⚓
+                  ⚓ Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'} ⚓
                 </p>
               </div>
             </div>
@@ -463,7 +593,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               <div className="text-left">
                 <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>⚓ Daily Adventure</div>
                 <div className="text-sm opacity-80">
-                  {spellingStorage.getTodaysPracticeWords().length} treasures await
+                  {stats?.totalWords || 0} treasures await
                 </div>
               </div>
             </Button>

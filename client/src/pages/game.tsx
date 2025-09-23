@@ -23,43 +23,30 @@ export default function Game() {
   const [gameMode, setGameMode] = useState<"manager" | "practice" | "test">("manager");
   const [wordProgress, setWordProgress] = useState<WordProgress[]>([]);
 
-  // Try to get words from localStorage (from photo capture) or database
+  // Simplified localStorage approach
   const [currentWords, setCurrentWords] = useState<string[]>([]);
 
-  const { data: child } = useQuery<Child>({
-    queryKey: ["/api/children", childId],
-    retry: false,
-  });
-
-  const { data: wordLists } = useQuery<WordList[]>({
-    queryKey: ["/api/children", childId, "wordlists"],
-    retry: false,
-  });
-
-  // Initialize words - prioritize localStorage from photo capture
+  // Initialize words from localStorage only
   useEffect(() => {
-    const photoWords = localStorage.getItem('spellingWords');
-    if (photoWords) {
+    const saved = localStorage.getItem('currentSpellingWords');
+    if (saved) {
       try {
-        const parsedWords = JSON.parse(photoWords);
-        if (Array.isArray(parsedWords) && parsedWords.length > 0) {
-          setCurrentWords(parsedWords);
-          return;
+        const { words } = JSON.parse(saved);
+        if (words && words.length > 0) {
+          setCurrentWords(words);
         }
       } catch (e) {
-        console.error('Failed to parse localStorage words:', e);
+        console.error('Failed to parse saved words:', e);
       }
-    }
-    
-    // Fallback to database words
-    const currentWordList = wordLists?.[0];
-    if (currentWordList?.words && currentWordList.words.length > 0) {
-      setCurrentWords(currentWordList.words);
     } else {
-      // Use default practice words if no homework photo yet
-      setCurrentWords(["adventure", "treasure", "pirate", "sailing", "captain", "island", "ocean", "compass", "anchor", "ship"]);
+      toast({
+        title: "No words found!",
+        description: "Upload a spelling list first.",
+        variant: "destructive",
+      });
+      setLocation('/photo-capture');
     }
-  }, [wordLists]);
+  }, []);
 
   const saveProgressMutation = useMutation({
     mutationFn: async (progressData: any) => {

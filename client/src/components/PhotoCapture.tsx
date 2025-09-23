@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
-import { spellingStorage } from "@/lib/localStorage";
 import { photoStorage, getWeekStart } from "@/lib/photoStorage";
 import { Upload, Check, X, Edit, Loader } from 'lucide-react';
 
@@ -369,8 +368,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       return;
     }
 
-    // Save to spellingStorage (used by practice system)
-    spellingStorage.saveWordList(finalWords);
+    // Storage handled by localStorage only (simplified approach)
     
     // Also save to photoStorage for historical reference
     try {

@@ -7,7 +7,6 @@ import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
-import { spellingStorage } from "@/lib/localStorage";
 import { Upload, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
 
 export default function PhotoCapturePage() {
@@ -32,8 +31,7 @@ export default function PhotoCapturePage() {
     localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
     console.log('💾 Parent saved words to localStorage:', words);
     
-    // Also save to existing spellingStorage for compatibility
-    spellingStorage.saveWordList(words);
+    // Using simplified localStorage approach
   };
 
   const handleRetake = () => {
@@ -47,8 +45,7 @@ export default function PhotoCapturePage() {
     localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
     console.log('💾 HandleSaveWords saved:', extractedWords);
     
-    // Also save to existing spellingStorage for compatibility
-    spellingStorage.saveWordList(extractedWords);
+    // Using simplified localStorage approach
     
     toast({
       title: "Treasure Maps Saved!",
@@ -63,8 +60,7 @@ export default function PhotoCapturePage() {
     localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
     console.log('💾 HandleStartPractice saved:', extractedWords);
     
-    // Also save to existing spellingStorage for compatibility
-    spellingStorage.saveWordList(extractedWords);
+    // Using simplified localStorage approach
     
     toast({
       title: "Starting Adventure!", 
@@ -249,46 +245,6 @@ export default function PhotoCapturePage() {
         </div>
       </div>
 
-      {/* FIX 7: Test helpers for verification */}
-      <div style={{position: 'fixed', bottom: 0, right: 0, padding: 10, background: '#eee', border: '1px solid #ccc', borderRadius: '8px', fontSize: '12px', zIndex: 1000}}>
-        <div style={{marginBottom: '5px', fontWeight: 'bold'}}>Storage Test Tools:</div>
-        <button 
-          onClick={() => {
-            const test = ['apple', 'banana', 'orange'];
-            const dataToSave = { words: test, savedDate: new Date().toISOString() };
-            localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-            alert('Saved test words: ' + test.join(', '));
-          }}
-          style={{marginRight: '5px', padding: '2px 6px', fontSize: '11px'}}
-        >
-          Save Test Words
-        </button>
-        
-        <button 
-          onClick={() => {
-            const saved = localStorage.getItem('currentSpellingWords');
-            if (saved) {
-              const data = JSON.parse(saved);
-              alert('Current words: ' + (data.words || []).join(', '));
-            } else {
-              alert('No words in storage');
-            }
-          }}
-          style={{marginRight: '5px', padding: '2px 6px', fontSize: '11px'}}
-        >
-          Check Storage
-        </button>
-        
-        <button 
-          onClick={() => {
-            localStorage.removeItem('currentSpellingWords');
-            alert('Cleared spelling words');
-          }}
-          style={{padding: '2px 6px', fontSize: '11px'}}
-        >
-          Clear Words
-        </button>
-      </div>
     </div>
   );
 }

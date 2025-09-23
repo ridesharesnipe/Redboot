@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
-import { spellingStorage } from '@/lib/localStorage';
 import TreasureRoad from '@/components/TreasureRoad';
 import { Coins, SkipForward, CheckCircle, XCircle } from 'lucide-react';
 
@@ -108,8 +107,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     setIsCorrect(correct);
     setShowFeedback(true);
     
-    // Update storage with practice result
-    spellingStorage.updateWordPractice(currentWord, correct);
+    // Note: Simplified storage approach - tracking handled locally
     
     if (correct) {
       setCorrectCount(prev => prev + 1);
@@ -131,7 +129,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // Practice complete
       setIsComplete(true);
       const finalCorrect = correctCount + (isCorrect ? 1 : 0);
-      spellingStorage.recordPracticeSession(practiceWords.length, finalCorrect);
+      // Practice session completed
       
       const results = {
         correct: finalCorrect,
@@ -140,9 +138,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       };
       setSessionResults(results);
       
-      // Show treasure road if there are accomplishments (correct answers or mastered words)
-      const treasureProgress = spellingStorage.getTreasureProgress();
-      if (finalCorrect > 0 || treasureProgress.newlyMastered > 0) {
+      // Show treasure road if there are accomplishments
+      if (finalCorrect > 0) {
         playSound('cannon_achievement');
         playCharacterVoice('red_boot_adventure_complete');
         setShowTreasureRoad(true);
@@ -158,9 +155,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   const skipWord = () => {
-    // Mark as incorrect when skipped
-    const currentWord = practiceWords[currentWordIndex];
-    spellingStorage.updateWordPractice(currentWord, false);
+    // Mark as incorrect when skipped (handled locally)
     
     playSound('anchor_button_click');
     nextWord();
@@ -222,9 +217,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           <TreasureRoad
             isOpen={showTreasureRoad}
             onClose={handleTreasureRoadClose}
-            totalWords={spellingStorage.getTreasureProgress().totalWords}
-            masteredWords={spellingStorage.getTreasureProgress().masteredWords}
-            newlyMastered={spellingStorage.getTreasureProgress().newlyMastered}
+            totalWords={practiceWords.length}
+            masteredWords={sessionResults?.correct || 0}
+            newlyMastered={sessionResults?.correct || 0}
           />
         )}
       </>

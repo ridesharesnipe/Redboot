@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Component, ReactNode } from "react";
 import { Router, Route, Switch, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +10,54 @@ import SimplePractice from "@/components/SimplePractice";
 import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
-import { spellingStorage } from "@/lib/localStorage";
+
+// Proper React Error Boundary component - moved to module scope for stability
+class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
+  constructor(props: {children: ReactNode, componentName: string}) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error(`${this.props.componentName} error:`, error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="container mx-auto p-8 text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+            <div className="text-red-600 text-xl mb-2">⚠️ Something went wrong</div>
+            <p className="text-red-700 mb-4">
+              Error loading {this.props.componentName.toLowerCase()}. Don't worry, your progress is saved!
+            </p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Error boundary wrapper for routes
+const withErrorBoundary = (Component: () => JSX.Element, componentName: string) => {
+  return () => (
+    <ErrorBoundary componentName={componentName}>
+      <Component />
+    </ErrorBoundary>
+  );
+};
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -42,13 +89,14 @@ function App() {
     );
   }
 
-  // Route components with navigation handling
-  const LandingRoute = () => {
+
+  // Route components with navigation handling and error boundaries
+  const LandingRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
     return <Landing onStart={() => setLocation('/dashboard')} />;
-  };
+  }, "Landing");
   
-  const DashboardRoute = () => {
+  const DashboardRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
     return (
       <div className="container mx-auto p-4">
@@ -60,9 +108,9 @@ function App() {
         />
       </div>
     );
-  };
+  }, "Dashboard");
   
-  const PracticeRoute = () => {
+  const PracticeRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
     return (
       <div className="container mx-auto p-4">
@@ -72,9 +120,9 @@ function App() {
         />
       </div>
     );
-  };
+  }, "Practice");
   
-  const TestRoute = () => {
+  const TestRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
     return (
       <div className="container mx-auto p-4">
@@ -84,16 +132,16 @@ function App() {
         />
       </div>
     );
-  };
+  }, "Test");
   
-  const GuideRoute = () => {
+  const GuideRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
     return (
       <div className="container mx-auto p-4">
         <ParentGuide onBack={() => setLocation('/dashboard')} />
       </div>
     );
-  };
+  }, "Guide");
 
   return (
     <AudioProvider>
@@ -103,7 +151,7 @@ function App() {
           <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
             <Switch>
               <Route path="/" component={LandingRoute} />
-              <Route path="/photo-capture" component={PhotoCapturePage} />
+              <Route path="/photo-capture" component={withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture")} />
               <Route path="/dashboard" component={DashboardRoute} />
               <Route path="/practice" component={PracticeRoute} />
               <Route path="/test" component={TestRoute} />
