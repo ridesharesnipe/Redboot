@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
+import { photoStorage, getWeekStart } from "@/lib/photoStorage";
 import { Camera, Upload, Check, X, Edit, Loader, ArrowLeft } from 'lucide-react';
 
 interface PhotoCaptureProps {
@@ -154,11 +155,25 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setExtractedWords(words);
       setEditableWords([...words]);
       setShowWordList(true);
+
+      // Save photo to free browser storage
+      try {
+        await photoStorage.savePhoto({
+          imageData,
+          extractedWords: words,
+          wordsCount: words.length,
+          capturedAt: new Date(),
+          weekStart: getWeekStart(),
+        });
+      } catch (storageError) {
+        console.error('Error saving photo to storage:', storageError);
+        // Don't fail the entire process if storage fails
+      }
       
       playSound('ship_bell_success');
       toast({
-        title: "Words Extracted!",
-        description: `Found ${words.length} words. Please verify they're correct.`,
+        title: "Photo Saved! 📸",
+        description: `Found ${words.length} words. Photo saved to your device.`,
       });
 
     } catch (error) {

@@ -2,11 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { ObjectStorageService } from "./objectStorage";
 // No authentication imports needed for streamlined experience
-import { insertChildSchema, insertWordListSchema, insertProgressSchema, insertPhotoSchema, photos } from "@shared/schema";
+import { insertChildSchema, insertWordListSchema, insertProgressSchema } from "@shared/schema";
 import { z } from "zod";
-import { db } from "./db";
 
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
@@ -23,53 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
   });
 
-  // Photo storage routes
-  const objectStorageService = new ObjectStorageService();
-  
-  // Get upload URL for a new photo
-  app.post('/api/photos/upload-url', async (req, res) => {
-    try {
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
-
-  // Save photo metadata after upload
-  app.post('/api/photos', async (req, res) => {
-    try {
-      const photoData = insertPhotoSchema.parse(req.body);
-      const [photo] = await db.insert(photos).values(photoData).returning();
-      res.json(photo);
-    } catch (error) {
-      console.error("Error saving photo:", error);
-      res.status(500).json({ error: "Failed to save photo" });
-    }
-  });
-
-  // Get photo history
-  app.get('/api/photos', async (req, res) => {
-    try {
-      const photoHistory = await db.select().from(photos).orderBy(photos.capturedAt);
-      res.json(photoHistory);
-    } catch (error) {
-      console.error("Error fetching photos:", error);
-      res.status(500).json({ error: "Failed to fetch photos" });
-    }
-  });
-
-  // Serve photos from object storage
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    try {
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      objectStorageService.downloadObject(objectFile, res);
-    } catch (error) {
-      console.error("Error accessing photo:", error);
-      res.sendStatus(404);
-    }
-  });
+  // Photos now stored in browser IndexedDB - no server routes needed!
 
   // Stripe routes (if Stripe is configured)
   if (stripe) {
