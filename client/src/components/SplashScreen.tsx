@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAudio } from "@/contexts/AudioContext";
 import { Flag } from "lucide-react";
-import redBootSplash from "@assets/1758566743495_1758576984375.jpg";
+import redBootSplash from "@assets/17585900152718502939350575537720_1758590021649.png";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -90,11 +90,16 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Red Boot character - centered and large */}
         <div className="mb-8 flex justify-center">
           <div className="relative transform animate-float">
-            <img 
-              src={redBootSplash} 
-              alt="Red Boot the Pirate" 
-              className="w-80 h-80 md:w-96 md:h-96 object-contain drop-shadow-2xl red-boot-clean"
-            />
+            <div className="w-96 h-96 md:w-[28rem] md:h-[28rem] relative overflow-hidden rounded-full bg-white border-4 border-white shadow-xl">
+              <img 
+                src={redBootSplash} 
+                alt="Red Boot the Pirate" 
+                className="w-full h-full object-cover"
+                style={{
+                  filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
+                }}
+              />
+            </div>
             {/* Speech bubble */}
             <div className="absolute -top-8 -right-8 bg-white rounded-3xl px-6 py-4 border-4 border-gray-800 transform rotate-12 animate-pulse">
               <p className="text-2xl font-bold text-gray-800 font-sans">
