@@ -144,7 +144,7 @@ export default function TestSimulator() {
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <Button 
               variant="ghost"
-              onClick={() => setLocation("/")}
+              onClick={() => setLocation("/dashboard")}
               data-testid="button-back"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
