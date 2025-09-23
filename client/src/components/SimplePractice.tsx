@@ -362,22 +362,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const currentWord = practiceWords[currentWordIndex];
   const progress = ((currentWordIndex + 1) / practiceWords.length) * 100;
 
-  // Show treasure road during milestone celebrations
-  if (showTreasureRoad) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
-        <div className="flex items-center justify-center min-h-screen">
-          <TreasureRoad
-            totalWords={practiceWords.length}
-            masteredWords={correctCount}
-            treasureJustUnlocked={currentTreasure || undefined}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
+      <div className="max-w-4xl mx-auto space-y-4">
+        {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-8">
         {/* Header with progress and treasure */}
@@ -507,5 +495,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         )}
       </CardContent>
     </Card>
+    
+    {/* Always Visible Treasure Road - Large and Prominent */}
+    <div className="w-full">
+      <TreasureRoad
+        totalWords={practiceWords.length}
+        masteredWords={correctCount}
+        treasureJustUnlocked={showTreasureRoad ? (currentTreasure || undefined) : undefined}
+      />
+    </div>
+    
+    </div>
+  </div>
   );
 }
