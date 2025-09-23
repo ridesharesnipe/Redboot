@@ -8,7 +8,7 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
-  const [timeLeft, setTimeLeft] = useState(8);
+  const [timeLeft, setTimeLeft] = useState(23);
   const [isVisible, setIsVisible] = useState(true);
   const { startBackgroundMusic, playCharacterVoice } = useAudio();
 
@@ -107,6 +107,19 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
               </p>
               <div className="absolute bottom-0 left-10 w-0 h-0 border-l-6 border-r-6 border-t-12 border-transparent border-t-white transform translate-y-3"></div>
             </div>
+          </div>
+        </div>
+
+        {/* Unique app messaging */}
+        <div className="mb-8">
+          <div className="text-xl md:text-2xl text-yellow-200 font-bold drop-shadow-lg mb-4" style={{ fontFamily: "'Pirata One', cursive" }}>
+            The World's First Wireless Pirate Spelling App!
+          </div>
+          <div className="text-lg md:text-xl text-white font-bold drop-shadow-lg mb-2" style={{ fontFamily: "'Pirata One', cursive" }}>
+            Breaking New Ground - No Other App Does This!
+          </div>
+          <div className="text-base md:text-lg text-sky-200 font-bold drop-shadow-lg" style={{ fontFamily: "'Pirata One', cursive" }}>
+            Revolutionary Pirate Learning Adventure
           </div>
         </div>
 
