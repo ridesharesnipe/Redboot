@@ -1,0 +1,103 @@
+Streamline & Fix Remaining Issues Prompt
+The app's data flow is working but has redundant storage and some components aren't connected. Make these specific fixes to streamline everything:
+
+FIX 1 - SIMPLIFY STORAGE TO ONE APPROACH:
+Currently saving to BOTH localStorage AND spellingStorage. Pick ONE approach:
+
+In PhotoCapture.tsx, REMOVE duplicate saves and use only localStorage:
+- Remove all spellingStorage.saveWordList() calls
+- Keep only localStorage.setItem('currentSpellingWords', ...) 
+- This is simpler and works reliably
+
+In SimplePractice.tsx:
+- It already reads from localStorage first (good!)
+- Remove fallback to spellingStorage.getTodaysPracticeWords()
+
+FIX 2 - CONNECT TREASURE ROAD VISUALIZATION:
+The TreasureRoad component exists but isn't showing progress properly.
+
+In SimplePractice.tsx, update the TreasureRoad props:
+```javascript
+<TreasureRoad 
+  totalWords={practiceWords.length}
+  masteredWords={correctAnswers}  // Pass actual correct count
+  currentWord={currentWordIndex + 1}
+/>
+FIX 3 - REMOVE DEBUG HELPERS FROM PRODUCTION:
+In photo-capture.tsx, remove the test helper buttons (lines 279-307) - they're for debugging only.
+FIX 4 - FIX GAME NAVIGATION:
+In Game.tsx (if it exists), replace complex database logic with simple localStorage:
+javascriptuseEffect(() => {
+  const saved = localStorage.getItem('currentSpellingWords');
+  if (saved) {
+    const { words } = JSON.parse(saved);
+    setCurrentWords(words);
+  } else {
+    toast.error('No words found! Upload a spelling list first.');
+    setLocation('/photo-capture');
+  }
+}, []);
+FIX 5 - ENSURE CONSISTENT FLOW:
+Make sure ALL components use this flow:
+
+Photo upload → saves to localStorage 'currentSpellingWords'
+Practice/Test → reads from localStorage 'currentSpellingWords'
+Dashboard → checks if localStorage has words to show status
+
+FIX 6 - ADD WEEK DETECTION:
+Add simple week management to ParentDashboard:
+javascriptconst checkIfNewWeek = () => {
+  const lastUpload = localStorage.getItem('lastUploadDate');
+  if (!lastUpload) return true;
+  
+  const lastDate = new Date(lastUpload);
+  const now = new Date();
+  const daysSince = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+  
+  return daysSince >= 7; // New week if 7+ days
+};
+
+// Show prompt if new week
+if (checkIfNewWeek()) {
+  return <PromptNewWeekUpload />;
+}
+FIX 7 - CLEAN UP ROUTES:
+Simplify App.tsx routes - you have both /game and /practice doing similar things.
+Keep only:
+
+/ (landing)
+/photo-capture (upload)
+/dashboard (parent view)
+/practice (daily practice with treasure road)
+/test (Friday test mode)
+
+Remove /game route entirely - use /practice for all practice.
+FIX 8 - ADD ERROR BOUNDARIES:
+Wrap main components to prevent crashes:
+javascriptconst PracticeWithErrorBoundary = () => {
+  try {
+    return <SimplePractice ... />;
+  } catch (error) {
+    console.error('Practice error:', error);
+    return <div>Error loading practice. <button onClick={() => window.location.reload()}>Reload</button></div>;
+  }
+};
+DON'T CHANGE:
+
+UI appearance
+Pirate theme
+Audio system
+Core game mechanics
+Component styling
+
+This will give you a clean, streamlined flow:
+
+ONE storage system (localStorage)
+Clear navigation path
+Working treasure road
+No redundant code
+Everything connected properly
+
+The app will work as: Upload photo → Words saved → Practice shows treasure road → Progress visible → Friday test ready.
+
+This will clean up your code without changing how it looks or works for users, just making the internal data flow much cleaner and more reliable.RetryClaude can make mistakes. Please double-check responses.
