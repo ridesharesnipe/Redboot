@@ -42,19 +42,46 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
   
   const milestones = getMilestones();
   
+  // Calculate Red Boot's position along the S-curve path based on progress
+  const getRedBootPosition = () => {
+    if (progress < 25) {
+      return {
+        left: 12.5 + (progress / 25) * 75,
+        top: 13
+      };
+    } else if (progress < 50) {
+      return {
+        left: 87.5 - ((progress - 25) / 25) * 50,
+        top: 26 + ((progress - 25) / 25) * 13
+      };
+    } else if (progress < 75) {
+      return {
+        left: 37.5 - ((progress - 50) / 25) * 25,
+        top: 39 + ((progress - 50) / 25) * 26
+      };
+    } else {
+      return {
+        left: 12.5 + ((progress - 75) / 25) * 75,
+        top: 65 + ((progress - 75) / 25) * 26
+      };
+    }
+  };
+  
+  const redBootPos = getRedBootPosition();
+
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="relative bg-gradient-to-b from-blue-300 to-yellow-100 rounded-3xl p-8 shadow-2xl border-4 border-amber-600">
+    <div className="w-full max-w-5xl mx-auto p-6">
+      <div className="relative bg-gradient-to-b from-blue-300 to-yellow-100 rounded-3xl p-10 shadow-2xl border-4 border-amber-600">
         
         {/* Title */}
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-amber-900">Treasure Road Adventure</h2>
-          <p className="text-amber-700">{masteredWords} of {totalWords} words mastered!</p>
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold text-amber-900">🏴‍☠️ Red Boot's Treasure Road 🏴‍☠️</h2>
+          <p className="text-xl text-amber-700 font-semibold">{masteredWords} of {totalWords} words mastered!</p>
         </div>
         
-        {/* S-shaped road container */}
-        <div className="relative h-96">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 380">
+        {/* S-shaped road container - Make it larger */}
+        <div className="relative h-[28rem]">
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 420">
             {/* Background decorations */}
             <text x="30" y="30" fontSize="30" opacity="0.3">🌴</text>
             <text x="350" y="50" fontSize="30" opacity="0.3">🌴</text>
@@ -145,16 +172,21 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
               );
             })}
             
-            {/* Red Boot character */}
+            {/* Red Boot character - Moving along the actual path */}
             <div 
-              className="absolute flex items-center justify-center animate-pulse"
+              className="absolute flex items-center justify-center transition-all duration-1000 ease-in-out"
               style={{ 
-                left: `${12.5 + (progress * 0.75)}%`, 
-                top: `${13 + (progress * 0.75)}%`,
+                left: `${redBootPos.left}%`, 
+                top: `${redBootPos.top}%`,
                 transform: 'translate(-50%, -50%)' 
               }}
             >
-              <span style={{ fontSize: '2.5rem' }}>🏴‍☠️</span>
+              <div className="relative">
+                {/* Red Boot with bigger size and glow effect */}
+                <span style={{ fontSize: '3.5rem' }} className="relative z-10">🏴‍☠️</span>
+                {/* Glowing effect behind Red Boot */}
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-60 animate-pulse"></div>
+              </div>
             </div>
           </div>
         </div>
