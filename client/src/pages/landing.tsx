@@ -161,7 +161,7 @@ export default function Landing({ onStart }: LandingProps) {
             <div className="text-center">
               <div className="mb-4 flex justify-center">
                 <div className="w-48 h-48 relative overflow-hidden rounded-3xl bg-transparent">
-                  <DiegoCharacter size="medium" animated />
+                  <DiegoCharacter size="large" animated />
                 </div>
               </div>
               <h3 className="font-bold text-xl text-brown-700 mb-2">Diego the Pup Pup</h3>
