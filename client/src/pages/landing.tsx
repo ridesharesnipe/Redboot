@@ -50,15 +50,8 @@ export default function Landing() {
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20">
           <div className="max-w-7xl mx-auto flex items-center justify-center">
-            <div className="flex items-center space-x-4 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
-              <div className="flex-shrink-0">
-                <img 
-                  src={redBootIcon} 
-                  alt="Red Boot Icon" 
-                  className="w-10 h-10 object-contain rounded-lg"
-                />
-              </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl text-green-400 drop-shadow-2xl font-bold whitespace-nowrap" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot's Adventure</h1>
+            <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-3">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl text-green-400 drop-shadow-2xl font-black whitespace-nowrap" style={{ fontFamily: "'Pirata One', cursive", fontWeight: '900' }}>Red Boot's Adventure</h1>
             </div>
           </div>
         </nav>
