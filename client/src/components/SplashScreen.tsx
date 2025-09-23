@@ -71,44 +71,61 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
       {/* Main content - better viewport fit */}
       <div className="relative z-10 text-center px-4 max-w-6xl mx-auto flex flex-col justify-center min-h-screen py-8">
-        {/* Title with better proportions */}
-        <div className="mb-3 sm:mb-6 transform animate-bounce-gentle">
-          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-1 sm:mb-3 drop-shadow-2xl tracking-wide font-sans" 
-              style={{ 
-                textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
-              }}>
-            Red Boot's
-          </h1>
+        {/* Hero section with split title */}
+        <div className="mb-3 sm:mb-6 flex items-center justify-center gap-4 sm:gap-8 px-2">
+          {/* "Red" on the left */}
+          <div className="transform animate-bounce-gentle">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white drop-shadow-2xl tracking-wide font-sans" 
+                style={{ 
+                  textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
+                }}>
+              Red
+            </h1>
+          </div>
+
+          {/* Red Boot character in the center */}
+          <div className="flex justify-center flex-shrink-0">
+            <div className="relative transform animate-float">
+              <div className="w-[10rem] h-[10rem] sm:w-[14rem] sm:h-[14rem] md:w-[16rem] md:h-[16rem] lg:w-[18rem] lg:h-[18rem] relative overflow-hidden rounded-full bg-white border-4 border-white shadow-2xl">
+                <img 
+                  src={redBootSplash} 
+                  alt="Red Boot the Pirate" 
+                  className="w-full h-full object-cover scale-110"
+                  style={{
+                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 20px rgba(0,0,0,0.4))',
+                    transform: 'scale(1.1)'
+                  }}
+                />
+              </div>
+              {/* Speech bubble - compact */}
+              <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 bg-white rounded-2xl px-2 sm:px-4 py-1 sm:py-2 border-2 sm:border-3 border-gray-800 transform rotate-12 animate-pulse">
+                <p className="text-base sm:text-xl md:text-2xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
+                  Ahoy Matey!
+                </p>
+                <div className="absolute bottom-0 left-4 sm:left-6 w-0 h-0 border-l-2 border-r-2 border-t-4 sm:border-l-3 sm:border-r-3 sm:border-t-6 border-transparent border-t-white transform translate-y-1"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* "Boot" on the right */}
+          <div className="transform animate-bounce-gentle">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white drop-shadow-2xl tracking-wide font-sans" 
+                style={{ 
+                  textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
+                }}>
+              Boot
+            </h1>
+          </div>
+        </div>
+
+        {/* Subtitle centered below */}
+        <div className="mb-3 sm:mb-6">
           <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
               style={{ 
                 textShadow: '4px 4px 0px #cc8400, 8px 8px 0px rgba(0,0,0,0.2)'
               }}>
             Spelling Adventure!
           </h2>
-        </div>
-
-        {/* Red Boot character - compact */}
-        <div className="mb-3 sm:mb-6 flex justify-center">
-          <div className="relative transform animate-float">
-            <div className="w-[10rem] h-[10rem] sm:w-[14rem] sm:h-[14rem] md:w-[16rem] md:h-[16rem] lg:w-[18rem] lg:h-[18rem] relative overflow-hidden rounded-full bg-white border-4 border-white shadow-2xl">
-              <img 
-                src={redBootSplash} 
-                alt="Red Boot the Pirate" 
-                className="w-full h-full object-cover scale-110"
-                style={{
-                  filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 20px rgba(0,0,0,0.4))',
-                  transform: 'scale(1.1)'
-                }}
-              />
-            </div>
-            {/* Speech bubble - compact */}
-            <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 bg-white rounded-2xl px-2 sm:px-4 py-1 sm:py-2 border-2 sm:border-3 border-gray-800 transform rotate-12 animate-pulse">
-              <p className="text-base sm:text-xl md:text-2xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
-                Ahoy Matey!
-              </p>
-              <div className="absolute bottom-0 left-4 sm:left-6 w-0 h-0 border-l-2 border-r-2 border-t-4 sm:border-l-3 sm:border-r-3 sm:border-t-6 border-transparent border-t-white transform translate-y-1"></div>
-            </div>
-          </div>
         </div>
 
         {/* Unique app messaging - MUCH BIGGER AND MORE PROMINENT */}
