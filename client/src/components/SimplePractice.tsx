@@ -276,16 +276,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           </CardContent>
         </Card>
 
-        {/* Show Treasure Road after accomplishments */}
-        {showTreasureRoad && (
-          <TreasureRoad
-            isOpen={showTreasureRoad}
-            onClose={handleTreasureRoadClose}
-            totalWords={practiceWords.length}
-            masteredWords={sessionResults?.correct || 0}
-            newlyMastered={sessionResults?.correct || 0}
-          />
-        )}
+        {/* Treasure road now shows during practice at milestones, not at completion */}
       </>
     );
   }
@@ -311,7 +302,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           <TreasureRoad
             totalWords={practiceWords.length}
             masteredWords={correctCount}
-            treasureJustUnlocked={currentTreasure}
+            treasureJustUnlocked={currentTreasure || undefined}
           />
         </div>
       </div>
