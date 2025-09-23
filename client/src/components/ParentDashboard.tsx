@@ -61,12 +61,15 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     if (checkIfNewWeek()) {
       setShowNewWeekPrompt(true);
     } else {
-      // Load current words and basic stats
+      // Load current words and calculate real progress
       const saved = localStorage.getItem('currentSpellingWords');
       if (saved) {
         try {
           const { words, savedDate } = JSON.parse(saved);
-          setStats({
+          
+          // Calculate real progress from practice sessions
+          const practiceProgress = localStorage.getItem('practiceProgress');
+          let realStats = {
             totalWords: words?.length || 0,
             newWords: 0,
             learningWords: 0, 
@@ -75,7 +78,64 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             daysThisWeek: [false, false, false, false, false],
             readyForTest: false,
             treasureCount: 0
-          });
+          };
+          
+          if (practiceProgress && words) {
+            try {
+              const progressData = JSON.parse(practiceProgress);
+              
+              // Calculate word status based on practice data
+              words.forEach((word: string) => {
+                const wordProgress = progressData[word.toLowerCase()];
+                if (wordProgress) {
+                  const { correctCount = 0, totalAttempts = 0 } = wordProgress;
+                  const accuracy = totalAttempts > 0 ? correctCount / totalAttempts : 0;
+                  
+                  if (totalAttempts === 0) {
+                    realStats.newWords++;
+                  } else if (accuracy >= 0.8 && correctCount >= 3) {
+                    realStats.masteredWords++;
+                    realStats.treasureCount += 3; // 3 treasure per mastered word
+                  } else if (accuracy >= 0.5 && totalAttempts >= 2) {
+                    realStats.learningWords++;
+                    realStats.treasureCount += 1; // 1 treasure per learning word
+                  } else {
+                    realStats.troubleWords++;
+                  }
+                } else {
+                  realStats.newWords++;
+                }
+              });
+              
+              // Calculate days practiced this week
+              const practiceHistory = progressData._practiceHistory || [];
+              const oneWeekAgo = new Date();
+              oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+              
+              const thisWeekDays = [false, false, false, false, false]; // Mon-Fri
+              practiceHistory.forEach((session: any) => {
+                if (session.date) {
+                  const sessionDate = new Date(session.date);
+                  if (sessionDate >= oneWeekAgo) {
+                    const dayOfWeek = sessionDate.getDay(); // 0=Sunday, 1=Monday
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+                      thisWeekDays[dayOfWeek - 1] = true;
+                    }
+                  }
+                }
+              });
+              realStats.daysThisWeek = thisWeekDays;
+              
+              // Determine readiness for test
+              const masteryRate = realStats.totalWords > 0 ? realStats.masteredWords / realStats.totalWords : 0;
+              realStats.readyForTest = masteryRate >= 0.7;
+              
+            } catch (e) {
+              console.error('Failed to parse practice progress:', e);
+            }
+          }
+          
+          setStats(realStats);
           
           // Set weekData to prevent null reference errors
           setWeekData({
@@ -417,7 +477,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center border-2 border-blue-400">
-                <Ship className="w-6 h-6 text-blue-200" />
+                <Compass className="w-6 h-6 text-blue-200" />
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-100">{Math.round(weekProgress)}%</div>
@@ -435,7 +495,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               </div>
               <div>
                 <div className="text-2xl font-bold text-amber-100">{stats?.treasureCount || 0}</div>
-                <div className="text-sm text-amber-200">Gold Doubloons</div>
+                <div className="text-sm text-amber-200">Treasure</div>
               </div>
             </div>
           </CardContent>

@@ -216,7 +216,44 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     setIsCorrect(correct);
     setShowFeedback(true);
     
-    // Note: Simplified storage approach - tracking handled locally
+    // Save practice progress to localStorage for Captain's Log tracking
+    if (currentWord) {
+      const savedProgress = localStorage.getItem('practiceProgress');
+      let progressData: any = {};
+      
+      try {
+        progressData = savedProgress ? JSON.parse(savedProgress) : {};
+      } catch (e) {
+        progressData = {};
+      }
+      
+      // Initialize word progress if not exists
+      const wordKey = currentWord.toLowerCase();
+      if (!progressData[wordKey]) {
+        progressData[wordKey] = { correctCount: 0, totalAttempts: 0 };
+      }
+      
+      // Update word progress
+      progressData[wordKey].totalAttempts++;
+      if (correct) {
+        progressData[wordKey].correctCount++;
+      }
+      
+      // Add practice session to history
+      if (!progressData._practiceHistory) {
+        progressData._practiceHistory = [];
+      }
+      progressData._practiceHistory.push({
+        date: new Date().toISOString(),
+        word: currentWord,
+        correct: correct,
+        userInput: userInput
+      });
+      
+      // Save back to localStorage
+      localStorage.setItem('practiceProgress', JSON.stringify(progressData));
+      console.log('📊 Progress saved:', { word: currentWord, correct, progressData });
+    }
     
     if (correct) {
       const newCorrectCount = correctCount + 1;
