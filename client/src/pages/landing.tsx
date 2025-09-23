@@ -58,7 +58,7 @@ export default function Landing() {
                   className="w-10 h-10 object-contain rounded-lg"
                 />
               </div>
-              <h1 className="text-lg text-green-400 drop-shadow-lg whitespace-nowrap" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot's Adventure</h1>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl text-green-400 drop-shadow-2xl font-bold whitespace-nowrap" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot's Adventure</h1>
             </div>
           </div>
         </nav>
