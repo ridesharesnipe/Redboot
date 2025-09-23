@@ -131,13 +131,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Unique app messaging - MUCH BIGGER AND MORE PROMINENT */}
         <div className="mb-4 sm:mb-6 px-2">
           <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-yellow-200 font-bold drop-shadow-2xl mb-3 leading-tight" style={{ fontFamily: "'Pirata One', cursive", textShadow: '3px 3px 0px #cc8400, 6px 6px 0px rgba(0,0,0,0.4)' }}>
-            The Ultimate Pirate Spelling Adventure App!
+            Breaking New Ground
           </div>
           <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-bold drop-shadow-2xl mb-2 leading-tight" style={{ fontFamily: "'Pirata One', cursive", textShadow: '2px 2px 0px #2c5aa0, 4px 4px 0px rgba(0,0,0,0.4)' }}>
-            Breaking New Ground - No Other App Does This!
+            Revolutionary Flashcard App
           </div>
           <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-sky-200 font-bold drop-shadow-xl leading-tight" style={{ fontFamily: "'Pirata One', cursive", textShadow: '2px 2px 0px #1e40af, 4px 4px 0px rgba(0,0,0,0.3)' }}>
-            Revolutionary Pirate Learning Adventure
+            Pirate Learning Adventure
           </div>
         </div>
 
