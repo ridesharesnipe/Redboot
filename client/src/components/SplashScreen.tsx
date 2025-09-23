@@ -69,17 +69,17 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         <div className="wave wave3"></div>
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
-        {/* Title with mobile-optimized sizing */}
-        <div className="mb-4 sm:mb-8 transform animate-bounce-gentle">
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-bold text-white mb-2 sm:mb-4 drop-shadow-2xl tracking-wide font-sans" 
+      {/* Main content - better viewport fit */}
+      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto flex flex-col justify-center min-h-screen py-8">
+        {/* Title with better proportions */}
+        <div className="mb-3 sm:mb-6 transform animate-bounce-gentle">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-1 sm:mb-3 drop-shadow-2xl tracking-wide font-sans" 
               style={{ 
                 textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
               }}>
             Red Boot's
           </h1>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
               style={{ 
                 textShadow: '4px 4px 0px #cc8400, 8px 8px 0px rgba(0,0,0,0.2)'
               }}>
@@ -87,10 +87,10 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </h2>
         </div>
 
-        {/* Red Boot character - mobile optimized */}
-        <div className="mb-4 sm:mb-8 flex justify-center">
+        {/* Red Boot character - compact */}
+        <div className="mb-3 sm:mb-6 flex justify-center">
           <div className="relative transform animate-float">
-            <div className="w-[12rem] h-[12rem] sm:w-[16rem] sm:h-[16rem] md:w-[20rem] md:h-[20rem] lg:w-[24rem] lg:h-[24rem] relative overflow-hidden rounded-full bg-white border-4 md:border-6 border-white shadow-2xl">
+            <div className="w-[10rem] h-[10rem] sm:w-[14rem] sm:h-[14rem] md:w-[16rem] md:h-[16rem] lg:w-[18rem] lg:h-[18rem] relative overflow-hidden rounded-full bg-white border-4 border-white shadow-2xl">
               <img 
                 src={redBootSplash} 
                 alt="Red Boot the Pirate" 
@@ -101,44 +101,44 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 }}
               />
             </div>
-            {/* Speech bubble - mobile optimized */}
-            <div className="absolute -top-6 sm:-top-10 -right-6 sm:-right-10 bg-white rounded-2xl px-3 sm:px-6 py-2 sm:py-4 border-3 sm:border-4 border-gray-800 transform rotate-12 animate-pulse">
-              <p className="text-lg sm:text-2xl md:text-3xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
+            {/* Speech bubble - compact */}
+            <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 bg-white rounded-2xl px-2 sm:px-4 py-1 sm:py-2 border-2 sm:border-3 border-gray-800 transform rotate-12 animate-pulse">
+              <p className="text-base sm:text-xl md:text-2xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
                 Ahoy Matey!
               </p>
-              <div className="absolute bottom-0 left-6 sm:left-8 w-0 h-0 border-l-3 border-r-3 border-t-6 sm:border-l-4 sm:border-r-4 sm:border-t-8 border-transparent border-t-white transform translate-y-2"></div>
+              <div className="absolute bottom-0 left-4 sm:left-6 w-0 h-0 border-l-2 border-r-2 border-t-4 sm:border-l-3 sm:border-r-3 sm:border-t-6 border-transparent border-t-white transform translate-y-1"></div>
             </div>
           </div>
         </div>
 
-        {/* Unique app messaging - mobile compact */}
+        {/* Unique app messaging - MUCH BIGGER AND MORE PROMINENT */}
         <div className="mb-4 sm:mb-6 px-2">
-          <div className="text-sm sm:text-lg md:text-xl text-yellow-200 font-bold drop-shadow-lg mb-2" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-yellow-200 font-bold drop-shadow-2xl mb-3 leading-tight" style={{ fontFamily: "'Pirata One', cursive", textShadow: '3px 3px 0px #cc8400, 6px 6px 0px rgba(0,0,0,0.4)' }}>
             The Ultimate Pirate Spelling Adventure App!
           </div>
-          <div className="text-xs sm:text-base md:text-lg text-white font-bold drop-shadow-lg mb-1" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-bold drop-shadow-2xl mb-2 leading-tight" style={{ fontFamily: "'Pirata One', cursive", textShadow: '2px 2px 0px #2c5aa0, 4px 4px 0px rgba(0,0,0,0.4)' }}>
             Breaking New Ground - No Other App Does This!
           </div>
-          <div className="text-xs sm:text-sm md:text-base text-sky-200 font-bold drop-shadow-lg" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-sky-200 font-bold drop-shadow-xl leading-tight" style={{ fontFamily: "'Pirata One', cursive", textShadow: '2px 2px 0px #1e40af, 4px 4px 0px rgba(0,0,0,0.3)' }}>
             Revolutionary Pirate Learning Adventure
           </div>
         </div>
 
-        {/* Pirate-themed loading text - mobile compact */}
-        <div className="mb-3 sm:mb-4">
-          <div className="text-lg sm:text-xl md:text-2xl text-white font-bold drop-shadow-lg font-sans">
-            <div className="flex items-center justify-center gap-2">
-              <Flag className="w-4 h-4 sm:w-5 sm:h-5" />
+        {/* Pirate-themed loading text - bigger */}
+        <div className="mb-4 sm:mb-6">
+          <div className="text-xl sm:text-2xl md:text-3xl text-white font-bold drop-shadow-xl font-sans">
+            <div className="flex items-center justify-center gap-3">
+              <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
               <span className="text-center">Preparing the ship for adventure...</span>
-              <Flag className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
           </div>
         </div>
 
         {/* Countdown with treasure chest style */}
         <div className="flex justify-center items-center">
-          <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-20 h-20 flex items-center justify-center border-4 border-yellow-600 shadow-xl transform animate-bounce">
-            <span className="text-3xl font-bold text-white drop-shadow-lg">
+          <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-24 h-24 flex items-center justify-center border-4 border-yellow-600 shadow-xl transform animate-bounce">
+            <span className="text-4xl font-bold text-white drop-shadow-lg">
               {timeLeft}
             </span>
           </div>
