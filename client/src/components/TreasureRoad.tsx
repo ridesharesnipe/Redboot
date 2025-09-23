@@ -18,25 +18,25 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
     }
   }, [treasureJustUnlocked]);
   
-  // Calculate milestones based on word count
+  // Calculate milestones based on word count - with proper treasure icons and chests
   const getMilestones = () => {
     if (totalWords <= 12) {
       return [
-        { words: 2, treasure: 'Silver Coins', icon: 'lni-coin-dollar', color: 'text-gray-600', position: 16 },
-        { words: 4, treasure: 'Emeralds', icon: 'lni-gem', color: 'text-emerald-600', position: 33 },
-        { words: 6, treasure: 'Rubies', icon: 'lni-heart', color: 'text-red-600', position: 50 },
-        { words: 8, treasure: 'Diamonds', icon: 'lni-diamond', color: 'text-blue-500', position: 67 },
-        { words: 10, treasure: 'Gold Coins', icon: 'lni-coin', color: 'text-yellow-600', position: 83 },
-        { words: 12, treasure: 'Ultimate Treasure', icon: 'lni-crown', color: 'text-purple-600', position: 95 }
+        { words: 2, treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', position: 16, isChest: false },
+        { words: 4, treasure: 'Emeralds', icon: '💚', color: 'text-emerald-600', position: 33, isChest: false },
+        { words: 6, treasure: 'Rubies', icon: '❤️', color: 'text-red-600', position: 50, isChest: false },
+        { words: 8, treasure: 'Diamonds', icon: '💎', color: 'text-blue-500', position: 67, isChest: true },
+        { words: 10, treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', position: 83, isChest: true },
+        { words: 12, treasure: 'Ultimate Treasure', icon: '👑', color: 'text-purple-600', position: 95, isChest: true }
       ];
     } else {
       return [
-        { words: 3, treasure: 'Silver Coins', icon: 'lni-coin-dollar', color: 'text-gray-600', position: 16 },
-        { words: 5, treasure: 'Emeralds', icon: 'lni-gem', color: 'text-emerald-600', position: 33 },
-        { words: 7, treasure: 'Rubies', icon: 'lni-heart', color: 'text-red-600', position: 50 },
-        { words: 10, treasure: 'Diamonds', icon: 'lni-diamond', color: 'text-blue-500', position: 67 },
-        { words: 13, treasure: 'Gold Coins', icon: 'lni-coin', color: 'text-yellow-600', position: 83 },
-        { words: totalWords, treasure: 'Ultimate Treasure', icon: 'lni-crown', color: 'text-purple-600', position: 95 }
+        { words: 3, treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', position: 16, isChest: false },
+        { words: 5, treasure: 'Emeralds', icon: '💚', color: 'text-emerald-600', position: 33, isChest: false },
+        { words: 7, treasure: 'Rubies', icon: '❤️', color: 'text-red-600', position: 50, isChest: false },
+        { words: 10, treasure: 'Diamonds', icon: '💎', color: 'text-blue-500', position: 67, isChest: true },
+        { words: 13, treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', position: 83, isChest: true },
+        { words: totalWords, treasure: 'Ultimate Treasure', icon: '👑', color: 'text-purple-600', position: 95, isChest: true }
       ];
     }
   };
@@ -211,18 +211,20 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
                         <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-conic from-white via-transparent to-transparent opacity-30 rounded-full animate-spin"></div>
                       )}
                       
-                      {/* Treasure icon with enhanced styling */}
-                      <i 
+                      {/* Treasure icon with enhanced styling - Real Treasure Emojis */}
+                      <div 
                         className={`
-                          lni ${milestone.icon} ${unlocked ? milestone.color : 'text-gray-500'} relative z-10
-                          ${showAnimation && treasureJustUnlocked === milestone.treasure ? 'animate-bounce' : ''}
-                          ${unlocked ? 'filter drop-shadow-lg' : ''}
+                          relative z-10 transition-all duration-300
+                          ${showAnimation && treasureJustUnlocked === milestone.treasure ? 'animate-bounce scale-110' : ''}
+                          ${unlocked ? 'filter drop-shadow-lg' : 'grayscale opacity-50'}
                         `} 
                         style={{ 
-                          fontSize: '2.2rem',
+                          fontSize: '2.5rem',
                           textShadow: unlocked ? '2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.5)' : 'none'
                         }}
-                      ></i>
+                      >
+                        {milestone.icon}
+                      </div>
                       
                       {/* Intense sparkle effects around the treasure */}
                       {unlocked && (
@@ -235,12 +237,25 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
                       )}
                     </div>
                     
-                    {/* Treasure chest for major milestones (every 5+ words) */}
-                    {milestone.words >= 8 && unlocked && (
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-                        <div className="text-2xl filter drop-shadow-lg animate-bounce">🏦</div>
-                        <div className="text-xs text-amber-800 font-bold bg-yellow-200 px-2 py-1 rounded-full text-center shadow-md">
-                          Chest!
+                    {/* Ornate Treasure Chest for major milestones */}
+                    {milestone.isChest && unlocked && (
+                      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-20">
+                        <div className="relative">
+                          {/* Main treasure chest */}
+                          <div className="text-3xl filter drop-shadow-xl animate-bounce" style={{ fontSize: '3rem' }}>📦</div>
+                          
+                          {/* Sparkling effects around chest */}
+                          <div className="absolute -top-2 -left-2 text-lg animate-ping">✨</div>
+                          <div className="absolute -top-1 -right-2 text-lg animate-pulse">✨</div>
+                          <div className="absolute -bottom-1 -left-1 text-lg animate-bounce">✨</div>
+                          <div className="absolute -bottom-2 -right-1 text-lg animate-ping">✨</div>
+                          
+                          {/* Chest label */}
+                          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                            <div className="text-xs text-amber-900 font-bold bg-gradient-to-r from-yellow-200 via-amber-200 to-yellow-200 px-3 py-1 rounded-full text-center shadow-lg border-2 border-amber-400">
+                              Treasure Chest!
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
