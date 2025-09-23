@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SplashScreen from "@/components/SplashScreen";
+import Landing from "@/pages/landing";
 import ParentDashboard from "@/components/ParentDashboard";
 import PhotoCapture from "@/components/PhotoCapture";
 import SimplePractice from "@/components/SimplePractice";
@@ -10,7 +11,7 @@ import ParentGuide from "@/components/ParentGuide";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
 
-type AppView = 'splash' | 'dashboard' | 'photo' | 'practice' | 'test' | 'guide';
+type AppView = 'splash' | 'landing' | 'dashboard' | 'photo' | 'practice' | 'test' | 'guide';
 
 function App() {
   const [currentView, setCurrentView] = useState<AppView>('splash');
@@ -24,13 +25,13 @@ function App() {
       sessionStorage.setItem('redboot-splash-shown', 'true');
     } else {
       setShowSplash(false);
-      setCurrentView('dashboard');
+      setCurrentView('landing');
     }
   }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
-    setCurrentView('dashboard');
+    setCurrentView('landing');
   };
 
   const handleTakePhoto = () => {
@@ -88,6 +89,9 @@ function App() {
 
   const renderCurrentView = () => {
     switch (currentView) {
+      case 'landing':
+        return <Landing />;
+      
       case 'dashboard':
         return (
           <ParentDashboard
