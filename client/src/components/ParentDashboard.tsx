@@ -511,7 +511,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           <CardContent className="space-y-4">
             {photos.length === 0 ? (
               <div className="text-center py-8">
-                <Camera className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                <Upload className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                 <p className="text-slate-300 text-lg">No photos captured yet!</p>
                 <p className="text-slate-400">Take your first spelling list photo to start building your treasure collection.</p>
               </div>

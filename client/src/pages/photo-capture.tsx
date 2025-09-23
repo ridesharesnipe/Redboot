@@ -10,7 +10,7 @@ import RedBootCharacter from "@/components/RedBootCharacter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Camera, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
+import { Upload, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
 
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
@@ -106,7 +106,7 @@ export default function PhotoCapturePage() {
           Back to Harbor
         </Button>
         <h1 className="text-3xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
-          <Camera className="w-8 h-8" />
+          <Upload className="w-8 h-8" />
           Treasure Map Creator
         </h1>
         <div className="w-32"></div>
@@ -127,12 +127,12 @@ export default function PhotoCapturePage() {
                     Create Your Treasure Maps!
                   </h2>
                   <p className="text-blue-100 mb-8 text-xl leading-relaxed" data-testid="text-capture-instructions">
-                    "Ahoy matey! Take a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
+                    "Ahoy matey! Upload a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
                   </p>
                   
                   <Card className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
                     <CardContent className="pt-0">
-                      <PhotoCapture onCapture={handleImageCapture} />
+                      <PhotoCapture onCapture={handleImageCapture} onWordsExtracted={setExtractedWords} />
                     </CardContent>
                   </Card>
 
@@ -201,8 +201,8 @@ export default function PhotoCapturePage() {
                         className="border-2 border-white text-white hover:bg-white hover:text-cyan-600 px-6 py-3 rounded-2xl"
                         data-testid="button-retake"
                       >
-                        <Camera className="w-5 h-5 mr-2" />
-                        Take Another Photo
+                        <Upload className="w-5 h-5 mr-2" />
+                        Upload Another Photo
                       </Button>
                       <Button 
                         onClick={handleSaveWords}
@@ -242,8 +242,8 @@ export default function PhotoCapturePage() {
                   <CardHeader>
                     <CardTitle className="text-lg text-center text-white/80" data-testid="text-original-image">
                       <div className="flex items-center gap-2">
-                        <Camera className="w-4 h-4" />
-                        Original Photo
+                        <Upload className="w-4 h-4" />
+                        Uploaded Photo
                       </div>
                     </CardTitle>
                   </CardHeader>
