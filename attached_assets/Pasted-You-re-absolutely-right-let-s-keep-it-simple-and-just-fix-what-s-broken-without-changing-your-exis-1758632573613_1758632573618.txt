@@ -1,0 +1,175 @@
+You're absolutely right - let's keep it simple and just fix what's broken without changing your existing app. Here's a focused prompt:
+
+## **Fix Word Storage & Data Flow - No UI Changes**
+
+```
+DO NOT change the UI, UX, or app structure. Just fix these specific data flow issues:
+
+PROBLEM DIAGNOSIS:
+The app has all the right pieces but they're not connected properly:
+1. PhotoCapture component gets words (works ✓)
+2. Words display on screen (works ✓) 
+3. Words DON'T get saved to localStorage (broken ✗)
+4. Game can't find words to practice (broken ✗)
+
+FIX 1 - ENSURE WORDS ALWAYS SAVE:
+In PhotoCapture component, find EVERY place where words are set (OCR success, OCR fail, demo words) and add storage:
+
+```javascript
+// Find anywhere that does setWords() and ADD localStorage save:
+
+// Example 1: After OCR extracts words
+if (extractedWords.length > 0) {
+  setWords(extractedWords);
+  onWordsExtracted(extractedWords);  // Tell parent
+  // ADD THIS:
+  localStorage.setItem('spellingWords', JSON.stringify(extractedWords));
+}
+
+// Example 2: When loading demo words  
+if (extractedWords.length === 0) {
+  const demoWords = [...];
+  setWords(demoWords);
+  onWordsExtracted(demoWords);  // CRITICAL - was missing!
+  // ADD THIS:
+  localStorage.setItem('spellingWords', JSON.stringify(demoWords));
+}
+```
+
+FIX 2 - MAKE GAME READ FROM STORAGE:
+In Game component, change the data source:
+
+```javascript
+useEffect(() => {
+  // Instead of reading from props or route params, read from storage:
+  const savedWords = localStorage.getItem('spellingWords');
+  
+  if (savedWords) {
+    const words = JSON.parse(savedWords);
+    setCurrentWords(words);
+    // Continue with existing game logic
+    startGame(words);
+  } else {
+    // No words saved
+    toast.error('No spelling words found. Please upload a list first.');
+    navigate('/photo-capture');
+  }
+}, []);
+```
+
+FIX 3 - ADD SIMPLE VERIFICATION:
+Add console.logs to track data flow (remove these later):
+
+```javascript
+// In PhotoCapture after extraction:
+console.log('📸 PhotoCapture extracted:', words);
+
+// When saving:
+console.log('💾 Saving to localStorage:', words);
+
+// In Game when loading:
+console.log('🎮 Game loaded words:', words);
+```
+
+FIX 4 - CONSISTENT STORAGE KEY:
+Use the SAME storage key everywhere:
+
+```javascript
+const STORAGE_KEY = 'currentSpellingWords';
+
+// Everywhere in the app, use:
+localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+localStorage.getItem(STORAGE_KEY);
+```
+
+FIX 5 - SIMPLE DATA STRUCTURE:
+Keep the stored data simple:
+
+```javascript
+// When saving words, use consistent structure:
+const dataToSave = {
+  words: wordArray,  // Just the array of strings
+  savedDate: new Date().toISOString()
+};
+localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+
+// When reading:
+const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+const words = data.words || [];
+```
+
+FIX 6 - PREVENT RACE CONDITIONS:
+Make sure parent component waits for child:
+
+```javascript
+// In photo-capture.tsx (parent):
+const handleWordsExtracted = (words) => {
+  console.log('Parent received words:', words);
+  
+  // Save immediately, don't wait
+  const data = { words, savedDate: new Date().toISOString() };
+  localStorage.setItem('currentSpellingWords', JSON.stringify(data));
+  
+  // Then navigate
+  toast.success(`Saved ${words.length} words!`);
+  navigate('/game');
+};
+```
+
+FIX 7 - TEST HELPERS (temporary):
+Add these buttons somewhere to verify storage works:
+
+```javascript
+// Add to bottom of any component for testing:
+<div style={{position: 'fixed', bottom: 0, right: 0, padding: 10, background: '#eee'}}>
+  <button onClick={() => {
+    const test = ['apple', 'banana', 'orange'];
+    localStorage.setItem('currentSpellingWords', JSON.stringify({words: test}));
+    alert('Saved test words');
+  }}>Save Test Words</button>
+  
+  <button onClick={() => {
+    const saved = localStorage.getItem('currentSpellingWords');
+    alert(saved || 'No words in storage');
+  }}>Check Storage</button>
+  
+  <button onClick={() => {
+    localStorage.clear();
+    alert('Cleared storage');
+  }}>Clear All</button>
+</div>
+```
+
+DON'T CHANGE:
+- Any UI components
+- Any styling
+- Navigation structure  
+- Game mechanics
+- Audio system
+- Pirate theme
+
+JUST ENSURE:
+1. Words save to localStorage when extracted/loaded
+2. Game reads from localStorage 
+3. Both use the same storage key
+4. Data flows: Upload → Extract → Save → Game Reads → Practice
+
+TEST THIS FLOW:
+1. Upload any image
+2. See words appear (OCR or demo)
+3. Check browser DevTools → Application → LocalStorage → should see 'currentSpellingWords'
+4. Navigate to game
+5. Game should load those same words
+6. Refresh page - words should still be there
+
+This is purely a data plumbing fix - no visual changes, just making sure data flows from upload → storage → game properly.
+```
+
+This prompt:
+- Doesn't change ANY UI/UX
+- Just fixes the broken data pipeline
+- Adds verification to ensure it works
+- Keeps everything else exactly as is
+- Focuses only on making words save and load correctly
+
+Once this works, everything else in your app should just work since the game will have words to practice with!

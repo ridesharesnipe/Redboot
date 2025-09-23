@@ -124,7 +124,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
 
       // Extract words from OCR text
       const words = extractWordsFromText(text);
-      console.log('Extracted words:', words);
+      console.log('📸 PhotoCapture extracted OCR words:', words);
 
       // Add fallback for testing or when OCR fails to find text
       if (words.length === 0 && text.trim().length === 0) {
@@ -137,7 +137,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         
         // For testing purposes, provide demo words if no text detected
         const demoWords = ['jail', 'spray', 'mail', 'play', 'paint', 'tray', 'braid', 'delay', 'waited', 'holiday', 'training', 'saying'];
-        console.log('Using demo words for testing:', demoWords);
+        console.log('📸 PhotoCapture extracted demo words:', demoWords);
+        
+        // FIX 1: Save directly to localStorage
+        const dataToSave = { words: demoWords, savedDate: new Date().toISOString() };
+        localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+        console.log('💾 Saving demo words to localStorage:', demoWords);
         
         setExtractedWords(demoWords);
         setEditableWords([...demoWords]);
@@ -152,6 +157,13 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           description: `Using ${demoWords.length} demo spelling words for testing.`,
         });
         return;
+      }
+      
+      // FIX 1: Save OCR words directly to localStorage  
+      if (words.length > 0) {
+        const dataToSave = { words: words, savedDate: new Date().toISOString() };
+        localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+        console.log('💾 Saving OCR words to localStorage:', words);
       }
       
       setExtractedWords(words);

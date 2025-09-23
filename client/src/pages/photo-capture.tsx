@@ -23,12 +23,17 @@ export default function PhotoCapturePage() {
   };
 
   const handleWordsExtracted = (words: string[]) => {
+    console.log('📋 Parent received words:', words);
     setExtractedWords(words);
     setIsProcessing(false);
     
-    // Save words to proper spellingStorage system
+    // FIX 6: Save immediately to prevent race conditions
+    const dataToSave = { words, savedDate: new Date().toISOString() };
+    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+    console.log('💾 Parent saved words to localStorage:', words);
+    
+    // Also save to existing spellingStorage for compatibility
     spellingStorage.saveWordList(words);
-    console.log('Saved words to spellingStorage:', words);
   };
 
   const handleRetake = () => {
@@ -37,9 +42,13 @@ export default function PhotoCapturePage() {
   };
 
   const handleSaveWords = () => {
-    // Save to proper spellingStorage system
+    // FIX 4: Use consistent storage  
+    const dataToSave = { words: extractedWords, savedDate: new Date().toISOString() };
+    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+    console.log('💾 HandleSaveWords saved:', extractedWords);
+    
+    // Also save to existing spellingStorage for compatibility
     spellingStorage.saveWordList(extractedWords);
-    console.log('Saved words to spellingStorage via handleSaveWords:', extractedWords);
     
     toast({
       title: "Treasure Maps Saved!",
@@ -49,9 +58,13 @@ export default function PhotoCapturePage() {
   };
 
   const handleStartPractice = () => {
-    // Save words to proper spellingStorage system
+    // FIX 4: Use consistent storage  
+    const dataToSave = { words: extractedWords, savedDate: new Date().toISOString() };
+    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+    console.log('💾 HandleStartPractice saved:', extractedWords);
+    
+    // Also save to existing spellingStorage for compatibility
     spellingStorage.saveWordList(extractedWords);
-    console.log('Saved words to spellingStorage via handleStartPractice:', extractedWords);
     
     toast({
       title: "Starting Adventure!", 
@@ -234,6 +247,47 @@ export default function PhotoCapturePage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* FIX 7: Test helpers for verification */}
+      <div style={{position: 'fixed', bottom: 0, right: 0, padding: 10, background: '#eee', border: '1px solid #ccc', borderRadius: '8px', fontSize: '12px', zIndex: 1000}}>
+        <div style={{marginBottom: '5px', fontWeight: 'bold'}}>Storage Test Tools:</div>
+        <button 
+          onClick={() => {
+            const test = ['apple', 'banana', 'orange'];
+            const dataToSave = { words: test, savedDate: new Date().toISOString() };
+            localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+            alert('Saved test words: ' + test.join(', '));
+          }}
+          style={{marginRight: '5px', padding: '2px 6px', fontSize: '11px'}}
+        >
+          Save Test Words
+        </button>
+        
+        <button 
+          onClick={() => {
+            const saved = localStorage.getItem('currentSpellingWords');
+            if (saved) {
+              const data = JSON.parse(saved);
+              alert('Current words: ' + (data.words || []).join(', '));
+            } else {
+              alert('No words in storage');
+            }
+          }}
+          style={{marginRight: '5px', padding: '2px 6px', fontSize: '11px'}}
+        >
+          Check Storage
+        </button>
+        
+        <button 
+          onClick={() => {
+            localStorage.removeItem('currentSpellingWords');
+            alert('Cleared spelling words');
+          }}
+          style={{padding: '2px 6px', fontSize: '11px'}}
+        >
+          Clear Words
+        </button>
       </div>
     </div>
   );

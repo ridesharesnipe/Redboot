@@ -32,19 +32,33 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Initialize practice session
   useEffect(() => {
-    const todaysWords = spellingStorage.getTodaysPracticeWords();
-    if (todaysWords.length === 0) {
-      toast({
-        title: "No Words to Practice",
-        description: "Add some spelling words first by taking a photo of your list!",
-        variant: "destructive",
-      });
-      onCancel();
-      return;
+    // FIX 2: Read from simple localStorage instead of complex spellingStorage
+    const savedWords = localStorage.getItem('currentSpellingWords');
+    console.log('🎮 Game checking localStorage for words...');
+    
+    if (savedWords) {
+      try {
+        const data = JSON.parse(savedWords);
+        const words = data.words || [];
+        console.log('🎮 Game loaded words:', words);
+        
+        if (words.length > 0) {
+          setPracticeWords(words);
+          playCharacterVoice('red_boot_ahoy');
+          return;
+        }
+      } catch (e) {
+        console.error('Failed to parse saved words:', e);
+      }
     }
     
-    setPracticeWords(todaysWords);
-    playCharacterVoice('red_boot_ahoy');
+    console.log('❌ No words found in localStorage');
+    toast({
+      title: "No Words to Practice",
+      description: "Add some spelling words first by taking a photo of your list!",
+      variant: "destructive",
+    });
+    onCancel();
   }, [onCancel, playCharacterVoice, toast]);
 
   // Speak current word when it changes
