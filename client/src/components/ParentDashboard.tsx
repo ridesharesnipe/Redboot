@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2 } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 
 interface ParentDashboardProps {
@@ -38,6 +38,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [showPhotoHistory, setShowPhotoHistory] = useState(false);
   const [storageSize, setStorageSize] = useState<string>('');
+  const [replacingPhotoId, setReplacingPhotoId] = useState<string | null>(null);
 
   // Check if new week detection is needed
   const checkIfNewWeek = () => {
@@ -188,6 +189,75 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
       await loadStorageSize();
     } catch (error) {
       console.error('Error deleting photo:', error);
+    }
+  };
+
+  const replacePhoto = (photoId: string) => {
+    setReplacingPhotoId(photoId);
+    // Create a hidden file input and trigger it
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = handlePhotoReplacement;
+    input.click();
+  };
+
+  const handlePhotoReplacement = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    
+    if (!file || !replacingPhotoId) return;
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageData = e.target?.result as string;
+        
+        // Process the new image with OCR
+        const { default: Tesseract } = await import('tesseract.js');
+        
+        const { data: { text } } = await Tesseract.recognize(imageData, 'eng', {
+          logger: m => console.log(m)
+        });
+
+        // Extract words from OCR text
+        const words = text
+          .split(/[\n\r\s,]+/)
+          .map(word => word.replace(/[^\w]/g, '').toLowerCase())
+          .filter(word => word.length > 1 && word.length < 20)
+          .filter((word, index, arr) => arr.indexOf(word) === index); // Remove duplicates
+
+        // Get the current week start
+        const getWeekStart = (date: Date = new Date()): Date => {
+          const d = new Date(date);
+          const day = d.getDay();
+          const diff = d.getDate() - day;
+          return new Date(d.setDate(diff));
+        };
+
+        // Delete old photo and save new one
+        await photoStorage.deletePhoto(replacingPhotoId);
+        await photoStorage.savePhoto({
+          imageData,
+          extractedWords: words,
+          wordsCount: words.length,
+          capturedAt: new Date(),
+          weekStart: getWeekStart()
+        });
+
+        // Refresh photos and reset state
+        await loadPhotos();
+        await loadStorageSize();
+        setReplacingPhotoId(null);
+        
+        console.log('Photo replaced successfully with', words.length, 'words');
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error replacing photo:', error);
+      setReplacingPhotoId(null);
     }
   };
 
@@ -757,15 +827,26 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                           className="w-full h-48 object-cover rounded-lg mb-3"
                           data-testid={`img-photo-${photo.id}`}
                         />
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => deletePhoto(photo.id)}
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          data-testid={`button-delete-${photo.id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => replacePhoto(photo.id)}
+                            className="bg-blue-500 hover:bg-blue-600 border-blue-400 text-white"
+                            data-testid={`button-replace-${photo.id}`}
+                            disabled={replacingPhotoId === photo.id}
+                          >
+                            <RefreshCw className={`w-4 h-4 ${replacingPhotoId === photo.id ? 'animate-spin' : ''}`} />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deletePhoto(photo.id)}
+                            data-testid={`button-delete-${photo.id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="space-y-2">
