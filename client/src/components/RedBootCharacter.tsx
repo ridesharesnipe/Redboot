@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import redBootImage from "@assets/17585900152718502939350575537720_1758590021649.png";
+import redBootImage from "@assets/image_97d8476a-d83e-4730-a81f-03eea7de271d_1758568917281.jpg";
 import redBootPointingImg from "@/assets/characters/red-boot-pointing.jpg";
 import redBootThinkingImg from "@/assets/characters/red-boot-thinking.jpg";
 import redBootCelebratingImg from "@/assets/characters/red-boot-celebrating.jpg";

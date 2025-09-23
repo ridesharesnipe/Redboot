@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAudio } from "@/contexts/AudioContext";
 import { Flag } from "lucide-react";
-import redBootSplash from "@assets/17585900152718502939350575537720_1758590021649.png";
+import redBootSplash from "@assets/1758566743495_1758576984375.jpg";
 
 interface SplashScreenProps {
   onComplete: () => void;

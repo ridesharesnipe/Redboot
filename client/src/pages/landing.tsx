@@ -10,6 +10,7 @@ import { useAudio } from "@/contexts/AudioContext";
 import { Camera, Swords, Map, Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
+import redBootLandingHead from "@assets/17585900152718502939350575537720_1758590021649.png";
 
 export default function Landing() {
   const [isDemoOpen, setIsDemoOpen] = useState(false);
@@ -63,7 +64,23 @@ export default function Landing() {
         </nav>
         <div className="max-w-6xl mx-auto text-center relative z-10 pt-16">
           <div className="mb-20 flex justify-center">
-            <RedBootCharacter size="large" animated />
+            <div className="relative flex items-center justify-center float-animation">
+              <div className="w-80 h-80 relative overflow-hidden rounded-full" style={{ background: 'transparent' }}>
+                <img 
+                  src={redBootLandingHead}
+                  alt="Red Boot the Pirate Captain"
+                  className="w-full h-full object-contain"
+                  style={{
+                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
+                    background: 'transparent'
+                  }}
+                />
+              </div>
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
+                <div className="font-fun text-white text-2xl drop-shadow-lg">Red Boot</div>
+                <div className="text-sm text-blue-100 drop-shadow-md">The Pirate Captain</div>
+              </div>
+            </div>
           </div>
           <h1 className="text-5xl md:text-6xl font-fun mb-6 text-white font-bold drop-shadow-2xl" data-testid="text-hero-title">
             Ahoy, Matey!
