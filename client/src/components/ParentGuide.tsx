@@ -23,7 +23,18 @@ interface ParentGuideProps {
 
 export default function ParentGuide({ onBack }: ParentGuideProps) {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 relative">
+      {/* Fixed Back Button - Always Visible */}
+      <div className="fixed top-4 left-4 z-50">
+        <Button 
+          onClick={onBack} 
+          className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 text-lg shadow-2xl border-2 border-red-400"
+          data-testid="button-fixed-back"
+        >
+          <ArrowLeft className="w-6 h-6 mr-2" />
+          ← Exit Guide
+        </Button>
+      </div>
       {/* Header */}
       <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-2 border-amber-400 shadow-2xl">
         <CardHeader className="relative overflow-hidden">
@@ -51,12 +62,11 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
             </div>
             <Button 
               onClick={onBack} 
-              variant="outline" 
-              className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-blue-900 font-bold"
+              className="bg-amber-500 hover:bg-amber-600 text-white border-2 border-amber-300 font-bold px-6 py-3 text-lg shadow-xl"
               data-testid="button-back-to-dashboard"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              ← Back to Dashboard
             </Button>
           </div>
         </CardHeader>
@@ -390,11 +400,11 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
       <div className="text-center">
         <Button 
           onClick={onBack}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold px-8 py-3 text-lg"
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold px-8 py-4 text-xl shadow-2xl border-2 border-red-400"
           data-testid="button-back-to-dashboard-bottom"
         >
-          <ArrowLeft className="w-5 h-5 mr-3" />
-          Return to Captain's Dashboard
+          <ArrowLeft className="w-6 h-6 mr-3" />
+          ← Return to Captain's Dashboard
         </Button>
       </div>
     </div>
