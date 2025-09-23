@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
 import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2 } from 'lucide-react';
+import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 
 interface ParentDashboardProps {
   onTakePhoto: () => void;
@@ -392,7 +393,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         {/* Red Boot Character Image - Outside the yellow box */}
         <div className="flex justify-center mt-6">
           <img 
-            src="/attached_assets/unnamed (2)_1758652426094.png" 
+            src={redBootImage} 
             alt="Red Boot the Pirate"
             className="w-48 h-48 object-contain drop-shadow-xl"
           />
