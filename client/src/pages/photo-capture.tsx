@@ -74,56 +74,36 @@ export default function PhotoCapturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
-      {/* Hero Section - Matching Landing Page */}
-      <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 pb-8 safe-area">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600">
+      {/* Header */}
+      <div className="p-4 flex items-center justify-between relative">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/")}
-          className="absolute top-4 left-4 text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2 z-20"
+          className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2"
           data-testid="button-back"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Harbor
         </Button>
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <div className="relative mb-8">
-            <div className="absolute -top-8 -left-8 -z-10 animate-pulse">
-              <i className="lni lni-compass text-yellow-400 drop-shadow-2xl" style={{ 
-                fontSize: '8rem',
-                backgroundColor: 'rgba(251,191,36,0.15)',
-                padding: '12px',
-                borderRadius: '50%'
-              }}>🧭</i>
-            </div>
-            <h1 className="fluid-text-hero font-bold text-white drop-shadow-2xl mb-4 relative z-10" data-testid="text-hero-title">
-              Red Boot's Treasure Map Creator
-            </h1>
-          </div>
-          <div className="relative">
-            <div className="absolute -top-16 right-4 -z-10 animate-pulse">
-              <i className="lni lni-island text-green-400 drop-shadow-2xl" style={{ 
-                fontSize: '16rem',
-                backgroundColor: 'rgba(34,197,94,0.15)',
-                padding: '24px',
-                borderRadius: '50%',
-                border: '4px solid rgba(34,197,94,0.2)'
-              }}>🏝️</i>
-            </div>
-            <p className="fluid-text-lg mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
-              Red Boot, Speller of the Seven Seas!
-            </p>
-          </div>
-        </div>
-      </section>
+        <h1 className="text-3xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
+          <i className="lni lni-upload" style={{ fontSize: '2rem' }}></i>
+          Treasure Map Creator
+        </h1>
+        <div className="w-32"></div>
+      </div>
 
-      {/* Create Your Treasure Maps Section - Lowered with proper spacing */}
-      <section className="pt-24 pb-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
+      <div className="px-4 pb-8">
         <div className="max-w-6xl mx-auto">
           {!capturedImage ? (
             /* Photo Capture Screen */
             <div className="text-center mb-8">
-              <RedBootCharacter size="large" animated className="mb-8" />
+              {/* Red Boot in White Circle */}
+              <div className="mb-8 flex justify-center">
+                <div className="bg-white rounded-full p-6 shadow-2xl border-4 border-white/30">
+                  <RedBootCharacter size="large" animated />
+                </div>
+              </div>
               <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20 shadow-2xl">
                 <CardContent className="pt-0">
                   <div className="mb-6">
@@ -142,23 +122,23 @@ export default function PhotoCapturePage() {
                     </CardContent>
                   </Card>
 
-                  {/* Tips */}
+                  {/* Tips with Line Icons */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <Sun className="w-8 h-8 mb-2 mx-auto" />
-                      <div className="font-bold text-sm">Good Light</div>
+                      <i className="lni lni-sun" style={{ fontSize: '2rem' }}></i>
+                      <div className="font-bold text-sm mt-2">Good Light</div>
                     </div>
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <BookOpen className="w-8 h-8 mb-2 mx-auto" />
-                      <div className="font-bold text-sm">Clear Text</div>
+                      <i className="lni lni-book" style={{ fontSize: '2rem' }}></i>
+                      <div className="font-bold text-sm mt-2">Clear Text</div>
                     </div>
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <Target className="w-8 h-8 mb-2 mx-auto" />
-                      <div className="font-bold text-sm">Hold Steady</div>
+                      <i className="lni lni-target" style={{ fontSize: '2rem' }}></i>
+                      <div className="font-bold text-sm mt-2">Hold Steady</div>
                     </div>
                     <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <Waves className="w-8 h-8 mb-2 mx-auto" />
-                      <div className="font-bold text-sm">No Shadows</div>
+                      <i className="lni lni-frame-expand" style={{ fontSize: '2rem' }}></i>
+                      <div className="font-bold text-sm mt-2">No Shadows</div>
                     </div>
                   </div>
                 </CardContent>
@@ -273,7 +253,7 @@ export default function PhotoCapturePage() {
             </div>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
