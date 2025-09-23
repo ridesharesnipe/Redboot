@@ -62,29 +62,29 @@ export default function Landing() {
             </div>
           </div>
         </nav>
-        <div className="max-w-6xl mx-auto text-center relative z-10 pt-16">
-          <div className="mb-20 flex justify-center">
+        <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
+          <div className="mb-16 flex justify-center">
             <div className="relative flex items-center justify-center float-animation">
-              <div className="w-72 h-72 relative overflow-hidden rounded-full bg-white border-4 border-white shadow-xl">
+              <div className="w-[32rem] h-[32rem] md:w-[40rem] md:h-[40rem] relative overflow-hidden rounded-full bg-white border-8 border-white shadow-2xl">
                 <img 
                   src={redBootLandingHead}
                   alt="Red Boot the Pirate Captain"
                   className="w-full h-full object-cover"
                   style={{
-                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
+                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.4))',
                   }}
                 />
               </div>
-              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
-                <div className="font-fun text-white text-2xl drop-shadow-lg">Red Boot</div>
-                <div className="text-sm text-blue-100 drop-shadow-md">The Pirate Captain</div>
+              <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+                <div className="font-fun text-white text-4xl md:text-5xl drop-shadow-lg">Red Boot</div>
+                <div className="text-lg md:text-xl text-blue-100 drop-shadow-md">The Pirate Captain</div>
               </div>
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-fun mb-6 text-white font-bold drop-shadow-2xl" data-testid="text-hero-title">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-fun mb-8 text-white font-bold drop-shadow-2xl" data-testid="text-hero-title">
             Ahoy, Matey!
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white font-semibold drop-shadow-lg" data-testid="text-hero-subtitle">
+          <p className="text-2xl md:text-4xl lg:text-5xl mb-12 text-white font-semibold drop-shadow-lg max-w-5xl mx-auto" data-testid="text-hero-subtitle">
             Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

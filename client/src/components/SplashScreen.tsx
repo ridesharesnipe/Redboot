@@ -70,42 +70,42 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 text-center px-8 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
         {/* Title with simple children's book styling */}
-        <div className="mb-8 transform animate-bounce-gentle">
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 drop-shadow-2xl tracking-wide font-sans" 
+        <div className="mb-12 transform animate-bounce-gentle">
+          <h1 className="text-7xl md:text-9xl lg:text-[10rem] font-bold text-white mb-6 drop-shadow-2xl tracking-wide font-sans" 
               style={{ 
-                textShadow: '4px 4px 0px #2c5aa0, 8px 8px 0px rgba(0,0,0,0.3)'
+                textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
               }}>
             Red Boot's
           </h1>
-          <h2 className="text-4xl md:text-6xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-yellow-300 drop-shadow-xl tracking-wide font-sans"
               style={{ 
-                textShadow: '3px 3px 0px #cc8400, 6px 6px 0px rgba(0,0,0,0.2)'
+                textShadow: '4px 4px 0px #cc8400, 8px 8px 0px rgba(0,0,0,0.2)'
               }}>
             Spelling Adventure!
           </h2>
         </div>
 
         {/* Red Boot character - centered and large */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-12 flex justify-center">
           <div className="relative transform animate-float">
-            <div className="w-96 h-96 md:w-[28rem] md:h-[28rem] relative overflow-hidden rounded-full bg-white border-4 border-white shadow-xl">
+            <div className="w-[32rem] h-[32rem] md:w-[42rem] md:h-[42rem] lg:w-[48rem] lg:h-[48rem] relative overflow-hidden rounded-full bg-white border-8 border-white shadow-2xl">
               <img 
                 src={redBootSplash} 
                 alt="Red Boot the Pirate" 
                 className="w-full h-full object-cover"
                 style={{
-                  filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.3))',
+                  filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 20px 30px rgba(0,0,0,0.4))',
                 }}
               />
             </div>
             {/* Speech bubble */}
-            <div className="absolute -top-8 -right-8 bg-white rounded-3xl px-6 py-4 border-4 border-gray-800 transform rotate-12 animate-pulse">
-              <p className="text-2xl font-bold text-gray-800 font-sans">
+            <div className="absolute -top-12 -right-12 bg-white rounded-3xl px-8 py-6 border-6 border-gray-800 transform rotate-12 animate-pulse">
+              <p className="text-3xl md:text-4xl font-bold text-gray-800 font-sans">
                 Ahoy Matey!
               </p>
-              <div className="absolute bottom-0 left-8 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-white transform translate-y-2"></div>
+              <div className="absolute bottom-0 left-10 w-0 h-0 border-l-6 border-r-6 border-t-12 border-transparent border-t-white transform translate-y-3"></div>
             </div>
           </div>
         </div>
