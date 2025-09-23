@@ -152,10 +152,10 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const weekProgress = getWeekProgress();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-3 sm:space-y-4 md:space-y-6 px-2 sm:px-4">
       {/* Pirate Header */}
       <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-2 border-amber-400 shadow-2xl">
-        <CardHeader className="relative overflow-hidden">
+        <CardHeader className="relative overflow-hidden p-3 sm:p-4 md:p-6">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800"></div>
           <div className="absolute inset-0 opacity-60">
             <svg className="w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -164,7 +164,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#ffffff"></path>
             </svg>
           </div>
-          <div className="relative flex justify-between items-center">
+          <div className="relative flex flex-wrap justify-between items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center border-4 border-amber-300 shadow-lg">
                 <Ship className="w-8 h-8 text-amber-900" />
@@ -203,11 +203,11 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
       </Card>
 
       {/* Treasure Stats */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
         <Card className="bg-gradient-to-br from-slate-700 to-slate-800 border-slate-500 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center border-2 border-slate-400">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-600 rounded-full flex items-center justify-center border-2 border-slate-400">
                 <Scroll className="w-6 h-6 text-slate-200" />
               </div>
               <div>
@@ -219,9 +219,9 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         </Card>
 
         <Card className="bg-gradient-to-br from-blue-700 to-blue-800 border-blue-500 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center border-2 border-blue-400">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center border-2 border-blue-400">
                 <Ship className="w-6 h-6 text-blue-200" />
               </div>
               <div>
@@ -233,9 +233,9 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         </Card>
 
         <Card className="bg-gradient-to-br from-amber-600 to-amber-700 border-amber-500 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
                 <Star className="w-6 h-6 text-amber-100" />
               </div>
               <div>
@@ -247,9 +247,9 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-700 to-purple-800 border-purple-500 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center border-2 border-purple-400">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-full flex items-center justify-center border-2 border-purple-400">
                 <Anchor className="w-6 h-6 text-purple-200" />
               </div>
               <div>
@@ -270,8 +270,8 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             🗺️ Treasure Map & Word Status 🗺️
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <CardContent className="p-3 sm:p-4 md:p-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
             <div className="text-center">
               <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg ${getWordStatusColor('new')} relative`}>
                 {getWordStatusIcon('new')}
@@ -342,8 +342,8 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             ⛵ This Week's Voyages ⛵
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="flex justify-center gap-6">
+        <CardContent className="p-3 sm:p-4 md:p-6">
+          <div className="flex justify-center gap-3 sm:gap-4 md:gap-6">
             {(stats?.daysThisWeek || []).map((practiced, index) => (
               <div key={index} className="text-center">
                 <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg transition-all ${
