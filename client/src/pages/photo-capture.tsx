@@ -7,7 +7,7 @@ import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
+import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves } from "lucide-react";
 
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
@@ -74,26 +74,51 @@ export default function PhotoCapturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600">
-      {/* Header */}
-      <div className="p-4 flex items-center justify-between relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+      {/* Hero Section - Matching Landing Page */}
+      <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 pb-8 safe-area">
         <Button 
           variant="ghost" 
           onClick={() => setLocation("/")}
-          className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2"
+          className="absolute top-4 left-4 text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2 z-20"
           data-testid="button-back"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Harbor
         </Button>
-        <h1 className="text-3xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
-          <Upload className="w-8 h-8" />
-          Treasure Map Creator
-        </h1>
-        <div className="w-32"></div>
-      </div>
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <div className="relative mb-8">
+            <div className="absolute -top-8 -left-8 -z-10 animate-pulse">
+              <i className="lni lni-compass text-yellow-400 drop-shadow-2xl" style={{ 
+                fontSize: '8rem',
+                backgroundColor: 'rgba(251,191,36,0.15)',
+                padding: '12px',
+                borderRadius: '50%'
+              }}>🧭</i>
+            </div>
+            <h1 className="fluid-text-hero font-bold text-white drop-shadow-2xl mb-4 relative z-10" data-testid="text-hero-title">
+              Red Boot's Treasure Map Creator
+            </h1>
+          </div>
+          <div className="relative">
+            <div className="absolute -top-16 right-4 -z-10 animate-pulse">
+              <i className="lni lni-island text-green-400 drop-shadow-2xl" style={{ 
+                fontSize: '16rem',
+                backgroundColor: 'rgba(34,197,94,0.15)',
+                padding: '24px',
+                borderRadius: '50%',
+                border: '4px solid rgba(34,197,94,0.2)'
+              }}>🏝️</i>
+            </div>
+            <p className="fluid-text-lg mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
+              Red Boot, Speller of the Seven Seas!
+            </p>
+          </div>
+        </div>
+      </section>
 
-      <div className="px-4 pb-8">
+      {/* Create Your Treasure Maps Section - Lowered with proper spacing */}
+      <section className="pt-24 pb-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
         <div className="max-w-6xl mx-auto">
           {!capturedImage ? (
             /* Photo Capture Screen */
@@ -143,16 +168,16 @@ export default function PhotoCapturePage() {
             /* Processing Screen */
             <div className="text-center">
               <RedBootCharacter size="large" animated className="mb-8" />
-              <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-12 text-center border-4 border-white/20 shadow-2xl">
+              <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-12 text-center border-4 border-blue-200 shadow-2xl">
                 <CardContent className="pt-0">
                   <div className="text-8xl mb-8">🗺️</div>
-                  <h2 className="text-4xl font-pirate mb-8 text-white" data-testid="text-processing-title">
+                  <h2 className="text-4xl font-fun mb-8 text-blue-900" data-testid="text-processing-title">
                     Creating Your Treasure Maps...
                   </h2>
                   <div className="flex justify-center mb-8">
-                    <RefreshCw className="w-16 h-16 animate-spin text-yellow-300" />
+                    <i className="lni lni-reload animate-spin text-yellow-600" style={{ fontSize: '4rem' }}></i>
                   </div>
-                  <p className="text-blue-100 text-xl leading-relaxed" data-testid="text-processing-message">
+                  <p className="text-blue-700 text-xl leading-relaxed" data-testid="text-processing-message">
                     "Arrr! I'm using me magic compass to find all the treasure words in your photo!"
                   </p>
                 </CardContent>
@@ -164,41 +189,46 @@ export default function PhotoCapturePage() {
               {/* Success Message */}
               <div className="text-center">
                 <RedBootCharacter size="medium" animated className="mb-6" />
-                <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border-4 border-white/20 shadow-2xl">
+                <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 border-4 border-blue-200 shadow-2xl">
                   <CardContent className="pt-0">
                     <div className="mb-6">
-                      <PartyPopper className="w-16 h-16 mx-auto text-white" />
+                      <i className="lni lni-celebration text-green-600 drop-shadow-lg" style={{
+                        fontSize: '4rem',
+                        backgroundColor: 'rgba(34,197,94,0.1)',
+                        padding: '12px',
+                        borderRadius: '50%'
+                      }}></i>
                     </div>
-                    <h2 className="text-3xl font-pirate mb-4 text-white" data-testid="text-success-title">
+                    <h2 className="text-3xl font-fun mb-4 text-blue-900" data-testid="text-success-title">
                       Treasure Maps Created!
                     </h2>
-                    <p className="text-blue-100 mb-8 text-xl" data-testid="text-success-message">
+                    <p className="text-blue-700 mb-8 text-xl" data-testid="text-success-message">
                       "Ahoy! I found {extractedWords.length} treasure words in your photo! They're now beautiful treasure map flashcards!"
                     </p>
                     <div className="flex gap-4 justify-center flex-wrap">
                       <Button 
                         onClick={handleRetake}
                         variant="outline"
-                        className="border-2 border-white text-white hover:bg-white hover:text-cyan-600 px-6 py-3 rounded-2xl"
+                        className="border-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-2xl font-bold"
                         data-testid="button-retake"
                       >
-                        <Upload className="w-5 h-5 mr-2" />
+                        <i className="lni lni-upload mr-2" style={{ fontSize: '1.25rem' }}></i>
                         Upload Another Photo
                       </Button>
                       <Button 
                         onClick={handleSaveWords}
-                        className="bg-emerald-500 text-white hover:bg-emerald-600 px-6 py-3 rounded-2xl"
+                        className="bg-emerald-500 text-white hover:bg-emerald-600 px-6 py-3 rounded-2xl font-bold"
                         data-testid="button-save-words"
                       >
-                        <Save className="w-5 h-5 mr-2" />
+                        <i className="lni lni-save mr-2" style={{ fontSize: '1.25rem' }}></i>
                         Save Flashcards
                       </Button>
                       <Button 
                         onClick={handleStartPractice}
-                        className="bg-treasure-500 text-white hover:bg-treasure-600 px-6 py-3 rounded-2xl"
+                        className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 px-6 py-3 rounded-2xl font-bold"
                         data-testid="button-start-practice"
                       >
-                        <Play className="w-5 h-5 mr-2" />
+                        <i className="lni lni-play mr-2" style={{ fontSize: '1.25rem' }}></i>
                         Start Adventure!
                       </Button>
                     </div>
@@ -207,7 +237,7 @@ export default function PhotoCapturePage() {
               </div>
 
               {/* Flashcard Grid */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border-2 border-white/10">
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border-2 border-blue-200">
                 <FlashcardGrid
                   words={extractedWords}
                   onRemoveWord={removeWord}
@@ -219,11 +249,11 @@ export default function PhotoCapturePage() {
 
               {/* Original Photo (Small) */}
               {capturedImage && (
-                <Card className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <Card className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-blue-200">
                   <CardHeader>
-                    <CardTitle className="text-lg text-center text-white/80" data-testid="text-original-image">
-                      <div className="flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
+                    <CardTitle className="text-lg text-center text-blue-800" data-testid="text-original-image">
+                      <div className="flex items-center gap-2 justify-center">
+                        <i className="lni lni-image" style={{ fontSize: '1.25rem' }}></i>
                         Uploaded Photo
                       </div>
                     </CardTitle>
@@ -233,7 +263,7 @@ export default function PhotoCapturePage() {
                       <img 
                         src={capturedImage} 
                         alt="Original spelling list photo" 
-                        className="max-h-40 rounded-lg shadow-lg opacity-75 hover:opacity-100 transition-opacity border-2 border-white/20"
+                        className="max-h-40 rounded-lg shadow-lg opacity-75 hover:opacity-100 transition-opacity border-2 border-blue-300"
                         data-testid="image-captured"
                       />
                     </div>
@@ -243,8 +273,7 @@ export default function PhotoCapturePage() {
             </div>
           )}
         </div>
-      </div>
-
+      </section>
     </div>
   );
 }
