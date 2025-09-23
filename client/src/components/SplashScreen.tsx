@@ -83,26 +83,26 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             </h1>
           </div>
 
-          {/* Red Boot character in the center */}
-          <div className="flex justify-center flex-shrink-0">
+          {/* Red Boot character in the center - smaller and lowered */}
+          <div className="flex justify-center flex-shrink-0 mt-4 sm:mt-6">
             <div className="relative transform animate-float">
-              <div className="w-[10rem] h-[10rem] sm:w-[14rem] sm:h-[14rem] md:w-[16rem] md:h-[16rem] lg:w-[18rem] lg:h-[18rem] relative overflow-hidden rounded-full bg-white border-4 border-white shadow-2xl">
+              <div className="w-[8rem] h-[8rem] sm:w-[10rem] sm:h-[10rem] md:w-[12rem] md:h-[12rem] lg:w-[14rem] lg:h-[14rem] relative overflow-hidden rounded-full bg-white border-3 border-white shadow-2xl">
                 <img 
                   src={redBootSplash} 
                   alt="Red Boot the Pirate" 
-                  className="w-full h-full object-cover scale-110"
+                  className="w-full h-full object-cover scale-105"
                   style={{
-                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 20px rgba(0,0,0,0.4))',
-                    transform: 'scale(1.1)'
+                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 10px 15px rgba(0,0,0,0.4))',
+                    transform: 'scale(1.05)'
                   }}
                 />
               </div>
-              {/* Speech bubble - compact */}
-              <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 bg-white rounded-2xl px-2 sm:px-4 py-1 sm:py-2 border-2 sm:border-3 border-gray-800 transform rotate-12 animate-pulse">
-                <p className="text-base sm:text-xl md:text-2xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
-                  Ahoy Matey!
+              {/* Speech bubble - smaller and adjusted */}
+              <div className="absolute -top-2 sm:-top-3 -right-3 sm:-right-4 bg-white rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 border-2 border-gray-800 transform rotate-12 animate-pulse">
+                <p className="text-sm sm:text-lg md:text-xl font-bold text-sky-600" style={{ fontFamily: "'Pirata One', cursive" }}>
+                  Ahoy!
                 </p>
-                <div className="absolute bottom-0 left-4 sm:left-6 w-0 h-0 border-l-2 border-r-2 border-t-4 sm:border-l-3 sm:border-r-3 sm:border-t-6 border-transparent border-t-white transform translate-y-1"></div>
+                <div className="absolute bottom-0 left-3 sm:left-4 w-0 h-0 border-l-2 border-r-2 border-t-3 sm:border-l-2 sm:border-r-2 sm:border-t-4 border-transparent border-t-white transform translate-y-1"></div>
               </div>
             </div>
           </div>
