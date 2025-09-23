@@ -74,7 +74,7 @@ export default function PhotoCapturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="p-4 flex items-center justify-between relative">
         <Button 
@@ -107,12 +107,12 @@ export default function PhotoCapturePage() {
               <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20 shadow-2xl">
                 <CardContent className="pt-0">
                   <div className="mb-6">
-                    <Flag className="w-20 h-20 mx-auto text-white" />
+                    <i className="lni lni-flag" style={{ fontSize: '5rem', color: '#000' }}></i>
                   </div>
                   <h2 className="text-4xl font-pirate mb-6 text-white" data-testid="text-capture-title">
                     Create Your Treasure Maps!
                   </h2>
-                  <p className="text-blue-100 mb-8 text-xl leading-relaxed" data-testid="text-capture-instructions">
+                  <p className="text-blue-600 mb-8 text-xl leading-relaxed" data-testid="text-capture-instructions">
                     "Ahoy matey! Upload a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
                   </p>
                   
@@ -122,25 +122,6 @@ export default function PhotoCapturePage() {
                     </CardContent>
                   </Card>
 
-                  {/* Tips with Line Icons */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
-                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <i className="lni lni-sun" style={{ fontSize: '2rem' }}></i>
-                      <div className="font-bold text-sm mt-2">Good Light</div>
-                    </div>
-                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <i className="lni lni-book" style={{ fontSize: '2rem' }}></i>
-                      <div className="font-bold text-sm mt-2">Clear Text</div>
-                    </div>
-                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <i className="lni lni-target" style={{ fontSize: '2rem' }}></i>
-                      <div className="font-bold text-sm mt-2">Hold Steady</div>
-                    </div>
-                    <div className="flex flex-col items-center p-4 bg-white/10 rounded-2xl">
-                      <i className="lni lni-frame-expand" style={{ fontSize: '2rem' }}></i>
-                      <div className="font-bold text-sm mt-2">No Shadows</div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
