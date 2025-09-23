@@ -143,6 +143,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         setEditableWords([...demoWords]);
         setShowWordList(true);
         
+        // CRITICAL FIX: Notify parent page of demo words
+        onWordsExtracted(demoWords);
+        
         playSound('ship_bell_success');
         toast({
           title: "Demo Words Loaded! 📚",
@@ -154,6 +157,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setExtractedWords(words);
       setEditableWords([...words]);
       setShowWordList(true);
+
+      // CRITICAL FIX: Notify parent page of extracted words
+      onWordsExtracted(words);
 
       // Don't save to photoStorage here - wait for user confirmation in saveWords()
       
@@ -368,6 +374,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       // Don't fail if photo storage fails
     }
     
+    // CRITICAL FIX: Always notify parent of final confirmed words
     onWordsExtracted(finalWords);
     playSound('cannon_achievement');
     
