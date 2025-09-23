@@ -97,7 +97,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       const treasure = treasureMap[correctCount];
       if (treasure) {
         setCurrentTreasure(treasure.name);
-        setShowTreasureRoad(true);
         playSound('cannon_achievement');
         
         // Red Boot celebrates with a random pirate phrase!
@@ -106,20 +105,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           speakTreasurePhrase(randomPhrase);
         }, 1000); // Slight delay after sound effect
         
-        // Hide after 5 seconds and continue
+        // Clear celebration after 3 seconds but don't interrupt practice flow
         setTimeout(() => {
-          setShowTreasureRoad(false);
           setCurrentTreasure(null);
-          // Move to next word automatically
-          if (currentWordIndex < practiceWords.length - 1) {
-            setCurrentWordIndex(currentWordIndex + 1);
-            setUserInput('');
-            setShowFeedback(false);
-            setIsWordSpoken(false);
-          }
-        }, 5000);
+        }, 3000);
         
-        return true; // Treasure was shown
+        return true; // Treasure celebration triggered
       }
     }
     return false; // No treasure this time
@@ -501,7 +492,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       <TreasureRoad
         totalWords={practiceWords.length}
         masteredWords={correctCount}
-        treasureJustUnlocked={showTreasureRoad ? (currentTreasure || undefined) : undefined}
+        treasureJustUnlocked={currentTreasure || undefined}
       />
     </div>
     
