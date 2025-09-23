@@ -75,8 +75,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         <div className="mb-3 sm:mb-6 flex items-center justify-center gap-4 sm:gap-8 px-2">
           {/* "Red" on the left */}
           <div className="transform animate-bounce-gentle">
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white drop-shadow-2xl tracking-wide font-sans" 
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-red-500 drop-shadow-2xl tracking-wide" 
                 style={{ 
+                  fontFamily: "'Pirata One', cursive",
                   textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
                 }}>
               Red
@@ -109,8 +110,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
           {/* "Boot" on the right */}
           <div className="transform animate-bounce-gentle">
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white drop-shadow-2xl tracking-wide font-sans" 
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-red-500 drop-shadow-2xl tracking-wide" 
                 style={{ 
+                  fontFamily: "'Pirata One', cursive",
                   textShadow: '6px 6px 0px #2c5aa0, 12px 12px 0px rgba(0,0,0,0.3)'
                 }}>
               Boot
