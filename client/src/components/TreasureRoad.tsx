@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import redBootImage from '@assets/17586438224363330781733458024019_1758643831046.png';
 
 interface TreasureRoadProps {
   totalWords: number;
@@ -180,12 +181,18 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
                 top: `${redBootPos.top}%`,
                 transform: 'translate(-50%, -50%)' 
               }}
+              data-testid="red-boot-character"
             >
               <div className="relative">
-                {/* Red Boot with bigger size and glow effect */}
-                <span style={{ fontSize: '3.5rem' }} className="relative z-10">🏴‍☠️</span>
+                {/* Red Boot character image with glow effect */}
+                <img 
+                  src={redBootImage} 
+                  alt="Red Boot the Pirate" 
+                  className="relative z-10 w-14 h-14 object-contain"
+                  style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' }}
+                />
                 {/* Glowing effect behind Red Boot */}
-                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-60 animate-pulse"></div>
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-50 animate-pulse pointer-events-none"></div>
               </div>
             </div>
           </div>
