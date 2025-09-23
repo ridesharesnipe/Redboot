@@ -358,9 +358,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       <div className="max-w-4xl mx-auto space-y-4">
         {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-8">
+      <CardContent className="p-4">
         {/* Header with progress and treasure */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-yellow-500" />
             <span className="font-bold">{treasureEarned}</span>
@@ -386,7 +386,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         {showFeedback ? (
           // Feedback screen
           <div className="text-center">
-            <div className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center ${
+            <div className={`w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center ${
               isCorrect ? 'bg-green-100' : 'bg-red-100'
             }`}>
               {isCorrect ? (
@@ -396,7 +396,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               )}
             </div>
             
-            <h3 className={`text-2xl font-bold mb-2 ${
+            <h3 className={`text-xl font-bold mb-1 ${
               isCorrect ? 'text-green-600' : 'text-red-600'
             }`}>
               {isCorrect ? 'Correct!' : 'Not quite!'}
@@ -411,7 +411,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               </div>
             )}
             
-            <div className="mt-6">
+            <div className="mt-4">
               <Button 
                 onClick={nextWord} 
                 className="bg-blue-600 hover:bg-blue-700 px-8"
@@ -424,28 +424,28 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         ) : (
           // Practice screen
           <div className="text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold">?</span>
               </div>
             </div>
             
-            <h3 className="text-xl mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
+            <h3 className="text-lg mb-1" style={{ fontFamily: 'var(--font-pirate)' }}>
               Listen carefully and spell the word!
             </h3>
             
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-3">
               {isWordSpoken ? 'Type what you heard:' : 'Red Boot is saying the word...'}
             </p>
             
             {/* Spelling input */}
-            <div className="mb-6">
+            <div className="mb-3">
               <Input
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 placeholder={isWordSpoken ? "Type the spelling here..." : "Wait for the word..."}
-                className="text-center text-xl py-4 max-w-md mx-auto"
+                className="text-center text-lg py-3 max-w-md mx-auto"
                 disabled={!isWordSpoken}
                 autoFocus={isWordSpoken}
                 data-testid="input-spelling"
