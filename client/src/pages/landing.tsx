@@ -51,7 +51,7 @@ export default function Landing({ onStart }: LandingProps) {
   return (
     <div className="min-h-[100svh] bg-background overflow-x-hidden">
       {/* Hero Section with Ocean Background */}
-      <section className="ocean-hero text-white py-6 sm:py-10 md:py-20 px-4 relative min-h-[100svh] overflow-x-hidden safe-area-bottom">
+      <section className="ocean-hero text-white py-10 md:py-20 px-4 relative min-h-[100svh] overflow-x-hidden safe-area-bottom">
         {/* Ocean elements */}
         <div className="ocean-island"></div>
         
@@ -66,37 +66,16 @@ export default function Landing({ onStart }: LandingProps) {
             }}>Red Boot's Adventure</h1>
           </div>
         </nav>
-        <div className="max-w-7xl mx-auto text-center relative z-10 pt-4 sm:pt-8">
-          <div className="mb-8 sm:mb-12 md:mb-16 flex flex-col items-center justify-center">
-            {/* Empty white circle for design */}
-            <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto mb-6 flex items-center justify-center">
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
-                <span className="text-6xl">⚓</span>
-              </div>
-            </div>
-            
-            {/* Red Boot floating below */}
-            <div className="relative float-animation landscape-reduce">
-              <div className="relative">
-                <img 
-                  src={redBootLandingHead}
-                  alt="Red Boot the Pirate Captain"
-                  className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full border-4 border-white shadow-2xl"
-                  style={{
-                    filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.4))',
-                  }}
-                />
-                <div className="absolute -bottom-8 sm:-bottom-10 left-1/2 transform -translate-x-1/2 text-center">
-                  <div className="fluid-heading-md drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
-                  <div className="fluid-heading-sm drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
-                </div>
-              </div>
+        <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
+          <div className="mb-16 flex justify-center">
+            <div className="relative flex items-center justify-center float-animation landscape-reduce">
+              <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto"></div>
             </div>
           </div>
-          <h1 className="fluid-heading-xl mb-6 sm:mb-12 md:mb-16 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <h1 className="fluid-heading-xl mb-12 sm:mb-16 md:mb-24 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
-          <p className="fluid-text-lg mb-6 sm:mb-8 md:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4" data-testid="text-hero-subtitle">
+          <p className="fluid-text-lg mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4" data-testid="text-hero-subtitle">
             Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4 safe-area-x">
@@ -119,6 +98,24 @@ export default function Landing({ onStart }: LandingProps) {
               <Play className="w-5 h-5 mr-2" />
               Watch Demo
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Red Boot floating below the hero */}
+      <section className="flex justify-center py-12 bg-background">
+        <div className="relative float-animation landscape-reduce">
+          <img 
+            src={redBootLandingHead}
+            alt="Red Boot the Pirate Captain"
+            className="w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-white shadow-2xl"
+            style={{
+              filter: 'contrast(1.2) saturate(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.4))',
+            }}
+          />
+          <div className="absolute -bottom-16 md:-bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+            <div className="fluid-heading-md drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
+            <div className="fluid-heading-sm drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
           </div>
         </div>
       </section>
