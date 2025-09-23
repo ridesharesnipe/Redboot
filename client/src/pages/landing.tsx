@@ -89,11 +89,11 @@ export default function Landing({ onStart }: LandingProps) {
             Ahoy, Matey!
           </h1>
           <div className="mb-12 sm:mb-16 md:mb-24 flex justify-center">
-            <i className="lni lni-compass text-6xl text-yellow-400 drop-shadow-lg" style={{ 
+            <i className="lni lni-compass text-8xl text-yellow-400 drop-shadow-lg" style={{ 
               fontFamily: 'LineIcons', 
               fontStyle: 'normal',
               backgroundColor: 'rgba(255,255,255,0.1)',
-              padding: '8px',
+              padding: '12px',
               borderRadius: '50%'
             }}>🧭</i>
           </div>
