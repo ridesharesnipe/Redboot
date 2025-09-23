@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { spellingStorage } from '@/lib/localStorage';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Camera, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2 } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2 } from 'lucide-react';
 
 interface ParentDashboardProps {
   onTakePhoto: () => void;
@@ -445,10 +445,10 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               className="h-20 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border-2 border-blue-400 shadow-xl text-white transform hover:scale-105 transition-all"
               data-testid="button-take-photo-dashboard"
             >
-              <Camera className="w-8 h-8 mr-4" />
+              <Upload className="w-8 h-8 mr-4" />
               <div className="text-left">
-                <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>📸 Chart New Waters</div>
-                <div className="text-sm opacity-90">Capture yer treasure map</div>
+                <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>📤 Chart New Waters</div>
+                <div className="text-sm opacity-90">Upload yer treasure map</div>
               </div>
             </Button>
 
