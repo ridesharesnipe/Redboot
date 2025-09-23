@@ -53,14 +53,6 @@ export default function Landing({ onStart }: LandingProps) {
       {/* Hero Section with Ocean Background */}
       <section className="ocean-hero text-white py-10 md:py-20 px-4 relative min-h-[100svh] overflow-x-hidden safe-area-bottom">
         {/* Ocean elements */}
-        <div className="absolute top-20 left-8 z-10 animate-pulse">
-          <i className="lni lni-island text-green-400 text-8xl drop-shadow-2xl" style={{ 
-            backgroundColor: 'rgba(34,197,94,0.2)',
-            padding: '16px',
-            borderRadius: '50%',
-            border: '3px solid rgba(34,197,94,0.3)'
-          }}>🏝️</i>
-        </div>
         
         {/* Floating Navigation */}
         <nav className="absolute top-4 left-4 right-4 z-20 safe-area-x">
@@ -104,9 +96,20 @@ export default function Landing({ onStart }: LandingProps) {
               borderRadius: '50%'
             }}>🧭</i>
           </div>
-          <p className="fluid-text-lg mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4" data-testid="text-hero-subtitle">
-            Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
-          </p>
+          <div className="relative">
+            <div className="absolute top-0 right-16 -z-10 animate-pulse">
+              <i className="lni lni-island text-green-400 drop-shadow-2xl" style={{ 
+                fontSize: '12rem',
+                backgroundColor: 'rgba(34,197,94,0.15)',
+                padding: '20px',
+                borderRadius: '50%',
+                border: '4px solid rgba(34,197,94,0.2)'
+              }}>🏝️</i>
+            </div>
+            <p className="fluid-text-lg mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
+              Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
+            </p>
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4 safe-area-x">
             <Button 
               onClick={handleLogin}
