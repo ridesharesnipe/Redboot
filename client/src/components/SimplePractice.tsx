@@ -38,6 +38,40 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const { toast } = useToast();
   const { playSound, playCharacterVoice } = useAudio();
 
+  // Red Boot's milestone celebration phrases
+  const treasurePhrases = [
+    "Well done, matey! A true sea dog's triumph!",
+    "Blimey! A booty well-earned, arrr!",
+    "Heave ho! You've navigated that perfectly!",
+    "By the kraken's beard, a grand victory!",
+    "A toast to ye, for a legendary haul!",
+    "You've found the treasure map to success!",
+    "Blow me down! That's a master stroke!",
+    "Fair winds and following seas, you legend!",
+    "Ahoy! You've captured the day's glory!",
+    "A fine catch! The Jolly Roger salutes you!"
+  ];
+
+  // Function to make Red Boot speak a phrase clearly
+  const speakTreasurePhrase = (phrase: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(phrase);
+      utterance.rate = 0.9; // Clear, dramatic delivery
+      utterance.volume = 1.0;
+      utterance.pitch = 1.1; // Slightly higher for excitement
+      
+      // Try to get a good voice for Red Boot
+      const voices = speechSynthesis.getVoices();
+      const pirateVoice = voices.find(voice => 
+        voice.lang.startsWith('en') && (voice.name.includes('Male') || !voice.name.includes('Google'))
+      ) || voices[0];
+      
+      if (pirateVoice) utterance.voice = pirateVoice;
+      
+      speechSynthesis.speak(utterance);
+    }
+  };
+
   // Add treasure checking function
   const checkForTreasure = (correctCount: number) => {
     const treasureMap: Record<number, { name: string; icon: string }> = {
@@ -59,6 +93,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setCurrentTreasure(treasure.name);
         setShowTreasureRoad(true);
         playSound('cannon_achievement');
+        
+        // Red Boot celebrates with a random pirate phrase!
+        const randomPhrase = treasurePhrases[Math.floor(Math.random() * treasurePhrases.length)];
+        setTimeout(() => {
+          speakTreasurePhrase(randomPhrase);
+        }, 1000); // Slight delay after sound effect
         
         // Hide after 5 seconds and continue
         setTimeout(() => {
