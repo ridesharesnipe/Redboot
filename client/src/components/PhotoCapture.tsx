@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
 import { photoStorage, getWeekStart } from "@/lib/photoStorage";
-import { Camera, Upload, Check, X, Edit, Loader, ArrowLeft } from 'lucide-react';
+import { Upload, Check, X, Edit, Loader } from 'lucide-react';
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
@@ -15,8 +15,6 @@ interface PhotoCaptureProps {
 }
 
 export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: PhotoCaptureProps) {
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [editableWords, setEditableWords] = useState<string[]>([]);
@@ -24,108 +22,10 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   const [showWordList, setShowWordList] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const hiddenFileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
   const { playSound } = useAudio();
-
-  // Auto-start camera when component mounts
-  useEffect(() => {
-    startCamera();
-    return () => {
-      stopCamera(); // Cleanup on unmount
-    };
-  }, []);
-
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'environment', // Use back camera on mobile
-          width: { ideal: 1920, min: 1280 },
-          height: { ideal: 1080, min: 720 }
-        }
-      });
-      
-      setStream(mediaStream);
-      setIsCameraActive(true);
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
-      }
-    } catch (error) {
-      console.error('Error accessing camera:', error);
-      toast({
-        title: "Camera Access Failed",
-        description: "Please allow camera access or upload an image instead.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-      setIsCameraActive(false);
-    }
-  };
-
-  const handleCameraCancel = () => {
-    stopCamera();
-    if (onCancel) {
-      onCancel();
-    }
-  };
-
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) return;
-
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    // Draw video frame to canvas
-    ctx.drawImage(video, 0, 0);
-
-    // Convert to base64 image data
-    const imageData = canvas.toDataURL('image/jpeg', 0.9);
-    
-    stopCamera();
-    setCapturedImage(imageData);
-    processImage(imageData);
-    playSound('treasure_chest_open');
-    onCapture(imageData);
-  };
-
-  const handleFileUpload = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    
-    if (file) {
-      console.log('File selected for upload:', file.name, file.size);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageData = e.target?.result as string;
-        console.log('File read successfully, starting OCR processing');
-        setCapturedImage(imageData);
-        processImage(imageData);
-        playSound('treasure_chest_open');
-        onCapture(imageData);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      console.log('No file selected');
-    }
-  };
 
   // Handle file upload from hidden input (for testing)
   const handleHiddenFileUpload = () => {
@@ -455,18 +355,33 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = handleFileUpload;
+    input.onchange = (event) => {
+      const target = event.target as HTMLInputElement;
+      const file = target.files?.[0];
+      
+      if (file) {
+        console.log('File selected for upload:', file.name, file.size);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const imageData = e.target?.result as string;
+          console.log('File read successfully, starting OCR processing');
+          setCapturedImage(imageData);
+          processImage(imageData);
+          playSound('treasure_chest_open');
+          onCapture(imageData);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        console.log('No file selected');
+      }
+    };
     input.click();
   };
-
-  // Create a hidden file input for testing purposes
-  const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
   const retakePhoto = () => {
     setCapturedImage(null);
     setIsProcessing(false);
     setShowWordList(false);
-    startCamera();
   };
 
   // Show word verification screen if words were extracted
@@ -529,62 +444,6 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     );
   }
 
-  // FULLSCREEN CAMERA VIEW
-  if (isCameraActive) {
-    return (
-      <div className="fixed inset-0 bg-black z-50 flex flex-col">
-        {/* Back button */}
-        <div className="absolute top-4 left-4 z-10">
-          <Button
-            onClick={handleCameraCancel}
-            variant="outline"
-            size="sm"
-            className="bg-black/50 text-white border-white/30 hover:bg-black/70"
-            data-testid="button-cancel-camera"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </div>
-
-        {/* Fullscreen camera */}
-        <div className="flex-1 relative">
-          <video 
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            autoPlay
-            playsInline
-            muted
-            data-testid="camera-video"
-          />
-          
-          {/* Overlay guide */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/4 left-4 right-4 text-center">
-              <div className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm inline-block">
-                📝 Position your spelling list in the frame
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Capture button at bottom */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <Button 
-            onClick={capturePhoto}
-            className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-lg hover:bg-gray-100"
-            data-testid="button-capture-photo"
-          >
-            <Camera className="w-8 h-8 text-black" />
-          </Button>
-        </div>
-
-        {/* Hidden canvas for photo capture */}
-        <canvas ref={canvasRef} className="hidden" />
-      </div>
-    );
-  }
-
   // Processing screen
   if (isProcessing) {
     return (
@@ -629,8 +488,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
                   className="flex-1"
                   data-testid="button-retake-photo"
                 >
-                  <Camera className="w-4 h-4 mr-2" />
-                  Retake
+                  <Upload className="w-4 h-4 mr-2" />
+                  Choose Different Photo
                 </Button>
                 <Button 
                   onClick={() => processImage(capturedImage)}
@@ -645,31 +504,22 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           ) : (
             <div className="text-center">
               <div className="w-24 h-24 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
-                <Camera className="text-accent-foreground w-8 h-8" />
+                <Upload className="text-accent-foreground w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-camera-ready">
-                Capture Spelling List
+              <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-upload-ready">
+                Upload Spelling List Photo
               </h3>
-              <p className="text-muted-foreground mb-6" data-testid="text-camera-instructions">
-                Take a photo of your child's spelling homework
+              <p className="text-muted-foreground mb-6" data-testid="text-upload-instructions">
+                Take a photo with your camera app, then upload it here
               </p>
               <div className="flex flex-col gap-3">
                 <Button 
-                  onClick={startCamera}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 text-lg"
-                  data-testid="button-open-camera"
-                >
-                  <Camera className="w-5 h-5 mr-2" />
-                  Open Camera
-                </Button>
-                <Button 
-                  variant="outline"
                   onClick={triggerFileUpload}
-                  className="w-full py-4 text-lg"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 text-lg"
                   data-testid="button-upload-file"
                 >
                   <Upload className="w-5 h-5 mr-2" />
-                  Upload Image
+                  Upload Photo
                 </Button>
                 
                 {/* Hidden file input for testing */}
