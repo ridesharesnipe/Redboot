@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import { Upload, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
 
 export default function PhotoCapturePage() {
@@ -19,48 +16,17 @@ export default function PhotoCapturePage() {
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const extractTextMutation = useMutation({
-    mutationFn: async (imageData: string) => {
-      const response = await apiRequest("POST", "/api/ocr/extract", { imageData });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      setExtractedWords(data.words);
-      setIsProcessing(false);
-      
-      // Save words to localStorage for the game to use
-      localStorage.setItem('spellingWords', JSON.stringify(data.words));
-      
-      toast({
-        title: "Treasure Maps Created!",
-        description: `Ahoy! Found ${data.words.length} treasure words in your photo!`,
-      });
-    },
-    onError: (error) => {
-      setIsProcessing(false);
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Arrr! Something went wrong!",
-        description: "Failed to extract words from image. Please try again, matey!",
-        variant: "destructive",
-      });
-    },
-  });
 
   const handleImageCapture = (imageData: string) => {
     setCapturedImage(imageData);
-    setIsProcessing(true);
-    extractTextMutation.mutate(imageData);
+  };
+
+  const handleWordsExtracted = (words: string[]) => {
+    setExtractedWords(words);
+    setIsProcessing(false);
+    
+    // Save words to localStorage for the game to use
+    localStorage.setItem('spellingWords', JSON.stringify(words));
   };
 
   const handleRetake = () => {
@@ -132,7 +98,7 @@ export default function PhotoCapturePage() {
                   
                   <Card className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
                     <CardContent className="pt-0">
-                      <PhotoCapture onCapture={handleImageCapture} onWordsExtracted={setExtractedWords} />
+                      <PhotoCapture onCapture={handleImageCapture} onWordsExtracted={handleWordsExtracted} />
                     </CardContent>
                   </Card>
 

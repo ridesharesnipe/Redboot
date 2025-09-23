@@ -108,7 +108,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       // Configure for better spelling word recognition
       await worker.setParameters({
         tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., -:/()',
-        tessedit_pageseg_mode: 6, // Uniform block of text
+        tessedit_pageseg_mode: 6 as any, // Uniform block of text
         preserve_interword_spaces: '1',
       });
 
