@@ -12,7 +12,11 @@ import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.p
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 import redBootLandingHead from "@assets/17585900152718502939350575537720_1758590021649.png";
 
-export default function Landing() {
+interface LandingProps {
+  onStart?: () => void;
+}
+
+export default function Landing({ onStart }: LandingProps) {
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const { playSound, startBackgroundMusic, playCharacterVoice } = useAudio();
 
@@ -31,7 +35,7 @@ export default function Landing() {
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');
     setTimeout(() => {
-      window.location.href = "/dashboard";
+      onStart?.();
     }, 500);
   };
 

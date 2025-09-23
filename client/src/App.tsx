@@ -90,7 +90,7 @@ function App() {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'landing':
-        return <Landing />;
+        return <Landing onStart={() => setCurrentView('dashboard')} />;
       
       case 'dashboard':
         return (
