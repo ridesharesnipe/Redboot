@@ -13,7 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Child } from "@shared/schema";
-import { Anchor, Crown, LogOut, Camera, Mic, Map, User, TrendingUp, Plus } from "lucide-react";
+import { Anchor, Crown, LogOut, Upload, Mic, Map, User, TrendingUp, Plus } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -142,7 +142,7 @@ export default function Dashboard() {
           <Link href="/photo-capture">
             <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-accent text-accent-foreground">
               <CardContent className="pt-0">
-                <Camera className="w-8 h-8 mb-3" />
+                <Upload className="w-8 h-8 mb-3" />
                 <h3 className="font-bold text-lg mb-2" data-testid="text-action-photo-title">Capture Word List</h3>
                 <p className="text-sm opacity-90" data-testid="text-action-photo-desc">
                   Take a photo of homework spelling lists

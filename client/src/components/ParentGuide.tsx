@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, 
-  Camera, 
+  Upload, 
   Compass, 
   Crown, 
   MapPin, 
@@ -121,7 +121,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Camera className="w-6 h-6 text-blue-600 mt-1" />
+              <Upload className="w-6 h-6 text-blue-600 mt-1" />
               <div>
                 <h4 className="font-bold text-blue-800">Take a Photo</h4>
                 <p className="text-gray-700">Click "📸 Chart New Waters" on your dashboard. Use your phone or computer camera to take a clear photo of your child's weekly spelling list.</p>
@@ -320,7 +320,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
         <CardContent className="p-6">
           <div className="space-y-4">
             <div>
-              <h4 className="font-bold text-purple-800 mb-2">Camera Not Working?</h4>
+              <h4 className="font-bold text-purple-800 mb-2">Having Upload Issues?</h4>
               <p className="text-gray-700">Make sure your browser has camera permissions enabled. If your device doesn't have a camera, look for the "Upload Image" button to select a photo from your device files instead.</p>
             </div>
             <div>

@@ -7,7 +7,7 @@ import SaltyCharacter from "@/components/SaltyCharacter";
 import RayRayCharacter from "@/components/RayRayCharacter";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
-import { Camera, Swords, Map, Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
+import { Upload, Swords, Map, Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 import redBootLandingHead from "@assets/17585900152718502939350575537720_1758590021649.png";
@@ -184,13 +184,13 @@ export default function Landing({ onStart }: LandingProps) {
             <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-green-300 bg-gradient-to-br from-green-100 via-emerald-50 to-white relative overflow-hidden">
               <CardContent className="pt-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-green-200">
-                  <Camera className="text-white w-12 h-12" strokeWidth={2.5} />
+                  <Upload className="text-white w-12 h-12" strokeWidth={2.5} />
                 </div>
                 <h3 className="font-bold text-2xl mb-4 text-green-800" data-testid="text-feature-photo-title">
-                  Photo Capture
+                  Photo Upload
                 </h3>
                 <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-photo-desc">
-                  Snap photos of homework with Red Boot's magic camera and watch spelling words appear like treasure!
+                  Take photos of homework with your phone, then upload them to Red Boot's magic system and watch spelling words appear like treasure!
                 </p>
               </CardContent>
             </Card>
