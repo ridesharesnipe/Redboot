@@ -6,11 +6,166 @@
 /* Global mobile overflow handling */
 html, body {
   overflow-x: hidden;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Reduce hover effects on touch devices */
+  .hover\\:scale-105:hover {
+    transform: none;
+  }
+  
+  /* Increase touch target spacing */
+  .touch-spacing {
+    margin: 0.5rem;
+  }
+  
+  /* Reduce heavy effects on touch devices */
+  .drop-shadow-2xl {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+  }
+}
+
+/* Desktop/mouse optimizations */
+@media (hover: hover) and (pointer: fine) {
+  /* Enhanced hover effects for precise pointers */
+  .desktop-hover:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+  }
+}
+
+/* Landscape phone optimizations */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .ocean-hero {
+    min-height: 100vh; /* Fallback for short landscape */
+    min-height: 100svh;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  /* Reduce hero image size on short landscape screens */
+  .landscape-reduce {
+    transform: scale(0.8);
+  }
+}
+
+/* Safe area utilities */
+.safe-area-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.safe-area-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.safe-area-x {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Touch target sizing */
+.touch-target {
+  min-height: 44px; /* iOS standard */
+  min-width: 44px;
+}
+
+@media (pointer: coarse) {
+  .touch-target {
+    min-height: 48px; /* Android standard */
+    min-width: 48px;
+  }
+}
+
+/* Accessibility and interaction */
+button, [role="button"], a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* Prevents double-tap zoom */
+}
+
+/* Prevent zoom but allow accessibility - consolidated */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .float-animation,
+  .treasure-shimmer,
+  .ocean-hero::before,
+  .ocean-hero::after {
+    animation: none !important;
+  }
+  
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Fluid Typography System */
+.fluid-heading-xl {
+  font-size: clamp(2.5rem, 8vw, 8rem);
+  line-height: 1.1;
+}
+
+.fluid-heading-lg {
+  font-size: clamp(2rem, 6vw, 6rem);
+  line-height: 1.1;
+}
+
+.fluid-heading-md {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1.2;
+}
+
+.fluid-heading-sm {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.3;
+}
+
+.fluid-text-lg {
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  line-height: 1.4;
+}
+
+.fluid-text-base {
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  line-height: 1.5;
+}
+
+/* Container constraints for readability */
+.max-reading-width {
+  max-width: 65ch;
+}
+
+/* Comprehensive responsive breakpoints */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+/* Character/logo sizing with aspect ratio preservation */
+.character-container {
+  width: 100%;
+  max-width: clamp(300px, 40vw, 600px);
+  aspect-ratio: 1;
+}
+
+/* Fluid button sizing */
+.fluid-button {
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
 }
 
 :root {
