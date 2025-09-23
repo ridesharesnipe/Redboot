@@ -128,19 +128,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setEditableWords([...words]);
       setShowWordList(true);
 
-      // Save photo to free browser storage
-      try {
-        await photoStorage.savePhoto({
-          imageData,
-          extractedWords: words,
-          wordsCount: words.length,
-          capturedAt: new Date(),
-          weekStart: getWeekStart(),
-        });
-      } catch (storageError) {
-        console.error('Error saving photo to storage:', storageError);
-        // Don't fail the entire process if storage fails
-      }
+      // Don't save to photoStorage here - wait for user confirmation in saveWords()
       
       playSound('ship_bell_success');
       toast({
@@ -185,6 +173,11 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   // Extract and clean words from OCR text
   const extractWordsFromText = (text: string): string[] => {
     console.log('Extracting words from OCR text:', text);
+    
+    if (!text || text.trim().length === 0) {
+      console.log('No text provided to extract words from');
+      return [];
+    }
     
     const lines = text.split('\n').filter(line => line.trim().length > 0);
     const numberedWords: string[] = [];
@@ -259,19 +252,22 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         return;
       }
       
-      // Extract individual words from line (for unstructured lists) - only if no numbered words found
-      if (numberedWords.length === 0) {
-        const lineWords = cleanLine.match(/\b[a-zA-Z]{4,15}\b/g); // Require 4+ letters for loose words
-        if (lineWords) {
-          lineWords.forEach(word => {
-            const cleanWord = word.toLowerCase().trim();
-            // Filter out common non-spelling words and header fragments
-            if (!['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att'].includes(cleanWord)) {
-              console.log('Found loose word:', cleanWord);
+      // Extract individual words from line (more flexible approach)
+      const lineWords = cleanLine.match(/\b[a-zA-Z]{3,15}\b/g); // Accept 3+ letter words
+      if (lineWords) {
+        lineWords.forEach(word => {
+          const cleanWord = word.toLowerCase().trim();
+          // Filter out common non-spelling words and header fragments
+          const skipWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att', 'word', 'list', 'spelling', 'homework', 'test'];
+          
+          if (!skipWords.includes(cleanWord) && cleanWord.length >= 3) {
+            console.log('Found word:', cleanWord);
+            // Avoid duplicates
+            if (!otherWords.includes(cleanWord) && !numberedWords.includes(cleanWord)) {
               otherWords.push(cleanWord);
             }
-          });
-        }
+          }
+        });
       }
     });
     
@@ -285,14 +281,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       }
     });
     
-    // Add other words if we don't have enough numbered words
-    if (finalWords.length < 10) {
-      otherWords.forEach(word => {
-        if (!finalWords.includes(word) && word.length >= 3 && word.length <= 15) {
-          finalWords.push(word);
-        }
-      });
-    }
+    // Add other words (more flexible)
+    otherWords.forEach(word => {
+      if (!finalWords.includes(word) && word.length >= 3 && word.length <= 15) {
+        finalWords.push(word);
+      }
+    });
     
     console.log('Final extracted words:', finalWords);
     return finalWords.slice(0, 20); // Limit to 20 words max
@@ -330,7 +324,23 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       return;
     }
 
+    // Save to spellingStorage (used by practice system)
     spellingStorage.saveWordList(finalWords);
+    
+    // Also save to photoStorage for historical reference
+    try {
+      photoStorage.savePhoto({
+        imageData: capturedImage || '',
+        extractedWords: finalWords,
+        wordsCount: finalWords.length,
+        capturedAt: new Date(),
+        weekStart: getWeekStart(),
+      });
+    } catch (error) {
+      console.error('Error saving photo to storage:', error);
+      // Don't fail if photo storage fails
+    }
+    
     onWordsExtracted(finalWords);
     playSound('cannon_achievement');
     
