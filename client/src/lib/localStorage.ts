@@ -65,12 +65,24 @@ export class SpellingStorage {
     const today = new Date();
     const practiceWords: string[] = [];
 
+    console.log('Getting practice words. Total words:', weekData.words.length);
+    console.log('Practice data keys:', Object.keys(weekData.practiceData));
+
+    // Always include words that are new or need practice
     Object.values(weekData.practiceData).forEach(wordData => {
+      console.log(`Word: ${wordData.word}, Status: ${wordData.status}, Should practice: ${this.shouldPracticeToday(wordData, today)}`);
       if (this.shouldPracticeToday(wordData, today)) {
         practiceWords.push(wordData.word);
       }
     });
 
+    // If no practice words found, include all new words as fallback
+    if (practiceWords.length === 0 && weekData.words.length > 0) {
+      console.log('No practice words found, using all words as fallback');
+      practiceWords.push(...weekData.words.slice(0, 10));
+    }
+
+    console.log('Final practice words:', practiceWords);
     // Limit to 10 words maximum for focused practice
     return practiceWords.slice(0, 10);
   }

@@ -7,6 +7,7 @@ import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
+import { spellingStorage } from "@/lib/localStorage";
 import { Upload, RefreshCw, Save, Play, ArrowLeft, Flag, PartyPopper, Sun, BookOpen, Target, Waves } from "lucide-react";
 
 export default function PhotoCapturePage() {
@@ -25,8 +26,9 @@ export default function PhotoCapturePage() {
     setExtractedWords(words);
     setIsProcessing(false);
     
-    // Save words to localStorage for the game to use
-    localStorage.setItem('spellingWords', JSON.stringify(words));
+    // Save words to proper spellingStorage system
+    spellingStorage.saveWordList(words);
+    console.log('Saved words to spellingStorage:', words);
   };
 
   const handleRetake = () => {
@@ -35,7 +37,10 @@ export default function PhotoCapturePage() {
   };
 
   const handleSaveWords = () => {
-    // In a real implementation, this would save the words to a word list
+    // Save to proper spellingStorage system
+    spellingStorage.saveWordList(extractedWords);
+    console.log('Saved words to spellingStorage via handleSaveWords:', extractedWords);
+    
     toast({
       title: "Treasure Maps Saved!",
       description: `${extractedWords.length} pirate flashcards have been added to your collection!`,
@@ -44,14 +49,15 @@ export default function PhotoCapturePage() {
   };
 
   const handleStartPractice = () => {
-    // Save words to localStorage and navigate to game
-    localStorage.setItem('spellingWords', JSON.stringify(extractedWords));
+    // Save words to proper spellingStorage system
+    spellingStorage.saveWordList(extractedWords);
+    console.log('Saved words to spellingStorage via handleStartPractice:', extractedWords);
     
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",
     });
-    setLocation("/game/1"); // Use a dummy childId for now
+    setLocation("/practice"); // Go to practice route, not game/1
   };
 
   const removeWord = (wordToRemove: string) => {
