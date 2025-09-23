@@ -97,13 +97,14 @@ export default function Landing({ onStart }: LandingProps) {
             }}>🧭</i>
           </div>
           <div className="relative">
-            <div className="absolute -top-16 right-4 -z-10 animate-pulse">
+            <div className="absolute -top-16 right-0 -z-10 animate-pulse overflow-hidden">
               <i className="lni lni-island text-green-400 drop-shadow-2xl" style={{ 
-                fontSize: '16rem',
+                fontSize: '12rem',
                 backgroundColor: 'rgba(34,197,94,0.15)',
-                padding: '24px',
+                padding: '16px',
                 borderRadius: '50%',
-                border: '4px solid rgba(34,197,94,0.2)'
+                border: '3px solid rgba(34,197,94,0.2)',
+                transform: 'translateX(-50%)'
               }}>🏝️</i>
             </div>
             <p className="fluid-text-lg mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
