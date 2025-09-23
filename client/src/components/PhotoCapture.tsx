@@ -6,14 +6,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
 import { Camera, Upload, Check, X, Edit, Loader } from 'lucide-react';
-import { createWorker, Worker } from 'tesseract.js';
+// Lazy-load tesseract.js to keep bundle size small
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
   onWordsExtracted: (words: string[]) => void;
+  onCancel?: () => void;
 }
 
-export default function PhotoCapture({ onCapture, onWordsExtracted }: PhotoCaptureProps) {
+export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: PhotoCaptureProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -62,6 +63,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted }: PhotoCaptu
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
       setIsCameraActive(false);
+    }
+  };
+
+  // Handle camera cancel - also calls onCancel
+  const handleCameraCancel = () => {
+    stopCamera();
+    if (onCancel) {
+      onCancel();
     }
   };
 
@@ -114,8 +123,11 @@ export default function PhotoCapture({ onCapture, onWordsExtracted }: PhotoCaptu
     setOcrProgress(0);
     
     try {
+      // Lazy-load tesseract.js to keep bundle size small
+      const { createWorker } = await import('tesseract.js');
+      
       // Create Tesseract worker
-      const worker: Worker = await createWorker('eng', 1, {
+      const worker = await createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
             setOcrProgress(Math.round(m.progress * 100));
@@ -242,6 +254,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted }: PhotoCaptu
     setCapturedImage(null);
     setExtractedWords([]);
     setEditableWords([]);
+    if (onCancel) {
+      onCancel();
+    }
   };
 
   const triggerFileUpload = () => {
@@ -401,7 +416,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted }: PhotoCaptu
               </Button>
               <Button 
                 variant="outline"
-                onClick={stopCamera}
+                onClick={handleCameraCancel}
                 data-testid="button-cancel-camera"
               >
                 Cancel
