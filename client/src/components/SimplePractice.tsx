@@ -56,9 +56,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const speakTreasurePhrase = (phrase: string) => {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(phrase);
-      utterance.rate = 0.9; // Clear, dramatic delivery
+      utterance.rate = 0.75; // Slower, regular speed for clear delivery
       utterance.volume = 1.0;
-      utterance.pitch = 1.1; // Slightly higher for excitement
+      utterance.pitch = 1.0; // Normal pitch for clarity
       
       // Try to get a good voice for Red Boot
       const voices = speechSynthesis.getVoices();
