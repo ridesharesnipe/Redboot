@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { spellingStorage } from '@/lib/localStorage';
+import TreasureRoad from '@/components/TreasureRoad';
 import { Coins, SkipForward, CheckCircle, XCircle } from 'lucide-react';
 
 interface SimplePracticeProps {
@@ -23,6 +24,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [treasureEarned, setTreasureEarned] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [isWordSpoken, setIsWordSpoken] = useState(false);
+  const [showTreasureRoad, setShowTreasureRoad] = useState(false);
+  const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
   const { playSound, playCharacterVoice } = useAudio();
@@ -113,17 +116,28 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     if (currentWordIndex >= practiceWords.length - 1) {
       // Practice complete
       setIsComplete(true);
-      spellingStorage.recordPracticeSession(practiceWords.length, correctCount + (isCorrect ? 1 : 0));
-      playSound('cannon_achievement');
-      playCharacterVoice('red_boot_adventure_complete');
+      const finalCorrect = correctCount + (isCorrect ? 1 : 0);
+      spellingStorage.recordPracticeSession(practiceWords.length, finalCorrect);
       
-      setTimeout(() => {
-        onComplete({
-          correct: correctCount + (isCorrect ? 1 : 0),
-          total: practiceWords.length,
-          treasureEarned
-        });
-      }, 2000);
+      const results = {
+        correct: finalCorrect,
+        total: practiceWords.length,
+        treasureEarned
+      };
+      setSessionResults(results);
+      
+      // Show treasure road if there are accomplishments (correct answers or mastered words)
+      const treasureProgress = spellingStorage.getTreasureProgress();
+      if (finalCorrect > 0 || treasureProgress.newlyMastered > 0) {
+        playSound('cannon_achievement');
+        playCharacterVoice('red_boot_adventure_complete');
+        setShowTreasureRoad(true);
+      } else {
+        // No accomplishments, go directly to completion
+        setTimeout(() => {
+          onComplete(results);
+        }, 2000);
+      }
     } else {
       setCurrentWordIndex(prev => prev + 1);
     }
@@ -143,40 +157,63 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     speakCurrentWord();
   };
 
+  // Handle treasure road close
+  const handleTreasureRoadClose = () => {
+    setShowTreasureRoad(false);
+    if (sessionResults) {
+      setTimeout(() => {
+        onComplete(sessionResults);
+      }, 500);
+    }
+  };
+
   if (isComplete) {
     return (
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
-          <div className="w-24 h-24 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <Coins className="w-12 h-12 text-yellow-800" />
-          </div>
-          
-          <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
-            Adventure Complete!
-          </h2>
-          
-          <p className="text-lg text-muted-foreground mb-6">
-            Ye did magnificently, me hearty! 
-          </p>
-          
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <div className="flex justify-center items-center gap-8 text-lg">
-              <div className="text-center">
-                <div className="font-bold text-green-600">{correctCount + (isCorrect ? 1 : 0)}</div>
-                <div className="text-sm text-muted-foreground">Correct</div>
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-blue-600">{practiceWords.length}</div>
-                <div className="text-sm text-muted-foreground">Total</div>
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-yellow-600">{treasureEarned}</div>
-                <div className="text-sm text-muted-foreground">Treasure</div>
+      <>
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-8 text-center">
+            <div className="w-24 h-24 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <Coins className="w-12 h-12 text-yellow-800" />
+            </div>
+            
+            <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+              Adventure Complete!
+            </h2>
+            
+            <p className="text-lg text-muted-foreground mb-6">
+              Ye did magnificently, me hearty! 
+            </p>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="flex justify-center items-center gap-8 text-lg">
+                <div className="text-center">
+                  <div className="font-bold text-green-600">{sessionResults?.correct || 0}</div>
+                  <div className="text-sm text-muted-foreground">Correct</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-blue-600">{practiceWords.length}</div>
+                  <div className="text-sm text-muted-foreground">Total</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-yellow-600">{treasureEarned}</div>
+                  <div className="text-sm text-muted-foreground">Treasure</div>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Show Treasure Road after accomplishments */}
+        {showTreasureRoad && (
+          <TreasureRoad
+            isOpen={showTreasureRoad}
+            onClose={handleTreasureRoadClose}
+            totalWords={spellingStorage.getTreasureProgress().totalWords}
+            masteredWords={spellingStorage.getTreasureProgress().masteredWords}
+            newlyMastered={spellingStorage.getTreasureProgress().newlyMastered}
+          />
+        )}
+      </>
     );
   }
 
