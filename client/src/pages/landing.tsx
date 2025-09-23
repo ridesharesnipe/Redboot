@@ -81,7 +81,7 @@ export default function Landing() {
               </div>
             </div>
           </div>
-          <h1 className="text-6xl md:text-8xl lg:text-9xl mb-8 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <h1 className="text-6xl md:text-8xl lg:text-9xl mb-16 md:mb-20 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
           <p className="text-2xl md:text-4xl lg:text-5xl mb-12 text-white font-semibold drop-shadow-lg max-w-5xl mx-auto" data-testid="text-hero-subtitle">
