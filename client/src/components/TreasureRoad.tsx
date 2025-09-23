@@ -1,259 +1,175 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { X, Crown, Gem, Coins, Diamond } from "lucide-react";
-import { useAudio } from "@/contexts/AudioContext";
+import { useEffect, useState } from 'react';
 
 interface TreasureRoadProps {
-  isOpen: boolean;
-  onClose: () => void;
   totalWords: number;
   masteredWords: number;
-  newlyMastered?: number; // Words just mastered in this session
+  treasureJustUnlocked?: string;
 }
 
-interface TreasureMilestone {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  wordsRequired: number;
-  color: string;
-  unlocked: boolean;
-  newlyUnlocked: boolean;
-}
-
-export default function TreasureRoad({ isOpen, onClose, totalWords, masteredWords, newlyMastered = 0 }: TreasureRoadProps) {
-  const { playSound } = useAudio();
-  const [showCelebration, setShowCelebration] = useState(false);
-
-  // Helper function to convert Tailwind color classes to hex
-  const getHexColor = (colorClass: string): string => {
-    const colorMap: Record<string, string> = {
-      'text-gray-400': '#9CA3AF',
-      'text-green-500': '#10B981',
-      'text-red-500': '#EF4444',
-      'text-blue-400': '#60A5FA',
-      'text-yellow-500': '#EAB308',
-      'text-purple-500': '#A855F7'
-    };
-    return colorMap[colorClass] || '#9CA3AF';
-  };
-
-  // Calculate treasure milestones based on total words
-  const getMilestones = (total: number, mastered: number): TreasureMilestone[] => {
-    const milestones: TreasureMilestone[] = [];
-    const steps = Math.ceil(total / 6); // Divide into ~6 segments
-    
-    const treasureTypes = [
-      { name: "Silver Coins", icon: <Coins className="w-6 h-6" />, color: "text-gray-400" },
-      { name: "Emeralds", icon: <Gem className="w-6 h-6" />, color: "text-green-500" },
-      { name: "Rubies", icon: <Gem className="w-6 h-6" />, color: "text-red-500" },
-      { name: "Diamonds", icon: <Diamond className="w-6 h-6" />, color: "text-blue-400" },
-      { name: "Gold Coins", icon: <Coins className="w-6 h-6" />, color: "text-yellow-500" },
-      { name: "Ultimate Treasure", icon: <Crown className="w-6 h-6" />, color: "text-purple-500" }
-    ];
-
-    treasureTypes.forEach((treasure, index) => {
-      const wordsRequired = Math.min((index + 1) * steps, total);
-      const wasUnlocked = mastered - newlyMastered >= wordsRequired;
-      const nowUnlocked = mastered >= wordsRequired;
-      
-      milestones.push({
-        id: treasure.name.toLowerCase().replace(' ', '-'),
-        name: treasure.name,
-        icon: treasure.icon,
-        wordsRequired,
-        color: treasure.color,
-        unlocked: nowUnlocked,
-        newlyUnlocked: !wasUnlocked && nowUnlocked
-      });
-    });
-
-    return milestones;
-  };
-
-  const milestones = getMilestones(totalWords, masteredWords);
-  const progress = Math.min((masteredWords / totalWords) * 100, 100);
+export default function TreasureRoad({ totalWords, masteredWords, treasureJustUnlocked }: TreasureRoadProps) {
+  const [showAnimation, setShowAnimation] = useState(false);
+  const progress = (masteredWords / totalWords) * 100;
   
-  // Show celebration for newly unlocked treasures
   useEffect(() => {
-    if (isOpen && milestones.some(m => m.newlyUnlocked)) {
-      setShowCelebration(true);
-      playSound('treasure_chest_open');
-      setTimeout(() => setShowCelebration(false), 3000);
+    if (treasureJustUnlocked) {
+      setShowAnimation(true);
+      setTimeout(() => setShowAnimation(false), 2000);
     }
-  }, [isOpen, milestones, playSound]);
-
-  // SVG path for S-curve
-  const pathData = `M 50 30 
-                   Q 80 50 50 70
-                   Q 20 90 50 110
-                   Q 80 130 50 150
-                   Q 20 170 50 190
-                   Q 80 210 50 230`;
-
+  }, [treasureJustUnlocked]);
+  
+  // Calculate milestones based on word count
+  const getMilestones = () => {
+    if (totalWords <= 12) {
+      return [
+        { words: 2, treasure: 'Silver Coins', icon: 'lni-coin', color: 'text-gray-400', position: 17 },
+        { words: 4, treasure: 'Emeralds', icon: 'lni-diamond', color: 'text-green-500', position: 33 },
+        { words: 6, treasure: 'Rubies', icon: 'lni-heart', color: 'text-red-500', position: 50 },
+        { words: 8, treasure: 'Diamonds', icon: 'lni-diamond', color: 'text-cyan-400', position: 67 },
+        { words: 10, treasure: 'Gold Coins', icon: 'lni-coin', color: 'text-yellow-500', position: 83 },
+        { words: 12, treasure: 'Ultimate Treasure', icon: 'lni-crown', color: 'text-purple-500', position: 100 }
+      ];
+    } else {
+      return [
+        { words: 3, treasure: 'Silver Coins', icon: 'lni-coin', color: 'text-gray-400', position: 20 },
+        { words: 5, treasure: 'Emeralds', icon: 'lni-diamond', color: 'text-green-500', position: 33 },
+        { words: 7, treasure: 'Rubies', icon: 'lni-heart', color: 'text-red-500', position: 47 },
+        { words: 10, treasure: 'Diamonds', icon: 'lni-diamond', color: 'text-cyan-400', position: 67 },
+        { words: 13, treasure: 'Gold Coins', icon: 'lni-coin', color: 'text-yellow-500', position: 87 },
+        { words: totalWords, treasure: 'Ultimate Treasure', icon: 'lni-crown', color: 'text-purple-500', position: 100 }
+      ];
+    }
+  };
+  
+  const milestones = getMilestones();
+  
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 rounded-2xl p-6 max-w-sm w-full max-h-[80vh] overflow-hidden relative"
-          >
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-pirate text-white">Treasure Road</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="text-white hover:bg-white/20"
-                data-testid="button-close-treasure-road"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Progress Summary */}
-            <div className="text-center mb-6 text-white">
-              <div className="text-lg font-bold">{masteredWords} of {totalWords} Words Mastered</div>
-              {newlyMastered > 0 && (
-                <div className="text-yellow-300 text-sm">
-                  +{newlyMastered} new {newlyMastered === 1 ? 'word' : 'words'} this session!
-                </div>
-              )}
-            </div>
-
-            {/* SVG Treasure Road */}
-            <div className="relative bg-white/10 rounded-xl p-4 mb-4">
-              <svg viewBox="0 0 100 260" className="w-full h-64">
-                {/* Background path */}
-                <path
-                  d={pathData}
-                  stroke="#D4A574"
-                  strokeWidth="8"
-                  fill="none"
-                  opacity="0.5"
-                />
-                
-                {/* Progress path */}
-                <path
-                  d={pathData}
-                  stroke="#F4D03F"
-                  strokeWidth="6"
-                  fill="none"
-                  strokeDasharray="200"
-                  strokeDashoffset={200 - (progress * 2)}
-                  className="transition-all duration-1000"
-                />
-
-                {/* Red Boot Position */}
-                <motion.circle
-                  cx="50"
-                  cy={30 + (progress * 2)}
-                  r="4"
-                  fill="#DC2626"
-                  animate={{
-                    scale: showCelebration ? [1, 1.5, 1] : 1,
-                  }}
-                  transition={{ duration: 0.5, repeat: showCelebration ? 2 : 0 }}
-                />
-
-                {/* Treasure Milestones */}
-                {milestones.map((milestone, index) => {
-                  const yPosition = 30 + ((milestone.wordsRequired / totalWords) * 200);
-                  return (
-                    <motion.g key={milestone.id}>
-                      <circle
-                        cx="50"
-                        cy={yPosition}
-                        r="8"
-                        fill={milestone.unlocked ? getHexColor(milestone.color) : '#9CA3AF'}
-                        opacity={milestone.unlocked ? 1 : 0.5}
-                        stroke="#FFF"
-                        strokeWidth="2"
-                      />
-                      {milestone.newlyUnlocked && (
-                        <motion.circle
-                          cx="50"
-                          cy={yPosition}
-                          r="12"
-                          fill="none"
-                          stroke="#FFD700"
-                          strokeWidth="2"
-                          animate={{
-                            scale: [1, 1.5, 1],
-                            opacity: [1, 0, 1],
-                          }}
-                          transition={{ duration: 1, repeat: 3 }}
-                        />
-                      )}
-                    </motion.g>
-                  );
-                })}
-              </svg>
-            </div>
-
-            {/* Treasure List */}
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {milestones.map((milestone) => (
-                <motion.div
-                  key={milestone.id}
-                  className={`flex items-center gap-3 p-2 rounded-lg ${
-                    milestone.unlocked 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-white/10 text-white/60'
-                  }`}
-                  animate={{
-                    scale: milestone.newlyUnlocked ? [1, 1.05, 1] : 1,
-                  }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="relative bg-gradient-to-b from-blue-300 to-yellow-100 rounded-3xl p-8 shadow-2xl border-4 border-amber-600">
+        
+        {/* Title */}
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-amber-900">Treasure Road Adventure</h2>
+          <p className="text-amber-700">{masteredWords} of {totalWords} words mastered!</p>
+        </div>
+        
+        {/* S-shaped road container */}
+        <div className="relative h-96">
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 380">
+            {/* Background decorations */}
+            <text x="30" y="30" fontSize="30" opacity="0.3">🌴</text>
+            <text x="350" y="50" fontSize="30" opacity="0.3">🌴</text>
+            <text x="50" y="180" fontSize="30" opacity="0.3">🌴</text>
+            <text x="330" y="200" fontSize="30" opacity="0.3">🌴</text>
+            <text x="100" y="330" fontSize="30" opacity="0.3">🌴</text>
+            <text x="300" y="350" fontSize="30" opacity="0.3">🌴</text>
+            
+            {/* S-shaped dirt road */}
+            <path
+              d="M 50 50 C 150 50, 250 50, 350 100 C 350 150, 250 150, 150 150 C 50 150, 50 200, 150 250 C 250 300, 350 300, 350 350"
+              fill="none"
+              stroke="#8B4513"
+              strokeWidth="40"
+              strokeLinecap="round"
+              opacity="0.3"
+            />
+            
+            {/* Golden progress overlay */}
+            <path
+              d="M 50 50 C 150 50, 250 50, 350 100 C 350 150, 250 150, 150 150 C 50 150, 50 200, 150 250 C 250 300, 350 300, 350 350"
+              fill="none"
+              stroke="url(#goldGradient)"
+              strokeWidth="35"
+              strokeLinecap="round"
+              strokeDasharray={`${progress * 6} 600`}
+            />
+            
+            {/* Gradient definition */}
+            <defs>
+              <linearGradient id="goldGradient">
+                <stop offset="0%" stopColor="#FFD700" />
+                <stop offset="100%" stopColor="#FFA500" />
+              </linearGradient>
+            </defs>
+          </svg>
+          
+          {/* Treasure milestones positioned over the SVG */}
+          <div className="absolute inset-0">
+            {milestones.map((milestone, index) => {
+              const unlocked = masteredWords >= milestone.words;
+              
+              // Calculate position on S-curve
+              let left, top;
+              if (milestone.position < 25) {
+                left = 12.5 + (milestone.position / 25) * 75;
+                top = 13;
+              } else if (milestone.position < 50) {
+                left = 87.5 - ((milestone.position - 25) / 25) * 50;
+                top = 26 + ((milestone.position - 25) / 25) * 13;
+              } else if (milestone.position < 75) {
+                left = 37.5 - ((milestone.position - 50) / 25) * 25;
+                top = 39 + ((milestone.position - 50) / 25) * 26;
+              } else {
+                left = 12.5 + ((milestone.position - 75) / 25) * 75;
+                top = 65 + ((milestone.position - 75) / 25) * 26;
+              }
+              
+              return (
+                <div
+                  key={milestone.treasure}
+                  className="absolute flex flex-col items-center"
+                  style={{ left: `${left}%`, top: `${top}%`, transform: 'translate(-50%, -50%)' }}
                 >
-                  <div className={milestone.color}>
-                    {milestone.icon}
+                  {/* Treasure spot */}
+                  <div className={`
+                    w-12 h-12 rounded-full flex items-center justify-center border-2 border-amber-700
+                    ${unlocked ? 'bg-yellow-400' : 'bg-yellow-100'}
+                    ${unlocked && treasureJustUnlocked === milestone.treasure ? 'animate-pulse' : ''}
+                  `}>
+                    <i 
+                      className={`
+                        lni ${milestone.icon} ${milestone.color} 
+                        ${showAnimation && treasureJustUnlocked === milestone.treasure ? 'animate-bounce' : ''}
+                      `} 
+                      style={{ fontSize: '1.5rem' }}
+                    ></i>
                   </div>
-                  <div className="flex-1">
-                    <div className="font-medium">{milestone.name}</div>
-                    <div className="text-xs opacity-75">
-                      {milestone.wordsRequired} {milestone.wordsRequired === 1 ? 'word' : 'words'}
-                    </div>
-                  </div>
-                  {milestone.unlocked && (
-                    <div className="text-green-300 text-sm">✓</div>
-                  )}
-                  {milestone.newlyUnlocked && (
-                    <motion.div
-                      className="text-yellow-300 text-sm font-bold"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 0.5, repeat: 2 }}
-                    >
-                      NEW!
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Continue Button */}
-            <Button
-              onClick={onClose}
-              className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
-              data-testid="button-continue-adventure"
+                  
+                  {/* Label */}
+                  <span className={`
+                    text-xs font-bold mt-1 px-2 py-1 rounded-full
+                    ${unlocked ? 'text-amber-900 bg-yellow-200' : 'text-amber-600 bg-yellow-50'}
+                  `}>
+                    {milestone.words}
+                  </span>
+                </div>
+              );
+            })}
+            
+            {/* Red Boot character */}
+            <div 
+              className="absolute flex items-center justify-center animate-pulse"
+              style={{ 
+                left: `${12.5 + (progress * 0.75)}%`, 
+                top: `${13 + (progress * 0.75)}%`,
+                transform: 'translate(-50%, -50%)' 
+              }}
             >
-              Continue Adventure!
-            </Button>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              <span style={{ fontSize: '2.5rem' }}>🏴‍☠️</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Treasure announcement */}
+        {treasureJustUnlocked && (
+          <div className="mt-6 text-center animate-bounce">
+            <div className="bg-yellow-400 rounded-full px-6 py-3 inline-block shadow-lg">
+              <span className="text-2xl font-bold text-amber-900">
+                {treasureJustUnlocked} Unlocked! 🎉
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
