@@ -85,9 +85,12 @@ export default function Landing({ onStart }: LandingProps) {
               </div>
             </div>
           </div>
-          <h1 className="fluid-heading-xl mb-12 sm:mb-16 md:mb-24 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <h1 className="fluid-heading-xl mb-6 sm:mb-8 md:mb-12 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
+          <div className="mb-12 sm:mb-16 md:mb-24 flex justify-center">
+            <i className="lni lni-compass text-4xl text-yellow-400 drop-shadow-lg"></i>
+          </div>
           <p className="fluid-text-lg mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4" data-testid="text-hero-subtitle">
             Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
           </p>
