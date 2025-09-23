@@ -135,7 +135,7 @@ export default function Landing({ onStart }: LandingProps) {
       </section>
 
       {/* Character Crew Section */}
-      <section className="py-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
+      <section className="pt-24 pb-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-fun text-foreground mb-6" data-testid="text-crew-title">
             Meet Your Pirate Crew!
