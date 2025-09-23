@@ -113,7 +113,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Unique app messaging */}
         <div className="mb-8">
           <div className="text-xl md:text-2xl text-yellow-200 font-bold drop-shadow-lg mb-4" style={{ fontFamily: "'Pirata One', cursive" }}>
-            The World's First Wireless Pirate Spelling App!
+            The Ultimate Pirate Spelling Adventure App!
           </div>
           <div className="text-lg md:text-xl text-white font-bold drop-shadow-lg mb-2" style={{ fontFamily: "'Pirata One', cursive" }}>
             Breaking New Ground - No Other App Does This!
