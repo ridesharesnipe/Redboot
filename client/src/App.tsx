@@ -6,10 +6,11 @@ import ParentDashboard from "@/components/ParentDashboard";
 import PhotoCapture from "@/components/PhotoCapture";
 import SimplePractice from "@/components/SimplePractice";
 import FridayTest from "@/components/FridayTest";
+import ParentGuide from "@/components/ParentGuide";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { spellingStorage } from "@/lib/localStorage";
 
-type AppView = 'splash' | 'dashboard' | 'photo' | 'practice' | 'test';
+type AppView = 'splash' | 'dashboard' | 'photo' | 'practice' | 'test' | 'guide';
 
 function App() {
   const [currentView, setCurrentView] = useState<AppView>('splash');
@@ -42,6 +43,10 @@ function App() {
 
   const handleStartTest = () => {
     setCurrentView('test');
+  };
+
+  const handleViewGuide = () => {
+    setCurrentView('guide');
   };
 
   const handleBackToDashboard = () => {
@@ -89,6 +94,7 @@ function App() {
             onTakePhoto={handleTakePhoto}
             onViewPractice={handleViewPractice}
             onStartTest={handleStartTest}
+            onViewGuide={handleViewGuide}
           />
         );
       
@@ -126,12 +132,20 @@ function App() {
           </div>
         );
       
+      case 'guide':
+        return (
+          <div className="container mx-auto p-4">
+            <ParentGuide onBack={handleBackToDashboard} />
+          </div>
+        );
+      
       default:
         return (
           <ParentDashboard
             onTakePhoto={handleTakePhoto}
             onViewPractice={handleViewPractice}
             onStartTest={handleStartTest}
+            onViewGuide={handleViewGuide}
           />
         );
     }

@@ -3,15 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { spellingStorage } from '@/lib/localStorage';
-import { Camera, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star } from 'lucide-react';
+import { Camera, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle } from 'lucide-react';
 
 interface ParentDashboardProps {
   onTakePhoto: () => void;
   onViewPractice: () => void;
   onStartTest: () => void;
+  onViewGuide: () => void;
 }
 
-export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTest }: ParentDashboardProps) {
+export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTest, onViewGuide }: ParentDashboardProps) {
   const [stats, setStats] = useState<{
     totalWords: number;
     newWords: number;
@@ -177,15 +178,26 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                 </p>
               </div>
             </div>
-            <Button 
-              onClick={refreshStats} 
-              variant="outline" 
-              className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-blue-900 font-bold"
-              data-testid="button-refresh-stats"
-            >
-              <Compass className="w-4 h-4 mr-2" />
-              Update Log
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={onViewGuide}
+                variant="outline"
+                className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-blue-900 font-bold"
+                data-testid="button-view-guide"
+              >
+                <HelpCircle className="w-4 h-4 mr-2" />
+                How to Use
+              </Button>
+              <Button 
+                onClick={refreshStats} 
+                variant="outline" 
+                className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-blue-900 font-bold"
+                data-testid="button-refresh-stats"
+              >
+                <Compass className="w-4 h-4 mr-2" />
+                Update Log
+              </Button>
+            </div>
           </div>
         </CardHeader>
       </Card>
