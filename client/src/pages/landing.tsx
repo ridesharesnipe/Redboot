@@ -31,7 +31,7 @@ export default function Landing() {
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');
     setTimeout(() => {
-      window.location.href = "/api/login";
+      window.location.href = "/dashboard";
     }, 500);
   };
 
