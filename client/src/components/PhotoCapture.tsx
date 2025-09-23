@@ -111,6 +111,27 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     const file = target.files?.[0];
     
     if (file) {
+      console.log('File selected for upload:', file.name, file.size);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target?.result as string;
+        console.log('File read successfully, starting OCR processing');
+        setCapturedImage(imageData);
+        processImage(imageData);
+        playSound('treasure_chest_open');
+        onCapture(imageData);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      console.log('No file selected');
+    }
+  };
+
+  // Handle file upload from hidden input (for testing)
+  const handleHiddenFileUpload = () => {
+    if (hiddenFileInputRef.current?.files?.[0]) {
+      const file = hiddenFileInputRef.current.files[0];
+      console.log('Hidden file input triggered:', file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageData = e.target?.result as string;
@@ -285,6 +306,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     input.onchange = handleFileUpload;
     input.click();
   };
+
+  // Create a hidden file input for testing purposes
+  const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
   const retakePhoto = () => {
     setCapturedImage(null);
@@ -495,6 +519,16 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
                   <Upload className="w-5 h-5 mr-2" />
                   Upload Image
                 </Button>
+                
+                {/* Hidden file input for testing */}
+                <input
+                  ref={hiddenFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHiddenFileUpload}
+                  className="hidden"
+                  data-testid="input-file-hidden"
+                />
               </div>
             </div>
           )}

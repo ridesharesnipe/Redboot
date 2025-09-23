@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { spellingStorage } from '@/lib/localStorage';
-import { Camera, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle } from 'lucide-react';
+import { photoStorage, type Photo } from '@/lib/photoStorage';
+import { Camera, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2 } from 'lucide-react';
 
 interface ParentDashboardProps {
   onTakePhoto: () => void;
@@ -31,17 +32,51 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     practiceHistory: any[];
   } | null>(null);
 
-  // Load stats on component mount
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [showPhotoHistory, setShowPhotoHistory] = useState(false);
+  const [storageSize, setStorageSize] = useState<string>('');
+
+  // Load stats and photos on component mount
   useEffect(() => {
     try {
       const currentStats = spellingStorage.getPracticeStats();
       const currentWeek = spellingStorage.getCurrentWeek();
       setStats(currentStats);
       setWeekData(currentWeek);
+      loadPhotos();
+      loadStorageSize();
     } catch (error) {
       console.error('Error loading stats:', error);
     }
   }, []);
+
+  const loadPhotos = async () => {
+    try {
+      const allPhotos = await photoStorage.getAllPhotos();
+      setPhotos(allPhotos);
+    } catch (error) {
+      console.error('Error loading photos:', error);
+    }
+  };
+
+  const loadStorageSize = async () => {
+    try {
+      const size = await photoStorage.getStorageSizeFormatted();
+      setStorageSize(size);
+    } catch (error) {
+      console.error('Error loading storage size:', error);
+    }
+  };
+
+  const deletePhoto = async (photoId: string) => {
+    try {
+      await photoStorage.deletePhoto(photoId);
+      await loadPhotos();
+      await loadStorageSize();
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+    }
+  };
 
   // Refresh stats (useful for parent to check progress)
   const refreshStats = () => {
@@ -450,6 +485,97 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             </Button>
           </div>
         </CardContent>
+      </Card>
+
+      {/* Photo History Section */}
+      <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600 shadow-2xl">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+            <Image className="w-8 h-8 text-blue-400" />
+            Photo Treasure Chest
+          </CardTitle>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-300">Storage: {storageSize}</span>
+            <Button
+              variant="outline"
+              onClick={() => setShowPhotoHistory(!showPhotoHistory)}
+              className="border-slate-500 text-slate-300 hover:bg-slate-700"
+              data-testid="button-toggle-photos"
+            >
+              {showPhotoHistory ? 'Hide Photos' : `View Photos (${photos.length})`}
+            </Button>
+          </div>
+        </CardHeader>
+        
+        {showPhotoHistory && (
+          <CardContent className="space-y-4">
+            {photos.length === 0 ? (
+              <div className="text-center py-8">
+                <Camera className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                <p className="text-slate-300 text-lg">No photos captured yet!</p>
+                <p className="text-slate-400">Take your first spelling list photo to start building your treasure collection.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {photos.map((photo) => (
+                  <Card key={photo.id} className="bg-slate-700 border-slate-600" data-testid={`card-photo-${photo.id}`}>
+                    <CardContent className="p-4">
+                      <div className="relative group">
+                        <img
+                          src={photo.imageData}
+                          alt={`Spelling list from ${photo.capturedAt.toLocaleDateString()}`}
+                          className="w-full h-48 object-cover rounded-lg mb-3"
+                          data-testid={`img-photo-${photo.id}`}
+                        />
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deletePhoto(photo.id)}
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          data-testid={`button-delete-${photo.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-300">
+                            {photo.capturedAt.toLocaleDateString()}
+                          </span>
+                          <span className="text-sm text-blue-400 font-medium" data-testid={`text-word-count-${photo.id}`}>
+                            {photo.wordsCount} words
+                          </span>
+                        </div>
+                        
+                        {photo.extractedWords.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs text-slate-400 mb-1">Words found:</p>
+                            <div className="flex flex-wrap gap-1" data-testid={`text-words-${photo.id}`}>
+                              {photo.extractedWords.slice(0, 6).map((word, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-slate-600 text-slate-200 text-xs rounded"
+                                >
+                                  {word}
+                                </span>
+                              ))}
+                              {photo.extractedWords.length > 6 && (
+                                <span className="px-2 py-1 bg-slate-500 text-slate-300 text-xs rounded">
+                                  +{photo.extractedWords.length - 6} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
     </div>
   );
