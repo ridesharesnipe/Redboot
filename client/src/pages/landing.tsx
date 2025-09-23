@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
 import DiegoCharacter from "@/components/DiegoCharacter";
+import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
 import { Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
@@ -160,8 +161,12 @@ export default function Landing({ onStart }: LandingProps) {
             {/* Diego - Bottom */}
             <div className="text-center">
               <div className="mb-4 flex justify-center">
-                <div className="w-48 h-48 relative rounded-3xl bg-transparent flex items-center justify-center">
-                  <DiegoCharacter size="large" animated={false} />
+                <div className="w-48 h-48 relative overflow-hidden rounded-3xl bg-transparent">
+                  <img 
+                    src={diegoImage} 
+                    alt="Diego the Pup Pup" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
               <h3 className="font-bold text-xl text-brown-700 mb-2">Diego the Pup Pup</h3>
