@@ -140,10 +140,14 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link href="/photo-capture">
-            <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-accent text-accent-foreground">
+            <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-accent text-accent-foreground">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="w-6 h-6" />
+                  Capture Word List
+                </CardTitle>
+              </CardHeader>
               <CardContent className="pt-0">
-                <Upload className="w-8 h-8 mb-3" />
-                <h3 className="font-bold text-lg mb-2" data-testid="text-action-photo-title">Capture Word List</h3>
                 <p className="text-sm opacity-90" data-testid="text-action-photo-desc">
                   Take a photo of homework spelling lists
                 </p>
@@ -151,20 +155,28 @@ export default function Dashboard() {
             </Card>
           </Link>
 
-          <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-secondary text-secondary-foreground">
+          <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-secondary text-secondary-foreground">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Mic className="w-6 h-6" />
+                Weekly Test
+              </CardTitle>
+            </CardHeader>
             <CardContent className="pt-0">
-              <Mic className="w-8 h-8 mb-3" />
-              <h3 className="font-bold text-lg mb-2" data-testid="text-action-test-title">Weekly Test</h3>
               <p className="text-sm opacity-90" data-testid="text-action-test-desc">
                 Friday test simulator with voice prompts
               </p>
             </CardContent>
           </Card>
 
-          <Card className="p-6 cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-primary text-primary-foreground">
+          <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-primary text-primary-foreground">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Map className="w-6 h-6" />
+                Treasure Map
+              </CardTitle>
+            </CardHeader>
             <CardContent className="pt-0">
-              <Map className="w-8 h-8 mb-3" />
-              <h3 className="font-bold text-lg mb-2" data-testid="text-action-map-title">Treasure Map</h3>
               <p className="text-sm opacity-90" data-testid="text-action-map-desc">
                 View progress and achievements
               </p>
