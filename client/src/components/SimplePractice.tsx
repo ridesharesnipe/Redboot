@@ -397,27 +397,18 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-4">
         {/* Header with progress and treasure */}
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex justify-center items-center mb-3">
+          <div className="flex items-center gap-2 mr-4">
             <Coins className="w-5 h-5 text-yellow-500" />
             <span className="font-bold">{treasureEarned}</span>
           </div>
           
-          <div className="text-center flex-1 mx-4">
+          <div className="text-center flex-1">
             <div className="text-sm text-muted-foreground mb-1">
               Word {currentWordIndex + 1} of {practiceWords.length}
             </div>
             <Progress value={progress} className="w-full" />
           </div>
-          
-          <Button 
-            onClick={onCancel} 
-            variant="outline" 
-            size="sm"
-            data-testid="button-cancel-practice"
-          >
-            Cancel
-          </Button>
         </div>
 
         {showFeedback ? (
@@ -521,6 +512,18 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             </div>
           </div>
         )}
+        
+        {/* Action buttons at bottom */}
+        <div className="flex gap-3 justify-between mt-6">
+          <Button 
+            onClick={onCancel} 
+            variant="outline"
+            data-testid="button-cancel-practice"
+          >
+            Cancel
+          </Button>
+          <div className="w-20">{/* Spacer for alignment */}</div>
+        </div>
       </CardContent>
     </Card>
     

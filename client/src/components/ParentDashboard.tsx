@@ -365,7 +365,14 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             <p className="text-lg text-amber-800 mb-4">
               Time to chart new waters, matey! Upload this week's spelling treasure map to continue your adventure.
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-3 justify-between mt-6">
+              <Button 
+                onClick={() => setShowNewWeekPrompt(false)}
+                variant="outline"
+                data-testid="button-continue-old-week"
+              >
+                Continue Current Week
+              </Button>
               <Button 
                 onClick={() => {
                   onTakePhoto();

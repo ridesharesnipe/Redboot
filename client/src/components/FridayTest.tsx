@@ -248,7 +248,7 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
             </ul>
           </div>
           
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-between mt-6">
             <Button 
               onClick={onCancel} 
               variant="outline"

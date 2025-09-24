@@ -483,11 +483,11 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
               </Button>
             </div>
 
-            <div className="flex gap-3">
-              <Button onClick={cancelVerification} variant="outline" className="flex-1" data-testid="button-cancel-words">
+            <div className="flex gap-3 justify-between mt-6">
+              <Button onClick={cancelVerification} variant="outline" data-testid="button-cancel-words">
                 Cancel
               </Button>
-              <Button onClick={saveWords} className="flex-1 bg-green-600 hover:bg-green-700" data-testid="button-save-words">
+              <Button onClick={saveWords} className="bg-green-600 hover:bg-green-700" data-testid="button-save-words">
                 <Check className="w-4 h-4 mr-2" />
                 Save Words ({editableWords.filter(w => w.trim()).length})
               </Button>
