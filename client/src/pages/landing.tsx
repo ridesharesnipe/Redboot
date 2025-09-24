@@ -70,7 +70,7 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
         </nav>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
-          <div className="mb-16 flex justify-center">
+          <div className="mb-6 flex justify-center">
             <div className="relative flex items-center justify-center float-animation landscape-reduce">
               <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto">
                 <img 
@@ -88,10 +88,10 @@ export default function Landing({ onStart }: LandingProps) {
               </div>
             </div>
           </div>
-          <h1 className="fluid-heading-xl mb-6 sm:mb-8 md:mb-12 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
+          <h1 className="fluid-heading-xl mb-6 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
             Ahoy, Matey!
           </h1>
-          <div className="mb-6 sm:mb-8 md:mb-10 flex justify-center">
+          <div className="mb-6 flex justify-center">
             <i className="lni lni-compass text-8xl text-yellow-400 drop-shadow-lg" style={{ 
               fontFamily: 'LineIcons', 
               fontStyle: 'normal',
@@ -110,11 +110,11 @@ export default function Landing({ onStart }: LandingProps) {
                 border: '4px solid rgba(34,197,94,0.2)'
               }}>🏝️</i>
             </div>
-            <p className="fluid-text-lg mb-8 sm:mb-12 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
+            <p className="fluid-text-lg mb-6 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
               Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4 safe-area-x">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4 safe-area-x">
             <Button 
               onClick={handleLogin}
               className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white fluid-button rounded-2xl font-bold hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-xl border-4 border-white/30 w-full sm:w-auto touch-target desktop-hover"
@@ -139,13 +139,13 @@ export default function Landing({ onStart }: LandingProps) {
       </section>
 
       {/* Character Crew Section */}
-      <section className="pt-24 pb-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
+      <section className="py-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-fun text-foreground mb-6" data-testid="text-crew-title">
             Meet Your Pirate Crew!
           </h2>
-          <p className="text-xl text-gray-600 mb-12">Join Red Boot and his friends on the greatest spelling adventure!</p>
-          <div className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 mb-6">Join Red Boot and his friends on the greatest spelling adventure!</p>
+          <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto">
             {/* Red Boot - Top */}
             <div className="text-center">
               <div className="mb-4 flex justify-center">
@@ -157,7 +157,7 @@ export default function Landing({ onStart }: LandingProps) {
                   />
                 </div>
               </div>
-              <h3 className="font-bold text-xl text-green-700 mb-2">Red Boot</h3>
+              <h3 className="font-bold text-xl text-green-700 mb-4">Red Boot</h3>
               <p className="text-base text-gray-600">The Brave Captain</p>
               <div className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full mt-2 inline-block">FREE</div>
             </div>
@@ -173,7 +173,7 @@ export default function Landing({ onStart }: LandingProps) {
                   />
                 </div>
               </div>
-              <h3 className="font-bold text-xl text-brown-700 mb-2">Diego the Pup Pup</h3>
+              <h3 className="font-bold text-xl text-brown-700 mb-4">Diego the Pup Pup</h3>
               <p className="text-base text-gray-600">Loyal First Mate</p>
               <div className="bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full mt-2 inline-block">FREE</div>
             </div>
@@ -184,12 +184,12 @@ export default function Landing({ onStart }: LandingProps) {
       {/* Features Section */}
       <section className="py-20 px-4 bg-gradient-to-b from-white to-green-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-fun text-center text-foreground mb-16" data-testid="text-features-title">
+          <h2 className="text-4xl font-fun text-center text-foreground mb-6" data-testid="text-features-title">
             Amazing Pirate Features
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-green-300 bg-gradient-to-br from-green-100 via-emerald-50 to-white relative overflow-hidden">
-              <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-green-300 bg-gradient-to-br from-green-100 via-emerald-50 to-white relative overflow-hidden">
+              <CardContent className="p-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-green-200">
                   <i className="lni lni-cloud-upload text-yellow-400 text-5xl drop-shadow-lg" style={{ 
                     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -206,8 +206,8 @@ export default function Landing({ onStart }: LandingProps) {
               </CardContent>
             </Card>
 
-            <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-50 to-white relative overflow-hidden">
-              <CardContent className="pt-6">
+            <Card className="text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-50 to-white relative overflow-hidden">
+              <CardContent className="p-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-purple-200">
                   <i className="lni lni-game text-orange-400 text-5xl drop-shadow-lg" style={{ 
                     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -224,8 +224,8 @@ export default function Landing({ onStart }: LandingProps) {
               </CardContent>
             </Card>
 
-            <Card className="p-8 text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-cyan-300 bg-gradient-to-br from-cyan-100 via-blue-50 to-white relative overflow-hidden">
-              <CardContent className="pt-6">
+            <Card className="text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-cyan-300 bg-gradient-to-br from-cyan-100 via-blue-50 to-white relative overflow-hidden">
+              <CardContent className="p-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg ring-4 ring-cyan-200">
                   <i className="lni lni-world text-red-400 text-5xl drop-shadow-lg" style={{ 
                     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -248,15 +248,15 @@ export default function Landing({ onStart }: LandingProps) {
       {/* Pricing Preview */}
       <section className="py-16 px-4 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-fun text-foreground mb-12" data-testid="text-pricing-title">
+          <h2 className="text-4xl font-fun text-foreground mb-6" data-testid="text-pricing-title">
             Choose Your Adventure
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="p-8 border-4 border-blue-200 bg-gradient-to-b from-blue-50 to-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-              <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-4 border-blue-200 bg-gradient-to-b from-blue-50 to-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <CardContent className="p-6">
                 <h3 className="text-2xl font-bold mb-4 text-blue-700" data-testid="text-plan-free-title">Free Adventure</h3>
                 <div className="text-4xl font-bold text-blue-600 mb-6" data-testid="text-plan-free-price">$0</div>
-                <ul className="text-left space-y-3 mb-8">
+                <ul className="text-left space-y-3 mb-6">
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
                       <Check className="w-3 h-3" />
@@ -281,14 +281,14 @@ export default function Landing({ onStart }: LandingProps) {
               </CardContent>
             </Card>
 
-            <Card className="p-8 bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white border-4 border-yellow-300 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
+            <Card className="bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white border-4 border-yellow-300 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-white text-orange-500 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                 <Star className="w-4 h-4 inline mr-1" />POPULAR
               </div>
-              <CardContent className="pt-6 relative z-10">
+              <CardContent className="p-6 relative z-10">
                 <h3 className="text-2xl font-bold mb-4" data-testid="text-plan-premium-title">Premium Adventure</h3>
                 <div className="text-4xl font-bold mb-6" data-testid="text-plan-premium-price">$2.99/mo</div>
-                <ul className="text-left space-y-3 mb-8">
+                <ul className="text-left space-y-3 mb-6">
                   <li className="flex items-center">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
                       <Check className="w-3 h-3 text-orange-600" />
