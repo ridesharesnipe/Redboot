@@ -12,9 +12,9 @@ export default function VirtualKeyboard({ onKeyPress }: VirtualKeyboardProps) {
   ];
 
   return (
-    <div className="space-y-2" data-testid="virtual-keyboard">
+    <div className="space-y-3" data-testid="virtual-keyboard">
       {qwertyRows.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex justify-center gap-1">
+        <div key={rowIndex} className="flex justify-center gap-2">
           {row.map((key) => (
             <Button
               key={key}
@@ -29,7 +29,7 @@ export default function VirtualKeyboard({ onKeyPress }: VirtualKeyboardProps) {
       ))}
       
       {/* Action Row */}
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center gap-3 mt-6">
         <Button 
           onClick={() => onKeyPress('BACKSPACE')}
           className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4"

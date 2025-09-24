@@ -98,7 +98,7 @@ export default function Dashboard() {
       {/* Navigation */}
       <nav className="bg-card border-b border-border px-4 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
               <Anchor className="text-secondary-foreground text-lg" />
             </div>
@@ -106,7 +106,7 @@ export default function Dashboard() {
               Red Boot's Adventure
             </h1>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-3">
             <span className="text-muted-foreground" data-testid="text-user-greeting">
               Welcome, {(user as any)?.firstName || 'Captain'}!
             </span>
@@ -128,8 +128,8 @@ export default function Dashboard() {
 
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-fun text-foreground mb-2" data-testid="text-dashboard-title">
+        <div className="mb-6">
+          <h2 className="text-3xl font-fun text-foreground mb-4" data-testid="text-dashboard-title">
             Captain's Quarters
           </h2>
           <p className="text-muted-foreground" data-testid="text-dashboard-subtitle">
@@ -138,7 +138,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Link href="/photo-capture">
             <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-accent text-accent-foreground">
               <CardHeader className="pb-4">
@@ -185,7 +185,7 @@ export default function Dashboard() {
         </div>
 
         {/* Child Profiles */}
-        <Card className="mb-8">
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-xl font-bold" data-testid="text-crew-title">
               Your Pirate Crew
@@ -194,57 +194,61 @@ export default function Dashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {children?.map((child) => (
-                <Card key={child.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-12 h-12 bg-pirate-400 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-pirate-50" />
+                <Card key={child.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-12 h-12 bg-pirate-400 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-pirate-50" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-foreground" data-testid={`text-child-name-${child.id}`}>
+                          {child.name}
+                        </h4>
+                        <p className="text-sm text-muted-foreground" data-testid={`text-child-info-${child.id}`}>
+                          {child.grade} • Age {child.age}
+                        </p>
+                      </div>
                     </div>
                     <div>
-                      <h4 className="font-bold text-foreground" data-testid={`text-child-name-${child.id}`}>
-                        {child.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground" data-testid={`text-child-info-${child.id}`}>
-                        {child.grade} • Age {child.age}
-                      </p>
+                      <div className="flex justify-between text-sm mb-4">
+                        <span className="text-muted-foreground">This Week</span>
+                        <span className="font-medium text-foreground" data-testid={`text-child-accuracy-${child.id}`}>
+                          {Math.floor(Math.random() * 30) + 70}% accuracy
+                        </span>
+                      </div>
+                      <Progress value={Math.floor(Math.random() * 30) + 70} className="h-2 mb-4" />
+                      <div className="flex gap-3">
+                        <Link href={`/game/${child.id}`} className="flex-1">
+                          <Button 
+                            className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+                            data-testid={`button-start-adventure-${child.id}`}
+                          >
+                            Start Adventure
+                          </Button>
+                        </Link>
+                        <Link href={`/progress/${child.id}`}>
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            data-testid={`button-view-progress-${child.id}`}
+                          >
+                            <TrendingUp className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">This Week</span>
-                      <span className="font-medium text-foreground" data-testid={`text-child-accuracy-${child.id}`}>
-                        {Math.floor(Math.random() * 30) + 70}% accuracy
-                      </span>
-                    </div>
-                    <Progress value={Math.floor(Math.random() * 30) + 70} className="h-2" />
-                    <div className="flex space-x-2">
-                      <Link href={`/game/${child.id}`} className="flex-1">
-                        <Button 
-                          className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
-                          data-testid={`button-start-adventure-${child.id}`}
-                        >
-                          Start Adventure
-                        </Button>
-                      </Link>
-                      <Link href={`/progress/${child.id}`}>
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          data-testid={`button-view-progress-${child.id}`}
-                        >
-                          <TrendingUp className="w-4 h-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
+                  </CardContent>
                 </Card>
               ))}
 
               {/* Add Child Button */}
               <Dialog open={showAddChild} onOpenChange={setShowAddChild}>
                 <DialogTrigger asChild>
-                  <Card className="p-4 border-2 border-dashed border-border hover:border-accent hover:text-accent transition-colors cursor-pointer flex flex-col items-center justify-center text-muted-foreground min-h-[200px]">
-                    <Plus className="w-6 h-6 mb-2" />
-                    <span className="font-medium" data-testid="button-add-pirate">Add New Pirate</span>
+                  <Card className="border-2 border-dashed border-border hover:border-accent hover:text-accent transition-colors cursor-pointer flex flex-col items-center justify-center text-muted-foreground min-h-[200px]">
+                    <CardContent className="p-6 flex flex-col items-center justify-center">
+                      <Plus className="w-6 h-6 mb-4" />
+                      <span className="font-medium" data-testid="button-add-pirate">Add New Pirate</span>
+                    </CardContent>
                   </Card>
                 </DialogTrigger>
                 <DialogContent>
@@ -310,7 +314,7 @@ export default function Dashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold mb-2" data-testid="text-trial-title">Free Trial Active</h3>
+                  <h3 className="text-xl font-bold mb-4" data-testid="text-trial-title">Free Trial Active</h3>
                   <p className="text-treasure-100" data-testid="text-trial-subtitle">
                     Unlock all characters with Premium
                   </p>

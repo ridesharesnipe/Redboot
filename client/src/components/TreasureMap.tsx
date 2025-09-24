@@ -28,7 +28,7 @@ export default function TreasureMap({ wordLists, progress, childId }: TreasureMa
   const weeks = Array.from({ length: maxWeeks }, (_, i) => i + 1);
 
   return (
-    <Card className="bg-gradient-to-br from-ocean-100 to-ocean-200 rounded-2xl mb-8 relative overflow-hidden">
+    <Card className="bg-gradient-to-br from-ocean-100 to-ocean-200 rounded-2xl mb-6 relative overflow-hidden">
       <CardHeader className="pb-4">
         <CardTitle className="text-2xl font-bold text-ocean-800 text-center">
           🗺️ Weekly Progress Map
