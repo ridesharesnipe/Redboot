@@ -1,0 +1,101 @@
+
+// Example pattern (keep existing colors):
+<div className="flex gap-3 justify-between mt-6">
+  <Button variant="outline" onClick={handleSecondary}>
+    Secondary Action
+  </Button>
+  <Button onClick={handlePrimary}> {/* Keep existing bg-treasure-500 or whatever color */}
+    Primary Action
+  </Button>
+</div>
+STEP 2 - ALIGN CARD STRUCTURES:
+Ensure all cards have consistent padding and structure:
+javascript// All main content cards should use:
+<Card> {/* Keep existing bg-white/95 or whatever transparency */}
+  <CardHeader className="pb-4">
+    <CardTitle>{title}</CardTitle>
+  </CardHeader>
+  <CardContent className="pt-0">
+    {/* Content */}
+  </CardContent>
+</Card>
+STEP 3 - STANDARDIZE SPACING:
+Apply consistent spacing throughout (without changing colors):
+
+Between sections: mb-6
+Between elements in a section: mb-4
+Button groups: gap-3
+Card padding: p-6
+Icon to text spacing: gap-2
+
+STEP 4 - ALIGN HEADER LAYOUTS:
+Every page header should follow same structure:
+javascript<div className="flex items-center justify-between p-4">
+  <Button variant="ghost" onClick={() => navigate('back')}>
+    {/* Keep existing text-white or whatever color */}
+    <ArrowLeft /> Back
+  </Button>
+  <h1 className="text-2xl font-bold">{pageTitle}</h1>
+  <div className="w-20">{/* Spacer for centering */}</div>
+</div>
+STEP 5 - SYNCHRONIZE FORM INPUTS:
+All input fields should have same structure:
+javascript<div className="space-y-3">
+  <Input 
+    className="w-full" {/* Keep existing styling */}
+    placeholder={placeholder}
+    value={value}
+    onChange={onChange}
+  />
+</div>
+STEP 6 - ALIGN LOADING STATES:
+All loading spinners in same position:
+javascript<div className="flex items-center justify-center min-h-[200px]">
+  <Loader className="animate-spin" /> {/* Keep existing color */}
+</div>
+STEP 7 - STANDARDIZE TOAST POSITIONS:
+Ensure all toasts appear in same location (top-right or bottom-center, pick one)
+STEP 8 - ALIGN ICON SIZES:
+
+Navigation icons: w-5 h-5
+Card header icons: w-6 h-6
+Large feature icons: w-8 h-8
+Decorative icons: w-12 h-12
+
+STEP 9 - SYNCHRONIZE RESPONSIVE BREAKPOINTS:
+All components should break at same points:
+
+Mobile: default
+Tablet: md:
+Desktop: lg:
+
+STEP 10 - FIX MISALIGNED ELEMENTS:
+Find any elements that are:
+
+Off-center when they should be centered
+Different heights in the same row
+Inconsistent margins from edges
+Overlapping on mobile
+
+DO NOT CHANGE:
+
+Any bg-gradient colors
+Any text colors (text-white, text-blue-100, etc.)
+Any border colors
+Any hover colors
+The pirate theme gradients (from-blue-400 via-cyan-500 to-teal-600)
+Transparency values (bg-white/95, bg-white/10, etc.)
+Custom colors like bg-treasure-500
+
+JUST ALIGN:
+
+Button positions
+Card structures
+Spacing consistency
+Icon sizes
+Loading states
+Form layouts
+
+The result should be a perfectly aligned UI with all your existing beautiful colors intact.
+
+This will make everything line up properly without touching any of your color scheme or visual design - just making sure buttons, cards, and elements are consistently positioned across all 
