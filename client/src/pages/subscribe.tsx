@@ -190,7 +190,7 @@ export default function Subscribe() {
 
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <h2 className="text-4xl font-fun text-foreground mb-4" data-testid="text-subscription-title">
             Unlock the Full Adventure
           </h2>
@@ -207,7 +207,7 @@ export default function Subscribe() {
                 Most Popular
               </div>
               <CardHeader>
-                <CardTitle className="text-2xl mb-2" data-testid="text-plan-title">
+                <CardTitle className="text-2xl mb-4" data-testid="text-plan-title">
                   Premium Adventure
                 </CardTitle>
                 <div className="flex items-baseline">
@@ -259,28 +259,28 @@ export default function Subscribe() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-pirate-50 rounded-lg">
-                    <div className="w-12 h-12 bg-pirate-400 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-pirate-400 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Crown className="w-6 h-6 text-pirate-50" />
                     </div>
                     <div className="font-bold text-sm">Red Boot</div>
                     <div className="text-xs text-muted-foreground">Free • Wild Captain</div>
                   </div>
                   <div className="text-center p-3 bg-ocean-50 rounded-lg border-2 border-accent">
-                    <div className="w-12 h-12 bg-ocean-400 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-ocean-400 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Fish className="w-6 h-6 text-ocean-50" />
                     </div>
                     <div className="font-bold text-sm">Ray Ray</div>
                     <div className="text-xs text-accent font-medium">Premium • Gentle Guide</div>
                   </div>
                   <div className="text-center p-3 bg-amber-50 rounded-lg border-2 border-accent">
-                    <div className="w-12 h-12 bg-amber-400 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-amber-400 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Dog className="w-6 h-6 text-amber-50" />
                     </div>
                     <div className="font-bold text-sm">Salty</div>
                     <div className="text-xs text-accent font-medium">Premium • Puppy Friend</div>
                   </div>
                   <div className="text-center p-3 bg-blue-50 rounded-lg border-2 border-accent">
-                    <div className="w-12 h-12 bg-blue-400 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-400 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Telescope className="w-6 h-6 text-blue-50" />
                     </div>
                     <div className="font-bold text-sm">Ocean Blue</div>
@@ -335,19 +335,19 @@ export default function Subscribe() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-bold text-sm mb-1">Can I cancel anytime?</h4>
+                  <h4 className="font-bold text-sm mb-4">Can I cancel anytime?</h4>
                   <p className="text-sm text-muted-foreground">
                     Yes! Cancel your subscription anytime from your account settings. No commitments.
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm mb-1">What happens during the free trial?</h4>
+                  <h4 className="font-bold text-sm mb-4">What happens during the free trial?</h4>
                   <p className="text-sm text-muted-foreground">
                     You get full access to all premium features for 7 days. You won't be charged until after the trial ends.
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm mb-1">How many children can use one account?</h4>
+                  <h4 className="font-bold text-sm mb-4">How many children can use one account?</h4>
                   <p className="text-sm text-muted-foreground">
                     You can add unlimited children to your parent account. Each child gets their own progress tracking.
                   </p>

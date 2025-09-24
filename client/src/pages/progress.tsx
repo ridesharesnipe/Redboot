@@ -63,7 +63,7 @@ export default function ProgressPage() {
 
       <div className="max-w-6xl mx-auto p-6">
         {/* Page Title */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h2 className="text-3xl font-fun text-foreground mb-4" data-testid="text-treasure-map-title">
             {child.name}'s Treasure Map
           </h2>
@@ -80,10 +80,10 @@ export default function ProgressPage() {
         />
 
         {/* Achievement Badges */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           <Card className="p-4 text-center shadow-lg">
             <CardContent className="pt-4">
-              <div className="w-12 h-12 bg-treasure-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <div className="w-12 h-12 bg-treasure-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                 <Trophy className="w-8 h-8 text-treasure-50" />
               </div>
               <h4 className="font-bold text-foreground" data-testid="text-badge-first-treasure">First Treasure</h4>
@@ -93,7 +93,7 @@ export default function ProgressPage() {
 
           <Card className={`p-4 text-center shadow-lg ${(child.weeklyStreak || 0) >= 5 ? '' : 'opacity-50'}`}>
             <CardContent className="pt-4">
-              <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
                 (child.weeklyStreak || 0) >= 5 ? 'bg-secondary' : 'bg-muted'
               }`}>
                 <Flame className={`w-8 h-8 ${
@@ -111,7 +111,7 @@ export default function ProgressPage() {
 
           <Card className={`p-4 text-center shadow-lg ${averageAccuracy >= 100 ? '' : 'opacity-50'}`}>
             <CardContent className="pt-4">
-              <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
                 averageAccuracy >= 100 ? 'bg-accent' : 'bg-muted'
               }`}>
                 <Crown className={`w-8 h-8 ${
@@ -129,7 +129,7 @@ export default function ProgressPage() {
 
           <Card className={`p-4 text-center shadow-lg ${(child.unlockedCharacters || []).length >= 4 ? '' : 'opacity-50'}`}>
             <CardContent className="pt-4">
-              <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
                 (child.unlockedCharacters || []).length >= 4 ? 'bg-primary' : 'bg-muted'
               }`}>
                 <Ship className={`w-8 h-8 ${
@@ -179,7 +179,7 @@ export default function ProgressPage() {
 
         {/* Recent Sessions */}
         {recentProgress.length > 0 && (
-          <Card className="mt-8">
+          <Card className="mt-6">
             <CardHeader>
               <CardTitle className="text-xl font-bold" data-testid="text-recent-sessions-title">
                 Recent Adventures
