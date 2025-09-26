@@ -244,7 +244,7 @@ export default function TestSimulator() {
         {!testStarted ? (
           /* Test Setup */
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h2 className="text-3xl font-fun text-foreground mb-4" data-testid="text-simulator-title">
                 Friday Test Simulator
               </h2>
@@ -339,7 +339,7 @@ export default function TestSimulator() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
-                  <h4 className="text-xl font-bold text-foreground mb-2" data-testid="text-question-counter">
+                  <h4 className="text-xl font-bold text-foreground mb-4" data-testid="text-question-counter">
                     Question {currentWordIndex + 1} of {words.length}
                   </h4>
                   <div className="w-24 h-24 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer"
@@ -363,7 +363,7 @@ export default function TestSimulator() {
                   />
                 </div>
 
-                <div className="flex space-x-4 mb-6">
+                <div className="flex space-x-3 mb-6">
                   <Button 
                     variant="outline"
                     onClick={handlePreviousWord}
