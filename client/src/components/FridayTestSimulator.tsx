@@ -137,17 +137,17 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
           <p className="text-orange-100 text-lg">Friday Spelling Test Practice</p>
         </div>
 
-        <div className="px-4 pb-8">
+        <div className="px-6 pb-6">
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20">
+            <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 text-center border-4 border-white/20">
               <CardContent className="pt-0">
-                <RedBootCharacter size="large" animated expression="pointing" className="mb-8" />
+                <RedBootCharacter size="large" animated expression="pointing" className="mb-6" />
                 
                 <h2 className="text-3xl font-pirate mb-6 text-white">
                   Ready for the Final Challenge?
                 </h2>
                 
-                <div className="bg-white/20 rounded-2xl p-6 mb-8">
+                <div className="bg-white/20 rounded-2xl p-6 mb-6">
                   <h3 className="text-xl font-bold text-yellow-300 mb-4">Test Rules:</h3>
                   <ul className="text-left space-y-3 text-orange-100">
                     <li>• {totalWords} words in random order</li>
@@ -158,7 +158,7 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                   </ul>
                 </div>
 
-                <div className="bg-white/20 rounded-2xl p-4 mb-8">
+                <div className="bg-white/20 rounded-2xl p-6 mb-6">
                   <div className="text-lg text-yellow-300">
                     Words to spell: <span className="font-bold">{totalWords}</span>
                   </div>
@@ -182,30 +182,30 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-400 via-orange-400 to-yellow-400 text-white">
         {/* Header */}
-        <div className="p-4 text-center">
+        <div className="p-6 text-center">
           <h1 className="text-2xl font-pirate">The Great Treasure Hunt</h1>
           <p className="text-orange-100">Word {currentWordIndex + 1} of {totalWords}</p>
         </div>
 
         {/* Progress Bar */}
-        <div className="px-4 mb-6">
+        <div className="px-6 mb-6">
           <Progress 
             value={currentProgress} 
             className="h-4 bg-white/20" 
           />
         </div>
 
-        <div className="px-4 pb-8">
+        <div className="px-6 pb-6">
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20">
+            <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 text-center border-4 border-white/20">
               <CardContent className="pt-0">
                 <RedBootCharacter size="medium" animated expression="thinking" className="mb-6" data-testid="red-boot-testing-thinking" />
                 
-                <h2 className="text-3xl font-pirate mb-8 text-white">
+                <h2 className="text-3xl font-pirate mb-6 text-white">
                   Spell This Word:
                 </h2>
                 
-                <div className="bg-white/20 rounded-2xl p-8 mb-8">
+                <div className="bg-white/20 rounded-2xl p-6 mb-6">
                   <Button
                     onClick={() => speakWord(currentWord)}
                     className="bg-yellow-500 text-black hover:bg-yellow-400 text-2xl px-8 py-6 mb-6"
@@ -257,10 +257,10 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
           <p className="text-orange-100 text-lg">Here are your results, brave pirate!</p>
         </div>
 
-        <div className="px-4 pb-8">
+        <div className="px-6 pb-6">
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Overall Results */}
-            <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20">
+            <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 text-center border-4 border-white/20">
               <CardContent className="pt-0">
                 <RedBootCharacter size="medium" animated expression="celebrating" className="mb-6" data-testid="red-boot-results-celebrating" />
                 
@@ -268,7 +268,7 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                   {getGradeMessage()}
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                   <div className="bg-white/20 rounded-2xl p-6">
                     <div className="text-4xl font-bold text-green-300">{correctAnswers}</div>
                     <div className="text-lg text-white">Correct</div>
@@ -316,7 +316,7 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                     {incorrectAnswers.map((result, index) => (
                       <div 
                         key={index}
-                        className="bg-white/20 rounded-xl p-4 flex justify-between items-center"
+                        className="bg-white/20 rounded-xl p-6 flex justify-between items-center"
                       >
                         <div>
                           <div className="text-lg font-bold text-white">{result.word}</div>
@@ -342,7 +342,7 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
 
             {/* Perfect Score Celebration */}
             {accuracy === 100 && (
-              <Card className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-8 text-center border-4 border-yellow-300">
+              <Card className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-6 text-center border-4 border-yellow-300">
                 <CardContent className="pt-0">
                   <div className="text-8xl mb-4">🏆</div>
                   <h3 className="text-3xl font-pirate text-white mb-4">

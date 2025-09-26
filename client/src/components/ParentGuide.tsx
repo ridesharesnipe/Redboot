@@ -123,28 +123,28 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
       {/* Step 1: Getting Started */}
       <Card className="border-2 border-blue-300 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-200">
-          <CardTitle className="text-blue-900 font-bold text-xl flex items-center gap-3">
+          <CardTitle className="text-blue-900 font-bold text-xl flex items-center gap-4">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">1</div>
             📸 Step 1: Upload Your Child's Spelling List (Monday)
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Upload className="w-6 h-6 text-blue-600 mt-1" />
               <div>
                 <h4 className="font-bold text-blue-800">Take a Photo</h4>
                 <p className="text-gray-700">Click "📸 Chart New Waters" on your dashboard. Use your phone or computer camera to take a clear photo of your child's weekly spelling list.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Scroll className="w-6 h-6 text-blue-600 mt-1" />
               <div>
                 <h4 className="font-bold text-blue-800">Automatic Word Extraction</h4>
                 <p className="text-gray-700">Red Boot's OCR technology will automatically read the words from the photo. This usually takes 10-15 seconds.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <CheckCircle className="w-6 h-6 text-blue-600 mt-1" />
               <div>
                 <h4 className="font-bold text-blue-800">Verify & Save</h4>
@@ -152,7 +152,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
               </div>
             </div>
             <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-4">
                 <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-blue-800">Pro Tip:</h5>
@@ -167,28 +167,28 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
       {/* Step 2: Daily Practice */}
       <Card className="border-2 border-amber-300 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-amber-100 to-amber-200">
-          <CardTitle className="text-amber-900 font-bold text-xl flex items-center gap-3">
+          <CardTitle className="text-amber-900 font-bold text-xl flex items-center gap-4">
             <div className="w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center text-white font-bold">2</div>
             ⚓ Step 2: Daily Practice Sessions (Tuesday-Thursday)
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Compass className="w-6 h-6 text-amber-600 mt-1" />
               <div>
                 <h4 className="font-bold text-amber-800">Start Daily Adventure</h4>
                 <p className="text-gray-700">Click "⚓ Daily Adventure" on your dashboard. Your child will practice words based on their learning progress.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Ship className="w-6 h-6 text-amber-600 mt-1" />
               <div>
                 <h4 className="font-bold text-amber-800">How Practice Works</h4>
                 <p className="text-gray-700">Red Boot will speak each word aloud. Your child types the spelling. They get immediate feedback with encouraging sounds and messages!</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Star className="w-6 h-6 text-amber-600 mt-1" />
               <div>
                 <h4 className="font-bold text-amber-800">Smart Learning System</h4>
@@ -196,7 +196,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
               </div>
             </div>
             <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-4">
                 <Clock className="w-5 h-5 text-amber-600 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-amber-800">Practice Sessions:</h5>
@@ -211,15 +211,15 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
       {/* Understanding Word Status */}
       <Card className="border-2 border-emerald-300 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-emerald-100 to-emerald-200">
-          <CardTitle className="text-emerald-900 font-bold text-xl flex items-center gap-3">
+          <CardTitle className="text-emerald-900 font-bold text-xl flex items-center gap-4">
             <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold">3</div>
             🗺️ Understanding Your Child's Progress
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="flex items-start gap-3">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-slate-500 rounded-full flex items-center justify-center border-2 border-slate-600">
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
@@ -228,7 +228,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
                   <p className="text-gray-600">Words your child hasn't practiced yet. These will appear in daily practice sessions.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-600">
                   <Compass className="w-6 h-6 text-white" />
                 </div>
@@ -237,7 +237,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
                   <p className="text-gray-600">Words your child is learning. They're getting some right, but need more practice.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-emerald-600">
                   <Crown className="w-6 h-6 text-white" />
                 </div>
@@ -246,7 +246,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
                   <p className="text-gray-600">Words your child has mastered! They consistently spell these correctly.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center border-2 border-red-600">
                   <Skull className="w-6 h-6 text-white" />
                 </div>
@@ -257,7 +257,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
               </div>
             </div>
             <div className="bg-emerald-50 border-l-4 border-emerald-400 p-4 rounded">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-4">
                 <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-emerald-800">Progress Tracking:</h5>
@@ -272,21 +272,21 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
       {/* Step 4: Friday Test */}
       <Card className="border-2 border-red-300 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-red-100 to-red-200">
-          <CardTitle className="text-red-900 font-bold text-xl flex items-center gap-3">
+          <CardTitle className="text-red-900 font-bold text-xl flex items-center gap-4">
             <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-bold">4</div>
             👑 Step 4: Friday Treasure Test
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Crown className="w-6 h-6 text-red-600 mt-1" />
               <div>
                 <h4 className="font-bold text-red-800">When to Take the Test</h4>
                 <p className="text-gray-700">The "👑 Final Treasure Hunt" button will be enabled when your child has practiced enough. This usually happens by Thursday after 2-3 practice sessions.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Clock className="w-6 h-6 text-red-600 mt-1" />
               <div>
                 <h4 className="font-bold text-red-800">How the Test Works</h4>
@@ -299,7 +299,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <Star className="w-6 h-6 text-red-600 mt-1" />
               <div>
                 <h4 className="font-bold text-red-800">After the Test</h4>
@@ -307,7 +307,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
               </div>
             </div>
             <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-4">
                 <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-red-800">Important:</h5>
@@ -322,7 +322,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
       {/* Troubleshooting */}
       <Card className="border-2 border-purple-300 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-purple-100 to-purple-200">
-          <CardTitle className="text-purple-900 font-bold text-xl flex items-center gap-3">
+          <CardTitle className="text-purple-900 font-bold text-xl flex items-center gap-4">
             <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">?</div>
             🛠️ Troubleshooting & Tips
           </CardTitle>
@@ -346,7 +346,7 @@ export default function ParentGuide({ onBack }: ParentGuideProps) {
               <p className="text-gray-700">Every Monday, the app automatically resets for a new spelling list. Your child's previous progress is saved in their treasure collection!</p>
             </div>
             <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-4">
                 <Star className="w-5 h-5 text-purple-600 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-purple-800">Success Tips:</h5>
