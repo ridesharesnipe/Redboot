@@ -59,6 +59,52 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     }
   };
 
+  // Calculate today's actual practice data
+  const getTodaysPracticeData = () => {
+    const practiceProgress = localStorage.getItem('practiceProgress');
+    if (!practiceProgress) return { wordsToday: 0, correctToday: 0, treasuresEarned: 0 };
+    
+    try {
+      const progressData = JSON.parse(practiceProgress);
+      const practiceHistory = progressData._practiceHistory || [];
+      
+      // Get today's date (start of day)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      // Filter sessions to today only
+      const todaysSessions = practiceHistory.filter((session: any) => {
+        if (!session.date) return false;
+        const sessionDate = new Date(session.date);
+        return sessionDate >= today && sessionDate < tomorrow;
+      });
+      
+      let wordsToday = 0;
+      let correctToday = 0;
+      let treasuresEarned = 0;
+      
+      // Count today's practice
+      todaysSessions.forEach((session: any) => {
+        if (session.wordsPracticed) {
+          wordsToday += session.wordsPracticed.length;
+          session.wordsPracticed.forEach((result: any) => {
+            if (result.correct) {
+              correctToday++;
+              treasuresEarned++; // 1 treasure per correct word today
+            }
+          });
+        }
+      });
+      
+      return { wordsToday, correctToday, treasuresEarned };
+    } catch (e) {
+      console.error('Failed to calculate today practice data:', e);
+      return { wordsToday: 0, correctToday: 0, treasuresEarned: 0 };
+    }
+  };
+
   const checkWeekStatus = () => {
     if (checkIfNewWeek()) {
       setShowNewWeekPrompt(true);
@@ -292,21 +338,21 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
   const getWordStatusText = (status: string): string => {
     switch (status) {
-      case 'new': return 'Uncharted Waters';
-      case 'learning': return 'Setting Sail';
-      case 'mastered': return 'Treasure Found';
-      case 'trouble': return 'Stormy Seas';
+      case 'new': return 'New Words';
+      case 'learning': return 'Learning';
+      case 'mastered': return 'Great Job!';
+      case 'trouble': return 'Keep Practicing';
       default: return 'Unknown';
     }
   };
 
   const getWordStatusDescription = (status: string): string => {
     switch (status) {
-      case 'new': return 'Words awaiting first adventure';
-      case 'learning': return 'On the learning voyage';
-      case 'mastered': return 'Conquered like a true pirate';
-      case 'trouble': return 'Needs more practice, matey';
-      default: return 'Unknown waters';
+      case 'new': return 'Ready to learn!';
+      case 'learning': return 'Getting better!';
+      case 'mastered': return 'You got it!';
+      case 'trouble': return 'Try again!';
+      default: return 'Unknown';
     }
   };
 
@@ -494,407 +540,272 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const weekProgress = getWeekProgress();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-3 sm:space-y-4 md:space-y-6 px-2 sm:px-4">
-      {/* Pirate Header */}
-      <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-2 border-amber-400 shadow-2xl">
-        <CardHeader className="relative overflow-hidden p-3 sm:p-4 md:p-6">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800"></div>
-          <div className="absolute inset-0 opacity-60">
-            <svg className="w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="#ffffff"></path>
-              <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="#ffffff"></path>
-              <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#ffffff"></path>
-            </svg>
-          </div>
-          <div className="relative flex flex-wrap justify-between items-center gap-2 sm:gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center border-4 border-amber-300 shadow-lg">
-                <Ship className="w-8 h-8 text-amber-900" />
-              </div>
-              <div>
-                <CardTitle className="text-3xl text-amber-100 font-bold tracking-wide" style={{ fontFamily: 'var(--font-pirate)' }}>
-                  🏴‍☠️ Captain's Adventure Log 🏴‍☠️
-                </CardTitle>
-                <p className="text-amber-200 mt-1 text-lg">
-                  ⚓ Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'} ⚓
-                </p>
-              </div>
+    <div className="max-w-4xl mx-auto space-y-8 px-4">
+      {/* TOP SECTION - Week Status */}
+      <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-xl">
+        <CardContent className="p-8 text-center">
+          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+            Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'}
+          </h1>
+          
+          {stats?.totalWords ? (
+            <div className="mb-6">
+              <div className="text-2xl mb-2">✅ {stats.totalWords} words uploaded!</div>
+              <p className="text-blue-100 text-lg">Ready for spelling practice!</p>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                onClick={onViewGuide}
-                variant="outline"
-                className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-blue-900 font-bold"
-                data-testid="button-view-guide"
-              >
-                <HelpCircle className="w-4 h-4 mr-2" />
-                How to Use
-              </Button>
-              <Button 
-                onClick={refreshStats} 
-                variant="outline" 
-                className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-blue-900 font-bold"
-                data-testid="button-refresh-stats"
-              >
-                <Compass className="w-4 h-4 mr-2" />
-                Update Log
-              </Button>
+          ) : (
+            <div className="mb-6">
+              <div className="text-2xl mb-2">📸 Time for new words!</div>
+              <p className="text-blue-100 text-lg">Upload this week's spelling list to start your adventure!</p>
             </div>
-          </div>
-        </CardHeader>
-      </Card>
+          )}
 
-      {/* Treasure Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-        <Card className="bg-gradient-to-br from-slate-700 to-slate-800 border-slate-500 shadow-lg">
-          <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-600 rounded-full flex items-center justify-center border-2 border-slate-400">
-                <Scroll className="w-6 h-6 text-slate-200" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-slate-100">{stats?.totalWords || 0}</div>
-                <div className="text-sm text-slate-300">Treasure Words</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-700 to-blue-800 border-blue-500 shadow-lg">
-          <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center border-2 border-blue-400">
-                <Compass className="w-6 h-6 text-blue-200" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-blue-100">{Math.round(weekProgress)}%</div>
-                <div className="text-sm text-blue-200">Voyage Progress</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-amber-600 to-amber-700 border-amber-500 shadow-lg">
-          <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 rounded-full flex items-center justify-center border-2 border-amber-300">
-                <Star className="w-6 h-6 text-amber-100" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-amber-100">{stats?.treasureCount || 0}</div>
-                <div className="text-sm text-amber-200">Treasure</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-700 to-purple-800 border-purple-500 shadow-lg">
-          <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-full flex items-center justify-center border-2 border-purple-400">
-                <Anchor className="w-6 h-6 text-purple-200" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-100">
-                  {stats?.daysThisWeek.filter(Boolean).length || 0}/5
-                </div>
-                <div className="text-sm text-purple-200">Days at Sea</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Treasure Map Status */}
-      <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-amber-200 to-orange-200 border-b border-amber-300">
-          <CardTitle className="text-amber-900 font-bold text-xl" style={{ fontFamily: 'var(--font-pirate)' }}>
-            🗺️ Treasure Map & Word Status 🗺️
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-4 md:p-6">
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
-            <div className="text-center">
-              <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg ${getWordStatusColor('new')} relative`}>
-                {getWordStatusIcon('new')}
-                <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-slate-700 border">
-                  {stats?.newWords || 0}
-                </div>
-              </div>
-              <div className="text-sm font-bold text-slate-700">{getWordStatusText('new')}</div>
-              <div className="text-xs text-slate-600 mt-1">{getWordStatusDescription('new')}</div>
-            </div>
-            
-            <div className="text-center">
-              <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg ${getWordStatusColor('learning')} relative`}>
-                {getWordStatusIcon('learning')}
-                <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-amber-700 border">
-                  {stats?.learningWords || 0}
-                </div>
-              </div>
-              <div className="text-sm font-bold text-amber-700">{getWordStatusText('learning')}</div>
-              <div className="text-xs text-amber-600 mt-1">{getWordStatusDescription('learning')}</div>
-            </div>
-            
-            <div className="text-center">
-              <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg ${getWordStatusColor('mastered')} relative`}>
-                {getWordStatusIcon('mastered')}
-                <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-emerald-700 border">
-                  {stats?.masteredWords || 0}
-                </div>
-              </div>
-              <div className="text-sm font-bold text-emerald-700">{getWordStatusText('mastered')}</div>
-              <div className="text-xs text-emerald-600 mt-1">{getWordStatusDescription('mastered')}</div>
-            </div>
-            
-            <div className="text-center">
-              <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg ${getWordStatusColor('trouble')} relative`}>
-                {getWordStatusIcon('trouble')}
-                <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-red-700 border">
-                  {stats?.troubleWords || 0}
-                </div>
-              </div>
-              <div className="text-sm font-bold text-red-700">{getWordStatusText('trouble')}</div>
-              <div className="text-xs text-red-600 mt-1">{getWordStatusDescription('trouble')}</div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex justify-between text-sm mb-2 font-semibold text-amber-800">
-              <span>⚓ Voyage Progress ⚓</span>
-              <span>{Math.round(weekProgress)}% Complete</span>
-            </div>
-            <Progress value={weekProgress} className="w-full h-3 bg-amber-200" />
-          </div>
-
-          <div className={`text-center p-4 rounded-lg border-2 border-amber-300 bg-gradient-to-r from-amber-100 to-orange-100 ${readinessInfo.color}`}>
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <readinessInfo.icon className="w-6 h-6" />
-              <p className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>{readinessInfo.message}</p>
-              <readinessInfo.icon className="w-6 h-6" />
-            </div>
-          </div>
+          {stats?.totalWords ? (
+            <Button 
+              onClick={onViewPractice}
+              size="lg"
+              className="text-2xl px-12 py-6 bg-green-500 hover:bg-green-600 text-white font-bold"
+              data-testid="button-practice-now"
+            >
+              🚀 Practice Now!
+            </Button>
+          ) : (
+            <Button 
+              onClick={onTakePhoto}
+              size="lg"
+              className="text-2xl px-12 py-6 bg-orange-500 hover:bg-orange-600 text-white font-bold"
+              data-testid="button-upload-words"
+            >
+              📸 Upload This Week's Words
+            </Button>
+          )}
         </CardContent>
       </Card>
 
-      {/* Daily Voyage Tracker */}
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-200 to-indigo-200 border-b border-blue-300">
-          <CardTitle className="text-blue-900 font-bold text-xl" style={{ fontFamily: 'var(--font-pirate)' }}>
-            ⛵ This Week's Voyages ⛵
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-4 md:p-6">
-          <div className="flex justify-center gap-3 sm:gap-4 md:gap-6">
-            {(stats?.daysThisWeek || []).map((practiced, index) => (
-              <div key={index} className="text-center">
-                <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center border-2 shadow-lg transition-all ${
-                  practiced 
-                    ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 border-emerald-400 text-white transform scale-110' 
-                    : 'bg-gray-200 border-gray-300 text-gray-500'
-                }`}>
-                  {practiced ? <Ship className="w-6 h-6" /> : <Anchor className="w-5 h-5" />}
-                </div>
-                <div className={`text-sm font-bold ${practiced ? 'text-emerald-700' : 'text-gray-500'}`}>
-                  {getDayName(index)}
-                </div>
-                <div className="text-xs text-gray-600 mt-1">
-                  {practiced ? 'Sailed!' : 'Anchored'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* MIDDLE SECTION - Today's Progress (BIG and VISUAL) */}
+      {stats?.totalWords ? (
+        <Card className="bg-gradient-to-r from-green-400 to-blue-400 text-white shadow-xl">
+          <CardContent className="p-8 text-center">
+            {(() => {
+              const todayData = getTodaysPracticeData();
+              return (
+                <>
+                  <div className="mb-6">
+                    {todayData.wordsToday > 0 ? (
+                      <>
+                        <h2 className="text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+                          You spelled {todayData.correctToday} out of {todayData.wordsToday} words today!
+                        </h2>
+                        <p className="text-2xl text-green-100">
+                          {todayData.correctToday === todayData.wordsToday 
+                            ? "Perfect spelling today! 🌟" 
+                            : todayData.correctToday > todayData.wordsToday / 2
+                            ? "Great job practicing! 🚀"
+                            : "Keep practicing - you're getting better! 💪"
+                          }
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <h2 className="text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+                          Ready to practice today?
+                        </h2>
+                        <p className="text-2xl text-green-100">
+                          {stats.totalWords} spelling words are waiting for you! 📚✨
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Visual Progress Bar - Daily Progress */}
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-xl font-bold">🏴‍☠️</span>
+                      <span className="text-xl font-bold">🏝️</span>
+                    </div>
+                    <div className="relative">
+                      {todayData.wordsToday > 0 ? (
+                        <>
+                          <Progress 
+                            value={Math.round((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100)} 
+                            className="h-8 bg-blue-200"
+                          />
+                          <div 
+                            className="absolute top-0 text-3xl transform -translate-y-1"
+                            style={{ 
+                              left: `${Math.min(Math.max((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100, 5), 95)}%`,
+                              transform: 'translateX(-50%) translateY(-10px)'
+                            }}
+                          >
+                            ⛵
+                          </div>
+                          <p className="text-lg mt-4 text-blue-100">
+                            {Math.round((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100)}% correct today!
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <Progress value={0} className="h-8 bg-blue-200" />
+                          <div className="absolute top-0 left-2 text-3xl transform -translate-y-1">⛵</div>
+                          <p className="text-lg mt-4 text-blue-100">Start practicing to begin your journey!</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Treasures Collected Today */}
+                  <div>
+                    <h3 className="text-2xl font-bold mb-4">Treasures Earned Today:</h3>
+                    <div className="flex justify-center gap-4 text-4xl">
+                      {todayData.treasuresEarned > 0 ? (
+                        Array.from({ length: Math.min(todayData.treasuresEarned, 8) }).map((_, i) => (
+                          <span key={i} className="animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>
+                            {['🪙', '💚', '❤️', '💎', '⭐', '👑', '🏆', '✨'][i % 8]}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-2xl text-blue-100">Practice spelling to earn treasures! 🏴‍☠️✨</span>
+                      )}
+                    </div>
+                    {todayData.treasuresEarned > 8 && (
+                      <p className="text-xl text-yellow-200 mt-2">
+                        +{todayData.treasuresEarned - 8} more treasures! 🎉
+                      </p>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="bg-gradient-to-r from-orange-400 to-red-400 text-white shadow-xl">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+              Ready to start your spelling adventure?
+            </h2>
+            <p className="text-2xl text-orange-100 mb-6">
+              Upload your spelling words to begin collecting treasures! 📸✨
+            </p>
+            <div className="text-6xl mb-4">🏴‍☠️</div>
+            <p className="text-xl text-orange-100">
+              Red Boot is waiting for you to start the adventure!
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Individual Word Progress */}
-      {(weekData?.words.length || 0) > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Individual Word Progress</CardTitle>
+
+      {/* BOTTOM SECTION - Week Overview (SIMPLE) */}
+      {stats?.totalWords ? (
+        <Card className="bg-white shadow-xl border-2 border-blue-300">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-purple-100 border-b">
+            <CardTitle className="text-3xl font-bold text-center text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
+              This Week's Practice
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-2 max-h-64 overflow-y-auto">
-              {(weekData?.words || []).map((word, index) => {
-                const wordData = weekData?.practiceData[word.toLowerCase()];
-                const status = wordData?.status || 'new';
-                const accuracy = wordData?.totalAttempts > 0 
-                  ? Math.round((wordData.correctCount / wordData.totalAttempts) * 100)
-                  : 0;
+          <CardContent className="p-8">
+            <div className="space-y-6">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day, index) => {
+                const practiced = stats?.daysThisWeek?.[index] || false;
+                const isToday = new Date().getDay() === (index + 1); // Monday is 1
+                const isFriday = index === 4;
+                const isFuture = new Date().getDay() < (index + 1);
                 
                 return (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${getWordStatusColor(status)}`} />
-                      <span className="font-medium capitalize">{word}</span>
+                  <div 
+                    key={day} 
+                    className={`flex items-center justify-between p-6 rounded-xl border-2 transition-all ${
+                      practiced 
+                        ? 'bg-green-100 border-green-400 text-green-800' 
+                        : isToday 
+                        ? 'bg-yellow-100 border-yellow-400 text-yellow-800 animate-pulse'
+                        : isFuture 
+                        ? 'bg-gray-100 border-gray-300 text-gray-500'
+                        : isFriday
+                        ? 'bg-red-100 border-red-400 text-red-800'
+                        : 'bg-blue-100 border-blue-300 text-blue-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`text-4xl ${
+                        practiced 
+                          ? '✅'
+                          : isToday 
+                          ? '👆'
+                          : isFriday 
+                          ? '👑'
+                          : isFuture 
+                          ? '⏳'
+                          : '📚'
+                      }`}>
+                        {practiced ? '✅' : isToday ? '👆' : isFriday ? '👑' : isFuture ? '⏳' : '📚'}
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{day}:</div>
+                        <div className="text-xl">
+                          {practiced 
+                            ? `✓ Practiced! (Great job!)` 
+                            : isToday 
+                            ? 'Practice now!'
+                            : isFriday 
+                            ? 'Test Day!'
+                            : isFuture 
+                            ? '[Coming up]'
+                            : 'Ready to practice'
+                          }
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{getWordStatusText(status)}</span>
-                      {wordData?.totalAttempts > 0 && (
-                        <span>{accuracy}% accurate</span>
-                      )}
-                      <span>{wordData?.correctCount || 0}/{wordData?.totalAttempts || 0}</span>
-                    </div>
+                    
+                    {practiced && (
+                      <div className="text-lg font-bold text-green-700">
+                        {Math.max(1, Math.floor((stats?.masteredWords || 0) / 5))} words learned! 🌟
+                      </div>
+                    )}
+                    
+                    {isToday && !practiced && (
+                      <Button 
+                        onClick={onViewPractice}
+                        size="lg"
+                        className="text-xl px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
+                      >
+                        Start Today! 🚀
+                      </Button>
+                    )}
+                    
+                    {isFriday && stats?.readyForTest && (
+                      <Button 
+                        onClick={onStartTest}
+                        size="lg"
+                        className="text-xl px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-bold"
+                      >
+                        Take Test! 👑
+                      </Button>
+                    )}
                   </div>
                 );
               })}
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* Pirate Action Buttons */}
-      <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-amber-400 shadow-2xl">
-        <CardContent className="p-8">
-          <div className="grid md:grid-cols-3 gap-6">
-            <Button 
-              onClick={onTakePhoto}
-              className="h-20 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border-2 border-blue-400 shadow-xl text-white transform hover:scale-105 transition-all"
-              data-testid="button-take-photo-dashboard"
-            >
-              <Upload className="w-8 h-8 mr-4" />
-              <div className="text-left">
-                <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>📤 Chart New Waters</div>
-                <div className="text-sm opacity-90">Upload yer treasure map</div>
-              </div>
-            </Button>
 
-            <Button 
-              onClick={onViewPractice}
-              variant="outline"
-              className="h-20 border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 text-amber-900 font-bold shadow-xl transform hover:scale-105 transition-all"
-              disabled={(stats?.totalWords || 0) === 0}
-              data-testid="button-start-practice-dashboard"
-            >
-              <Compass className="w-8 h-8 mr-4 text-amber-600" />
-              <div className="text-left">
-                <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>⚓ Daily Adventure</div>
-                <div className="text-sm opacity-80">
-                  {stats?.totalWords || 0} treasures await
-                </div>
-              </div>
-            </Button>
 
-            <Button 
-              onClick={onStartTest}
-              variant="outline"
-              className="h-20 border-2 border-red-400 bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 text-red-900 font-bold shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:transform-none"
-              disabled={!stats?.readyForTest || (stats?.totalWords || 0) === 0}
-              data-testid="button-friday-test-dashboard"
-            >
-              <Crown className="w-8 h-8 mr-4 text-red-600" />
-              <div className="text-left">
-                <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-pirate)' }}>👑 Final Treasure Hunt</div>
-                <div className="text-sm opacity-80">
-                  {stats?.readyForTest ? 'Ready for battle!' : 'Train more, matey!'}
-                </div>
-              </div>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Photo History Section */}
-      <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600 shadow-2xl">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
-            <Image className="w-8 h-8 text-blue-400" />
-            Photo Treasure Chest
-          </CardTitle>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-300">Storage: {storageSize}</span>
-            <Button
-              variant="outline"
-              onClick={() => setShowPhotoHistory(!showPhotoHistory)}
-              className="border-slate-500 text-slate-300 hover:bg-slate-700"
-              data-testid="button-toggle-photos"
-            >
-              {showPhotoHistory ? 'Hide Photos' : `View Photos (${photos.length})`}
-            </Button>
-          </div>
-        </CardHeader>
-        
-        {showPhotoHistory && (
-          <CardContent className="space-y-4">
-            {photos.length === 0 ? (
-              <div className="text-center py-8">
-                <Upload className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-300 text-lg">No photos captured yet!</p>
-                <p className="text-slate-400">Take your first spelling list photo to start building your treasure collection.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {photos.map((photo) => (
-                  <Card key={photo.id} className="bg-slate-700 border-slate-600" data-testid={`card-photo-${photo.id}`}>
-                    <CardContent className="p-4">
-                      <div className="relative group">
-                        <img
-                          src={photo.imageData}
-                          alt={`Spelling list from ${photo.capturedAt.toLocaleDateString()}`}
-                          className="w-full h-48 object-cover rounded-lg mb-3"
-                          data-testid={`img-photo-${photo.id}`}
-                        />
-                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => replacePhoto(photo.id)}
-                            className="bg-blue-500 hover:bg-blue-600 border-blue-400 text-white"
-                            data-testid={`button-replace-${photo.id}`}
-                            disabled={replacingPhotoId === photo.id}
-                          >
-                            <RefreshCw className={`w-4 h-4 ${replacingPhotoId === photo.id ? 'animate-spin' : ''}`} />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => deletePhoto(photo.id)}
-                            data-testid={`button-delete-${photo.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-300">
-                            {photo.capturedAt.toLocaleDateString()}
-                          </span>
-                          <span className="text-sm text-blue-400 font-medium" data-testid={`text-word-count-${photo.id}`}>
-                            {photo.wordsCount} words
-                          </span>
-                        </div>
-                        
-                        {photo.extractedWords.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs text-slate-400 mb-1">Words found:</p>
-                            <div className="flex flex-wrap gap-1" data-testid={`text-words-${photo.id}`}>
-                              {photo.extractedWords.slice(0, 6).map((word, index) => (
-                                <span
-                                  key={index}
-                                  className="px-2 py-1 bg-slate-600 text-slate-200 text-xs rounded"
-                                >
-                                  {word}
-                                </span>
-                              ))}
-                              {photo.extractedWords.length > 6 && (
-                                <span className="px-2 py-1 bg-slate-500 text-slate-300 text-xs rounded">
-                                  +{photo.extractedWords.length - 6} more
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        )}
-      </Card>
+      {/* Simple Help Button */}
+      <div className="text-center">
+        <Button 
+          onClick={onViewGuide}
+          variant="outline"
+          size="lg"
+          className="text-xl px-8 py-4 border-2 border-blue-400 text-blue-600 hover:bg-blue-50"
+          data-testid="button-view-guide-simple"
+        >
+          <HelpCircle className="w-6 h-6 mr-3" />
+          Need Help? Click Here!
+        </Button>
+      </div>
     </div>
   );
 }

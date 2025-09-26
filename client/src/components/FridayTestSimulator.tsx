@@ -128,7 +128,7 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
           <Button 
             variant="ghost" 
             onClick={onExit}
-            className="absolute top-6 left-6 text-white/80 hover:text-white hover:bg-white/10"
+            className="absolute top-6 left-6"
           >
             ← Back to Harbor
           </Button>
@@ -211,7 +211,8 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                   <Button
                     onClick={() => speakWord(currentWord)}
                     variant="secondary"
-                    className="text-2xl px-8 py-6 mb-6 bg-yellow-500 text-black hover:bg-yellow-400"
+                    size="lg"
+                    className="text-2xl px-8 py-6 mb-6"
                   >
                     <Volume2 className="w-8 h-8 mr-3" />
                     Hear Word
@@ -300,7 +301,7 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                   <Button
                     onClick={onExit}
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3"
+                    className="px-8 py-3"
                   >
                     <Home className="w-5 h-5 mr-2" />
                     Back to Harbor
@@ -332,7 +333,6 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                           onClick={() => speakWord(result.word)}
                           variant="outline"
                           size="sm"
-                          className="border-white text-white hover:bg-white hover:text-orange-600"
                         >
                           <Volume2 className="w-4 h-4" />
                         </Button>
