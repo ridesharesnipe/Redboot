@@ -114,15 +114,25 @@ export default function Landing({ onStart }: LandingProps) {
               Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
             </p>
           </div>
-          <div className="flex justify-center px-4 safe-area-x">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4 safe-area-x">
             <Button 
               onClick={handleLogin}
-              variant="default" className="font-bold"
+              variant="default" className="font-bold w-full sm:w-auto"
               size="lg"
               data-testid="button-start-adventure"
             >
               <Compass className="w-5 h-5 mr-2" />
               Start Adventure
+            </Button>
+            <Button 
+              onClick={handleDemo}
+              variant="outline" 
+              className="font-bold w-full sm:w-auto"
+              size="lg"
+              data-testid="button-watch-demo"
+            >
+              <Play className="w-5 h-5 mr-2" />
+              Watch Demo
             </Button>
           </div>
         </div>
