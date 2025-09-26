@@ -228,10 +228,10 @@ export default function TestSimulator() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Button 
             variant="ghost"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/dashboard")}
             data-testid="button-back"
           >
-            <i className="fas fa-arrow-left mr-2"></i>
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
           <h1 className="text-xl font-bold" data-testid="text-page-title">
