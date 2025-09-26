@@ -110,7 +110,7 @@ export default function Landing({ onStart }: LandingProps) {
                 border: '4px solid rgba(34,197,94,0.2)'
               }}>🏝️</i>
             </div>
-            <p className="fluid-text-lg mb-4 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
+            <p className="fluid-text-lg mb-6 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
               Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
             </p>
           </div>
