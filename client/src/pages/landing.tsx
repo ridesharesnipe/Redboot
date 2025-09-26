@@ -117,7 +117,7 @@ export default function Landing({ onStart }: LandingProps) {
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4 safe-area-x">
             <Button 
               onClick={handleLogin}
-              className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white fluid-button rounded-2xl font-bold hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-xl border-4 border-white/30 w-full sm:w-auto touch-target desktop-hover"
+              variant="default" className="font-bold w-full sm:w-auto"
               size="lg"
               data-testid="button-start-adventure"
             >
@@ -127,7 +127,7 @@ export default function Landing({ onStart }: LandingProps) {
             <Button 
               onClick={handleDemo}
               variant="outline" 
-              className="border-4 border-white bg-white/10 backdrop-blur-sm text-white fluid-button rounded-2xl font-bold hover:bg-white hover:text-blue-600 transition-all shadow-xl w-full sm:w-auto touch-target desktop-hover"
+              className="font-bold w-full sm:w-auto"
               size="lg"
               data-testid="button-watch-demo"
             >
@@ -273,7 +273,7 @@ export default function Landing({ onStart }: LandingProps) {
                 <Button 
                   onClick={handleLogin}
                   variant="outline" 
-                  className="w-full py-3 text-lg font-bold border-2 border-blue-400 text-blue-600 hover:bg-blue-50 rounded-xl"
+                  className="w-full text-lg font-bold"
                   data-testid="button-free-plan"
                 >
                   Start Free
@@ -310,7 +310,7 @@ export default function Landing({ onStart }: LandingProps) {
                 </ul>
                 <Button 
                   onClick={handleLogin}
-                  className="w-full py-3 text-lg font-bold bg-white text-orange-600 hover:bg-yellow-50 rounded-xl shadow-lg border-2 border-white"
+                  variant="default" className="w-full text-lg font-bold"
                   data-testid="button-premium-plan"
                 >
                   Start 7-Day Free Trial

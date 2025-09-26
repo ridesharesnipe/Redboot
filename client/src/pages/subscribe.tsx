@@ -67,7 +67,7 @@ const SubscribeForm = () => {
       <Button 
         type="submit"
         disabled={!stripe || isProcessing}
-        className="w-full bg-treasure-500 text-treasure-50 hover:bg-treasure-600 py-3 text-lg font-bold"
+        variant="default" className="w-full text-lg font-bold"
         data-testid="button-subscribe"
       >
         {isProcessing ? (

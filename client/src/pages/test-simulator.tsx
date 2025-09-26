@@ -323,7 +323,7 @@ export default function TestSimulator() {
                   <Button 
                     onClick={startTest}
                     disabled={words.length === 0}
-                    className="bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-3"
+                    variant="default"
                     data-testid="button-start-test"
                   >
                     <Play className="w-4 h-4 mr-2" />
@@ -383,7 +383,7 @@ export default function TestSimulator() {
                   </Button>
                   <Button 
                     onClick={handleNextWord}
-                    className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                    variant="default" className="flex-1"
                     data-testid="button-next-word"
                   >
                     {currentWordIndex === words.length - 1 ? "Finish" : "Next"}

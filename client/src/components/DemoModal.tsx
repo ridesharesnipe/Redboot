@@ -87,7 +87,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 </div>
               </div>
             </div>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold" data-testid="button-demo-upload">
+            <Button className="w-full" variant="default" data-testid="button-demo-upload">
               📤 Upload Spelling List
             </Button>
           </div>
@@ -107,7 +107,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 ))}
               </div>
             </div>
-            <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold" data-testid="button-demo-practice">
+            <Button className="w-full" variant="default" data-testid="button-demo-practice">
               🎯 Start Practice
             </Button>
           </div>
@@ -136,7 +136,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 </div>
               </div>
             </div>
-            <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold" data-testid="button-demo-spell">
+            <Button className="w-full" variant="default" data-testid="button-demo-spell">
               ✏️ Now Spell It!
             </Button>
           </div>
@@ -167,7 +167,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 </div>
               </div>
             </div>
-            <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-bold" data-testid="button-demo-submit">
+            <Button className="w-full" variant="default" data-testid="button-demo-submit">
               🏆 Submit Test
             </Button>
           </div>
@@ -350,7 +350,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                     window.location.href = "/dashboard";
                   }, 600);
                 }}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-bold"
+                variant="default" className="px-8 font-bold"
                 data-testid="button-demo-signup"
               >
                 🏴‍☠️ Start Free Adventure
@@ -359,7 +359,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
 
             <Button
               onClick={nextStep}
-              className="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white"
+              variant="default" className="flex items-center px-6"
               data-testid="button-demo-next"
             >
               {currentStep === demoSteps.length - 1 ? "Back to Home" : "Next"}

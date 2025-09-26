@@ -111,7 +111,7 @@ export default function Dashboard() {
               Welcome, {(user as any)?.firstName || 'Captain'}!
             </span>
             <Link href="/subscribe">
-              <Button className="bg-accent text-accent-foreground hover:bg-accent/90" data-testid="button-upgrade">
+              <Button variant="default" data-testid="button-upgrade">
                 <Crown className="w-4 h-4 mr-2" />Upgrade
               </Button>
             </Link>
@@ -220,7 +220,7 @@ export default function Dashboard() {
                       <div className="flex gap-3">
                         <Link href={`/game/${child.id}`} className="flex-1">
                           <Button 
-                            className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+                            variant="default" className="w-full"
                             data-testid={`button-start-adventure-${child.id}`}
                           >
                             Start Adventure
@@ -321,7 +321,7 @@ export default function Dashboard() {
                 </div>
                 <Link href="/subscribe">
                   <Button 
-                    className="bg-white text-treasure-600 hover:bg-treasure-50"
+                    variant="outline"
                     data-testid="button-upgrade-now"
                   >
                     Upgrade Now

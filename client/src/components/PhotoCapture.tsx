@@ -487,7 +487,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
               <Button onClick={cancelVerification} variant="outline" data-testid="button-cancel-words">
                 Cancel
               </Button>
-              <Button onClick={saveWords} className="bg-green-600 hover:bg-green-700" data-testid="button-save-words">
+              <Button onClick={saveWords} variant="default" data-testid="button-save-words">
                 <Check className="w-4 h-4 mr-2" />
                 Save Words ({editableWords.filter(w => w.trim()).length})
               </Button>
@@ -573,7 +573,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
               <div className="flex flex-col gap-3">
                 <Button 
                   onClick={triggerFileUpload}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 text-lg"
+                  variant="default" className="w-full py-4 text-lg"
                   data-testid="button-upload-file"
                 >
                   <i className="lni lni-scroll" style={{ fontSize: '1.25rem', marginRight: '0.5rem' }}></i>
