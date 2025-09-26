@@ -340,7 +340,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     return (
       <>
         <Card className="max-w-2xl mx-auto">
-          <CardContent className="p-8 text-center">
+          <CardContent className="p-6 text-center">
             <div className="w-24 h-24 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
               <Coins className="w-12 h-12 text-yellow-800" />
             </div>
@@ -380,7 +380,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   if (practiceWords.length === 0) {
     return (
       <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
+        <CardContent className="p-6 text-center">
           <p className="text-lg text-muted-foreground">Loading your practice words...</p>
         </CardContent>
       </Card>
@@ -395,7 +395,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       <div className="max-w-4xl mx-auto space-y-4">
         {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-4">
+      <CardContent className="p-6">
         {/* Header with progress and treasure */}
         <div className="flex justify-center items-center mb-3">
           <div className="flex items-center gap-2 mr-4">

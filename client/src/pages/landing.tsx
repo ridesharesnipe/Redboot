@@ -188,7 +188,7 @@ export default function Landing({ onStart }: LandingProps) {
             Amazing Pirate Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-green-300 bg-gradient-to-br from-green-100 via-emerald-50 to-white relative overflow-hidden">
+            <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg ring-4 ring-green-200">
                   <i className="lni lni-cloud-upload text-yellow-400 text-5xl drop-shadow-lg" style={{ 
@@ -206,7 +206,7 @@ export default function Landing({ onStart }: LandingProps) {
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-50 to-white relative overflow-hidden">
+            <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg ring-4 ring-purple-200">
                   <i className="lni lni-game text-orange-400 text-5xl drop-shadow-lg" style={{ 
@@ -224,7 +224,7 @@ export default function Landing({ onStart }: LandingProps) {
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 border-4 border-cyan-300 bg-gradient-to-br from-cyan-100 via-blue-50 to-white relative overflow-hidden">
+            <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg ring-4 ring-cyan-200">
                   <i className="lni lni-world text-red-400 text-5xl drop-shadow-lg" style={{ 
@@ -252,7 +252,7 @@ export default function Landing({ onStart }: LandingProps) {
             Choose Your Adventure
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-4 border-blue-200 bg-gradient-to-b from-blue-50 to-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <h3 className="text-2xl font-bold mb-4 text-blue-700" data-testid="text-plan-free-title">Free Adventure</h3>
                 <div className="text-4xl font-bold text-blue-600 mb-4" data-testid="text-plan-free-price">$0</div>
@@ -281,7 +281,7 @@ export default function Landing({ onStart }: LandingProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white border-4 border-yellow-300 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
+            <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow relative">
               <div className="absolute top-2 right-2 bg-white text-orange-500 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                 <Star className="w-4 h-4 inline mr-1" />POPULAR
               </div>

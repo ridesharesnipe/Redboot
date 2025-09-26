@@ -226,7 +226,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Side - Information */}
             <div className="space-y-6">
-              <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {step.icon}
@@ -255,7 +255,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               </Card>
 
               {/* Character Guide */}
-              <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+              <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
                     <div className="w-16 h-16 mr-4">
@@ -285,8 +285,8 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               </div>
 
               {/* Benefits */}
-              <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-                <CardContent className="p-4">
+              <Card>
+                <CardContent className="p-6">
                   <h4 className="font-semibold text-purple-800 mb-3">Why This Works:</h4>
                   <div className="space-y-2 text-sm">
                     {currentStep === 0 && (

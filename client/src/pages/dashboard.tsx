@@ -140,7 +140,7 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Link href="/photo-capture">
-            <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-accent text-accent-foreground">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow bg-accent text-accent-foreground">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
                   <Upload className="w-6 h-6" />
@@ -155,7 +155,7 @@ export default function Dashboard() {
             </Card>
           </Link>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-secondary text-secondary-foreground">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow bg-secondary text-secondary-foreground">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
                 <Mic className="w-6 h-6" />
@@ -169,7 +169,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all transform hover:scale-105 bg-primary text-primary-foreground">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow bg-primary text-primary-foreground">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
                 <Map className="w-6 h-6" />
@@ -310,7 +310,7 @@ export default function Dashboard() {
 
         {/* Subscription Status */}
         {!(user as any)?.isPremium && (
-          <Card className="bg-gradient-to-r from-treasure-400 to-treasure-600 text-treasure-50">
+          <Card className="bg-treasure-500 text-treasure-50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>

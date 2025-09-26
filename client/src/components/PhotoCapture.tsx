@@ -503,7 +503,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="border-2 border-border max-w-md mx-auto">
-          <CardContent className="p-8 text-center">
+          <CardContent className="p-6 text-center">
             <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
             <h3 className="text-lg font-bold mb-2">Extracting Words...</h3>
             <p className="text-sm text-muted-foreground mb-4">
@@ -525,7 +525,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   return (
     <div className="min-h-screen bg-background p-4">
       <Card className="border-2 border-dashed border-border max-w-md mx-auto">
-        <CardContent className="p-8">
+        <CardContent className="p-6">
           {capturedImage ? (
             <div className="text-center">
               <div className="mb-6">
