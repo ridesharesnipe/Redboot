@@ -126,13 +126,13 @@ export default function Landing({ onStart }: LandingProps) {
             </Button>
             <Button 
               onClick={handleDemo}
-              variant="outline" 
-              className="font-bold w-full sm:w-auto"
+              variant="secondary" 
+              className="font-bold w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-50 border-2 border-blue-600"
               size="lg"
               data-testid="button-watch-demo"
             >
-              <Play className="w-5 h-5 mr-2" />
-              Watch Demo
+              <Play className="w-5 h-5 mr-2 text-blue-600" />
+              Start Demo
             </Button>
           </div>
         </div>
