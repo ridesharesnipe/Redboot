@@ -136,7 +136,7 @@ export default function PhotoCapturePage() {
                     Creating Your Treasure Maps...
                   </h2>
                   <div className="flex justify-center mb-6">
-                    <i className="lni lni-reload animate-spin text-yellow-600" style={{ fontSize: '4rem' }}></i>
+                    <div className="animate-spin w-8 h-8 border-4 border-yellow-600 border-t-transparent rounded-full"></div>
                   </div>
                   <p className="text-blue-700 text-xl leading-relaxed" data-testid="text-processing-message">
                     "Arrr! I'm using me magic compass to find all the treasure words in your photo!"
