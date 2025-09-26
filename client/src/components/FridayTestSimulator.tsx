@@ -166,7 +166,9 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
 
                 <Button
                   onClick={startTest}
-                  className="bg-treasure-500 text-white hover:bg-treasure-600 px-12 py-6 text-2xl font-bold"
+                  variant="default"
+                  size="lg"
+                  className="text-2xl font-bold px-12 py-6"
                 >
                   🏴‍☠️ Start the Great Hunt!
                 </Button>
@@ -208,7 +210,8 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                 <div className="bg-white/20 rounded-2xl p-6 mb-6">
                   <Button
                     onClick={() => speakWord(currentWord)}
-                    className="bg-yellow-500 text-black hover:bg-yellow-400 text-2xl px-8 py-6 mb-6"
+                    variant="secondary"
+                    className="text-2xl px-8 py-6 mb-6 bg-yellow-500 text-black hover:bg-yellow-400"
                   >
                     <Volume2 className="w-8 h-8 mr-3" />
                     Hear Word
@@ -237,7 +240,9 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                 <Button
                   onClick={submitAnswer}
                   disabled={!userInput.trim()}
-                  className="bg-treasure-500 text-white hover:bg-treasure-600 px-12 py-4 text-xl"
+                  variant="default"
+                  size="lg"
+                  className="text-xl px-12 py-4"
                 >
                   Submit Answer →
                 </Button>
@@ -286,7 +291,8 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
                 <div className="flex gap-4 justify-center flex-wrap">
                   <Button
                     onClick={restartTest}
-                    className="bg-treasure-500 text-white hover:bg-treasure-600 px-8 py-3"
+                    variant="default"
+                    className="px-8 py-3"
                   >
                     <RotateCcw className="w-5 h-5 mr-2" />
                     Take Test Again
