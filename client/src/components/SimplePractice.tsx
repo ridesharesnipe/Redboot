@@ -498,17 +498,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        {/* Header with exit button, progress and treasure */}
+        {/* Header with back button, progress and treasure */}
         <div className="flex justify-between items-center mb-3">
-          {/* Exit button */}
-          <button
+          {/* Back button */}
+          <Button
+            variant="ghost"
             onClick={onCancel}
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors"
-            data-testid="button-exit-practice"
+            className="text-blue-700 hover:text-blue-900 hover:bg-blue-50"
+            data-testid="button-back-practice"
           >
-            <X className="w-5 h-5" />
-            <span className="text-sm font-medium">Exit</span>
-          </button>
+            ← Back
+          </Button>
           
           {/* Treasure counter */}
           <div className="flex items-center gap-2">
@@ -705,9 +705,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           <Button 
             onClick={onCancel} 
             variant="outline"
-            data-testid="button-cancel-practice"
+            className="text-blue-700 hover:text-blue-900"
+            data-testid="button-back-practice-bottom"
           >
-            Cancel
+            ← Back to Dashboard
           </Button>
           <div className="w-20">{/* Spacer for alignment */}</div>
         </div>
