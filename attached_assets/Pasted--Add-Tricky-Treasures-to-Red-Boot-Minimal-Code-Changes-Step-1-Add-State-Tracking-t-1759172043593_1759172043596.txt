@@ -1,0 +1,175 @@
+## **Add "Tricky Treasures" to Red Boot - Minimal Code Changes**
+
+### **Step 1: Add State Tracking to SimplePractice.tsx**
+
+```javascript
+// ADD these new state variables at the top of SimplePractice component
+// Don't remove any existing state
+const [trickyWords, setTrickyWords] = useState<string[]>([]);
+const [wordAttempts, setWordAttempts] = useState<{[word: string]: number}>({});
+const [showBonusRound, setShowBonusRound] = useState(false);
+const [bonusRoundWords, setBonusRoundWords] = useState<string[]>([]);
+```
+
+### **Step 2: Modify checkAnswer Function (Don't Replace, Just Add)**
+
+```javascript
+// FIND your existing checkAnswer or handleSubmit function
+// ADD this tracking logic INSIDE it, after checking if answer is wrong:
+
+if (userInput.toLowerCase() !== currentWord.toLowerCase()) {
+  // Your existing wrong answer code stays here
+  
+  // ADD this new tracking:
+  setWordAttempts(prev => ({
+    ...prev,
+    [currentWord]: (prev[currentWord] || 0) + 1
+  }));
+  
+  // If wrong twice, mark as tricky
+  if ((wordAttempts[currentWord] || 0) >= 1) {
+    if (!trickyWords.includes(currentWord)) {
+      setTrickyWords(prev => [...prev, currentWord]);
+    }
+  }
+  
+  // ADD pirate voice for wrong answer (uses your existing playCharacterVoice)
+  playCharacterVoice('red_boot_retry');
+}
+```
+
+### **Step 3: Add Voice Phrases to AudioContext.tsx**
+
+```javascript
+// In AudioContext.tsx, ADD these phrases to your existing phrases object:
+// Don't remove any existing phrases
+
+red_boot_retry: [
+  "Arrr, that treasure be buried deep! Try again, matey!",
+  "Not quite, sailor! Give it another go!",
+  "That word be a tricky one! Listen carefully!"
+],
+
+red_boot_bonus: [
+  "Ahoy! Some treasures were buried extra deep! Want to dig 'em up again?",
+  "Captain! Those tricky treasures need more practice! Ready for bonus gold?",
+  "Ye found all treasures, but some were rusty! Polish them for extra coins?"
+]
+```
+
+### **Step 4: Add End-of-Session Bonus Screen**
+
+```javascript
+// At the END of SimplePractice component, AFTER all words complete
+// This goes where you currently show "Practice Complete" or similar
+
+{practiceComplete && trickyWords.length > 0 && !showBonusRound && (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white/95 rounded-3xl p-8 max-w-lg w-full shadow-2xl">
+      <div className="text-center">
+        <div className="text-6xl mb-4">⚡</div>
+        <h3 className="text-2xl font-bold text-treasure-600 mb-4">
+          Captain! {trickyWords.length} treasures were buried extra deep!
+        </h3>
+        <p className="text-lg mb-6">
+          Practice them again for bonus gold coins?
+        </p>
+        
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={() => {
+              setBonusRoundWords(trickyWords);
+              setShowBonusRound(true);
+              setCurrentWordIndex(0);
+              setPracticeComplete(false);
+              // Play pirate voice
+              playCharacterVoice('red_boot_bonus');
+            }}
+            className="bg-gold-500 hover:bg-gold-600 text-white font-bold px-6 py-3 rounded-xl"
+          >
+            ⚡ Quick Practice ({trickyWords.length} words)
+          </button>
+          
+          <button
+            onClick={() => {
+              // Just close and finish
+              navigate('/dashboard');
+            }}
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-3 rounded-xl"
+          >
+            Maybe Later
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+### **Step 5: Visual Indicator (Non-Intrusive)**
+
+```javascript
+// ADD this small indicator in corner of practice screen
+// It doesn't show mistakes, just that bonus practice is available
+
+{trickyWords.length > 0 && (
+  <div className="fixed bottom-4 right-4 animate-pulse">
+    <div className="bg-gold-500/20 rounded-full p-3">
+      <span className="text-2xl">⚡</span>
+      {/* Don't show count to avoid stress */}
+    </div>
+  </div>
+)}
+```
+
+### **Step 6: Bonus Round Logic**
+
+```javascript
+// Modify your word selection when in bonus round
+// FIND where you get the next word, ADD this check:
+
+const getCurrentWord = () => {
+  if (showBonusRound && bonusRoundWords.length > 0) {
+    return bonusRoundWords[currentWordIndex];
+  }
+  return practiceWords[currentWordIndex];
+};
+
+const getTotalWords = () => {
+  if (showBonusRound) return bonusRoundWords.length;
+  return practiceWords.length;
+};
+```
+
+### **CSS Addition (Add to existing styles, don't replace)**
+
+```css
+/* Add to your existing CSS file */
+.bg-gold-500 {
+  background-color: #FFD700;
+}
+
+.bg-gold-600 {
+  background-color: #FFC700;
+}
+
+/* Gentle pulse for bonus indicator */
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s ease-in-out infinite;
+}
+```
+
+### **Testing Points:**
+- Practice complete flow still works
+- Bonus prompt only shows if there are tricky words
+- Pirate voice says appropriate phrases
+- No visual overlap with existing UI
+- "Maybe Later" closes cleanly
+- Bonus round uses only the tricky words
+
+This implementation adds the feature without disrupting your existing layout or flow. The bonus screen is a modal overlay, so it won't interfere with spacing, and the small indicator is positioned absolutely in the corner where it won't overlap content.
