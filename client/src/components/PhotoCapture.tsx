@@ -529,11 +529,21 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           {capturedImage ? (
             <div className="text-center">
               <div className="mb-6">
-                <img 
-                  src={capturedImage} 
-                  alt="Captured spelling list" 
-                  className="w-full rounded-lg shadow-lg"
-                />
+                <div className="relative bg-white rounded-xl p-4 max-w-4xl mx-auto">
+                  <img 
+                    src={capturedImage} 
+                    alt="Captured spelling list"
+                    className="w-full h-auto rounded-lg shadow-2xl"
+                    style={{
+                      maxHeight: '600px',
+                      minHeight: '400px',
+                      objectFit: 'contain'
+                    }}
+                  />
+                  <p className="text-center text-gray-500 mt-2 text-sm">
+                    Check that all words are visible
+                  </p>
+                </div>
               </div>
               <div className="flex gap-3">
                 <Button 
