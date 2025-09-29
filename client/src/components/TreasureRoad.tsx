@@ -343,19 +343,19 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
   return (
     <div className="relative w-full h-[500px] mx-auto max-w-5xl" data-testid="treasure-road">
       {/* Main treasure map container */}
-      <div className="relative w-full h-full glass-card rounded-2xl overflow-hidden bg-gradient-to-br from-blue-400/30 via-green-400/20 to-emerald-600/30 shadow-2xl">
+      <div className="relative w-full h-full glass-card rounded-2xl overflow-hidden bg-gradient-to-br from-amber-200/40 via-yellow-100/30 to-orange-200/40 shadow-2xl">
         
-        {/* Island background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-300 to-green-600 opacity-40 rounded-2xl" />
+        {/* Beach sand background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-300 via-yellow-200 to-orange-300 opacity-50 rounded-2xl" />
         
-        {/* Ocean border effect */}
-        <div className="absolute inset-0 border-8 border-blue-400/30 rounded-2xl" />
+        {/* Sandy beach border effect */}
+        <div className="absolute inset-0 border-8 border-amber-400/40 rounded-2xl" />
         
-        {/* Decorative palm trees */}
-        <div className="absolute top-6 left-12 text-3xl drop-shadow-lg">🌴</div>
-        <div className="absolute top-16 right-16 text-2xl drop-shadow-lg">🌴</div>
-        <div className="absolute bottom-12 left-16 text-xl drop-shadow-lg">🌴</div>
-        <div className="absolute bottom-8 right-8 text-xl drop-shadow-lg">🌴</div>
+        {/* Decorative palm trees - bigger */}
+        <div className="absolute top-6 left-12 text-5xl drop-shadow-lg">🌴</div>
+        <div className="absolute top-16 right-16 text-4xl drop-shadow-lg">🌴</div>
+        <div className="absolute bottom-12 left-16 text-4xl drop-shadow-lg">🌴</div>
+        <div className="absolute bottom-8 right-8 text-3xl drop-shadow-lg">🌴</div>
         
         {/* Compass rose */}
         <div className="absolute top-6 left-1/2 transform -translate-x-1/2 glass-card w-14 h-14 rounded-full flex items-center justify-center bg-amber-400/20 shadow-lg">
