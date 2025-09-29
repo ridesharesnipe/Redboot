@@ -146,11 +146,11 @@ const TreasureSpot = ({
           )}
         </AnimatePresence>
 
-        {/* Spinning Glowing Treasure (stays above pile permanently) */}
+        {/* Spinning Glowing Treasure (stays above pile permanently) - 2X BIGGER */}
         <AnimatePresence>
           {node.isRevealed && (
             <motion.div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2"
+              className="absolute -top-16 left-1/2 transform -translate-x-1/2"
               initial={{ scale: 0, rotateY: 0, y: 50 }}
               animate={{ 
                 scale: [0, 1.5, 1],
@@ -159,9 +159,9 @@ const TreasureSpot = ({
               }}
               transition={{ duration: 1.5, type: "spring" }}
             >
-              {/* Permanent spinning and glowing treasure */}
+              {/* Permanent spinning and glowing treasure - 2X BIGGER */}
               <motion.div
-                className="glass-card w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-xl bg-gradient-to-br from-yellow-400 to-amber-600 relative"
+                className="glass-card w-24 h-24 rounded-full flex items-center justify-center text-5xl shadow-xl bg-gradient-to-br from-yellow-400 to-amber-600 relative"
                 animate={{ 
                   rotateY: [0, 360],
                   scale: [1, 1.1, 1],
@@ -183,17 +183,17 @@ const TreasureSpot = ({
                   transition={{ duration: 2, repeat: Infinity }}
                 />
                 
-                {/* Sparkle effects */}
-                <div className="absolute -inset-2">
+                {/* Sparkle effects - bigger too */}
+                <div className="absolute -inset-4">
                   <motion.div
-                    className="absolute top-0 left-0 text-yellow-400 text-xs"
+                    className="absolute top-0 left-0 text-yellow-400 text-lg"
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 3, repeat: Infinity }}
                   >
                     ✨
                   </motion.div>
                   <motion.div
-                    className="absolute bottom-0 right-0 text-yellow-300 text-xs"
+                    className="absolute bottom-0 right-0 text-yellow-300 text-lg"
                     animate={{ rotate: [360, 0] }}
                     transition={{ duration: 2.5, repeat: Infinity }}
                   >

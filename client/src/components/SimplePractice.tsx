@@ -568,14 +568,35 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               {isWordSpoken ? 'Type what you heard:' : 'Red Boot is saying the word...'}
             </p>
             
-            {/* Spelling input */}
-            <div className="mb-3">
+            {/* Spelling input with colorful letters */}
+            <div className="mb-3 relative">
+              {/* Hidden input for actual typing */}
               <Input
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                placeholder={isWordSpoken ? "Type the spelling here..." : "Wait for the word..."}
-                className="text-center text-lg py-3 max-w-md mx-auto"
+                className="opacity-0 absolute inset-0 z-10"
+                style={{
+                  fontSize: '48px',
+                  letterSpacing: '8px',
+                  padding: '20px 30px',
+                  width: '85%',
+                  maxWidth: '700px',
+                  height: '90px',
+                  margin: '0 auto',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                  fontFamily: '"Fredoka One", cursive',
+                  textTransform: 'uppercase',
+                }}
+                disabled={!isWordSpoken}
+                autoFocus={isWordSpoken}
+                data-testid="input-spelling"
+              />
+              
+              {/* Visual display with colored letters */}
+              <div 
+                className="relative mx-auto flex items-center justify-center"
                 style={{
                   fontSize: '48px',
                   letterSpacing: '8px',
@@ -590,12 +611,45 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   border: '5px solid #FFD700',
                   borderRadius: '20px',
                   backgroundColor: '#FFFFFF',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.15)'
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+                  pointerEvents: 'none'
                 }}
-                disabled={!isWordSpoken}
-                autoFocus={isWordSpoken}
-                data-testid="input-spelling"
-              />
+              >
+                {userInput ? (
+                  <div className="flex" style={{ letterSpacing: '8px' }}>
+                    {userInput.toUpperCase().split('').map((letter, index) => {
+                      const blueShades = [
+                        '#87CEEB', // Sky blue
+                        '#4A90E2', // Medium blue
+                        '#1E3A8A', // Dark blue
+                        '#60A5FA', // Light blue
+                        '#2563EB', // Royal blue
+                        '#1D4ED8', // Strong blue
+                      ];
+                      return (
+                        <span 
+                          key={index} 
+                          style={{ color: blueShades[index % blueShades.length] }}
+                        >
+                          {letter}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1" style={{ letterSpacing: '2px' }}>
+                    <span style={{ 
+                      background: 'linear-gradient(to right, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #9400D3)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      fontWeight: '700'
+                    }}>
+                      type
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Action buttons */}
