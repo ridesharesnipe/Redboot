@@ -159,3 +159,41 @@ export type InsertProgress = z.infer<typeof insertProgressSchema>;
 export type Progress = typeof progress.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type Photo = typeof photos.$inferSelect;
+
+// Treasure Map Types (frontend game state)
+export enum TreasureType {
+  GOLD_RING = 'gold_ring',
+  DIAMOND = 'diamond',
+  RUBY = 'ruby',
+  GOLD_BAR = 'gold_bar'
+}
+
+export interface TreasureNode {
+  id: string;
+  x: number; // Position on map (percentage 0-100)
+  y: number; // Position on map (percentage 0-100)
+  treasureType: TreasureType;
+  wordIndex: number; // Which word in the list unlocks this treasure
+  isUnlocked: boolean;
+  isDigging: boolean;
+  isRevealed: boolean;
+}
+
+export interface TreasureMapState {
+  currentNodeIndex: number;
+  redBootPosition: { x: number; y: number };
+  unlockedTreasures: TreasureType[];
+  totalCorrectAnswers: number;
+}
+
+// Default treasure map layout (8 piles scattered across the map)
+export const DEFAULT_TREASURE_NODES: Omit<TreasureNode, 'isUnlocked' | 'isDigging' | 'isRevealed'>[] = [
+  { id: 'node-1', x: 15, y: 75, treasureType: TreasureType.GOLD_RING, wordIndex: 0 },
+  { id: 'node-2', x: 35, y: 45, treasureType: TreasureType.DIAMOND, wordIndex: 1 },
+  { id: 'node-3', x: 60, y: 80, treasureType: TreasureType.RUBY, wordIndex: 2 },
+  { id: 'node-4', x: 25, y: 20, treasureType: TreasureType.GOLD_BAR, wordIndex: 3 },
+  { id: 'node-5', x: 75, y: 35, treasureType: TreasureType.GOLD_RING, wordIndex: 4 },
+  { id: 'node-6', x: 45, y: 65, treasureType: TreasureType.DIAMOND, wordIndex: 5 },
+  { id: 'node-7', x: 85, y: 60, treasureType: TreasureType.RUBY, wordIndex: 6 },
+  { id: 'node-8', x: 70, y: 15, treasureType: TreasureType.GOLD_BAR, wordIndex: 7 },
+];
