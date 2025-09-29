@@ -8,7 +8,7 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
-  const [timeLeft, setTimeLeft] = useState(23);
+  const [timeLeft, setTimeLeft] = useState(10);
   const [isVisible, setIsVisible] = useState(true);
   const { startBackgroundMusic, playCharacterVoice } = useAudio();
 
