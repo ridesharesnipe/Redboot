@@ -1,0 +1,171 @@
+## **Targeted Red Boot Updates - Preserve Existing Code**
+
+### **IMPORTANT INSTRUCTIONS FOR REPLIT AGENT:**
+
+```
+DO NOT rewrite the entire app. The app is working. Only make these SPECIFIC changes to existing files:
+
+PRESERVE ALL:
+- Routing structure
+- Pirate theme and colors
+- Current game flow
+- Database/storage logic
+- All working features
+
+ONLY CHANGE these specific items:
+```
+
+### **CHANGE 1: AudioContext.tsx - Voice Selection Only**
+
+```javascript
+// FIND this function in AudioContext.tsx:
+const playCharacterVoice = (voiceType: CharacterVoiceType) => {
+
+// ONLY REPLACE the voice selection part:
+// KEEP all the existing phrases and logic
+// JUST CHANGE how selectedVoice is chosen:
+
+const getNaturalMaleVoice = () => {
+  const preferredMaleVoices = [
+    'Google UK English Male',
+    'Microsoft David Online', 
+    'Daniel',
+    'Google US English Male',
+    'Alex'
+  ];
+  
+  for (const preferred of preferredMaleVoices) {
+    const voice = voices.find(v => 
+      v.name.includes(preferred) && 
+      !v.name.includes('Compact') &&
+      !v.name.includes('eSpeak')
+    );
+    if (voice) return voice;
+  }
+  
+  return voices.find(v => 
+    v.lang.includes('en') && 
+    !v.name.includes('Female') &&
+    !v.name.includes('Compact')
+  ) || voices[0];
+};
+
+selectedVoice = getNaturalMaleVoice();
+// Keep rest of function unchanged
+```
+
+### **CHANGE 2: PhotoCapture.tsx - Image Display Only**
+
+```javascript
+// FIND where the captured image is displayed
+// It probably looks like:
+{capturedImage && (
+  <img src={capturedImage} className="some-classes" />
+)}
+
+// REPLACE JUST the img element with:
+<div className="relative bg-white rounded-xl p-4 max-w-4xl mx-auto">
+  <img 
+    src={capturedImage} 
+    alt="Captured spelling list"
+    className="w-full h-auto rounded-lg shadow-2xl"
+    style={{
+      maxHeight: '600px',
+      minHeight: '400px',
+      objectFit: 'contain'
+    }}
+  />
+  <p className="text-center text-gray-500 mt-2 text-sm">
+    Check that all words are visible
+  </p>
+</div>
+
+// DON'T change any OCR logic or processing
+```
+
+### **CHANGE 3: SimplePractice.tsx - Input Field Only**
+
+```javascript
+// FIND the spelling input field
+// It probably has className="spelling-input" or similar
+
+// ONLY change the style attribute to:
+style={{
+  fontSize: '48px',        // Was probably smaller
+  letterSpacing: '8px',    // Add spacing
+  padding: '20px 30px',    // More padding
+  width: '85%',           
+  maxWidth: '700px',      
+  height: '90px',         // Taller
+  textAlign: 'center',
+  fontWeight: '600',
+  fontFamily: '"Fredoka One", cursive',
+  textTransform: 'uppercase',
+  border: '5px solid #FFD700',
+  borderRadius: '20px',
+  backgroundColor: '#FFFFFF',
+  boxShadow: '0 6px 20px rgba(0,0,0,0.15)'
+}}
+
+// Keep all onChange, onKeyPress handlers exactly the same
+```
+
+### **CHANGE 4: TreasureRoad Component - Enhanced View**
+
+```javascript
+// In TreasureRoad component, ADD these features WITHOUT removing existing:
+
+1. Change view to top-down:
+   - Keep existing milestone logic
+   - Just change CSS positioning to be from above
+
+2. Add digging animation:
+   // When milestone reached, add:
+   setShowDigging(true);
+   setTimeout(() => {
+     setShowDigging(false);
+     setShowTreasure(true);
+   }, 1500);
+
+3. Make milestones equal to word count:
+   // Replace any hardcoded milestone numbers with:
+   const milestones = practiceWords.map((word, index) => ({
+     position: index,
+     word: word,
+     found: correctAnswers > index
+   }));
+
+4. Add treasure display in corner:
+   <div className="absolute top-4 right-4 bg-white/90 rounded-lg p-4">
+     <h3 className="text-sm font-bold">Treasures:</h3>
+     {foundTreasures.map(treasure => (
+       <span className="text-2xl animate-spin-slow">{treasure}</span>
+     ))}
+   </div>
+```
+
+### **TESTING CHECKLIST:**
+
+After making changes, verify:
+- [ ] OCR still extracts words correctly
+- [ ] Words still save to storage
+- [ ] Practice mode still loads words
+- [ ] Voice is male and natural (not robotic)
+- [ ] Input field shows large letters
+- [ ] Upload photo is large and readable
+- [ ] Treasure road shows one spot per word
+- [ ] All existing features still work
+
+### **DO NOT CHANGE:**
+- Navigation flow
+- Storage keys or structure  
+- Pirate theme/colors
+- Button layouts (unless specified)
+- OCR processing logic
+- Score calculations
+- Any working features
+
+This is a SURGICAL update - only fix what's broken, enhance what needs enhancing, leave everything else alone.
+```
+
+This approach ensures Replit Agent makes only the necessary changes without breaking your working app. The key is being very specific about what to find and what to replace, while explicitly stating what to preserve.

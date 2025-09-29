@@ -610,24 +610,32 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         const voices = synth.getVoices();
         let selectedVoice = null;
         
-        if (voiceType.includes('ocean_blue')) {
-          // Higher pitched voice for Ocean Blue
-          selectedVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('female') || 
-            voice.name.toLowerCase().includes('samantha') ||
-            voice.name.toLowerCase().includes('victoria')
-          );
-        } else {
-          // Deepest, most gruff voice for pirates Red Boot and Salty
-          selectedVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('male') || 
-            voice.name.toLowerCase().includes('daniel') ||
-            voice.name.toLowerCase().includes('alex') ||
-            voice.name.toLowerCase().includes('aaron') ||
-            voice.name.toLowerCase().includes('tom') ||
-            voice.name.toLowerCase().includes('fred')
-          ) || voices.find(voice => voice.name.toLowerCase().includes('male'));
-        }
+        const getNaturalMaleVoice = () => {
+          const preferredMaleVoices = [
+            'Google UK English Male',
+            'Microsoft David Online', 
+            'Daniel',
+            'Google US English Male',
+            'Alex'
+          ];
+          
+          for (const preferred of preferredMaleVoices) {
+            const voice = voices.find(v => 
+              v.name.includes(preferred) && 
+              !v.name.includes('Compact') &&
+              !v.name.includes('eSpeak')
+            );
+            if (voice) return voice;
+          }
+          
+          return voices.find(v => 
+            v.lang.includes('en') && 
+            !v.name.includes('Female') &&
+            !v.name.includes('Compact')
+          ) || voices[0];
+        };
+
+        selectedVoice = getNaturalMaleVoice();
         
         if (selectedVoice) {
           utterance.voice = selectedVoice;
