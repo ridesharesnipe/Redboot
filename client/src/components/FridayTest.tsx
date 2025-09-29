@@ -252,10 +252,9 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
             <Button 
               onClick={onCancel} 
               variant="outline"
-              className="text-blue-700 hover:text-blue-900"
-              data-testid="button-back-test"
+              data-testid="button-cancel-test"
             >
-              ← Back to Dashboard
+              Cancel
             </Button>
             <Button 
               onClick={startTest}
@@ -396,10 +395,9 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
             onClick={onCancel} 
             variant="outline" 
             size="sm"
-            className="text-blue-700 hover:text-blue-900"
-            data-testid="button-back-test-progress"
+            data-testid="button-cancel-test-progress"
           >
-            ← Back
+            End Test
           </Button>
         </div>
 
