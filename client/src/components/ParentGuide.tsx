@@ -24,17 +24,6 @@ interface ParentGuideProps {
 export default function ParentGuide({ onBack }: ParentGuideProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-6 relative">
-      {/* Fixed Back Button - Always Visible */}
-      <div className="fixed top-4 left-4 z-50">
-        <Button 
-          onClick={onBack} 
-          className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 text-lg shadow-2xl border-2 border-red-400"
-          data-testid="button-fixed-back"
-        >
-          <ArrowLeft className="w-6 h-6 mr-2" />
-          ← Exit Guide
-        </Button>
-      </div>
       {/* Header */}
       <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-2 border-amber-400 shadow-2xl">
         <CardHeader className="relative overflow-hidden">
