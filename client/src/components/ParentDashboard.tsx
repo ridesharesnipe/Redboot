@@ -540,31 +540,31 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const weekProgress = getWeekProgress();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 px-4">
+    <div className="min-h-screen glass-gradient-bg p-6">
+    <div className="max-w-4xl mx-auto space-y-8">
       {/* TOP SECTION - Week Status */}
-      <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-xl">
+      <Card className="glass-card glass-floating">
         <CardContent className="p-8 text-center">
-          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
-            Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'}
+          <h1 className="text-5xl font-bold mb-6 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+            ⚓ Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'} ⚓
           </h1>
           
           {stats?.totalWords ? (
             <div className="mb-6">
-              <div className="text-2xl mb-2">✅ {stats.totalWords} words uploaded!</div>
-              <p className="text-blue-100 text-lg">Ready for spelling practice!</p>
+              <div className="text-3xl mb-3 text-white glass-text-glow">✅ {stats.totalWords} words uploaded!</div>
+              <p className="text-white/80 text-xl">Ready for spelling practice!</p>
             </div>
           ) : (
             <div className="mb-6">
-              <div className="text-2xl mb-2">📸 Time for new words!</div>
-              <p className="text-blue-100 text-lg">Upload this week's spelling list to start your adventure!</p>
+              <div className="text-3xl mb-3 text-white glass-text-glow">📸 Time for new words!</div>
+              <p className="text-white/80 text-xl">Upload this week's spelling list to start your adventure!</p>
             </div>
           )}
 
           {stats?.totalWords ? (
             <Button 
               onClick={onViewPractice}
-              size="lg"
-              className="text-2xl px-12 py-6 bg-green-500 hover:bg-green-600 text-white font-bold"
+              className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
               data-testid="button-practice-now"
             >
               🚀 Practice Now!
@@ -572,8 +572,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           ) : (
             <Button 
               onClick={onTakePhoto}
-              size="lg"
-              className="text-2xl px-12 py-6 bg-orange-500 hover:bg-orange-600 text-white font-bold"
+              className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
               data-testid="button-upload-words"
             >
               📸 Upload This Week's Words
@@ -584,7 +583,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
       {/* MIDDLE SECTION - Today's Progress (BIG and VISUAL) */}
       {stats?.totalWords ? (
-        <Card className="bg-gradient-to-r from-green-400 to-blue-400 text-white shadow-xl">
+        <Card className="glass-card glass-floating">
           <CardContent className="p-8 text-center">
             {(() => {
               const todayData = getTodaysPracticeData();
@@ -593,10 +592,10 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   <div className="mb-6">
                     {todayData.wordsToday > 0 ? (
                       <>
-                        <h2 className="text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+                        <h2 className="text-5xl font-bold mb-4 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
                           You spelled {todayData.correctToday} out of {todayData.wordsToday} words today!
                         </h2>
-                        <p className="text-2xl text-green-100">
+                        <p className="text-2xl text-white/80">
                           {todayData.correctToday === todayData.wordsToday 
                             ? "Perfect spelling today! 🌟" 
                             : todayData.correctToday > todayData.wordsToday / 2
@@ -607,10 +606,10 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                       </>
                     ) : (
                       <>
-                        <h2 className="text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+                        <h2 className="text-5xl font-bold mb-4 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
                           Ready to practice today?
                         </h2>
-                        <p className="text-2xl text-green-100">
+                        <p className="text-2xl text-white/80">
                           {stats.totalWords} spelling words are waiting for you! 📚✨
                         </p>
                       </>
@@ -698,10 +697,10 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
       {/* BOTTOM SECTION - Week Overview (SIMPLE) */}
       {stats?.totalWords ? (
-        <Card className="bg-white shadow-xl border-2 border-blue-300">
-          <CardHeader className="bg-gradient-to-r from-blue-100 to-purple-100 border-b">
-            <CardTitle className="text-3xl font-bold text-center text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
-              This Week's Practice
+        <Card className="glass-card glass-floating">
+          <CardHeader>
+            <CardTitle className="text-4xl font-bold text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+              🏴‍☠️ This Week's Practice 🏴‍☠️
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
@@ -797,15 +796,14 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
       <div className="text-center">
         <Button 
           onClick={onViewGuide}
-          variant="outline"
-          size="lg"
-          className="text-xl px-8 py-4 border-2 border-blue-400 text-blue-600 hover:bg-blue-50"
+          className="glass-button glass-button-large text-white font-bold glass-text-glow"
           data-testid="button-view-guide-simple"
         >
           <HelpCircle className="w-6 h-6 mr-3" />
-          Need Help? Click Here!
+          ❓ Need Help? Click Here! ❓
         </Button>
       </div>
+    </div>
     </div>
   );
 }

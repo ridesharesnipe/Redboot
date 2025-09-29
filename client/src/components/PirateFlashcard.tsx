@@ -1,4 +1,4 @@
-import { useState } from "react";
+import type { MouseEvent } from "react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Anchor, Coins, Map, Flag, Compass, Swords, Gem, TreePine } from "lucide-react";
@@ -24,19 +24,16 @@ export default function PirateFlashcard({
   showRemoveButton = false,
   animated = true
 }: PirateFlashcardProps) {
-  const [isFlipped, setIsFlipped] = useState(isRevealed);
-
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
+  const handleCardClick = () => {
     if (onClick) onClick();
   };
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const handleRemove = (e: MouseEvent) => {
     e.stopPropagation();
     if (onRemove) onRemove();
   };
 
-  const speakWord = (e: React.MouseEvent) => {
+  const speakWord = (e: MouseEvent) => {
     e.stopPropagation();
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(word);
@@ -49,12 +46,11 @@ export default function PirateFlashcard({
   return (
     <Card 
       className={cn(
-        "relative w-48 h-32 cursor-pointer transition-all duration-500 transform-style-preserve-3d",
+        "relative w-48 h-32 transition-all duration-500 cursor-pointer",
         animated && "hover:scale-105 hover:shadow-2xl",
-        isFlipped && "rotate-y-180",
         className
       )}
-      onClick={handleFlip}
+      onClick={handleCardClick}
       data-testid={`flashcard-${word.toLowerCase()}`}
     >
       {/* Remove Button */}
@@ -68,9 +64,9 @@ export default function PirateFlashcard({
         </button>
       )}
 
-      {/* Front Side - Word */}
+      {/* Word Display */}
       <div className={cn(
-        "absolute inset-0 w-full h-full backface-hidden",
+        "absolute inset-0 w-full h-full",
         "treasure-map-card border-4 border-amber-800",
         "bg-gradient-to-br from-yellow-100 via-amber-50 to-yellow-200",
         "shadow-lg"
@@ -96,15 +92,24 @@ export default function PirateFlashcard({
         <div className="absolute inset-0 bg-gradient-to-b from-amber-200 via-transparent to-amber-300 opacity-20"></div>
 
         {/* Content */}
-        <div className="relative h-full flex flex-col items-center justify-center p-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-amber-900 mb-2 font-pirate drop-shadow-md">
+        <div className="relative h-full flex flex-col items-center justify-center p-3">
+          <div className="text-center mb-2">
+            <div className="text-xl font-bold text-amber-900 mb-1 font-pirate drop-shadow-md">
               {word.toUpperCase()}
             </div>
-            <div className="text-xs text-amber-700 opacity-75">
-              Click to flip
+            <div className="text-xs text-emerald-800 leading-tight px-1 mb-2">
+              {definition}
             </div>
           </div>
+
+          {/* Audio Button */}
+          <button
+            onClick={speakWord}
+            className="w-8 h-8 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors flex items-center justify-center text-xs shadow-lg mb-1"
+            data-testid={`speak-word-${word.toLowerCase()}`}
+          >
+            🔊
+          </button>
 
           {/* Compass Rose in Corner */}
           <div className="absolute top-1 left-1 w-6 h-6 text-amber-800 opacity-30">
@@ -115,55 +120,6 @@ export default function PirateFlashcard({
         </div>
       </div>
 
-      {/* Back Side - Definition */}
-      <div className={cn(
-        "absolute inset-0 w-full h-full backface-hidden rotate-y-180",
-        "treasure-map-card border-4 border-emerald-800", 
-        "bg-gradient-to-br from-green-100 via-emerald-50 to-green-200",
-        "shadow-lg"
-      )}>
-        {/* Treasure Map Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-2 left-2 text-emerald-800 text-xs">
-            <Map className="w-3 h-3" />
-          </div>
-          <div className="absolute top-2 right-2 text-emerald-800 text-xs">
-            <Flag className="w-3 h-3" />
-          </div>
-          <div className="absolute bottom-2 left-2 text-emerald-800 text-xs">
-            <Gem className="w-3 h-3" />
-          </div>
-          <div className="absolute bottom-2 right-2 text-emerald-800 text-xs">
-            <TreePine className="w-3 h-3" />
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="relative h-full flex flex-col items-center justify-center p-3">
-          <div className="text-center mb-3">
-            <div className="text-lg font-bold text-emerald-900 mb-2 font-pirate">
-              {word}
-            </div>
-            <div className="text-xs text-emerald-700 leading-relaxed">
-              {definition}
-            </div>
-          </div>
-
-          {/* Audio Button */}
-          <button
-            onClick={speakWord}
-            className="w-8 h-8 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors flex items-center justify-center text-xs"
-            data-testid={`speak-word-${word.toLowerCase()}`}
-          >
-            🔊
-          </button>
-
-          {/* X Marks the Spot */}
-          <div className="absolute bottom-1 right-1 text-emerald-800 opacity-30 text-lg font-bold">
-            ✗
-          </div>
-        </div>
-      </div>
     </Card>
   );
 }
