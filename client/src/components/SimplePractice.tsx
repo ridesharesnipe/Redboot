@@ -26,6 +26,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [showTreasureRoad, setShowTreasureRoad] = useState(false);
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
   
+  // ADD these new state variables for Tricky Treasures
+  const [trickyWords, setTrickyWords] = useState<string[]>([]);
+  const [wordAttempts, setWordAttempts] = useState<{[word: string]: number}>({});
+  const [showBonusRound, setShowBonusRound] = useState(false);
+  const [bonusRoundWords, setBonusRoundWords] = useState<string[]>([]);
+  const [practiceComplete, setPracticeComplete] = useState(false);
+  
   // Calculate milestones dynamically based on actual word count
   const getTreasureMilestones = () => {
     const total = practiceWords.length;
@@ -54,6 +61,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     "Ahoy! You've captured the day's glory!",
     "A fine catch! The Jolly Roger salutes you!"
   ];
+
+  // ADD bonus round logic helper functions
+  const getCurrentWord = () => {
+    if (showBonusRound && bonusRoundWords.length > 0) {
+      return bonusRoundWords[currentWordIndex];
+    }
+    return practiceWords[currentWordIndex];
+  };
+  
+  const getTotalWords = () => {
+    if (showBonusRound) return bonusRoundWords.length;
+    return practiceWords.length;
+  };
 
   // Function to make Red Boot speak a phrase clearly
   const speakTreasurePhrase = (phrase: string) => {
@@ -207,9 +227,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   const handleSubmit = () => {
-    if (!userInput.trim() || currentWordIndex >= practiceWords.length) return;
+    if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;
     
-    const currentWord = practiceWords[currentWordIndex];
+    const currentWord = getCurrentWord();
     const userAnswer = userInput.trim().toLowerCase();
     const correct = userAnswer === currentWord.toLowerCase();
     
@@ -270,8 +290,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         // The nextWord function will handle this transition
       }
     } else {
+      // ADD this new tracking for wrong answers:
+      setWordAttempts(prev => ({
+        ...prev,
+        [currentWord]: (prev[currentWord] || 0) + 1
+      }));
+      
+      // If wrong twice, mark as tricky
+      if ((wordAttempts[currentWord] || 0) >= 1) {
+        if (!trickyWords.includes(currentWord)) {
+          setTrickyWords(prev => [...prev, currentWord]);
+        }
+      }
+      
       playSound('spell_incorrect');
-      playCharacterVoice('red_boot_try_again');
+      playCharacterVoice('red_boot_retry');
     }
   };
 
@@ -280,34 +313,48 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     setShowFeedback(false);
     setIsWordSpoken(false);
     
-    if (currentWordIndex >= practiceWords.length - 1) {
-      // Practice complete
-      setIsComplete(true);
-      const finalCorrect = correctCount + (isCorrect ? 1 : 0);
-      // Practice session completed
-      
-      const results = {
-        correct: finalCorrect,
-        total: practiceWords.length,
-        treasureEarned
-      };
-      setSessionResults(results);
-      
-      // Check for final treasure milestone
-      const treasureShown = checkForTreasure(finalCorrect);
-      
-      if (!treasureShown) {
-        // Show completion celebration immediately if no treasure milestone reached
+    const totalWordsForSession = getTotalWords();
+    if (currentWordIndex >= totalWordsForSession - 1) {
+      // Check if this is end of bonus round
+      if (showBonusRound) {
+        // Bonus round complete - finish immediately
+        setIsComplete(true);
+        const finalCorrect = correctCount + (isCorrect ? 1 : 0);
+        const results = {
+          correct: finalCorrect,
+          total: practiceWords.length, // Always use original word count for results
+          treasureEarned
+        };
+        setSessionResults(results);
+        
         playSound('cannon_achievement');
         playCharacterVoice('red_boot_adventure_complete');
         setTimeout(() => {
           onComplete(results);
         }, 2000);
       } else {
-        // Treasure milestone will handle the completion after its display
-        setTimeout(() => {
-          onComplete(results);
-        }, 6000); // Give treasure road time to show
+        // Main practice complete - check for bonus round
+        setPracticeComplete(true);
+        const finalCorrect = correctCount + (isCorrect ? 1 : 0);
+        const results = {
+          correct: finalCorrect,
+          total: practiceWords.length,
+          treasureEarned
+        };
+        setSessionResults(results);
+        
+        // If no tricky words, complete immediately
+        if (trickyWords.length === 0) {
+          setIsComplete(true);
+          playSound('cannon_achievement');
+          playCharacterVoice('red_boot_adventure_complete');
+          setTimeout(() => {
+            onComplete(results);
+          }, 2000);
+        } else {
+          // Show bonus round option - will be handled by modal
+          playCharacterVoice('red_boot_bonus');
+        }
       }
     } else {
       setCurrentWordIndex(prev => prev + 1);
@@ -377,6 +424,61 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     );
   }
 
+  // ADD Step 4: End-of-session bonus screen
+  if (practiceComplete && trickyWords.length > 0 && !showBonusRound && !isComplete) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white/95 rounded-3xl p-8 max-w-lg w-full shadow-2xl">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚡</div>
+            <h3 className="text-2xl font-bold text-yellow-600 mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+              Captain! {trickyWords.length} treasures were buried extra deep!
+            </h3>
+            <p className="text-lg mb-6">
+              Practice them again for bonus gold coins?
+            </p>
+            
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => {
+                  setBonusRoundWords(trickyWords);
+                  setShowBonusRound(true);
+                  setCurrentWordIndex(0);
+                  setPracticeComplete(false);
+                  setUserInput('');
+                  setShowFeedback(false);
+                  setIsWordSpoken(false);
+                  // Play pirate voice
+                  playCharacterVoice('red_boot_bonus');
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-colors"
+                data-testid="button-bonus-round"
+              >
+                ⚡ Quick Practice ({trickyWords.length} words)
+              </button>
+              
+              <button
+                onClick={() => {
+                  // Just close and finish
+                  setIsComplete(true);
+                  if (sessionResults) {
+                    setTimeout(() => {
+                      onComplete(sessionResults);
+                    }, 1000);
+                  }
+                }}
+                className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-colors"
+                data-testid="button-skip-bonus"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (practiceWords.length === 0) {
     return (
       <Card className="max-w-2xl mx-auto">
@@ -387,8 +489,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     );
   }
 
-  const currentWord = practiceWords[currentWordIndex];
-  const progress = ((currentWordIndex + 1) / practiceWords.length) * 100;
+  const currentWord = getCurrentWord();
+  const progress = ((currentWordIndex + 1) / getTotalWords()) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
@@ -551,6 +653,15 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         treasureJustUnlocked={currentTreasure || undefined}
       />
     </div>
+    
+    {/* ADD Step 5: Visual indicator for bonus practice availability */}
+    {trickyWords.length > 0 && !showBonusRound && (
+      <div className="fixed bottom-4 right-4 animate-pulse" data-testid="bonus-indicator">
+        <div className="bg-yellow-500/20 rounded-full p-3 shadow-lg">
+          <span className="text-2xl">⚡</span>
+        </div>
+      </div>
+    )}
     
     </div>
   </div>

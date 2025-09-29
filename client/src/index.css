@@ -730,3 +730,22 @@ button, [role="button"], a {
   /* Additional effect to clean the background */
   image-rendering: crisp-edges;
 }
+
+/* ADD CSS for Tricky Treasures Feature */
+.bg-gold-500 {
+  background-color: #FFD700;
+}
+
+.bg-gold-600 {
+  background-color: #FFC700;
+}
+
+/* Gentle pulse for bonus indicator */
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s ease-in-out infinite;
+}

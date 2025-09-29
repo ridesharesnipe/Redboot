@@ -48,6 +48,8 @@ export type CharacterVoiceType =
   | 'red_boot_try_again'
   | 'red_boot_welcome'
   | 'red_boot_adventure_complete'
+  | 'red_boot_retry'
+  | 'red_boot_bonus'
   | 'ocean_blue_encouraging'
   | 'salty_helpful_tip';
 
@@ -570,6 +572,16 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         'You\'re doing wonderfully! I can see the treasure chest!',
         'Don\'t stop now! We\'re so close to victory!'
       ],
+      red_boot_retry: [
+        "Arrr, that treasure be buried deep! Try again, matey!",
+        "Not quite, sailor! Give it another go!",
+        "That word be a tricky one! Listen carefully!"
+      ],
+      red_boot_bonus: [
+        "Ahoy! Some treasures were buried extra deep! Want to dig 'em up again?",
+        "Captain! Those tricky treasures need more practice! Ready for bonus gold?",
+        "Ye found all treasures, but some were rusty! Polish them for extra coins?"
+      ],
       salty_helpful_tip: [
         'Here\'s a tip from old Salty: sound out each letter carefully!',
         'Listen well, young sailor: break the word into pieces!',
@@ -588,6 +600,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_great_job':
       case 'red_boot_try_again':
       case 'red_boot_adventure_complete':
+      case 'red_boot_retry':
+      case 'red_boot_bonus':
         voiceConfig = { rate: 0.75, pitch: 0.6 }; // Gruff, slow pirate captain voice
         break;
       case 'ocean_blue_encouraging':
