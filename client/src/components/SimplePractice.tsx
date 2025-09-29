@@ -474,6 +474,22 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 placeholder={isWordSpoken ? "Type the spelling here..." : "Wait for the word..."}
                 className="text-center text-lg py-3 max-w-md mx-auto"
+                style={{
+                  fontSize: '48px',
+                  letterSpacing: '8px',
+                  padding: '20px 30px',
+                  width: '85%',
+                  maxWidth: '700px',
+                  height: '90px',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                  fontFamily: '"Fredoka One", cursive',
+                  textTransform: 'uppercase',
+                  border: '5px solid #FFD700',
+                  borderRadius: '20px',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.15)'
+                }}
                 disabled={!isWordSpoken}
                 autoFocus={isWordSpoken}
                 data-testid="input-spelling"
