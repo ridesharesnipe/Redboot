@@ -442,14 +442,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   if (showWordList) {
     return (
       <div className="min-h-screen bg-background p-4">
-        <Card className="border-2 border-border max-w-2xl mx-auto">
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-4 text-center" style={{ fontFamily: 'var(--font-pirate)' }}>
-              Verify Your Spelling Words
+        <Card className="glass-card max-w-2xl mx-auto glass-floating">
+          <CardContent className="p-8">
+            <h2 className="text-3xl font-bold mb-6 text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+              🏴‍☠️ Verify Your Treasure Words 🏴‍☠️
             </h2>
             
-            <p className="text-muted-foreground text-center mb-6">
-              Check that each word is spelled correctly. You can edit or remove any words.
+            <p className="text-white/80 text-center mb-8 text-lg">
+              Check that each word is spelled correctly. You can edit or remove any words from your treasure list.
             </p>
 
             <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
@@ -477,19 +477,19 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
             </div>
 
             <div className="flex gap-3 mb-6">
-              <Button onClick={addWord} variant="outline" className="flex-1" data-testid="button-add-word">
+              <Button onClick={addWord} className="glass-button flex-1 text-white" data-testid="button-add-word">
                 <Edit className="w-4 h-4 mr-2" />
-                Add Word
+                ⚓ Add Word
               </Button>
             </div>
 
-            <div className="flex gap-3 justify-between mt-6">
-              <Button onClick={cancelVerification} variant="outline" data-testid="button-cancel-words">
-                Cancel
+            <div className="flex gap-4 justify-between mt-8">
+              <Button onClick={cancelVerification} className="glass-button text-white px-6 py-3" data-testid="button-cancel-words">
+                ❌ Cancel
               </Button>
-              <Button onClick={saveWords} variant="default" data-testid="button-save-words">
-                <Check className="w-4 h-4 mr-2" />
-                Save Words ({editableWords.filter(w => w.trim()).length})
+              <Button onClick={saveWords} className="glass-button-primary text-white px-6 py-3" data-testid="button-save-words">
+                <Check className="w-5 h-5 mr-2" />
+                💎 Save Treasure ({editableWords.filter(w => w.trim()).length})
               </Button>
             </div>
           </CardContent>
@@ -501,17 +501,17 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   // Processing screen
   if (isProcessing) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="border-2 border-border max-w-md mx-auto">
-          <CardContent className="p-6 text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <h3 className="text-lg font-bold mb-2">Extracting Words...</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Reading your spelling list... {ocrProgress}%
+      <div className="min-h-screen glass-gradient-bg flex items-center justify-center p-4">
+        <Card className="glass-card max-w-md mx-auto glass-floating">
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto mb-6"></div>
+            <h3 className="text-2xl font-bold mb-4 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>🔍 Scanning Treasure Map...</h3>
+            <p className="text-white/80 mb-6 text-lg">
+              Extracting your treasure words... {ocrProgress}%
             </p>
-            <div className="w-full bg-muted rounded-full h-3">
+            <div className="w-full bg-white/20 rounded-full h-4">
               <div 
-                className="bg-primary h-3 rounded-full transition-all duration-300" 
+                className="bg-gradient-to-r from-blue-400 to-green-400 h-4 rounded-full transition-all duration-300 shadow-lg" 
                 style={{ width: `${ocrProgress}%` }}
               />
             </div>
@@ -523,8 +523,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
 
   // Default: Start screen or photo preview
   return (
-    <div className="min-h-screen bg-background p-4">
-      <Card className="border-2 border-dashed border-border max-w-md mx-auto">
+    <div className="min-h-screen glass-gradient-bg p-4 flex items-center justify-center">
+      <Card className="glass-card max-w-lg mx-auto glass-floating">
         <CardContent className="p-6">
           {capturedImage ? (
             <div className="text-center">
@@ -567,27 +567,26 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
             </div>
           ) : (
             <div className="text-center">
-              <div className="mb-4 flex justify-center">
-                <i className="lni lni-anchor text-gray-600" style={{ 
-                  fontSize: '6rem',
-                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.4)'
+              <div className="mb-6 flex justify-center">
+                <i className="lni lni-anchor text-white glass-text-glow" style={{ 
+                  fontSize: '8rem',
+                  filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5))'
                 }}></i>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-upload-ready">
-                Upload Spelling List Photo
+              <h3 className="text-2xl font-bold text-white glass-text-glow mb-4" data-testid="text-upload-ready" style={{ fontFamily: 'var(--font-pirate)' }}>
+                📸 Chart New Waters
               </h3>
-              <p className="text-muted-foreground mb-6" data-testid="text-upload-instructions">
-                Upload a photo of your spelling homework here
+              <p className="text-white/80 mb-8 text-lg" data-testid="text-upload-instructions">
+                Upload your treasure map (spelling list photo) to begin the adventure!
               </p>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-6">
                 <Button 
                   onClick={triggerFileUpload}
-                  variant="default" className="w-full py-4 text-lg"
+                  className="glass-button-primary glass-button-xl mx-auto text-white font-bold glass-text-glow"
                   data-testid="button-upload-file"
                 >
-                  <i className="lni lni-scroll" style={{ fontSize: '1.25rem', marginRight: '0.5rem' }}></i>
-                  Upload Photo
+                  <Upload className="w-8 h-8 mr-4" />
+                  📤 Upload Treasure Map
                 </Button>
                 
                 {/* Hidden file input for testing */}
