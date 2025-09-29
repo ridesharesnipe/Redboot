@@ -9,54 +9,117 @@ interface TreasureRoadProps {
 
 export default function TreasureRoad({ totalWords, masteredWords, treasureJustUnlocked }: TreasureRoadProps) {
   const [showAnimation, setShowAnimation] = useState(false);
+  const [isDigging, setIsDigging] = useState(false);
   const progress = (masteredWords / totalWords) * 100;
   
   useEffect(() => {
     if (treasureJustUnlocked) {
       setShowAnimation(true);
-      setTimeout(() => setShowAnimation(false), 2000);
+      setIsDigging(true);
+      // Start digging animation
+      setTimeout(() => setIsDigging(false), 1500);
+      // Keep treasure unlock animation longer
+      setTimeout(() => setShowAnimation(false), 3000);
     }
   }, [treasureJustUnlocked]);
   
-  // Calculate milestones based on word count - with proper treasure icons and chests
+  // Calculate milestones with unique word counts for proper per-word distribution
   const getMilestones = () => {
-    if (totalWords <= 12) {
-      const baseMilestones = [
-        { words: 2, treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', position: 16, isChest: false },
-        { words: 4, treasure: 'Emeralds', icon: '💚', color: 'text-emerald-600', position: 33, isChest: false },
-        { words: 6, treasure: 'Rubies', icon: '❤️', color: 'text-red-600', position: 50, isChest: false },
-        { words: 8, treasure: 'Diamonds', icon: '💎', color: 'text-blue-500', position: 67, isChest: true },
-        { words: 10, treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', position: 83, isChest: true }
-      ];
-      
-      // Only show milestones that are <= totalWords, always include final treasure at totalWords
-      const validMilestones = baseMilestones.filter(m => m.words <= totalWords);
-      validMilestones.push({ words: totalWords, treasure: 'Ultimate Treasure', icon: '👑', color: 'text-purple-600', position: 95, isChest: true });
-      
-      return validMilestones;
+    const treasureTypes = [
+      { treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', isChest: false },
+      { treasure: 'Emeralds', icon: '💚', color: 'text-emerald-600', isChest: false },
+      { treasure: 'Rubies', icon: '❤️', color: 'text-red-600', isChest: false },
+      { treasure: 'Diamonds', icon: '💎', color: 'text-blue-500', isChest: true },
+      { treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', isChest: true }
+    ];
+    
+    const milestones = [];
+    
+    // Create milestones based on word count - ensuring unique word values
+    if (totalWords <= 3) {
+      // For very short lists: milestone at each word except final
+      for (let i = 1; i < totalWords; i++) {
+        const treasureIndex = (i - 1) % treasureTypes.length;
+        milestones.push({
+          words: i,
+          ...treasureTypes[treasureIndex],
+          position: 20 + (60 * i / totalWords) // Spread from 20% to 80%
+        });
+      }
+    } else if (totalWords <= 6) {
+      // For short lists: milestone every 2 words
+      for (let i = 2; i < totalWords; i += 2) {
+        const treasureIndex = Math.floor((i - 2) / 2) % treasureTypes.length;
+        milestones.push({
+          words: i,
+          ...treasureTypes[treasureIndex],
+          position: 15 + (70 * i / totalWords) // Spread from 15% to 85%
+        });
+      }
     } else {
-      return [
-        { words: 3, treasure: 'Silver Coins', icon: '🪙', color: 'text-gray-600', position: 16, isChest: false },
-        { words: 5, treasure: 'Emeralds', icon: '💚', color: 'text-emerald-600', position: 33, isChest: false },
-        { words: 7, treasure: 'Rubies', icon: '❤️', color: 'text-red-600', position: 50, isChest: false },
-        { words: 10, treasure: 'Diamonds', icon: '💎', color: 'text-blue-500', position: 67, isChest: true },
-        { words: 13, treasure: 'Gold Coins', icon: '🥇', color: 'text-yellow-600', position: 83, isChest: true },
-        { words: totalWords, treasure: 'Ultimate Treasure', icon: '👑', color: 'text-purple-600', position: 95, isChest: true }
-      ];
+      // For longer lists: create specific milestone positions based on total words
+      let milestoneWords = [];
+      
+      if (totalWords === 7) {
+        milestoneWords = [1, 3, 4, 6]; // 4 milestones for proper pacing
+      } else if (totalWords === 8) {
+        milestoneWords = [2, 3, 5, 6]; // 4 milestones 
+      } else if (totalWords <= 12) {
+        // For 9-12 words: distribute 4 milestones
+        const quarter = totalWords / 4;
+        milestoneWords = [
+          Math.round(quarter * 0.5),      // ~12.5% 
+          Math.round(quarter * 1.5),      // ~37.5%
+          Math.round(quarter * 2.5),      // ~62.5%
+          Math.round(quarter * 3.2)       // ~80%
+        ].filter(w => w > 0 && w < totalWords);
+      } else {
+        // For 13+ words: distribute 4-5 milestones more evenly  
+        const step = totalWords / 5;
+        milestoneWords = [
+          Math.floor(step),           // 20%
+          Math.floor(step * 2.2),     // 44%
+          Math.floor(step * 3.2),     // 64%
+          Math.floor(step * 4.1)      // 82%
+        ].filter(w => w > 0 && w < totalWords);
+      }
+      
+      // Convert to milestone objects
+      milestoneWords.forEach((words, index) => {
+        const treasureIndex = index % treasureTypes.length;
+        const position = 10 + (80 * words / totalWords); // Position proportional to word progress
+        milestones.push({
+          words,
+          ...treasureTypes[treasureIndex],
+          position
+        });
+      });
     }
+    
+    // Always add final treasure at totalWords (unique position)
+    milestones.push({ 
+      words: totalWords, 
+      treasure: 'Ultimate Treasure', 
+      icon: '👑', 
+      color: 'text-purple-600', 
+      position: 90, 
+      isChest: true 
+    });
+    
+    return milestones;
   };
   
   const milestones = getMilestones();
   
-  // Calculate Red Boot's position - must match milestone positioning exactly
+  // Calculate Red Boot's position - Top-down vertical movement
   const getRedBootPosition = () => {
     // Check if Red Boot should be at a milestone
     const currentMilestone = milestones.find(m => masteredWords === m.words);
     if (currentMilestone) {
       // Snap to exact milestone position when reached
       return {
-        left: 5 + (currentMilestone.position / 100) * 90,
-        top: 50
+        left: 50, // Center horizontally
+        top: 10 + currentMilestone.position
       };
     }
     
@@ -64,7 +127,7 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
     const progressPercent = Math.max(0, Math.min(100, (masteredWords / totalWords) * 100));
     
     // Find which milestone range we're in for smooth movement
-    let targetPosition = progressPercent;
+    let targetPosition = progressPercent * 0.8; // Scale to 80% of container height
     if (milestones.length > 0) {
       const nextMilestone = milestones.find(m => masteredWords < m.words);
       if (nextMilestone) {
@@ -87,102 +150,78 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
     }
     
     return {
-      left: 5 + (targetPosition / 100) * 90,
-      top: 50
+      left: 50, // Center horizontally  
+      top: 10 + targetPosition
     };
   };
   
   const redBootPos = getRedBootPosition();
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-6">
-      <div className="relative bg-gradient-to-b from-blue-300 to-yellow-100 rounded-3xl p-10 shadow-2xl border-4 border-amber-600">
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="relative bg-gradient-to-br from-blue-300 via-emerald-300 to-yellow-200 rounded-3xl p-8 shadow-2xl border-4 border-amber-600">
         
         {/* Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-amber-900">🏴‍☠️ Red Boot's Treasure Road 🏴‍☠️</h2>
-          <p className="text-xl text-amber-700 font-semibold">{masteredWords} of {totalWords} words mastered!</p>
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-amber-900">🏴‍☠️ Red Boot's Treasure Map 🏴‍☠️</h2>
+          <p className="text-lg text-amber-700 font-semibold">{masteredWords} of {totalWords} words mastered!</p>
         </div>
         
-        {/* Vibrant Daytime Treasure Trail - Brilliant Sky & Sun-Drenched */}
-        <div className="relative h-48 bg-gradient-to-b from-blue-400 via-sky-300 to-emerald-200 rounded-2xl overflow-hidden shadow-2xl border-2 border-yellow-400">
+        {/* Top-Down Treasure Island Map - Vertical Path */}
+        <div className="relative h-96 bg-gradient-to-b from-blue-200 via-emerald-200 to-amber-100 rounded-2xl overflow-hidden shadow-2xl border-2 border-yellow-400">
           
-          {/* Brilliant Blue Sky with Fluffy White Clouds */}
+          {/* Island Background - Top-down view */}
           <div className="absolute inset-0">
-            {/* Brilliant blue sky background */}
-            <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-500 via-sky-400 to-sky-300"></div>
+            {/* Ocean water at edges */}
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-blue-400 to-blue-300"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-blue-400 to-blue-300"></div>
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-blue-400 to-blue-300"></div>
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-blue-400 to-blue-300"></div>
             
-            {/* Fluffy white clouds */}
-            <div className="absolute top-2 left-8 w-12 h-6 bg-white rounded-full opacity-90 shadow-lg"></div>
-            <div className="absolute top-1 left-12 w-10 h-5 bg-white rounded-full opacity-80"></div>
-            <div className="absolute top-1 right-12 w-14 h-7 bg-white rounded-full opacity-90 shadow-lg"></div>
-            <div className="absolute top-2 right-16 w-10 h-5 bg-white rounded-full opacity-80"></div>
-            <div className="absolute top-4 left-1/3 w-12 h-6 bg-white rounded-full opacity-85 shadow-md"></div>
+            {/* Island terrain - grass and sand */}
+            <div className="absolute top-8 bottom-8 left-8 right-8 bg-gradient-to-b from-emerald-300 via-green-400 to-amber-200 rounded-xl"></div>
             
-            {/* Lush tropical ground areas */}
-            <div className="absolute top-16 left-0 right-0 bottom-0 bg-gradient-to-b from-emerald-300 via-green-400 to-green-500"></div>
+            {/* Palm trees scattered around - top-down view */}
+            <div className="absolute top-12 left-12 text-3xl opacity-80">🌴</div>
+            <div className="absolute top-16 right-16 text-2xl opacity-70">🌴</div>
+            <div className="absolute bottom-20 left-20 text-3xl opacity-80">🌴</div>
+            <div className="absolute bottom-16 right-12 text-2xl opacity-70">🌴</div>
+            <div className="absolute top-1/3 left-1/4 text-xl opacity-60">🌿</div>
+            <div className="absolute bottom-1/3 right-1/4 text-xl opacity-60">🌿</div>
             
-            {/* Stylized Lush Palm Trees - Vector Art Style */}
-            <div className="absolute bottom-2 left-1">
-              <div className="text-4xl transform rotate-12 filter drop-shadow-lg">🌴</div>
-              <div className="absolute inset-0 bg-gradient-to-t from-green-600 to-transparent opacity-20 rounded-full"></div>
-            </div>
-            <div className="absolute bottom-4 right-2">
-              <div className="text-4xl transform -rotate-12 filter drop-shadow-lg">🌴</div>
-              <div className="absolute inset-0 bg-gradient-to-t from-green-600 to-transparent opacity-20 rounded-full"></div>
-            </div>
-            <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
-              <div className="text-3xl transform rotate-45 filter drop-shadow-md">🌴</div>
-            </div>
-            <div className="absolute top-1/2 right-0 transform -translate-y-1/2">
-              <div className="text-3xl transform -rotate-45 filter drop-shadow-md">🌴</div>
-            </div>
-            
-            {/* Tropical flowers for vibrant atmosphere */}
-            <div className="absolute top-1/4 left-1/4 text-2xl opacity-70 filter drop-shadow-sm">🌺</div>
-            <div className="absolute bottom-1/4 right-1/4 text-2xl opacity-70 filter drop-shadow-sm">🌸</div>
-            <div className="absolute top-3/4 left-1/6 text-xl opacity-60">🌼</div>
-            <div className="absolute top-1/6 right-1/6 text-xl opacity-60">🌼</div>
+            {/* Rocks and vegetation */}
+            <div className="absolute top-20 right-20 text-lg opacity-50">🪨</div>
+            <div className="absolute bottom-24 left-16 text-lg opacity-50">🪨</div>
           </div>
           
-          {/* Sun-Drenched Golden Sandy Trail - 3D Depth & Dynamic Lighting */}
-          <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 px-2">
-            {/* Deep trail shadow for 3D depth */}
-            <div className="h-28 bg-gradient-to-b from-amber-900 to-yellow-900 opacity-40 rounded-full transform translate-y-2 filter blur-sm"></div>
+          {/* Vertical Treasure Path - Top to Bottom */}
+          <div className="absolute top-4 bottom-4 left-1/2 transform -translate-x-1/2 w-16">
+            {/* Path shadow for depth */}
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-900 via-yellow-800 to-amber-900 opacity-40 rounded-full transform translate-x-1 filter blur-sm"></div>
             
-            {/* Trail borders - darker earth edges */}
-            <div className="absolute top-0 left-2 right-2 h-28 bg-gradient-to-b from-amber-900 via-yellow-800 to-amber-900 rounded-full"></div>
+            {/* Main dirt path */}
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-800 via-yellow-700 to-amber-800 rounded-full"></div>
             
-            {/* Main sandy trail base with rich texture */}
-            <div className="absolute top-2 left-2 right-2 h-24 bg-gradient-to-b from-yellow-600 via-amber-500 to-yellow-700 rounded-full shadow-inner"></div>
+            {/* Sandy path surface */}
+            <div className="absolute top-0 bottom-0 left-1 right-1 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 rounded-full"></div>
             
-            {/* Sun-drenched golden surface - brilliant lighting */}
-            <div className="absolute top-4 left-2 right-2 h-20 bg-gradient-to-b from-yellow-400 via-amber-300 to-yellow-500 rounded-full"></div>
+            {/* Center walking trail */}
+            <div className="absolute top-0 bottom-0 left-2 right-2 bg-gradient-to-b from-yellow-300 via-amber-300 to-yellow-300 rounded-full opacity-90"></div>
             
-            {/* Bright center path - where Red Boot walks - with sparkle effect */}
-            <div className="absolute top-6 left-2 right-2 h-16 bg-gradient-to-r from-yellow-200 via-amber-200 to-yellow-200 rounded-full opacity-95 animate-pulse"></div>
-            
-            {/* Sun highlights on the trail - dynamic lighting */}
-            <div className="absolute top-8 left-8 right-8 h-4 bg-gradient-to-r from-transparent via-yellow-100 to-transparent rounded-full opacity-60"></div>
-            <div className="absolute top-12 left-12 right-12 h-2 bg-gradient-to-r from-transparent via-white to-transparent rounded-full opacity-40"></div>
-            
-            {/* Scattered sand texture details */}
-            <div className="absolute top-10 left-12 w-3 h-3 bg-amber-600 rounded-full opacity-50 shadow-sm"></div>
-            <div className="absolute top-16 left-24 w-2 h-2 bg-yellow-700 rounded-full opacity-40"></div>
-            <div className="absolute top-12 left-36 w-2 h-2 bg-amber-700 rounded-full opacity-35"></div>
-            <div className="absolute top-18 right-36 w-3 h-3 bg-amber-600 rounded-full opacity-50 shadow-sm"></div>
-            <div className="absolute top-14 right-24 w-2 h-2 bg-yellow-700 rounded-full opacity-40"></div>
-            <div className="absolute top-10 right-12 w-2 h-2 bg-amber-700 rounded-full opacity-35"></div>
+            {/* Footprint marks along the path */}
+            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-1 h-2 bg-amber-700 rounded-full opacity-60"></div>
+            <div className="absolute top-16 left-1/2 transform -translate-x-1/2 translate-x-1 w-1 h-2 bg-amber-700 rounded-full opacity-60"></div>
+            <div className="absolute top-24 left-1/2 transform -translate-x-1/2 -translate-x-1 w-1 h-2 bg-amber-700 rounded-full opacity-60"></div>
           </div>
           
-          {/* Treasure milestones positioned along the straight trail */}
+          {/* Treasure milestones positioned along the vertical trail */}
           <div className="absolute inset-0">
             {milestones.map((milestone, index) => {
               const unlocked = masteredWords >= milestone.words;
               
-              // Calculate position on straight trail - same logic as Red Boot to ensure alignment
-              const left = 5 + (milestone.position / 100) * 90; // Spread evenly from 5% to 95%
-              const top = 50; // Fixed middle position on the trail
+              // Calculate position on vertical trail - aligned with Red Boot path
+              const left = 50; // Center horizontally on the path
+              const top = 10 + milestone.position; // Vertical position along the path
               
               return (
                 <div
@@ -190,106 +229,88 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
                   className="absolute flex flex-col items-center"
                   style={{ left: `${left}%`, top: `${top}%`, transform: 'translate(-50%, -50%)' }}
                 >
-                  {/* High-Fidelity Sparkling 3D Treasure - Dynamic Light Reflections */}
+                  {/* Enhanced Treasure with Digging Animation */}
                   <div className="relative">
-                    {/* Treasure base with 3D depth and shimmer */}
-                    <div className={`
-                      w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transform transition-all duration-500 relative overflow-hidden
-                      ${unlocked ? 
-                        milestone.treasure === 'Silver Coins' ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-600 border-3 border-gray-500' :
-                        milestone.treasure === 'Emeralds' ? 'bg-gradient-to-br from-emerald-300 via-emerald-500 to-emerald-700 border-3 border-emerald-600' :
-                        milestone.treasure === 'Rubies' ? 'bg-gradient-to-br from-red-300 via-red-500 to-red-700 border-3 border-red-600' :
-                        milestone.treasure === 'Diamonds' ? 'bg-gradient-to-br from-blue-200 via-cyan-400 to-blue-600 border-3 border-cyan-500' :
-                        milestone.treasure === 'Gold Coins' ? 'bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 border-3 border-amber-500' :
-                        'bg-gradient-to-br from-purple-400 via-violet-500 to-purple-700 border-3 border-purple-600'
-                        : 'bg-gradient-to-br from-gray-200 to-gray-400 border-3 border-gray-400'}
-                      ${unlocked && treasureJustUnlocked === milestone.treasure ? 'animate-bounce scale-125 rotate-12' : 'hover:scale-105'}
-                      ${unlocked ? 'animate-pulse' : ''}
-                    `}>
-                      {/* Sparkling light reflection overlay */}
-                      {unlocked && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-transparent opacity-60 rounded-full animate-ping"></div>
-                      )}
-                      
-                      {/* Dynamic shimmer effect */}
-                      {unlocked && (
-                        <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-conic from-white via-transparent to-transparent opacity-30 rounded-full animate-spin"></div>
-                      )}
-                      
-                      {/* Treasure icon with enhanced styling - Real Treasure Emojis */}
-                      <div 
-                        className={`
-                          relative z-10 transition-all duration-300
-                          ${showAnimation && treasureJustUnlocked === milestone.treasure ? 'animate-bounce scale-110' : ''}
-                          ${unlocked ? 'filter drop-shadow-lg' : 'grayscale opacity-50'}
-                        `} 
-                        style={{ 
-                          fontSize: '2.5rem',
-                          textShadow: unlocked ? '2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.5)' : 'none'
-                        }}
-                      >
-                        {milestone.icon}
-                      </div>
-                      
-                      {/* Intense sparkle effects around the treasure */}
-                      {unlocked && (
-                        <>
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-80 animate-ping"></div>
-                          <div className="absolute bottom-2 left-2 w-1 h-1 bg-yellow-200 rounded-full opacity-90 animate-pulse"></div>
-                          <div className="absolute top-3 left-1 w-1 h-1 bg-white rounded-full opacity-70 animate-bounce"></div>
-                          <div className="absolute bottom-1 right-3 w-1 h-1 bg-yellow-100 rounded-full opacity-80 animate-ping"></div>
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* Ornate Treasure Chest for major milestones */}
-                    {milestone.isChest && unlocked && (
-                      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-20">
-                        <div className="relative">
-                          {/* Main treasure chest */}
-                          <div className="text-3xl filter drop-shadow-xl animate-bounce" style={{ fontSize: '3rem' }}>📦</div>
-                          
-                          {/* Sparkling effects around chest */}
-                          <div className="absolute -top-2 -left-2 text-lg animate-ping">✨</div>
-                          <div className="absolute -top-1 -right-2 text-lg animate-pulse">✨</div>
-                          <div className="absolute -bottom-1 -left-1 text-lg animate-bounce">✨</div>
-                          <div className="absolute -bottom-2 -right-1 text-lg animate-ping">✨</div>
-                          
-                          {/* Chest label */}
-                          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                            <div className="text-xs text-amber-900 font-bold bg-gradient-to-r from-yellow-200 via-amber-200 to-yellow-200 px-3 py-1 rounded-full text-center shadow-lg border-2 border-amber-400">
-                              Treasure Chest!
-                            </div>
-                          </div>
+                    {/* Digging dirt animation */}
+                    {isDigging && treasureJustUnlocked === milestone.treasure && (
+                      <div className="absolute -top-8 -left-8 w-20 h-20 flex items-center justify-center">
+                        <div className="animate-bounce">
+                          {/* Dirt particles flying out */}
+                          <div className="absolute top-0 left-0 w-2 h-2 bg-amber-600 rounded-full animate-ping"></div>
+                          <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-700 rounded-full animate-bounce"></div>
+                          <div className="absolute bottom-1 left-3 w-2 h-2 bg-amber-700 rounded-full animate-pulse"></div>
+                          <div className="absolute bottom-2 right-0 w-1 h-1 bg-brown-600 rounded-full animate-ping"></div>
+                          {/* Digging shovel */}
+                          <div className="text-2xl animate-bounce">⛏️</div>
                         </div>
                       </div>
                     )}
-                  </div>
-                  
-                  {/* Milestone word count label - Vibrant Speech Bubbles */}
-                  <div className="relative mt-3">
+                    
+                    {/* Treasure base - X marks the spot when locked */}
                     <div className={`
-                      px-4 py-2 rounded-full text-sm font-bold shadow-lg transform transition-all duration-300 relative
+                      w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all duration-500 relative
                       ${unlocked ? 
-                        'bg-gradient-to-r from-white via-yellow-50 to-white text-amber-900 border-2 border-amber-400 shadow-amber-200' : 
-                        'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 border-2 border-gray-400'
-                      }
+                        milestone.treasure === 'Silver Coins' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-500' :
+                        milestone.treasure === 'Emeralds' ? 'bg-gradient-to-br from-emerald-200 via-emerald-400 to-emerald-600' :
+                        milestone.treasure === 'Rubies' ? 'bg-gradient-to-br from-red-200 via-red-400 to-red-600' :
+                        milestone.treasure === 'Diamonds' ? 'bg-gradient-to-br from-blue-100 via-cyan-300 to-blue-500' :
+                        milestone.treasure === 'Gold Coins' ? 'bg-gradient-to-br from-yellow-200 via-amber-300 to-yellow-500' :
+                        'bg-gradient-to-br from-purple-300 via-violet-400 to-purple-600'
+                        : 'bg-gradient-to-br from-amber-300 to-amber-500 border-2 border-amber-600'}
+                      ${unlocked && treasureJustUnlocked === milestone.treasure ? 'animate-bounce scale-125' : 'hover:scale-105'}
                       ${unlocked ? 'animate-pulse' : ''}
                     `}>
-                      {milestone.words} words!
-                      {/* Speech bubble tail */}
-                      <div className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 
-                        ${unlocked ? 'border-l-4 border-r-4 border-t-4 border-transparent border-t-amber-400' : 'border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-400'}
-                      `}></div>
+                      {/* X marks the spot for locked treasures */}
+                      {!unlocked && (
+                        <div className="text-2xl font-bold text-amber-900">✖️</div>
+                      )}
+                      
+                      {/* Treasure icon when unlocked */}
+                      {unlocked && (
+                        <div 
+                          className={`
+                            relative z-10 transition-all duration-300
+                            ${showAnimation && treasureJustUnlocked === milestone.treasure ? 'animate-bounce scale-110' : ''}
+                            filter drop-shadow-lg
+                          `} 
+                          style={{ 
+                            fontSize: '2rem',
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.3), 0 0 8px rgba(255,255,255,0.6)'
+                          }}
+                        >
+                          {milestone.icon}
+                        </div>
+                      )}
+                      
+                      {/* Sparkle effects for unlocked treasure */}
+                      {unlocked && (
+                        <>
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-200 rounded-full opacity-80 animate-ping"></div>
+                          <div className="absolute -bottom-1 -left-1 w-1 h-1 bg-white rounded-full opacity-90 animate-pulse"></div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Milestone word count label */}
+                  <div className="relative mt-2">
+                    <div className={`
+                      px-2 py-1 rounded-lg text-xs font-bold shadow-md transform transition-all duration-300
+                      ${unlocked ? 
+                        'bg-gradient-to-r from-yellow-200 to-amber-200 text-amber-900 border border-amber-400' : 
+                        'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 border border-gray-400'
+                      }
+                    `}>
+                      {milestone.words}
                     </div>
                   </div>
                 </div>
               );
             })}
             
-            {/* Red Boot character - Moving along the actual path */}
+            {/* Red Boot character - Walking vertically down the treasure path */}
             <div 
-              className="absolute flex items-center justify-center transition-all duration-1000 ease-in-out"
+              className="absolute flex items-center justify-center transition-all duration-1000 ease-in-out z-30"
               style={{ 
                 left: `${redBootPos.left}%`, 
                 top: `${redBootPos.top}%`,
@@ -297,29 +318,37 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
               }}
               data-testid="red-boot-character"
             >
-              <div className="relative transform transition-all duration-1000">
-                {/* Red Boot's Adventure Glow - Dynamic Lighting */}
-                <div className="absolute -inset-4 bg-gradient-radial from-yellow-400 via-amber-300 to-transparent rounded-full opacity-30 animate-pulse pointer-events-none"></div>
+              <div className={`relative transform transition-all duration-1000 ${isDigging ? 'animate-bounce' : ''}`}>
+                {/* Red Boot's Adventure Glow */}
+                <div className="absolute -inset-3 bg-gradient-radial from-yellow-400 via-amber-300 to-transparent rounded-full opacity-25 animate-pulse pointer-events-none"></div>
                 
-                {/* Red Boot character - Enhanced 3D Appearance */}
+                {/* Digging animation with shovel */}
+                {isDigging && (
+                  <div className="absolute -top-6 -right-6 animate-bounce">
+                    <div className="text-xl">⛏️</div>
+                    {/* Dirt particles */}
+                    <div className="absolute -top-2 left-2 w-1 h-1 bg-amber-700 rounded-full animate-ping"></div>
+                    <div className="absolute -bottom-1 -left-1 w-1 h-1 bg-yellow-800 rounded-full animate-bounce"></div>
+                  </div>
+                )}
+                
+                {/* Red Boot character - Top-down view */}
                 <img 
                   src={redBootImage} 
                   alt="Red Boot the Pirate" 
-                  className="relative z-20 w-18 h-18 object-contain transform transition-all duration-500 hover:scale-110"
+                  className={`relative z-20 w-14 h-14 object-contain transform transition-all duration-500 hover:scale-110 ${isDigging ? 'animate-pulse' : ''}`}
                   style={{ 
-                    filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5)) drop-shadow(0 0 15px rgba(255,215,0,0.6)) brightness(1.1) contrast(1.1)',
+                    filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 8px rgba(255,215,0,0.5)) brightness(1.1)',
                     imageRendering: 'crisp-edges'
                   }}
                 />
                 
-                {/* Sandy trail footprints behind Red Boot */}
-                <div className="absolute inset-0 bg-gradient-radial from-amber-500 to-transparent rounded-full opacity-50 animate-pulse pointer-events-none transform scale-90"></div>
+                {/* Footprint trail behind Red Boot */}
+                <div className="absolute inset-0 bg-gradient-radial from-amber-500 to-transparent rounded-full opacity-40 animate-pulse pointer-events-none transform scale-75"></div>
                 
-                {/* Adventure sparkles around Red Boot */}
-                <div className="absolute -top-2 -left-2 w-2 h-2 bg-yellow-200 rounded-full opacity-80 animate-bounce"></div>
-                <div className="absolute -bottom-1 -right-2 w-1 h-1 bg-amber-300 rounded-full opacity-90 animate-ping"></div>
-                <div className="absolute -top-1 -right-1 w-1 h-1 bg-white rounded-full opacity-70 animate-pulse"></div>
-                <div className="absolute -bottom-2 -left-1 w-1 h-1 bg-yellow-100 rounded-full opacity-80 animate-bounce"></div>
+                {/* Adventure sparkles */}
+                <div className="absolute -top-1 -left-1 w-1 h-1 bg-yellow-200 rounded-full opacity-80 animate-bounce"></div>
+                <div className="absolute -bottom-1 -right-1 w-1 h-1 bg-amber-300 rounded-full opacity-90 animate-ping"></div>
               </div>
             </div>
           </div>
@@ -327,10 +356,10 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         
         {/* Treasure announcement */}
         {treasureJustUnlocked && (
-          <div className="mt-6 text-center animate-bounce">
-            <div className="bg-yellow-400 rounded-full px-6 py-3 inline-block shadow-lg">
-              <span className="text-2xl font-bold text-amber-900">
-                {treasureJustUnlocked} Unlocked! 🎉
+          <div className="mt-4 text-center animate-bounce">
+            <div className="bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300 rounded-xl px-4 py-2 inline-block shadow-xl border-2 border-amber-500">
+              <span className="text-lg font-bold text-amber-900">
+                🏴‍☠️ {treasureJustUnlocked} Found! ⚡
               </span>
             </div>
           </div>
