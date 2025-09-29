@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import TreasureRoad from '@/components/TreasureRoad';
-import { Coins, SkipForward, CheckCircle, XCircle } from 'lucide-react';
+import { Coins, SkipForward, CheckCircle, XCircle, X } from 'lucide-react';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -498,19 +498,34 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        {/* Header with progress and treasure */}
-        <div className="flex justify-center items-center mb-3">
-          <div className="flex items-center gap-2 mr-4">
+        {/* Header with exit button, progress and treasure */}
+        <div className="flex justify-between items-center mb-3">
+          {/* Exit button */}
+          <button
+            onClick={onCancel}
+            className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors"
+            data-testid="button-exit-practice"
+          >
+            <X className="w-5 h-5" />
+            <span className="text-sm font-medium">Exit</span>
+          </button>
+          
+          {/* Treasure counter */}
+          <div className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-yellow-500" />
             <span className="font-bold">{treasureEarned}</span>
           </div>
           
-          <div className="text-center flex-1">
+          {/* Progress */}
+          <div className="text-center flex-1 max-w-md mx-4">
             <div className="text-sm text-muted-foreground mb-1">
               Word {currentWordIndex + 1} of {practiceWords.length}
             </div>
             <Progress value={progress} className="w-full" />
           </div>
+          
+          {/* Spacer for symmetry */}
+          <div className="w-16"></div>
         </div>
 
         {showFeedback ? (
