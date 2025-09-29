@@ -165,7 +165,15 @@ export enum TreasureType {
   GOLD_RING = 'gold_ring',
   DIAMOND = 'diamond',
   RUBY = 'ruby',
-  GOLD_BAR = 'gold_bar'
+  GOLD_BAR = 'gold_bar',
+  CROWN = 'crown',
+  GEM = 'gem',
+  PEARL = 'pearl',
+  CRYSTAL = 'crystal',
+  COIN = 'coin',
+  TROPHY = 'trophy',
+  STAR = 'star',
+  MEDAL = 'medal'
 }
 
 export interface TreasureNode {
@@ -186,14 +194,18 @@ export interface TreasureMapState {
   totalCorrectAnswers: number;
 }
 
-// Default treasure map layout (8 piles scattered across the map)
+// Default treasure map layout (12 piles scattered across the map - all treasure varieties!)
 export const DEFAULT_TREASURE_NODES: Omit<TreasureNode, 'isUnlocked' | 'isDigging' | 'isRevealed'>[] = [
-  { id: 'node-1', x: 15, y: 75, treasureType: TreasureType.GOLD_RING, wordIndex: 0 },
+  { id: 'node-1', x: 15, y: 75, treasureType: TreasureType.CROWN, wordIndex: 0 },
   { id: 'node-2', x: 35, y: 45, treasureType: TreasureType.DIAMOND, wordIndex: 1 },
-  { id: 'node-3', x: 60, y: 80, treasureType: TreasureType.RUBY, wordIndex: 2 },
-  { id: 'node-4', x: 25, y: 20, treasureType: TreasureType.GOLD_BAR, wordIndex: 3 },
-  { id: 'node-5', x: 75, y: 35, treasureType: TreasureType.GOLD_RING, wordIndex: 4 },
-  { id: 'node-6', x: 45, y: 65, treasureType: TreasureType.DIAMOND, wordIndex: 5 },
-  { id: 'node-7', x: 85, y: 60, treasureType: TreasureType.RUBY, wordIndex: 6 },
-  { id: 'node-8', x: 70, y: 15, treasureType: TreasureType.GOLD_BAR, wordIndex: 7 },
+  { id: 'node-3', x: 60, y: 80, treasureType: TreasureType.GEM, wordIndex: 2 },
+  { id: 'node-4', x: 25, y: 20, treasureType: TreasureType.TROPHY, wordIndex: 3 },
+  { id: 'node-5', x: 75, y: 35, treasureType: TreasureType.PEARL, wordIndex: 4 },
+  { id: 'node-6', x: 45, y: 65, treasureType: TreasureType.CRYSTAL, wordIndex: 5 },
+  { id: 'node-7', x: 85, y: 60, treasureType: TreasureType.STAR, wordIndex: 6 },
+  { id: 'node-8', x: 70, y: 15, treasureType: TreasureType.MEDAL, wordIndex: 7 },
+  { id: 'node-9', x: 50, y: 30, treasureType: TreasureType.GOLD_RING, wordIndex: 8 },
+  { id: 'node-10', x: 20, y: 50, treasureType: TreasureType.GOLD_BAR, wordIndex: 9 },
+  { id: 'node-11', x: 80, y: 25, treasureType: TreasureType.COIN, wordIndex: 10 },
+  { id: 'node-12', x: 55, y: 55, treasureType: TreasureType.RUBY, wordIndex: 11 },
 ];

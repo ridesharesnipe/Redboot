@@ -9,52 +9,64 @@ interface TreasureRoadProps {
   treasureJustUnlocked?: string;
 }
 
-// Treasure icons mapping
+// Treasure icons mapping - 12 different varieties!
 const TREASURE_ICONS = {
   [TreasureType.GOLD_RING]: '💍',
   [TreasureType.DIAMOND]: '💎', 
   [TreasureType.RUBY]: '❤️',
-  [TreasureType.GOLD_BAR]: '🥇'
+  [TreasureType.GOLD_BAR]: '🥇',
+  [TreasureType.CROWN]: '👑',
+  [TreasureType.GEM]: '💠',
+  [TreasureType.PEARL]: '🦪',
+  [TreasureType.CRYSTAL]: '🔮',
+  [TreasureType.COIN]: '🪙',
+  [TreasureType.TROPHY]: '🏆',
+  [TreasureType.STAR]: '⭐',
+  [TreasureType.MEDAL]: '🏅'
 };
 
-// Particle component for digging effects
+// Particle component for digging effects - BIGGER and MORE VISIBLE
 const DiggingParticle = ({ delay = 0 }: { delay?: number }) => (
   <motion.div
-    className="absolute w-2 h-2 bg-amber-600 rounded-full"
+    className="absolute w-3 h-3 bg-orange-700 rounded-full z-10"
+    style={{
+      boxShadow: '0 0 8px rgba(194, 65, 12, 0.8)'
+    }}
     initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
     animate={{ 
       opacity: [0, 1, 0],
-      scale: [0, 1.5, 0.5],
-      x: [0, Math.random() * 40 - 20],
-      y: [0, -Math.random() * 30 - 10]
+      scale: [0, 2, 0.8],
+      x: [0, Math.random() * 60 - 30],
+      y: [0, -Math.random() * 50 - 20]
     }}
-    transition={{ duration: 1.2, delay }}
+    transition={{ duration: 1.5, delay }}
   />
 );
 
-// Smoke effect component
+// Smoke effect component - MORE VISIBLE with dark brown smoke
 const SmokeEffect = () => (
   <motion.div
-    className="absolute inset-0 pointer-events-none"
+    className="absolute inset-0 pointer-events-none z-10"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
   >
-    {[...Array(6)].map((_, i) => (
+    {[...Array(8)].map((_, i) => (
       <motion.div
         key={i}
-        className="absolute w-8 h-8 bg-gray-300 rounded-full opacity-40"
+        className="absolute w-12 h-12 bg-amber-900 rounded-full"
         style={{
-          left: `${40 + Math.random() * 20}%`,
-          top: `${40 + Math.random() * 20}%`
+          left: `${35 + Math.random() * 30}%`,
+          top: `${35 + Math.random() * 30}%`,
+          boxShadow: '0 0 20px rgba(120, 53, 15, 0.8)'
         }}
-        initial={{ scale: 0, opacity: 0.6 }}
+        initial={{ scale: 0, opacity: 0.9 }}
         animate={{ 
-          scale: [0, 2, 3],
-          opacity: [0.6, 0.3, 0],
-          y: [-10, -30, -50]
+          scale: [0, 1.5, 2.5],
+          opacity: [0.9, 0.6, 0],
+          y: [-10, -40, -70]
         }}
-        transition={{ duration: 2, delay: i * 0.2 }}
+        transition={{ duration: 1.5, delay: i * 0.15 }}
       />
     ))}
   </motion.div>
@@ -132,14 +144,14 @@ const TreasureSpot = ({
           </div>
         )}
 
-        {/* Digging Effects */}
+        {/* Digging Effects - MORE PARTICLES for dramatic effect */}
         <AnimatePresence>
           {isDigging && (
             <>
               <SmokeEffect />
-              <div className="absolute inset-0">
-                {[...Array(8)].map((_, i) => (
-                  <DiggingParticle key={i} delay={i * 0.1} />
+              <div className="absolute inset-0 z-10">
+                {[...Array(15)].map((_, i) => (
+                  <DiggingParticle key={i} delay={i * 0.08} />
                 ))}
               </div>
             </>
@@ -278,7 +290,7 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
   });
 
   const [treasureNodes, setTreasureNodes] = useState<TreasureNode[]>(
-    DEFAULT_TREASURE_NODES.slice(0, Math.min(totalWords, 8)).map(node => ({
+    DEFAULT_TREASURE_NODES.slice(0, Math.min(totalWords, 12)).map(node => ({
       ...node,
       isUnlocked: false,
       isDigging: false,
