@@ -453,8 +453,15 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
               🏴‍☠️ Verify Your Treasure Words 🏴‍☠️
             </h2>
             
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 rounded">
+              <p className="text-yellow-800 font-semibold text-lg">⚠️ OCR Detection Notice</p>
+              <p className="text-yellow-700 mt-2">
+                The automatic word detection may not be perfect. Please check and edit each word below to make sure it's complete and correct.
+              </p>
+            </div>
+            
             <p className="text-white/80 text-center mb-8 text-lg">
-              Check that each word is spelled correctly. You can edit or remove any words from your treasure list.
+              Click on any word to edit it. You can also add or remove words from your treasure list.
             </p>
 
             <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
