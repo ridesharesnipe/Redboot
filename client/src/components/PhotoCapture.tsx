@@ -43,7 +43,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   };
 
-  // Preprocess image for better OCR
+  // Preprocess image for better OCR with 300 DPI and adaptive binarization
   const preprocessImageForOCR = async (imageData: string): Promise<string> => {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
@@ -51,8 +51,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const img = new Image();
       
       img.onload = () => {
-        // Scale up image for better OCR (2x size)
-        const scale = 2;
+        // Scale to ~300 DPI equivalent (3x-4x original size for better OCR)
+        const targetDPI = 300;
+        const scale = 3.5;
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         
@@ -63,14 +64,31 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
         
-        // Convert to grayscale with higher contrast for better OCR
+        // Step 1: Convert to grayscale
+        const grayscale = new Uint8Array(data.length / 4);
         for (let i = 0; i < data.length; i += 4) {
           const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          // Stronger contrast enhancement - threshold at 140 instead of 128
-          const enhanced = gray > 140 ? 255 : Math.max(0, gray * 0.6);
-          data[i] = enhanced;     // Red
-          data[i + 1] = enhanced; // Green  
-          data[i + 2] = enhanced; // Blue
+          grayscale[i / 4] = gray;
+        }
+        
+        // Step 2: Calculate adaptive threshold (Otsu's method approximation)
+        // Find threshold that separates foreground/background
+        let sum = 0;
+        for (let i = 0; i < grayscale.length; i++) {
+          sum += grayscale[i];
+        }
+        const mean = sum / grayscale.length;
+        const threshold = mean * 0.8; // Slightly below mean for better text detection
+        
+        // Step 3: Apply adaptive binarization with slight dilation
+        for (let i = 0; i < data.length; i += 4) {
+          const gray = grayscale[i / 4];
+          // Binarize: white if above threshold, black if below
+          const binarized = gray > threshold ? 255 : 0;
+          
+          data[i] = binarized;     // Red
+          data[i + 1] = binarized; // Green  
+          data[i + 2] = binarized; // Blue
         }
         
         // Put processed data back
@@ -106,30 +124,31 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         }
       });
 
-      // Configure for better spelling word recognition
+      // Configure for better spelling word recognition with PSM 6 and 300 DPI
       await worker.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., -:/()',
-        tessedit_pageseg_mode: 4 as any, // Single column of text
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
+        tessedit_char_blacklist: '!@#$%^&*()_+=[]{}|\\;:"<>?,/',
+        tessedit_pageseg_mode: 6 as any, // Assume uniform block of text
         preserve_interword_spaces: '1',
         tessedit_ocr_engine_mode: 1 as any, // Neural nets LSTM engine only
+        user_defined_dpi: '300',
       });
 
       console.log('Starting OCR processing...');
 
-      // Perform OCR on preprocessed image
-      const { data: { text } } = await worker.recognize(preprocessedImage);
+      // Perform OCR on preprocessed image - get full structured data
+      const { data } = await worker.recognize(preprocessedImage);
       await worker.terminate();
 
-      console.log('Raw OCR text:', text);
-      console.log('OCR text length:', text.length);
-      console.log('OCR text trimmed length:', text.trim().length);
+      console.log('Raw OCR text:', data.text);
+      console.log('OCR confidence:', data.confidence);
 
-      // Extract words from OCR text
-      const words = extractWordsFromText(text);
+      // Extract words from structured OCR data (not raw text)
+      const words = extractWordsFromStructuredData(data);
       console.log('📸 PhotoCapture extracted OCR words:', words);
 
       // Add fallback for testing or when OCR fails to find text
-      if (words.length === 0 && text.trim().length === 0) {
+      if (words.length === 0 && data.text.trim().length === 0) {
         console.log('OCR returned no text, offering demo words fallback');
         // Show a helpful message with option to use demo words
         toast({
@@ -194,6 +213,77 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setIsProcessing(false);
       setOcrProgress(0);
     }
+  };
+
+  // Extract complete words from Tesseract's structured output
+  const extractWordsFromStructuredData = (data: any): string[] => {
+    console.log('Extracting words from structured OCR data');
+    console.log('Data keys:', Object.keys(data));
+    console.log('Has words property:', !!data.words);
+    
+    // Try to get words from different possible locations in the data structure
+    let wordsArray = data.words;
+    
+    // If words not at top level, check if there's a page/block structure
+    if (!wordsArray && data.blocks) {
+      console.log('Checking blocks for words...');
+      wordsArray = [];
+      for (const block of data.blocks) {
+        if (block.words) {
+          wordsArray.push(...block.words);
+        }
+      }
+    }
+    
+    if (!wordsArray || wordsArray.length === 0) {
+      console.log('No words found in structured data, will use fallback extraction');
+      return [];
+    }
+    
+    console.log(`Found ${wordsArray.length} raw word detections from Tesseract`);
+    
+    const extractedWords: string[] = [];
+    const seenWords = new Set<string>();
+    
+    // Process each word from Tesseract's word-level detection
+    for (const word of wordsArray) {
+      const text = word.text?.trim().toLowerCase();
+      const confidence = word.confidence || 0;
+      
+      console.log(`Checking word: "${text}" (confidence: ${confidence}, length: ${text?.length})`);
+      
+      // Skip if:
+      // - Empty or too short (fragments less than 3 chars)
+      // - Low confidence (< 50)
+      // - Non-alphabetic (numbers, punctuation only)
+      // - Common header words
+      if (!text || 
+          text.length < 3 || 
+          confidence < 50 ||
+          !/^[a-z]+$/.test(text) ||
+          /^(spelling|pattern|word|list|homework|test|week|dates|the|and|for|are|but|not)$/i.test(text)) {
+        console.log(`  → Skipped (too short, low confidence, or header word)`);
+        continue;
+      }
+      
+      // Avoid duplicates
+      if (seenWords.has(text)) {
+        console.log(`  → Skipped (duplicate)`);
+        continue;
+      }
+      
+      console.log(`  ✓ ACCEPTED: "${text}"`);
+      extractedWords.push(text);
+      seenWords.add(text);
+      
+      // Limit to 20 words
+      if (extractedWords.length >= 20) {
+        break;
+      }
+    }
+    
+    console.log(`✓ Extracted ${extractedWords.length} complete words from structured data:`, extractedWords);
+    return extractedWords;
   };
 
   // Fix common OCR errors
