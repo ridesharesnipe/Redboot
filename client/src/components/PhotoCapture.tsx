@@ -71,16 +71,44 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           grayscale[i / 4] = gray;
         }
         
-        // Step 2: Calculate adaptive threshold (Otsu's method approximation)
-        // Find threshold that separates foreground/background
-        let sum = 0;
+        // Step 2: Build histogram for proper Otsu thresholding
+        const histogram = new Array(256).fill(0);
         for (let i = 0; i < grayscale.length; i++) {
-          sum += grayscale[i];
+          histogram[Math.floor(grayscale[i])]++;
         }
-        const mean = sum / grayscale.length;
-        const threshold = mean * 0.8; // Slightly below mean for better text detection
         
-        // Step 3: Apply adaptive binarization with slight dilation
+        // Step 3: Calculate Otsu's optimal threshold
+        let sum = 0;
+        for (let i = 0; i < 256; i++) {
+          sum += i * histogram[i];
+        }
+        
+        let sumB = 0;
+        let wB = 0;
+        let maxVariance = 0;
+        let threshold = 128; // Default fallback
+        
+        for (let t = 0; t < 256; t++) {
+          wB += histogram[t];
+          if (wB === 0) continue;
+          
+          const wF = grayscale.length - wB;
+          if (wF === 0) break;
+          
+          sumB += t * histogram[t];
+          const mB = sumB / wB;
+          const mF = (sum - sumB) / wF;
+          const variance = wB * wF * (mB - mF) * (mB - mF);
+          
+          if (variance > maxVariance) {
+            maxVariance = variance;
+            threshold = t;
+          }
+        }
+        
+        console.log(`📊 Otsu threshold: ${threshold}`);
+        
+        // Step 4: Apply aggressive binarization
         for (let i = 0; i < data.length; i += 4) {
           const gray = grayscale[i / 4];
           // Binarize: white if above threshold, black if below
@@ -124,11 +152,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         }
       });
 
-      // Configure for better spelling word recognition with PSM 6 and 300 DPI
+      // Configure for better spelling word recognition
+      // Try PSM 11 (sparse text) for button/pill layouts
       await worker.setParameters({
         tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
         tessedit_char_blacklist: '!@#$%^&*()_+=[]{}|\\;:"<>?,/',
-        tessedit_pageseg_mode: 6 as any, // Assume uniform block of text
+        tessedit_pageseg_mode: 11 as any, // Sparse text - find as much text as possible
         preserve_interword_spaces: '1',
         tessedit_ocr_engine_mode: 1 as any, // Neural nets LSTM engine only
         user_defined_dpi: '300',
