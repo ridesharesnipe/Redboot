@@ -144,8 +144,15 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       console.log('OCR confidence:', data.confidence);
 
       // Extract words from structured OCR data (not raw text)
-      const words = extractWordsFromStructuredData(data);
-      console.log('📸 PhotoCapture extracted OCR words:', words);
+      let words = extractWordsFromStructuredData(data);
+      console.log('📸 PhotoCapture extracted OCR words from structured data:', words);
+
+      // FALLBACK: If structured extraction found nothing but we have text, use text-based extraction
+      if (words.length === 0 && data.text.trim().length > 0) {
+        console.log('⚠️ Structured extraction returned no words, falling back to text-based extraction');
+        words = extractWordsFromText(data.text);
+        console.log('📸 PhotoCapture extracted words from text fallback:', words);
+      }
 
       // Add fallback for testing or when OCR fails to find text
       if (words.length === 0 && data.text.trim().length === 0) {
@@ -254,12 +261,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       
       // Skip if:
       // - Empty or too short (fragments less than 3 chars)
-      // - Low confidence (< 50)
+      // - Very low confidence (< 30) - lowered from 50 for noisy photos
       // - Non-alphabetic (numbers, punctuation only)
       // - Common header words
       if (!text || 
           text.length < 3 || 
-          confidence < 50 ||
+          confidence < 30 ||
           !/^[a-z]+$/.test(text) ||
           /^(spelling|pattern|word|list|homework|test|week|dates|the|and|for|are|but|not)$/i.test(text)) {
         console.log(`  → Skipped (too short, low confidence, or header word)`);
