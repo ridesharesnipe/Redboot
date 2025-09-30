@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
+import { useAudio } from '@/contexts/AudioContext';
 
 export enum SeaMonsterType {
   KRAKEN = 'KRAKEN',
@@ -55,6 +56,7 @@ const DEFAULT_MONSTER_NODES: Omit<SeaMonsterNode, 'isDefeated' | 'isBattling' | 
 ];
 
 export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJustUnlocked }: SeaMonsterBattleProps) {
+  const { playAudioFile } = useAudio();
   const [diegoPosition, setDiegoPosition] = useState({ x: 10, y: 80 });
   const [monsterNodes, setMonsterNodes] = useState<SeaMonsterNode[]>([]);
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
@@ -112,6 +114,9 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   const handleBattleComplete = (monsterId: string) => {
     const monster = monsterNodes.find(n => n.id === monsterId);
     if (!monster) return;
+
+    // Play Diego's victory bark
+    playAudioFile('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
 
     // Reveal defeated monster and add treasure
     setMonsterNodes(prev => prev.map(n => 
