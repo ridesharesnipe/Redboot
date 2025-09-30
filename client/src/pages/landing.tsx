@@ -41,9 +41,10 @@ export default function Landing({ onStart }: LandingProps) {
     }
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');
+    // Redirect to Replit Auth login (supports Google, GitHub, Apple, email/password)
     setTimeout(() => {
-      onStart?.();
-    }, 3000);
+      window.location.href = '/api/login';
+    }, 1500);
   };
 
   const handleDemo = () => {
@@ -239,82 +240,6 @@ export default function Landing({ onStart }: LandingProps) {
                 <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-progress-desc">
                   Follow Diego the Pup Pup through pirate adventures and track your spelling progress on magical treasure maps!
                 </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Preview */}
-      <section className="py-16 px-4 bg-gradient-to-b from-white to-blue-50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-fun text-foreground mb-4" data-testid="text-pricing-title">
-            Choose Your Adventure
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <h3 className="text-2xl font-bold mb-4 text-blue-700" data-testid="text-plan-free-title">Free Adventure</h3>
-                <div className="text-4xl font-bold text-blue-600 mb-4" data-testid="text-plan-free-price">$0</div>
-                <ul className="text-left space-y-3 mb-4">
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
-                      <Check className="w-3 h-3" />
-                    </div>
-                    <span className="text-gray-700">Red Boot character</span>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center mr-3 ring-2 ring-white shadow-md">
-                      <Check className="w-3 h-3" />
-                    </div>
-                    <span className="text-gray-700">1 word list per week</span>
-                  </li>
-                </ul>
-                <Button 
-                  onClick={handleLogin}
-                  variant="outline" 
-                  className="w-full text-lg font-bold"
-                  data-testid="button-free-plan"
-                >
-                  Start Free
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow relative">
-              <div className="absolute top-2 right-2 bg-white text-orange-500 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                <Star className="w-4 h-4 inline mr-1" />POPULAR
-              </div>
-              <CardContent className="p-6 relative z-10">
-                <h3 className="text-2xl font-bold mb-4" data-testid="text-plan-premium-title">Premium Adventure</h3>
-                <div className="text-4xl font-bold mb-4" data-testid="text-plan-premium-price">$2.99/mo</div>
-                <ul className="text-left space-y-3 mb-4">
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
-                      <Check className="w-3 h-3 text-orange-600" />
-                    </div>
-                    <span>All 4 characters</span>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
-                      <Check className="w-3 h-3 text-orange-600" />
-                    </div>
-                    <span>Unlimited word lists</span>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-white to-yellow-100 flex items-center justify-center mr-3 ring-2 ring-white/50 shadow-md">
-                      <Check className="w-3 h-3 text-orange-600" />
-                    </div>
-                    <span>Advanced analytics</span>
-                  </li>
-                </ul>
-                <Button 
-                  onClick={handleLogin}
-                  variant="default" className="w-full text-lg font-bold"
-                  data-testid="button-premium-plan"
-                >
-                  Start 7-Day Free Trial
-                </Button>
               </CardContent>
             </Card>
           </div>
