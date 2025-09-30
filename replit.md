@@ -51,7 +51,8 @@ Preferred communication style: Simple, everyday language.
 - **Drizzle Kit**: Database migrations and schema management
 
 ### Authentication Services
-- **Replit Auth**: OAuth 2.0 / OpenID Connect integration supporting Google and GitHub social logins
+- **Replit Auth**: OAuth 2.0 / OpenID Connect integration supporting Google, GitHub, Apple, X (Twitter), and email/password logins
+- **Login Flow**: Users click "Start Adventure" on landing page and are redirected to Replit Auth login page
 
 ### Media Processing
 - **Web Speech API**: Text-to-speech for word pronunciation and speech recognition for voice commands
