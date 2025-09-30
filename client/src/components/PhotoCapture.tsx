@@ -260,13 +260,13 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       console.log(`Checking word: "${text}" (confidence: ${confidence}, length: ${text?.length})`);
       
       // Skip if:
-      // - Empty or too short (fragments less than 3 chars)
-      // - Very low confidence (< 30) - lowered from 50 for noisy photos
+      // - Empty or very short (less than 2 chars - to capture short words like "go", "do")
+      // - Very low confidence (< 25) - even more lenient for noisy photos
       // - Non-alphabetic (numbers, punctuation only)
       // - Common header words
       if (!text || 
-          text.length < 3 || 
-          confidence < 30 ||
+          text.length < 2 || 
+          confidence < 25 ||
           !/^[a-z]+$/.test(text) ||
           /^(spelling|pattern|word|list|homework|test|week|dates|the|and|for|are|but|not)$/i.test(text)) {
         console.log(`  → Skipped (too short, low confidence, or header word)`);
@@ -283,10 +283,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       extractedWords.push(text);
       seenWords.add(text);
       
-      // Limit to 20 words
-      if (extractedWords.length >= 20) {
-        break;
-      }
+      // NO LIMIT - Capture all words found (not just 20)
     }
     
     console.log(`✓ Extracted ${extractedWords.length} complete words from structured data:`, extractedWords);
@@ -435,7 +432,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     });
     
     console.log('Final extracted words:', finalWords);
-    return finalWords.slice(0, 20); // Limit to 20 words max
+    return finalWords; // NO LIMIT - Return all words found
   };
 
   // Update word in editable list
@@ -542,6 +539,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
 
   // Show word verification screen if words were extracted
   if (showWordList) {
+    const wordCount = editableWords.filter(w => w.trim()).length;
+    
     return (
       <div className="min-h-screen bg-background p-4">
         <Card className="glass-card max-w-2xl mx-auto glass-floating">
@@ -549,6 +548,19 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
             <h2 className="text-3xl font-bold mb-6 text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
               🏴‍☠️ Verify Your Treasure Words 🏴‍☠️
             </h2>
+            
+            {/* HUGE Word Count Display */}
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 mb-8 rounded-2xl shadow-2xl border-4 border-white/30">
+              <div className="text-center">
+                <p className="text-2xl font-semibold mb-3 uppercase tracking-wide">Words Captured</p>
+                <div className="text-9xl font-bold mb-3 glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  {wordCount}
+                </div>
+                <p className="text-3xl font-medium">
+                  {wordCount === 1 ? 'Word' : 'Words'} Found ✨
+                </p>
+              </div>
+            </div>
             
             <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 rounded">
               <p className="text-yellow-800 font-semibold text-lg">⚠️ OCR Detection Notice</p>
