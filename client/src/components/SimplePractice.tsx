@@ -494,21 +494,25 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
+      {/* Prominent Back Button at top */}
+      <div className="max-w-4xl mx-auto mb-4">
+        <Button
+          onClick={onCancel}
+          variant="outline"
+          className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
+          data-testid="button-back-to-dashboard"
+        >
+          <X className="w-5 h-5 mr-2" />
+          Exit Practice
+        </Button>
+      </div>
+      
       <div className="max-w-4xl mx-auto space-y-4">
         {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        {/* Header with exit button, progress and treasure */}
+        {/* Header with progress and treasure */}
         <div className="flex justify-between items-center mb-3">
-          {/* Exit button */}
-          <button
-            onClick={onCancel}
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors"
-            data-testid="button-exit-practice"
-          >
-            <X className="w-5 h-5" />
-            <span className="text-sm font-medium">Exit</span>
-          </button>
           
           {/* Treasure counter */}
           <div className="flex items-center gap-2">

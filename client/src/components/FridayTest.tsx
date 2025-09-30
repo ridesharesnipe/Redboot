@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { spellingStorage } from '@/lib/localStorage';
-import { CheckCircle, XCircle, Award, Clock, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Award, Clock, FileText, X } from 'lucide-react';
 
 interface TestResult {
   word: string;
@@ -227,45 +227,51 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
   // Pre-test instructions
   if (showPreTest) {
     return (
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
-          <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center">
-            <FileText className="w-10 h-10 text-blue-600" />
-          </div>
-          
-          <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
-            Friday Spelling Test
-          </h2>
-          
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 text-left">
-            <h3 className="font-bold mb-3 text-center">Test Instructions</h3>
-            <ul className="space-y-2 text-sm">
-              <li>• You have <strong>15 minutes</strong> to complete {testWords.length} words</li>
-              <li>• Listen carefully to each word being spoken</li>
-              <li>• Type your spelling and press Enter or click Submit</li>
-              <li>• You can ask to repeat a word if needed</li>
-              <li>• Take your time and do your best!</li>
-            </ul>
-          </div>
-          
-          <div className="flex gap-3 justify-between mt-6">
-            <Button 
-              onClick={onCancel} 
-              variant="outline"
-              data-testid="button-cancel-test"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={startTest}
-              className="bg-green-600 hover:bg-green-700 px-8"
-              data-testid="button-start-test"
-            >
-              Start Test
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
+        <div className="max-w-2xl mx-auto mb-4">
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
+            data-testid="button-back-from-test"
+          >
+            <X className="w-5 h-5 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-8 text-center">
+            <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <FileText className="w-10 h-10 text-blue-600" />
+            </div>
+            
+            <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+              Friday Spelling Test
+            </h2>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 text-left">
+              <h3 className="font-bold mb-3 text-center">Test Instructions</h3>
+              <ul className="space-y-2 text-sm">
+                <li>• You have <strong>15 minutes</strong> to complete {testWords.length} words</li>
+                <li>• Listen carefully to each word being spoken</li>
+                <li>• Type your spelling and press Enter or click Submit</li>
+                <li>• You can ask to repeat a word if needed</li>
+                <li>• Take your time and do your best!</li>
+              </ul>
+            </div>
+            
+            <div className="flex gap-3 justify-center mt-6">
+              <Button 
+                onClick={startTest}
+                className="bg-green-600 hover:bg-green-700 px-8"
+                data-testid="button-start-test"
+              >
+                Start Test
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -275,8 +281,20 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
     const percentage = Math.round((correctAnswers / testWords.length) * 100);
     
     return (
-      <Card className="max-w-4xl mx-auto">
-        <CardContent className="p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
+        <div className="max-w-4xl mx-auto mb-4">
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
+            data-testid="button-back-from-results"
+          >
+            <X className="w-5 h-5 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+        <Card className="max-w-4xl mx-auto">
+          <CardContent className="p-8">
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <Award className="w-10 h-10 text-yellow-600" />
@@ -355,6 +373,7 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
           </div>
         </CardContent>
       </Card>
+      </div>
     );
   }
 
@@ -373,7 +392,21 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
   const progress = ((currentWordIndex + 1) / testWords.length) * 100;
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
+      {/* Prominent Back Button at top */}
+      <div className="max-w-2xl mx-auto mb-4">
+        <Button
+          onClick={onCancel}
+          variant="outline"
+          className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
+          data-testid="button-exit-test"
+        >
+          <X className="w-5 h-5 mr-2" />
+          Exit Test
+        </Button>
+      </div>
+      
+      <Card className="max-w-2xl mx-auto">
       <CardContent className="p-8">
         {/* Test header with timer and progress */}
         <div className="flex justify-between items-center mb-6">
@@ -391,14 +424,7 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
             <Progress value={progress} className="w-full" />
           </div>
           
-          <Button 
-            onClick={onCancel} 
-            variant="outline" 
-            size="sm"
-            data-testid="button-cancel-test-progress"
-          >
-            End Test
-          </Button>
+          <div className="w-24"></div>
         </div>
 
         {/* Test interface */}
@@ -454,5 +480,6 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
