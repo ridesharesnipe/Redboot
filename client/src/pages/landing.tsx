@@ -20,7 +20,7 @@ export default function Landing({ onStart }: LandingProps) {
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego' | null>(null);
-  const { playSound, startBackgroundMusic, playCharacterVoice } = useAudio();
+  const { playSound, startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
 
   // Initialize audio on first user interaction (mobile-friendly)
   const initializeAudio = () => {
@@ -196,7 +196,7 @@ export default function Landing({ onStart }: LandingProps) {
               onClick={() => {
                 setSelectedCharacter('diego');
                 playSound('anchor_button_click');
-                playCharacterVoice('red_boot_ahoy');
+                playAudioFile('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
                 localStorage.setItem('selectedCharacter', 'diego');
                 setTimeout(() => {
                   if (onStart) onStart();

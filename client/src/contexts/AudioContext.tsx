@@ -15,6 +15,7 @@ interface AudioContextType {
   settings: AudioSettings;
   updateSettings: (newSettings: Partial<AudioSettings>) => void;
   playSound: (soundType: SoundType, volume?: number) => void;
+  playAudioFile: (audioFilePath: string, volume?: number) => void;
   startBackgroundMusic: (musicType: BackgroundMusicType) => void;
   stopBackgroundMusic: () => void;
   playCharacterVoice: (voiceType: CharacterVoiceType) => void;
@@ -307,6 +308,21 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       oscillator.start();
     } catch (error) {
       console.error('Error playing sound:', error);
+    }
+  };
+
+  // Play audio file (MP3, WAV, etc.)
+  const playAudioFile = (audioFilePath: string, volume = 1) => {
+    if (!settings.soundEffectsEnabled || settings.focusModeEnabled) return;
+    
+    try {
+      const audio = new Audio(audioFilePath);
+      audio.volume = Math.min(1, Math.max(0, settings.masterVolume * volume));
+      audio.play().catch(error => {
+        console.error('Error playing audio file:', error);
+      });
+    } catch (error) {
+      console.error('Error loading audio file:', error);
     }
   };
 
@@ -693,6 +709,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     settings,
     updateSettings,
     playSound,
+    playAudioFile,
     startBackgroundMusic,
     stopBackgroundMusic,
     playCharacterVoice,
