@@ -575,13 +575,35 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           )}
 
           {stats?.totalWords ? (
-            <Button 
-              onClick={onViewPractice}
-              className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
-              data-testid="button-practice-now"
-            >
-              🚀 Practice Now!
-            </Button>
+            <div className="space-y-4">
+              <Button 
+                onClick={onViewPractice}
+                className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
+                data-testid="button-practice-now"
+              >
+                🚀 Practice Now!
+              </Button>
+              <div>
+                <Button 
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to clear all words and start fresh? This will delete all progress for this week.')) {
+                      // Clear all stored data
+                      localStorage.removeItem('currentSpellingWords');
+                      localStorage.removeItem('spellingProgress');
+                      localStorage.removeItem('weeklyStats');
+                      // Refresh the page to reset
+                      window.location.reload();
+                    }
+                  }}
+                  variant="outline"
+                  className="bg-red-500/20 hover:bg-red-500/30 text-white border-red-400 hover:border-red-300"
+                  data-testid="button-clear-words"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear All Words & Start Fresh
+                </Button>
+              </div>
+            </div>
           ) : (
             <Button 
               onClick={onTakePhoto}
