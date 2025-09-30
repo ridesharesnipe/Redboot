@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import TreasureRoad from '@/components/TreasureRoad';
+import SeaMonsterBattle from '@/components/SeaMonsterBattle';
 import { Coins, SkipForward, CheckCircle, XCircle, X } from 'lucide-react';
 
 interface SimplePracticeProps {
@@ -25,6 +26,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [isWordSpoken, setIsWordSpoken] = useState(false);
   const [showTreasureRoad, setShowTreasureRoad] = useState(false);
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
   
   // ADD these new state variables for Tricky Treasures
   const [trickyWords, setTrickyWords] = useState<string[]>([]);
@@ -135,6 +137,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     }
     return false; // No treasure this time
   };
+
+  // Load selected character
+  useEffect(() => {
+    const character = localStorage.getItem('selectedCharacter') as 'redboot' | 'diego';
+    if (character) {
+      setSelectedCharacter(character);
+    }
+  }, []);
 
   // Initialize practice session
   useEffect(() => {
@@ -718,13 +728,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       </CardContent>
     </Card>
     
-    {/* Always Visible Treasure Road - Large and Prominent */}
+    {/* Adventure Mode - Red Boot's Treasure Hunt OR Diego's Sea Monster Battle */}
     <div className="w-full">
-      <TreasureRoad
-        totalWords={practiceWords.length}
-        masteredWords={correctCount}
-        treasureJustUnlocked={currentTreasure || undefined}
-      />
+      {selectedCharacter === 'redboot' ? (
+        <TreasureRoad
+          totalWords={practiceWords.length}
+          masteredWords={correctCount}
+          treasureJustUnlocked={currentTreasure || undefined}
+        />
+      ) : (
+        <SeaMonsterBattle
+          totalWords={practiceWords.length}
+          masteredWords={correctCount}
+          treasureJustUnlocked={!!currentTreasure}
+        />
+      )}
     </div>
     
     {/* ADD Step 5: Visual indicator for bonus practice availability */}

@@ -19,6 +19,7 @@ interface LandingProps {
 export default function Landing({ onStart }: LandingProps) {
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego' | null>(null);
   const { playSound, startBackgroundMusic, playCharacterVoice } = useAudio();
 
   // Initialize audio on first user interaction (mobile-friendly)
@@ -145,40 +146,84 @@ export default function Landing({ onStart }: LandingProps) {
       <section className="py-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-fun text-foreground mb-4" data-testid="text-crew-title">
-            Meet Your Pirate Crew!
+            Choose Your Adventure!
           </h2>
-          <p className="text-xl text-gray-600 mb-4">Join Red Boot and his friends on the greatest spelling adventure!</p>
-          <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto">
-            {/* Red Boot - Top */}
-            <div className="text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="w-48 h-48 relative overflow-hidden rounded-3xl bg-transparent">
+          <p className="text-xl text-gray-600 mb-6">Select your hero to begin your spelling journey!</p>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto">
+            {/* Red Boot - Treasure Hunt */}
+            <div 
+              className={`text-center cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                selectedCharacter === 'redboot' ? 'ring-8 ring-yellow-400 rounded-3xl shadow-2xl' : 'hover:shadow-xl'
+              }`}
+              onClick={() => {
+                setSelectedCharacter('redboot');
+                playSound('anchor_button_click');
+                playCharacterVoice('red_boot_ahoy');
+                localStorage.setItem('selectedCharacter', 'redboot');
+                setTimeout(() => {
+                  if (onStart) onStart();
+                }, 1000);
+              }}
+              data-testid="character-select-redboot"
+            >
+              <div className="mb-4 flex justify-center relative">
+                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 p-2 transition-all ${
+                  selectedCharacter === 'redboot' ? 'animate-pulse' : ''
+                }`}>
                   <img 
                     src={redBootCrew} 
                     alt="Red Boot the Brave Captain" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-2xl"
                   />
                 </div>
+                {selectedCharacter === 'redboot' && (
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
+                    <Check className="w-8 h-8 text-white" />
+                  </div>
+                )}
               </div>
-              <h3 className="font-bold text-xl text-green-700 mb-4">Red Boot</h3>
-              <p className="text-base text-gray-600">The Brave Captain</p>
-              <div className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full mb-4 inline-block">FREE</div>
+              <h3 className="font-bold text-2xl text-red-700 mb-2">Red Boot</h3>
+              <p className="text-lg text-gray-700 font-semibold mb-2">⚓ Treasure Hunt Adventure</p>
+              <p className="text-sm text-gray-600 mb-3">Dig up buried treasures on mysterious islands!</p>
+              <div className="bg-green-100 text-green-800 text-sm px-4 py-2 rounded-full mb-4 inline-block font-bold">FREE</div>
             </div>
             
-            {/* Diego - Bottom */}
-            <div className="text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="w-48 h-48 relative overflow-hidden rounded-3xl bg-transparent">
+            {/* Diego - Sea Monster Battle */}
+            <div 
+              className={`text-center cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                selectedCharacter === 'diego' ? 'ring-8 ring-blue-400 rounded-3xl shadow-2xl' : 'hover:shadow-xl'
+              }`}
+              onClick={() => {
+                setSelectedCharacter('diego');
+                playSound('anchor_button_click');
+                playCharacterVoice('red_boot_ahoy');
+                localStorage.setItem('selectedCharacter', 'diego');
+                setTimeout(() => {
+                  if (onStart) onStart();
+                }, 1000);
+              }}
+              data-testid="character-select-diego"
+            >
+              <div className="mb-4 flex justify-center relative">
+                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2 transition-all ${
+                  selectedCharacter === 'diego' ? 'animate-pulse' : ''
+                }`}>
                   <img 
                     src={diegoImage} 
                     alt="Diego the Pup Pup" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-2xl"
                   />
                 </div>
+                {selectedCharacter === 'diego' && (
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center animate-bounce">
+                    <Check className="w-8 h-8 text-white" />
+                  </div>
+                )}
               </div>
-              <h3 className="font-bold text-xl text-brown-700 mb-4">Diego the Pup Pup</h3>
-              <p className="text-base text-gray-600">Loyal First Mate</p>
-              <div className="bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full mb-4 inline-block">FREE</div>
+              <h3 className="font-bold text-2xl text-blue-700 mb-2">Diego the Pup Pup</h3>
+              <p className="text-lg text-gray-700 font-semibold mb-2">🌊 Sea Monster Battle</p>
+              <p className="text-sm text-gray-600 mb-3">Battle fearsome sea monsters and claim their treasures!</p>
+              <div className="bg-orange-100 text-orange-800 text-sm px-4 py-2 rounded-full mb-4 inline-block font-bold">FREE</div>
             </div>
           </div>
         </div>
