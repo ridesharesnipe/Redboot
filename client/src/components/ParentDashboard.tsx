@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 
 interface ParentDashboardProps {
@@ -541,7 +541,20 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
   return (
     <div className="min-h-screen glass-gradient-bg p-6">
-    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Prominent Back Button */}
+      <div className="max-w-4xl mx-auto mb-4">
+        <Button
+          onClick={() => window.location.href = '/'}
+          variant="outline"
+          className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
+          data-testid="button-back-to-home"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Home
+        </Button>
+      </div>
+      
+      <div className="max-w-4xl mx-auto space-y-8">
       {/* TOP SECTION - Week Status */}
       <Card className="glass-card glass-floating">
         <CardContent className="p-8 text-center">
