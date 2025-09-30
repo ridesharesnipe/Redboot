@@ -130,61 +130,162 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     });
   };
 
-  // Process image with OCR
+  // Invert image colors (for dark text on light background vs light text on dark)
+  const invertImage = async (imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d')!;
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        
+        // Invert all pixels
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = 255 - data[i];       // Red
+          data[i + 1] = 255 - data[i + 1]; // Green
+          data[i + 2] = 255 - data[i + 2]; // Blue
+        }
+        
+        ctx.putImageData(imgData, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = imageData;
+    });
+  };
+
+  // Process image with MULTI-PASS OCR for maximum word detection
   const processImage = async (imageData: string) => {
     setIsProcessing(true);
     setOcrProgress(0);
     
     try {
+      console.log('🚀 Starting MULTI-PASS OCR processing...');
+      
       // Preprocess image for better OCR
-      console.log('Preprocessing image...');
+      console.log('📸 Pass 1: Preprocessing with Otsu thresholding...');
       const preprocessedImage = await preprocessImageForOCR(imageData);
       
-      // Lazy-load tesseract.js to keep bundle size small
+      // Lazy-load tesseract.js
       const { createWorker } = await import('tesseract.js');
       
-      // Create Tesseract worker
-      const worker = await createWorker('eng', 1, {
+      let allWords: string[] = [];
+      const wordConfidence = new Map<string, number>(); // Track best confidence per word
+      
+      // PASS 1: PSM 11 (Sparse text - best for buttons/pills)
+      console.log('🔍 Pass 1: Trying PSM 11 (sparse text detection)...');
+      const worker1 = await createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
-            setOcrProgress(Math.round(m.progress * 100));
+            setOcrProgress(Math.round(m.progress * 30)); // 0-30%
           }
         }
       });
 
-      // Configure for better spelling word recognition
-      // Try PSM 11 (sparse text) for button/pill layouts
-      await worker.setParameters({
+      await worker1.setParameters({
         tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
-        tessedit_char_blacklist: '!@#$%^&*()_+=[]{}|\\;:"<>?,/',
-        tessedit_pageseg_mode: 11 as any, // Sparse text - find as much text as possible
-        preserve_interword_spaces: '1',
-        tessedit_ocr_engine_mode: 1 as any, // Neural nets LSTM engine only
+        tessedit_pageseg_mode: 11 as any, // Sparse text
+        tessedit_ocr_engine_mode: 1 as any,
         user_defined_dpi: '300',
       });
 
-      console.log('Starting OCR processing...');
-
-      // Perform OCR on preprocessed image - get full structured data
-      const { data } = await worker.recognize(preprocessedImage);
-      await worker.terminate();
-
-      console.log('Raw OCR text:', data.text);
-      console.log('OCR confidence:', data.confidence);
-
-      // Extract words from structured OCR data (not raw text)
-      let words = extractWordsFromStructuredData(data);
-      console.log('📸 PhotoCapture extracted OCR words from structured data:', words);
-
-      // FALLBACK: If structured extraction found nothing but we have text, use text-based extraction
-      if (words.length === 0 && data.text.trim().length > 0) {
-        console.log('⚠️ Structured extraction returned no words, falling back to text-based extraction');
-        words = extractWordsFromText(data.text);
-        console.log('📸 PhotoCapture extracted words from text fallback:', words);
+      const result1 = await worker1.recognize(preprocessedImage);
+      await worker1.terminate();
+      
+      let words1 = extractWordsFromStructuredData(result1.data);
+      if (words1.length === 0 && result1.data.text.trim().length > 0) {
+        words1 = extractWordsFromText(result1.data.text);
       }
+      console.log(`✅ Pass 1 found ${words1.length} words:`, words1);
+      words1.forEach(w => {
+        allWords.push(w);
+        wordConfidence.set(w, result1.data.confidence || 0);
+      });
+
+      // PASS 2: PSM 3 (Automatic - good for mixed layouts)
+      console.log('🔍 Pass 2: Trying PSM 3 (automatic layout detection)...');
+      const worker2 = await createWorker('eng', 1, {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            setOcrProgress(30 + Math.round(m.progress * 30)); // 30-60%
+          }
+        }
+      });
+
+      await worker2.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
+        tessedit_pageseg_mode: 3 as any, // Automatic
+        tessedit_ocr_engine_mode: 1 as any,
+        user_defined_dpi: '300',
+      });
+
+      const result2 = await worker2.recognize(preprocessedImage);
+      await worker2.terminate();
+      
+      let words2 = extractWordsFromStructuredData(result2.data);
+      if (words2.length === 0 && result2.data.text.trim().length > 0) {
+        words2 = extractWordsFromText(result2.data.text);
+      }
+      console.log(`✅ Pass 2 found ${words2.length} words:`, words2);
+      words2.forEach(w => {
+        if (!wordConfidence.has(w) || (result2.data.confidence || 0) > (wordConfidence.get(w) || 0)) {
+          wordConfidence.set(w, result2.data.confidence || 0);
+        }
+        if (!allWords.includes(w)) {
+          allWords.push(w);
+        }
+      });
+
+      // PASS 3: Try inverted image (helps with some color schemes)
+      console.log('🔍 Pass 3: Trying with inverted colors...');
+      const invertedPreprocessed = await invertImage(preprocessedImage);
+      
+      const worker3 = await createWorker('eng', 1, {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            setOcrProgress(60 + Math.round(m.progress * 30)); // 60-90%
+          }
+        }
+      });
+
+      await worker3.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
+        tessedit_pageseg_mode: 11 as any,
+        tessedit_ocr_engine_mode: 1 as any,
+        user_defined_dpi: '300',
+      });
+
+      const result3 = await worker3.recognize(invertedPreprocessed);
+      await worker3.terminate();
+      
+      let words3 = extractWordsFromStructuredData(result3.data);
+      if (words3.length === 0 && result3.data.text.trim().length > 0) {
+        words3 = extractWordsFromText(result3.data.text);
+      }
+      console.log(`✅ Pass 3 found ${words3.length} words:`, words3);
+      words3.forEach(w => {
+        if (!wordConfidence.has(w) || (result3.data.confidence || 0) > (wordConfidence.get(w) || 0)) {
+          wordConfidence.set(w, result3.data.confidence || 0);
+        }
+        if (!allWords.includes(w)) {
+          allWords.push(w);
+        }
+      });
+
+      setOcrProgress(100);
+
+      // Deduplicate and keep unique words
+      const uniqueWords = Array.from(new Set(allWords));
+      console.log(`🎯 TOTAL UNIQUE WORDS FOUND: ${uniqueWords.length}`, uniqueWords);
+      
+      let words = uniqueWords;
 
       // Add fallback for testing or when OCR fails to find text
-      if (words.length === 0 && data.text.trim().length === 0) {
+      if (words.length === 0) {
         console.log('OCR returned no text, offering demo words fallback');
         // Show a helpful message with option to use demo words
         toast({
