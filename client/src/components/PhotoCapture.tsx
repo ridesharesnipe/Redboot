@@ -51,21 +51,23 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const img = new Image();
       
       img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
+        // Scale up image for better OCR (2x size)
+        const scale = 2;
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
         
-        // Draw image to canvas
-        ctx.drawImage(img, 0, 0);
+        // Draw image to canvas with scaling
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         
         // Get image data for processing
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
         
-        // Convert to grayscale and increase contrast
+        // Convert to grayscale with higher contrast for better OCR
         for (let i = 0; i < data.length; i += 4) {
           const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          // Increase contrast
-          const enhanced = gray > 128 ? Math.min(255, gray * 1.2) : Math.max(0, gray * 0.8);
+          // Stronger contrast enhancement - threshold at 140 instead of 128
+          const enhanced = gray > 140 ? 255 : Math.max(0, gray * 0.6);
           data[i] = enhanced;     // Red
           data[i + 1] = enhanced; // Green  
           data[i + 2] = enhanced; // Blue
@@ -107,8 +109,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       // Configure for better spelling word recognition
       await worker.setParameters({
         tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., -:/()',
-        tessedit_pageseg_mode: 6 as any, // Uniform block of text
+        tessedit_pageseg_mode: 4 as any, // Single column of text
         preserve_interword_spaces: '1',
+        tessedit_ocr_engine_mode: 1 as any, // Neural nets LSTM engine only
       });
 
       console.log('Starting OCR processing...');
@@ -241,10 +244,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       
       // Look for numbered lists with more flexible patterns
       const numberedPatterns = [
-        /^\s*(\d+)[\.\)\s]\s*([a-zA-Z]{2,15})/,           // "1. word" or "1) word" (allow 2+ chars)
-        /^\s*(\d+)\s+([a-zA-Z]{2,15})/,                   // "1 word"
-        /(\d+)\.\s*([a-zA-Z]{2,15})/,                     // anywhere in line "1. word"
-        /(\d+)\s+([a-zA-Z]{2,15})\b/                      // "1 word" with word boundary
+        /^\s*(\d+)[\.\)\s]\s*([a-zA-Z]{2,20})/,           // "1. word" or "1) word" (allow 2-20 chars)
+        /^\s*(\d+)\s+([a-zA-Z]{2,20})/,                   // "1 word"
+        /(\d+)\.\s*([a-zA-Z]{2,20})/,                     // anywhere in line "1. word"
+        /(\d+)\s+([a-zA-Z]{2,20})\b/,                     // "1 word" with word boundary
+        /^\s*(\d{1,2})\s*\.\s*([a-zA-Z]+)/,              // More flexible "10. word" or "1. word"
+        /(\d{1,2})\.([a-zA-Z]+)/                         // "10.word" (no space)
       ];
       
       for (const pattern of numberedPatterns) {
@@ -297,14 +302,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       }
       
       // Extract individual words from line (more flexible approach)
-      const lineWords = cleanLine.match(/\b[a-zA-Z]{3,15}\b/g); // Accept 3+ letter words
+      const lineWords = cleanLine.match(/\b[a-zA-Z]{2,20}\b/g); // Accept 2-20 letter words
       if (lineWords) {
         lineWords.forEach(word => {
           const cleanWord = word.toLowerCase().trim();
           // Filter out common non-spelling words and header fragments
-          const skipWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att', 'word', 'list', 'spelling', 'homework', 'test'];
+          const skipWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att', 'word', 'list', 'spelling', 'homework', 'test', 'on', 'an', 'at', 'be', 'by', 'do', 'go', 'he', 'if', 'in', 'is', 'it', 'me', 'my', 'no', 'of', 'or', 'so', 'to', 'up', 'us', 'we'];
           
-          if (!skipWords.includes(cleanWord) && cleanWord.length >= 3) {
+          if (!skipWords.includes(cleanWord) && cleanWord.length >= 2) {
             console.log('Found word:', cleanWord);
             // Avoid duplicates
             if (!otherWords.includes(cleanWord) && !numberedWords.includes(cleanWord)) {
@@ -320,14 +325,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     
     // Add numbered words in order (skip empty slots)
     numberedWords.forEach(word => {
-      if (word && word.length >= 3) {
+      if (word && word.length >= 2) {
         finalWords.push(word);
       }
     });
     
     // Add other words (more flexible)
     otherWords.forEach(word => {
-      if (!finalWords.includes(word) && word.length >= 3 && word.length <= 15) {
+      if (!finalWords.includes(word) && word.length >= 2 && word.length <= 20) {
         finalWords.push(word);
       }
     });
