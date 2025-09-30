@@ -196,10 +196,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const result1 = await worker1.recognize(preprocessedImage);
       await worker1.terminate();
       
+      // Try BOTH structured AND text extraction, combine results
       let words1 = extractWordsFromStructuredData(result1.data);
-      if (words1.length === 0 && result1.data.text.trim().length > 0) {
-        words1 = extractWordsFromText(result1.data.text);
-      }
+      const textWords1 = extractWordsFromText(result1.data.text);
+      textWords1.forEach(w => {
+        if (!words1.includes(w)) {
+          words1.push(w);
+        }
+      });
       console.log(`✅ Pass 1 found ${words1.length} words:`, words1);
       words1.forEach(w => {
         allWords.push(w);
@@ -226,10 +230,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const result2 = await worker2.recognize(preprocessedImage);
       await worker2.terminate();
       
+      // Try BOTH structured AND text extraction, combine results
       let words2 = extractWordsFromStructuredData(result2.data);
-      if (words2.length === 0 && result2.data.text.trim().length > 0) {
-        words2 = extractWordsFromText(result2.data.text);
-      }
+      const textWords2 = extractWordsFromText(result2.data.text);
+      textWords2.forEach(w => {
+        if (!words2.includes(w)) {
+          words2.push(w);
+        }
+      });
       console.log(`✅ Pass 2 found ${words2.length} words:`, words2);
       words2.forEach(w => {
         if (!wordConfidence.has(w) || (result2.data.confidence || 0) > (wordConfidence.get(w) || 0)) {
@@ -262,10 +270,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const result3 = await worker3.recognize(invertedPreprocessed);
       await worker3.terminate();
       
+      // Try BOTH structured AND text extraction, combine results
       let words3 = extractWordsFromStructuredData(result3.data);
-      if (words3.length === 0 && result3.data.text.trim().length > 0) {
-        words3 = extractWordsFromText(result3.data.text);
-      }
+      const textWords3 = extractWordsFromText(result3.data.text);
+      textWords3.forEach(w => {
+        if (!words3.includes(w)) {
+          words3.push(w);
+        }
+      });
       console.log(`✅ Pass 3 found ${words3.length} words:`, words3);
       words3.forEach(w => {
         if (!wordConfidence.has(w) || (result3.data.confidence || 0) > (wordConfidence.get(w) || 0)) {
