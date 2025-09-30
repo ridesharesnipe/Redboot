@@ -91,19 +91,21 @@ export default function Game() {
     setWordProgress(results);
     setGameMode("manager");
     
-    // Save progress to database
-    const correctWords = results.filter(w => w.status === "mastered").map(w => w.word);
-    const incorrectWords = results.filter(w => w.status === "learning").map(w => w.word);
-    const score = Math.round((correctWords.length / results.length) * 100);
-    
-    saveProgressMutation.mutate({
-      wordListId: wordLists?.[0]?.id,
-      characterUsed: 'red-boot',
-      correctWords,
-      incorrectWords,
-      timeSpent: 0, // TODO: track actual time
-      score,
-    });
+    // Save progress to database (optional - only if childId exists)
+    if (childId) {
+      const correctWords = results.filter(w => w.status === "mastered").map(w => w.word);
+      const incorrectWords = results.filter(w => w.status === "learning").map(w => w.word);
+      const score = Math.round((correctWords.length / results.length) * 100);
+      
+      saveProgressMutation.mutate({
+        wordListId: 'temp-list',
+        characterUsed: 'red-boot',
+        correctWords,
+        incorrectWords,
+        timeSpent: 0, // TODO: track actual time
+        score,
+      });
+    }
   };
 
   const handleTestComplete = (results: any[]) => {
@@ -122,7 +124,7 @@ export default function Game() {
     setGameMode("manager");
   };
 
-  if (!child) {
+  if (!currentWords || currentWords.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />

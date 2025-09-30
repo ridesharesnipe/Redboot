@@ -74,9 +74,8 @@ export default function ProgressPage() {
 
         {/* Interactive Treasure Map */}
         <TreasureMap 
-          wordLists={wordLists || []} 
-          progress={progress || []} 
-          childId={childId || ''} 
+          totalWords={wordLists?.reduce((sum, wl) => sum + wl.words.length, 0) || 0}
+          masteredWords={progress?.reduce((sum, p) => sum + (p.correctWords?.length || 0), 0) || 0}
         />
 
         {/* Achievement Badges */}

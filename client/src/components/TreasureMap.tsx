@@ -14,7 +14,15 @@ const TREASURE_ICONS = {
   [TreasureType.GOLD_RING]: '💍',
   [TreasureType.DIAMOND]: '💎', 
   [TreasureType.RUBY]: '❤️',
-  [TreasureType.GOLD_BAR]: '🥇'
+  [TreasureType.GOLD_BAR]: '🥇',
+  [TreasureType.CROWN]: '👑',
+  [TreasureType.GEM]: '💠',
+  [TreasureType.PEARL]: '🔮',
+  [TreasureType.CRYSTAL]: '🌟',
+  [TreasureType.COIN]: '🪙',
+  [TreasureType.TROPHY]: '🏆',
+  [TreasureType.STAR]: '⭐',
+  [TreasureType.MEDAL]: '🥈'
 };
 
 // Particle component for digging effects

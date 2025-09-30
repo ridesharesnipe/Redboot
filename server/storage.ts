@@ -85,14 +85,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createChild(child: InsertChild): Promise<Child> {
-    const [newChild] = await db.insert(children).values(child).returning();
+    const [newChild] = await db.insert(children).values(child as any).returning();
     return newChild;
   }
 
   async updateChild(id: string, updates: Partial<InsertChild>): Promise<Child> {
     const [child] = await db
       .update(children)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({ ...updates, updatedAt: new Date() } as any)
       .where(eq(children.id, id))
       .returning();
     return child;
@@ -113,7 +113,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWordList(wordListData: InsertWordList): Promise<WordList> {
-    const [wordList] = await db.insert(wordLists).values(wordListData).returning();
+    const [wordList] = await db.insert(wordLists).values(wordListData as any).returning();
     return wordList;
   }
 
@@ -127,7 +127,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createProgress(progressData: InsertProgress): Promise<Progress> {
-    const [newProgress] = await db.insert(progress).values(progressData).returning();
+    const [newProgress] = await db.insert(progress).values(progressData as any).returning();
     return newProgress;
   }
 
