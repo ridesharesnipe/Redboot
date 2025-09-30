@@ -254,34 +254,52 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     
     // Process each word from Tesseract's word-level detection
     for (const word of wordsArray) {
-      const text = word.text?.trim().toLowerCase();
+      const rawText = word.text?.trim();
       const confidence = word.confidence || 0;
       
-      console.log(`Checking word: "${text}" (confidence: ${confidence}, length: ${text?.length})`);
+      console.log(`RAW from Tesseract: "${rawText}" (confidence: ${confidence})`);
       
+      // Skip empty
+      if (!rawText) {
+        console.log(`  → Skipped (empty)`);
+        continue;
+      }
+      
+      // NORMALIZE FIRST - strip numbers, punctuation, whitespace
+      // This is the KEY FIX - clean BEFORE validating
+      let cleanText = rawText
+        .replace(/[\d\.\,\!\?\;\:\"\'\(\)\[\]\{\}]/g, '') // Remove numbers and punctuation
+        .replace(/\s+/g, '') // Remove whitespace
+        .toLowerCase()
+        .trim();
+      
+      console.log(`  → After normalization: "${cleanText}"`);
+      
+      // NOW validate the cleaned text
       // Skip if:
-      // - Empty or very short (less than 2 chars - to capture short words like "go", "do")
-      // - Very low confidence (< 25) - even more lenient for noisy photos
-      // - Non-alphabetic (numbers, punctuation only)
+      // - Empty after cleaning
+      // - Too short (less than 2 chars)
+      // - Very low confidence (< 10) - VERY lenient now
+      // - Not alphabetic (after cleaning)
       // - Common header words
-      if (!text || 
-          text.length < 2 || 
-          confidence < 25 ||
-          !/^[a-z]+$/.test(text) ||
-          /^(spelling|pattern|word|list|homework|test|week|dates|the|and|for|are|but|not)$/i.test(text)) {
-        console.log(`  → Skipped (too short, low confidence, or header word)`);
+      if (!cleanText || 
+          cleanText.length < 2 || 
+          confidence < 10 ||
+          !/^[a-z]+$/.test(cleanText) ||
+          /^(spelling|pattern|word|list|homework|test|week|dates|the|and|for|are|but|not)$/i.test(cleanText)) {
+        console.log(`  → Skipped (too short: ${cleanText.length < 2}, low conf: ${confidence < 10}, not alpha: ${!/^[a-z]+$/.test(cleanText)}, header: ${/^(spelling|pattern|word|list|homework|test|week|dates|the|and|for|are|but|not)$/i.test(cleanText)})`);
         continue;
       }
       
       // Avoid duplicates
-      if (seenWords.has(text)) {
+      if (seenWords.has(cleanText)) {
         console.log(`  → Skipped (duplicate)`);
         continue;
       }
       
-      console.log(`  ✓ ACCEPTED: "${text}"`);
-      extractedWords.push(text);
-      seenWords.add(text);
+      console.log(`  ✓✓✓ ACCEPTED: "${cleanText}" (from raw: "${rawText}")`);
+      extractedWords.push(cleanText);
+      seenWords.add(cleanText);
       
       // NO LIMIT - Capture all words found (not just 20)
     }
