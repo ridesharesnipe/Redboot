@@ -33,7 +33,7 @@ export default function Landing({ onStart }: LandingProps) {
     }
   };
 
-  const handleLogin = () => {
+  const handleStartAdventure = () => {
     // Initialize audio without the automatic welcome message
     if (!audioInitialized) {
       setAudioInitialized(true);
@@ -41,9 +41,11 @@ export default function Landing({ onStart }: LandingProps) {
     }
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');
-    // Redirect to Replit Auth login (supports Google, GitHub, Apple, email/password)
+    // Go directly to the app
     setTimeout(() => {
-      window.location.href = '/api/login';
+      if (onStart) {
+        onStart();
+      }
     }, 1500);
   };
 
@@ -117,7 +119,7 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4 safe-area-x">
             <Button 
-              onClick={handleLogin}
+              onClick={handleStartAdventure}
               variant="default" className="font-bold w-full sm:w-auto"
               size="lg"
               data-testid="button-start-adventure"

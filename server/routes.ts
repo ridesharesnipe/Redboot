@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertChildSchema, insertWordListSchema, insertProgressSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -14,21 +13,6 @@ if (process.env.STRIPE_SECRET_KEY) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup Replit Auth (Google, GitHub, Apple, email/password)
-  await setupAuth(app);
-
-  // Auth API route to get current user
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // Simple API routes for basic functionality
   app.get('/api/status', async (req, res) => {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
