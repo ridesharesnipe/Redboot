@@ -417,10 +417,20 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   const skipWord = () => {
-    // Mark as incorrect when skipped (handled locally)
+    const currentWord = getCurrentWord();
     
-    playSound('anchor_button_click');
-    nextWord();
+    // Add skipped word to tricky words queue for bonus round
+    if (!trickyWords.includes(currentWord)) {
+      setTrickyWords(prev => [...prev, currentWord]);
+    }
+    
+    // Red Boot says it's okay, we'll try again later
+    playCharacterVoice('red_boot_skip');
+    
+    // Move to next word after brief delay
+    setTimeout(() => {
+      nextWord();
+    }, 2000); // Give voice time to speak
   };
 
   const repeatWord = () => {

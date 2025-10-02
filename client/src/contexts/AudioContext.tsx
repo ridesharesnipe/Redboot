@@ -53,6 +53,7 @@ export type CharacterVoiceType =
   | 'red_boot_retry'
   | 'red_boot_bonus'
   | 'red_boot_treasure'
+  | 'red_boot_skip'
   | 'ocean_blue_encouraging'
   | 'salty_helpful_tip';
 
@@ -619,6 +620,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         "Yo ho ho! Me treasure chest be full of riches, ye magnificent buccaneer!",
         "Blimey! Found me treasure at last, arrr! This be worth a king's ransom!"
       ],
+      red_boot_skip: [
+        "It's okay, matey! We'll try that treasure again another time, arrr!",
+        "No worries, sailor! We'll come back to this one later, ye scallywag!",
+        "Fair winds! That word can wait - we'll tackle it another day, me hearty!"
+      ],
       salty_helpful_tip: [
         'Here\'s a tip from old Salty: sound out each letter carefully!',
         'Listen well, young sailor: break the word into pieces!',
@@ -640,6 +646,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_retry':
       case 'red_boot_bonus':
       case 'red_boot_treasure':
+      case 'red_boot_skip':
         voiceConfig = { rate: 0.75, pitch: 0.9 }; // Slower, deeper male pirate voice
         break;
       case 'ocean_blue_encouraging':
