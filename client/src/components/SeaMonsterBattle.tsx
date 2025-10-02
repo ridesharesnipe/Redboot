@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
+import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
 import { useAudio } from '@/contexts/AudioContext';
 
 export enum SeaMonsterType {
@@ -91,7 +92,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
       setCurrentMonsterIndex(nextMonsterIndex);
       
       // Diego barks when starting the battle!
-      playAudioFile('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
+      playAudioFile(diegoBarkSound);
       
       // Start battle animation
       setCurrentlyBattling(nextMonster.id);

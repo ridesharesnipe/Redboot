@@ -127,7 +127,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   };
 
   // Generate and play sound effect using Web Audio API
-  const playSound = (soundType: SoundType, volume = 1) => {
+  const playSound = async (soundType: SoundType, volume = 1) => {
     if (!settings.soundEffectsEnabled || settings.focusModeEnabled || !audioContextRef.current) return;
     
     const audioContext = audioContextRef.current;
@@ -136,7 +136,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     try {
       // Resume audio context if suspended (required for user interaction)
       if (audioContext.state === 'suspended') {
-        audioContext.resume();
+        await audioContext.resume();
       }
 
       const oscillator = audioContext.createOscillator();

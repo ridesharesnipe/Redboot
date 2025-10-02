@@ -5,6 +5,7 @@ import RedBootCharacter from "@/components/RedBootCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
 import DiegoCharacter from "@/components/DiegoCharacter";
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
+import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
 import { Users, Compass, Anchor, Play, Star, Check, Crown, Shield } from "lucide-react";
@@ -196,7 +197,7 @@ export default function Landing({ onStart }: LandingProps) {
               onClick={() => {
                 setSelectedCharacter('diego');
                 playSound('anchor_button_click');
-                playAudioFile('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
+                playAudioFile(diegoBarkSound);
                 localStorage.setItem('selectedCharacter', 'diego');
                 setTimeout(() => {
                   if (onStart) onStart();
