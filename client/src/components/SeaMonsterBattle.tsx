@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
 import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
 import { useAudio } from '@/contexts/AudioContext';
+import { Gem, Diamond, Crown, Sparkles } from 'lucide-react';
 
 export enum SeaMonsterType {
   KRAKEN = 'KRAKEN',
@@ -13,6 +14,14 @@ export enum SeaMonsterType {
   LEVIATHAN = 'LEVIATHAN',
   MEGALODON = 'MEGALODON',
   HYDRA = 'HYDRA',
+}
+
+export enum TreasureType {
+  DIAMOND = 'DIAMOND',
+  RUBY = 'RUBY',
+  EMERALD = 'EMERALD',
+  SAPPHIRE = 'SAPPHIRE',
+  CROWN = 'CROWN',
 }
 
 interface SeaMonsterNode {
@@ -32,16 +41,36 @@ interface SeaMonsterBattleProps {
   treasureJustUnlocked?: boolean;
 }
 
+// Treasure icon component
+const TreasureIcon = ({ type, className = "" }: { type: TreasureType; className?: string }) => {
+  const baseClass = `${className}`;
+  
+  switch (type) {
+    case TreasureType.RUBY:
+      return <Gem className={baseClass} style={{ color: '#dc2626', fill: '#ef4444' }} />;
+    case TreasureType.EMERALD:
+      return <Gem className={baseClass} style={{ color: '#16a34a', fill: '#22c55e' }} />;
+    case TreasureType.SAPPHIRE:
+      return <Gem className={baseClass} style={{ color: '#2563eb', fill: '#3b82f6' }} />;
+    case TreasureType.DIAMOND:
+      return <Diamond className={baseClass} style={{ color: '#60a5fa', fill: '#93c5fd' }} />;
+    case TreasureType.CROWN:
+      return <Crown className={baseClass} style={{ color: '#eab308', fill: '#fbbf24' }} />;
+    default:
+      return <Sparkles className={baseClass} />;
+  }
+};
+
 // Sea monster emojis and names
 const MONSTER_DATA = {
-  [SeaMonsterType.KRAKEN]: { emoji: '🐙', name: 'Kraken', treasure: '💎' },
-  [SeaMonsterType.SHARK]: { emoji: '🦈', name: 'Mega Shark', treasure: '🔴' },
-  [SeaMonsterType.SEA_DRAGON]: { emoji: '🐉', name: 'Sea Dragon', treasure: '👑' },
-  [SeaMonsterType.GIANT_SQUID]: { emoji: '🦑', name: 'Giant Squid', treasure: '💚' },
-  [SeaMonsterType.SEA_SERPENT]: { emoji: '🐍', name: 'Sea Serpent', treasure: '🟢' },
-  [SeaMonsterType.LEVIATHAN]: { emoji: '🐋', name: 'Leviathan', treasure: '💎' },
-  [SeaMonsterType.MEGALODON]: { emoji: '🦈', name: 'Megalodon', treasure: '🔴' },
-  [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasure: '💚' },
+  [SeaMonsterType.KRAKEN]: { emoji: '🐙', name: 'Kraken', treasure: TreasureType.DIAMOND },
+  [SeaMonsterType.SHARK]: { emoji: '🦈', name: 'Mega Shark', treasure: TreasureType.RUBY },
+  [SeaMonsterType.SEA_DRAGON]: { emoji: '🐉', name: 'Sea Dragon', treasure: TreasureType.CROWN },
+  [SeaMonsterType.GIANT_SQUID]: { emoji: '🦑', name: 'Giant Squid', treasure: TreasureType.EMERALD },
+  [SeaMonsterType.SEA_SERPENT]: { emoji: '🐍', name: 'Sea Serpent', treasure: TreasureType.SAPPHIRE },
+  [SeaMonsterType.LEVIATHAN]: { emoji: '🐋', name: 'Leviathan', treasure: TreasureType.DIAMOND },
+  [SeaMonsterType.MEGALODON]: { emoji: '🦈', name: 'Megalodon', treasure: TreasureType.RUBY },
+  [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasure: TreasureType.EMERALD },
 };
 
 // Default monster positions scattered across the sea (widely spread out)
@@ -61,7 +90,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   const [diegoPosition, setDiegoPosition] = useState({ x: 10, y: 80 });
   const [monsterNodes, setMonsterNodes] = useState<SeaMonsterNode[]>([]);
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
-  const [defeatedTreasures, setDefeatedTreasures] = useState<string[]>([]);
+  const [defeatedTreasures, setDefeatedTreasures] = useState<TreasureType[]>([]);
   const [currentlyBattling, setCurrentlyBattling] = useState<string | null>(null);
 
   // Initialize/update monster nodes when totalWords changes
@@ -374,8 +403,8 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                       animate={{ scale: 1, rotate: 360 }}
                       transition={{ delay: 0.8, duration: 0.6 }}
                     >
-                      <div className="text-5xl mb-1 drop-shadow-xl animate-bounce">
-                        {monsterData.treasure}
+                      <div className="mb-1 drop-shadow-xl animate-bounce flex justify-center">
+                        <TreasureIcon type={monsterData.treasure} className="w-16 h-16" />
                       </div>
                       <div className="text-xs font-bold text-white bg-green-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
                         Victory!
@@ -427,37 +456,32 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
         </motion.div>
 
         {/* Floating treasures with glass morphism */}
-        <div className="absolute bottom-4 left-4 right-4 flex flex-wrap justify-center gap-2">
-          {defeatedTreasures.map((treasure, index) => {
-            const isGlassTreasure = ['💎', '🔴', '💚', '🟢'].includes(treasure);
-            return (
-              <motion.div
-                key={index}
-                initial={{ scale: 0, rotate: -180, y: -50 }}
-                animate={{ 
-                  scale: 1, 
-                  rotate: 0,
-                  y: [0, -5, 0],
-                }}
-                transition={{
-                  scale: { duration: 0.5 },
-                  rotate: { duration: 0.5 },
-                  y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.1 }
-                }}
-                className="text-2xl drop-shadow-2xl relative"
-                style={isGlassTreasure ? {
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '50%',
-                  padding: '8px',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                } : {}}
-              >
-                {treasure}
-              </motion.div>
-            );
-          })}
+        <div className="absolute bottom-4 left-4 right-4 flex flex-wrap justify-center gap-2 z-30">
+          {defeatedTreasures.map((treasure, index) => (
+            <motion.div
+              key={index}
+              initial={{ scale: 0, rotate: -180, y: -50 }}
+              animate={{ 
+                scale: 1, 
+                rotate: 0,
+                y: [0, -5, 0],
+              }}
+              transition={{
+                scale: { duration: 0.5 },
+                rotate: { duration: 0.5 },
+                y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.1 }
+              }}
+              className="drop-shadow-2xl relative p-3 rounded-xl"
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(12px)',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              <TreasureIcon type={treasure} className="w-8 h-8" />
+            </motion.div>
+          ))}
         </div>
       </div>
 
