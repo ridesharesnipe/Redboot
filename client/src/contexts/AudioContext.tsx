@@ -618,7 +618,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_adventure_complete':
       case 'red_boot_retry':
       case 'red_boot_bonus':
-        voiceConfig = { rate: 1.0, pitch: 1.0 }; // Natural English accent voice
+        voiceConfig = { rate: 0.9, pitch: 0.9 }; // Slightly slower, deeper male pirate voice
         break;
       case 'ocean_blue_encouraging':
         voiceConfig = { rate: 1.1, pitch: 1.2 };
@@ -641,8 +641,31 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         let selectedVoice = null;
         
         const getNaturalMaleVoice = () => {
-          // Prioritize British English voices for pirate authenticity
-          const preferredBritishVoices = [
+          // Known male voice names (allow-list approach)
+          const knownMaleNames = [
+            'Male', 'George', 'Daniel', 'Arthur', 'Oliver', 'Alex', 
+            'David', 'James', 'Thomas', 'Ryan', 'Aaron', 'Bruce'
+          ];
+          
+          // Known female voice names to exclude
+          const knownFemaleNames = [
+            'Female', 'Sonia', 'Susan', 'Zira', 'Catherine', 'Karen',
+            'Moira', 'Samantha', 'Victoria', 'Fiona', 'Kate', 'Serena'
+          ];
+          
+          const isMaleVoice = (voice: SpeechSynthesisVoice) => {
+            const name = voice.name;
+            // Check if it contains known male indicators
+            if (knownMaleNames.some(male => name.includes(male))) return true;
+            // Exclude known female voices
+            if (knownFemaleNames.some(female => name.includes(female))) return false;
+            // Exclude compact/espeak voices
+            if (name.includes('Compact') || name.includes('eSpeak')) return false;
+            return true;
+          };
+          
+          // Prioritize British male voices for pirate authenticity
+          const preferredBritishMaleVoices = [
             'Google UK English Male',
             'Microsoft George Online',
             'Daniel (Enhanced)',
@@ -651,39 +674,34 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             'Oliver'
           ];
           
-          // First try: Look for explicitly British voices by name
-          for (const preferred of preferredBritishVoices) {
-            const voice = voices.find(v => 
-              v.name.includes(preferred) && 
-              !v.name.includes('Compact') &&
-              !v.name.includes('eSpeak')
-            );
+          // First try: Look for explicitly preferred British male voices
+          for (const preferred of preferredBritishMaleVoices) {
+            const voice = voices.find(v => v.name.includes(preferred));
             if (voice) return voice;
           }
           
-          // Second try: Find any voice with en-GB language code
-          const britishVoice = voices.find(v => 
-            v.lang.startsWith('en-GB') && 
-            !v.name.includes('Female') &&
-            !v.name.includes('Compact') &&
-            !v.name.includes('eSpeak')
+          // Second try: Find any male voice with en-GB language code
+          const britishMaleVoice = voices.find(v => 
+            v.lang.startsWith('en-GB') && isMaleVoice(v)
           );
-          if (britishVoice) return britishVoice;
+          if (britishMaleVoice) return britishMaleVoice;
           
-          // Third try: Find Australian/Irish as fallback (closer to British than American)
-          const commonwealthVoice = voices.find(v => 
+          // Third try: Find male Australian/Irish voices (closer to British than American)
+          const commonwealthMaleVoice = voices.find(v => 
             (v.lang.startsWith('en-AU') || v.lang.startsWith('en-IE')) &&
-            !v.name.includes('Female') &&
-            !v.name.includes('Compact')
+            isMaleVoice(v)
           );
-          if (commonwealthVoice) return commonwealthVoice;
+          if (commonwealthMaleVoice) return commonwealthMaleVoice;
           
-          // Last resort: Any English male voice
-          return voices.find(v => 
-            v.lang.includes('en') && 
-            !v.name.includes('Female') &&
-            !v.name.includes('Compact')
-          ) || voices[0];
+          // Fourth try: Any US/Canadian male voice
+          const americanMaleVoice = voices.find(v => 
+            (v.lang.startsWith('en-US') || v.lang.startsWith('en-CA')) &&
+            isMaleVoice(v)
+          );
+          if (americanMaleVoice) return americanMaleVoice;
+          
+          // Last resort: First available male voice
+          return voices.find(isMaleVoice) || voices[0];
         };
 
         selectedVoice = getNaturalMaleVoice();
