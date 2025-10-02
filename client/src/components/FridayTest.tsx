@@ -180,8 +180,6 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
         playSound('cannon_achievement');
       } else if (percentage >= 60) {
         playSound('treasure_chest_open');
-      } else {
-        playSound('anchor_button_click');
       }
     }, 1000);
     
@@ -198,7 +196,6 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
   };
 
   const repeatWord = () => {
-    playSound('anchor_button_click');
     speakCurrentWord();
   };
 

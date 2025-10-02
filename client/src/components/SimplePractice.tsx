@@ -434,7 +434,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   const repeatWord = () => {
-    playSound('anchor_button_click');
     speakCurrentWord();
   };
 

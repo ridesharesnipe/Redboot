@@ -66,7 +66,6 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   };
 
   const prevStep = () => {
-    playSound('anchor_button_click');
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }

@@ -606,13 +606,11 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   const removeWord = (index: number) => {
     const updated = editableWords.filter((_, i) => i !== index);
     setEditableWords(updated);
-    playSound('anchor_button_click');
   };
 
   // Add new word
   const addWord = () => {
     setEditableWords([...editableWords, '']);
-    playSound('anchor_button_click');
   };
 
   // Save verified words
