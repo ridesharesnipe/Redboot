@@ -401,7 +401,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   // Show new week prompt if needed
   if (showNewWeekPrompt) {
     return (
-      <div className="text-center">
+      <div className="text-center px-4">
         <Card className="max-w-2xl mx-auto bg-gradient-to-br from-amber-100 to-yellow-100 border-4 border-amber-300">
           <CardContent className="p-8">
             <div className="text-6xl mb-4">🗓️</div>
