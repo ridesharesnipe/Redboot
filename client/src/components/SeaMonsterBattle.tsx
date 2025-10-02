@@ -306,7 +306,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
 
         {/* Treasure shelf */}
         <div 
-          className="absolute bottom-4 left-4 right-4 p-3 rounded-2xl shadow-xl"
+          className="absolute bottom-2 left-4 right-4 p-2 rounded-2xl shadow-xl"
           style={{
             background: 'rgba(255, 255, 255, 0.2)',
             backdropFilter: 'blur(10px)',
@@ -314,8 +314,8 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           }}
         >
           <div className="text-center">
-            <div className="text-sm font-bold text-white mb-2 drop-shadow-lg">Diego's Treasures</div>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="text-xs font-bold text-white mb-1 drop-shadow-lg">Diego's Treasures</div>
+            <div className="flex flex-wrap justify-center gap-1.5">
               {defeatedTreasures.length === 0 ? (
                 <div className="text-xs text-white/70">Battle monsters to collect treasures!</div>
               ) : (
@@ -324,7 +324,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                     key={index}
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    className="text-3xl drop-shadow-lg"
+                    className="text-xl drop-shadow-lg"
                   >
                     {treasure}
                   </motion.div>
