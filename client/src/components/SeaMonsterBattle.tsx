@@ -304,34 +304,38 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           </div>
         </motion.div>
 
-        {/* Treasure shelf */}
-        <div 
-          className="absolute bottom-2 left-4 right-4 p-2 rounded-2xl shadow-xl"
-          style={{
-            background: 'rgba(255, 255, 255, 0.2)',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.3)',
-          }}
-        >
-          <div className="text-center">
-            <div className="text-xs font-bold text-white mb-1 drop-shadow-lg">Diego's Treasures</div>
-            <div className="flex flex-wrap justify-center gap-1.5">
-              {defeatedTreasures.length === 0 ? (
-                <div className="text-xs text-white/70">Battle monsters to collect treasures!</div>
-              ) : (
-                defeatedTreasures.map((treasure, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    className="text-xl drop-shadow-lg"
-                  >
-                    {treasure}
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </div>
+        {/* Floating treasures with glass morphism */}
+        <div className="absolute bottom-4 left-4 right-4 flex flex-wrap justify-center gap-2">
+          {defeatedTreasures.map((treasure, index) => {
+            const isGlassTreasure = ['💎', '🔴', '💚', '🟢'].includes(treasure);
+            return (
+              <motion.div
+                key={index}
+                initial={{ scale: 0, rotate: -180, y: -50 }}
+                animate={{ 
+                  scale: 1, 
+                  rotate: 0,
+                  y: [0, -5, 0],
+                }}
+                transition={{
+                  scale: { duration: 0.5 },
+                  rotate: { duration: 0.5 },
+                  y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.1 }
+                }}
+                className="text-2xl drop-shadow-2xl relative"
+                style={isGlassTreasure ? {
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '50%',
+                  padding: '8px',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                } : {}}
+              >
+                {treasure}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
