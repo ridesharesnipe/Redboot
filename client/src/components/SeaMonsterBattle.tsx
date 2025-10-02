@@ -397,16 +397,23 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                       <div className="text-5xl">💨</div>
                     </motion.div>
                     
-                    {/* Treasure appears after smoke */}
+                    {/* Treasure appears after smoke - large and prominent */}
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 360 }}
                       transition={{ delay: 0.8, duration: 0.6 }}
                     >
-                      <div className="mb-1 drop-shadow-xl animate-bounce flex justify-center">
-                        <TreasureIcon type={monsterData.treasure} className="w-16 h-16" />
+                      <div className="mb-2 drop-shadow-2xl animate-bounce flex justify-center p-4 rounded-2xl" 
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.25)',
+                          backdropFilter: 'blur(12px)',
+                          border: '2px solid rgba(255, 255, 255, 0.4)',
+                          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.2)',
+                        }}
+                      >
+                        <TreasureIcon type={monsterData.treasure} className="w-24 h-24" />
                       </div>
-                      <div className="text-xs font-bold text-white bg-green-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
+                      <div className="text-sm font-bold text-white bg-green-600/90 px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
                         Victory!
                       </div>
                     </motion.div>
