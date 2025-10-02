@@ -10,6 +10,7 @@ import ParentDashboard from "@/components/ParentDashboard";
 import SimplePractice from "@/components/SimplePractice";
 import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
+import TreasureVault from "@/pages/TreasureVault";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 
 // Proper React Error Boundary component - moved to module scope for stability
@@ -185,6 +186,7 @@ function App() {
               <Route path="/practice" component={PracticeRoute} />
               <Route path="/test" component={TestRoute} />
               <Route path="/guide" component={GuideRoute} />
+              <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
             </Switch>
           </div>
         </Router>

@@ -45,6 +45,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Photos now stored in browser IndexedDB - no server routes needed!
 
+  // Treasure Vault API routes
+  app.get('/api/treasures', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!req.isAuthenticated() || !user?.id) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const userData = await storage.getUser(user.id);
+      if (!userData) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json({
+        redboot: {
+          diamonds: userData.treasureDiamonds || 0,
+          coins: userData.treasureCoins || 0,
+          crowns: userData.treasureCrowns || 0,
+          bags: userData.treasureBags || 0,
+          stars: userData.treasureStars || 0,
+          trophies: userData.treasureTrophies || 0,
+        },
+        diego: {
+          diamonds: userData.diegoTreasureDiamonds || 0,
+          coins: userData.diegoTreasureCoins || 0,
+          crowns: userData.diegoTreasureCrowns || 0,
+          bags: userData.diegoTreasureBags || 0,
+          stars: userData.diegoTreasureStars || 0,
+          trophies: userData.diegoTreasureTrophies || 0,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching treasures:', error);
+      res.status(500).json({ message: 'Failed to fetch treasures' });
+    }
+  });
+
+  app.post('/api/treasures/add', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!req.isAuthenticated() || !user?.id) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const { character, amount } = req.body;
+      if (!character || !amount || amount <= 0) {
+        return res.status(400).json({ message: 'Invalid request' });
+      }
+
+      await storage.addTreasures(user.id, character, amount);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error adding treasures:', error);
+      res.status(500).json({ message: 'Failed to add treasures' });
+    }
+  });
+
   // Stripe routes (if Stripe is configured)
   if (stripe) {
     app.post('/api/create-payment-intent', async (req, res) => {

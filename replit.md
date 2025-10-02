@@ -10,6 +10,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 2, 2025 - Treasure Vault System & Escalating Rewards
+- **Escalating Treasure Rewards**: Practice now awards increasing treasures - first 3 words get 5 each, next 3 get 10, next 3 get 15, final words get 25 treasures each
+- **Treasure Vault Page**: New dedicated vault page with animated treasure chests for both Red Boot and Diego
+  - Glass morphism design with glowing effects and particle animations
+  - Click-to-open animated chest with character-specific sounds (Red Boot says "Arrr, me treasure!", Diego barks)
+  - Chest upgrades: Wooden → Silver (50+) → Gold (200+) → Legendary (500+)
+  - Separate treasure counts for each character across 6 types (diamonds, coins, crowns, bags, stars, trophies)
+- **Database Treasure Tracking**: Added 12 new columns to users table to track treasures by type for both characters
+- **Treasure Distribution**: Treasures automatically distributed evenly across all 6 types and saved to database after each practice session
+- **Navigation**: Golden "Treasure Vault" button added to landing page with treasure chest sound effect
+
 ### October 2, 2025 - Treasure Map Visual Enhancements
 - **Glass Morphism Palm Trees**: Increased palm tree size to text-8xl (matching sea monster scale) with glass morphism styling (rgba backgrounds, backdrop-filter blur, white borders) and floating animations
 - **Sand Mounds**: Added amber gradient sand mounds under X marks for buried treasure effect

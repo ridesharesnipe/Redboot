@@ -89,6 +89,44 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async addTreasures(userId: string, character: 'redboot' | 'diego', totalAmount: number): Promise<User> {
+    // Distribute treasures evenly across all 6 types
+    const amountPerType = Math.floor(totalAmount / 6);
+    const remainder = totalAmount % 6;
+    
+    // Get current user data
+    const currentUser = await this.getUser(userId);
+    if (!currentUser) {
+      throw new Error('User not found');
+    }
+
+    // Calculate new treasure amounts based on character
+    const updates: any = { updatedAt: new Date() };
+    
+    if (character === 'redboot') {
+      updates.treasureDiamonds = (currentUser.treasureDiamonds || 0) + amountPerType + (remainder > 0 ? 1 : 0);
+      updates.treasureCoins = (currentUser.treasureCoins || 0) + amountPerType + (remainder > 1 ? 1 : 0);
+      updates.treasureCrowns = (currentUser.treasureCrowns || 0) + amountPerType + (remainder > 2 ? 1 : 0);
+      updates.treasureBags = (currentUser.treasureBags || 0) + amountPerType + (remainder > 3 ? 1 : 0);
+      updates.treasureStars = (currentUser.treasureStars || 0) + amountPerType + (remainder > 4 ? 1 : 0);
+      updates.treasureTrophies = (currentUser.treasureTrophies || 0) + amountPerType;
+    } else {
+      updates.diegoTreasureDiamonds = (currentUser.diegoTreasureDiamonds || 0) + amountPerType + (remainder > 0 ? 1 : 0);
+      updates.diegoTreasureCoins = (currentUser.diegoTreasureCoins || 0) + amountPerType + (remainder > 1 ? 1 : 0);
+      updates.diegoTreasureCrowns = (currentUser.diegoTreasureCrowns || 0) + amountPerType + (remainder > 2 ? 1 : 0);
+      updates.diegoTreasureBags = (currentUser.diegoTreasureBags || 0) + amountPerType + (remainder > 3 ? 1 : 0);
+      updates.diegoTreasureStars = (currentUser.diegoTreasureStars || 0) + amountPerType + (remainder > 4 ? 1 : 0);
+      updates.diegoTreasureTrophies = (currentUser.diegoTreasureTrophies || 0) + amountPerType;
+    }
+
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
   // Children operations
   async getChildren(parentId: string): Promise<Child[]> {
     return await db.select().from(children).where(eq(children.parentId, parentId));

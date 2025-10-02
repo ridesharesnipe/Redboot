@@ -9,6 +9,7 @@ import TreasureRoad from '@/components/TreasureRoad';
 import SeaMonsterBattle from '@/components/SeaMonsterBattle';
 import { Coins, SkipForward, CheckCircle, XCircle, X } from 'lucide-react';
 import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
+import { apiRequest } from '@/lib/queryClient';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -50,6 +51,29 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   
   const { toast } = useToast();
   const { playSound, playCharacterVoice, speakFeedback } = useAudio();
+
+  // Escalating treasure reward system
+  const getTreasureAmount = (correctCount: number): number => {
+    if (correctCount < 3) return 5;   // First 3 words → 5 treasures each
+    if (correctCount < 6) return 10;  // Next 3 words → 10 treasures each
+    if (correctCount < 9) return 15;  // Next 3 words → 15 treasures each
+    return 25;                        // Final words → 25 treasures each
+  };
+
+  // Save treasures to database and complete practice
+  const saveTreasuresAndComplete = async (results: { correct: number; total: number; treasureEarned: number }) => {
+    try {
+      // Save treasures to database
+      await apiRequest('/api/treasures/add', 'POST', {
+        character: selectedCharacter,
+        amount: results.treasureEarned
+      });
+    } catch (error) {
+      console.error('Failed to save treasures:', error);
+      // Continue even if save fails - don't block completion
+    }
+    onComplete(results);
+  };
 
   // Red Boot's milestone celebration phrases
   const treasurePhrases = [
@@ -317,7 +341,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     if (correct) {
       const newCorrectCount = correctCount + 1;
       setCorrectCount(newCorrectCount);
-      setTreasureEarned(prev => prev + 1);
+      const treasureAmount = getTreasureAmount(correctCount);
+      setTreasureEarned(prev => prev + treasureAmount);
       playSound('spell_correct');
       
       // First repeat the word, then give feedback
@@ -385,7 +410,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         playSound('cannon_achievement');
         playCharacterVoice('red_boot_adventure_complete');
         setTimeout(() => {
-          onComplete(results);
+          saveTreasuresAndComplete(results);
         }, 2000);
       } else {
         // Main practice complete - check for bonus round
@@ -404,7 +429,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           playSound('cannon_achievement');
           playCharacterVoice('red_boot_adventure_complete');
           setTimeout(() => {
-            onComplete(results);
+            saveTreasuresAndComplete(results);
           }, 2000);
         } else {
           // Show bonus round option - will be handled by modal
@@ -442,7 +467,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     setShowTreasureRoad(false);
     if (sessionResults) {
       setTimeout(() => {
-        onComplete(sessionResults);
+        saveTreasuresAndComplete(sessionResults);
       }, 500);
     }
   };
@@ -527,7 +552,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   setIsComplete(true);
                   if (sessionResults) {
                     setTimeout(() => {
-                      onComplete(sessionResults);
+                      saveTreasuresAndComplete(sessionResults);
                     }, 1000);
                   }
                 }}
