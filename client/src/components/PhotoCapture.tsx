@@ -860,10 +860,10 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
               <p className="text-white/80 mb-8 text-lg" data-testid="text-upload-instructions">
                 Upload your treasure map (spelling list photo) to begin the adventure!
               </p>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6 items-center">
                 <Button 
                   onClick={triggerFileUpload}
-                  className="glass-button-primary glass-button-xl mx-auto text-white font-bold glass-text-glow"
+                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
                   data-testid="button-upload-file"
                 >
                   <Upload className="w-8 h-8 mr-4" />
