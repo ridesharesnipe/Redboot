@@ -74,28 +74,27 @@ const SmokeEffect = () => (
   </motion.div>
 );
 
-// Seagull component - Flying birds across the screen
-const Seagull = ({ delay = 0, yPosition = 20 }: { delay?: number; yPosition?: number }) => (
+// Colorful Parrot component - Flying parrots across the screen
+const Parrot = ({ delay = 0, yPosition = 20 }: { delay?: number; yPosition?: number }) => (
   <motion.div
-    className="absolute text-2xl z-20 pointer-events-none"
+    className="absolute text-6xl z-20 pointer-events-none"
     style={{
       left: '-10%',
       top: `${yPosition}%`,
       pointerEvents: 'none'
     }}
-    initial={{ x: 0, y: 0 }}
+    initial={{ x: 0 }}
     animate={{ 
-      x: ['0vw', '110vw'],
-      y: [0, Math.sin(delay) * 20, -Math.sin(delay) * 15, 0]
+      x: ['0vw', '110vw']
     }}
     transition={{ 
-      duration: 15 + Math.random() * 5,
+      duration: 12 + Math.random() * 4,
       delay,
       repeat: Infinity,
       ease: "linear"
     }}
   >
-    🦅
+    🦜
   </motion.div>
 );
 
@@ -483,11 +482,11 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
 
   return (
     <div className="relative w-full h-[500px] mx-auto max-w-5xl" data-testid="treasure-road">
-      {/* Flying seagulls */}
-      <Seagull delay={0} yPosition={15} />
-      <Seagull delay={3} yPosition={25} />
-      <Seagull delay={7} yPosition={10} />
-      <Seagull delay={12} yPosition={30} />
+      {/* Flying colorful parrots */}
+      <Parrot delay={0} yPosition={15} />
+      <Parrot delay={3} yPosition={25} />
+      <Parrot delay={7} yPosition={10} />
+      <Parrot delay={12} yPosition={30} />
       
       {/* Main treasure map container */}
       <div className="relative w-full h-full glass-card rounded-2xl overflow-hidden bg-gradient-to-br from-amber-200/40 via-yellow-100/30 to-orange-200/40 shadow-2xl">
