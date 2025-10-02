@@ -8,6 +8,7 @@ import { useAudio } from '@/contexts/AudioContext';
 import TreasureRoad from '@/components/TreasureRoad';
 import SeaMonsterBattle from '@/components/SeaMonsterBattle';
 import { Coins, SkipForward, CheckCircle, XCircle, X } from 'lucide-react';
+import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -48,7 +49,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
-  const { playSound, playCharacterVoice } = useAudio();
+  const { playSound, playCharacterVoice, speakFeedback } = useAudio();
 
   // Red Boot's milestone celebration phrases
   const treasurePhrases = [
@@ -148,6 +149,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Initialize practice session
   useEffect(() => {
+    // Reset message history for fresh feedback variety
+    resetMessageHistory();
+    
     // FIX 2: Read from simple localStorage instead of complex spellingStorage
     const savedWords = localStorage.getItem('currentSpellingWords');
     console.log('🎮 Game checking localStorage for words...');
@@ -285,12 +289,18 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       console.log('📊 Progress saved:', { word: currentWord, correct, progressData });
     }
     
+    // Get grade level from localStorage for age-appropriate feedback
+    const gradeLevel = localStorage.getItem('redboot-grade-level');
+    
     if (correct) {
       const newCorrectCount = correctCount + 1;
       setCorrectCount(newCorrectCount);
       setTreasureEarned(prev => prev + 1);
       playSound('spell_correct');
-      playCharacterVoice('red_boot_great_job');
+      
+      // Speak grade-appropriate correct feedback
+      const feedbackMessage = getFeedback(gradeLevel, true, false);
+      speakFeedback(feedbackMessage);
       
       // Check if we hit a treasure milestone
       const treasureShown = checkForTreasure(newCorrectCount);
@@ -314,7 +324,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
       
       playSound('spell_incorrect');
-      playCharacterVoice('red_boot_retry');
+      
+      // Speak grade-appropriate wrong feedback
+      // showBonusRound tells us if this is a retry attempt
+      const isRetry = showBonusRound;
+      const feedbackMessage = getFeedback(gradeLevel, false, isRetry);
+      speakFeedback(feedbackMessage);
     }
   };
 

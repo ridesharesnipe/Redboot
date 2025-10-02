@@ -19,6 +19,7 @@ interface AudioContextType {
   startBackgroundMusic: (musicType: BackgroundMusicType) => void;
   stopBackgroundMusic: () => void;
   playCharacterVoice: (voiceType: CharacterVoiceType) => void;
+  speakFeedback: (message: string) => void;
   setFocusMode: (enabled: boolean) => void;
 }
 
@@ -756,6 +757,110 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Speak custom feedback message with Red Boot's voice
+  const speakFeedback = (message: string) => {
+    if (!settings.characterVoiceEnabled || settings.focusModeEnabled || !speechSynthRef.current) return;
+
+    const synth = speechSynthRef.current;
+    synth.cancel(); // Stop any current speech
+
+    // Duck background music during speech
+    if (musicGainRef.current && audioContextRef.current) {
+      try {
+        musicGainRef.current.gain.linearRampToValueAtTime(
+          settings.masterVolume * 0.05,
+          audioContextRef.current.currentTime + 0.1
+        );
+      } catch (e) {}
+    }
+
+    const speakText = () => {
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.rate = 0.75; // Slower pirate-like delivery
+      utterance.pitch = 1.0;
+      utterance.volume = settings.masterVolume;
+
+      // Select Red Boot's British pirate voice
+      const voices = synth.getVoices();
+      
+      const getNaturalMaleVoice = () => {
+        const knownMaleNames = ['Male', 'Daniel', 'Arthur', 'George', 'Oliver', 'James', 'Thomas'];
+        const knownFemaleNames = ['Female', 'Samantha', 'Victoria', 'Karen', 'Susan', 'Moira', 'Fiona', 'Kate'];
+        
+        const isMaleVoice = (voice: SpeechSynthesisVoice) => {
+          const name = voice.name;
+          if (knownMaleNames.some(male => name.includes(male))) return true;
+          if (knownFemaleNames.some(female => name.includes(female))) return false;
+          if (name.includes('Compact') || name.includes('eSpeak')) return false;
+          return true;
+        };
+        
+        const preferredBritishMaleVoices = [
+          'Google UK English Male',
+          'Microsoft George Online',
+          'Daniel (Enhanced)',
+          'Daniel',
+          'Arthur',
+          'Oliver'
+        ];
+        
+        for (const preferred of preferredBritishMaleVoices) {
+          const voice = voices.find(v => v.name.includes(preferred));
+          if (voice) return voice;
+        }
+        
+        const britishMaleVoice = voices.find(v => 
+          v.lang.startsWith('en-GB') && isMaleVoice(v)
+        );
+        if (britishMaleVoice) return britishMaleVoice;
+        
+        const commonwealthMaleVoice = voices.find(v => 
+          (v.lang.startsWith('en-AU') || v.lang.startsWith('en-IE')) &&
+          isMaleVoice(v)
+        );
+        if (commonwealthMaleVoice) return commonwealthMaleVoice;
+        
+        const americanMaleVoice = voices.find(v => 
+          (v.lang.startsWith('en-US') || v.lang.startsWith('en-CA')) &&
+          isMaleVoice(v)
+        );
+        if (americanMaleVoice) return americanMaleVoice;
+        
+        return voices.find(isMaleVoice) || voices[0];
+      };
+
+      const selectedVoice = getNaturalMaleVoice();
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = 'en-GB'; // British English pronunciation
+      }
+
+      utterance.onend = () => {
+        // Restore background music volume after speech
+        if (musicGainRef.current && audioContextRef.current) {
+          setTimeout(() => {
+            try {
+              musicGainRef.current!.gain.linearRampToValueAtTime(
+                settings.masterVolume * 0.15,
+                audioContextRef.current!.currentTime + 0.5
+              );
+            } catch (e) {}
+          }, 100);
+        }
+      };
+
+      synth.speak(utterance);
+    };
+
+    // Handle voice loading
+    if (synth.getVoices().length === 0) {
+      synth.addEventListener('voiceschanged', speakText, { once: true });
+    } else {
+      speakText();
+    }
+  };
+
   // Set focus mode
   const setFocusMode = (enabled: boolean) => {
     updateSettings({ focusModeEnabled: enabled });
@@ -772,6 +877,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     startBackgroundMusic,
     stopBackgroundMusic,
     playCharacterVoice,
+    speakFeedback,
     setFocusMode,
   };
 
