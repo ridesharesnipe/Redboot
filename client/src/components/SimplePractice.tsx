@@ -617,14 +617,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 <span className="font-bold text-lg">Treasures Collected: {treasureEarned}</span>
               </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-3 p-4 rounded-xl max-w-lg mx-auto"
-              style={{
-                background: 'rgba(255, 215, 0, 0.15)',
-                backdropFilter: 'blur(10px)',
-                border: '3px solid rgba(255, 215, 0, 0.3)',
-                boxShadow: '0 4px 24px rgba(255, 215, 0, 0.2)',
-              }}
-            >
+            <div className="flex flex-wrap justify-center gap-3 p-4 max-w-lg mx-auto">
               {Array.from({ length: treasureEarned }).map((_, index) => {
                 // Cycle through different treasure types
                 const treasureTypes = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
@@ -633,12 +626,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 return (
                   <div
                     key={index}
-                    className="drop-shadow-lg w-14 h-14 flex items-center justify-center text-3xl rounded-lg animate-pulse"
+                    className="w-14 h-14 flex items-center justify-center text-3xl"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.3)',
-                      backdropFilter: 'blur(8px)',
-                      border: '2px solid rgba(255, 215, 0, 0.5)',
-                      boxShadow: '0 4px 16px rgba(255, 215, 0, 0.3)',
+                      animation: 'spin 8s linear infinite',
+                      filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.4))',
                     }}
                   >
                     {treasure}

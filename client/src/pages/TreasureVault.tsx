@@ -264,23 +264,16 @@ export default function TreasureVault() {
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.1 }}
-                      className="p-6 text-center"
+                      className="p-6 rounded-xl text-center"
+                      style={{
+                        background: item.color,
+                        backdropFilter: 'blur(10px)',
+                        border: '2px solid rgba(255, 255, 255, 0.4)',
+                        boxShadow: `0 4px 16px ${item.color}`,
+                      }}
                       data-testid={`treasure-${item.label.toLowerCase().replace(' ', '-')}`}
                     >
-                      <motion.div 
-                        className="text-5xl mb-2"
-                        animate={{ rotate: 360 }}
-                        transition={{ 
-                          duration: 8, 
-                          repeat: Infinity, 
-                          ease: "linear" 
-                        }}
-                        style={{
-                          filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.4))',
-                        }}
-                      >
-                        {item.emoji}
-                      </motion.div>
+                      <div className="text-5xl mb-2">{item.emoji}</div>
                       <div className="text-3xl font-bold text-white mb-1">{item.count}</div>
                       <div className="text-sm text-white/90 font-semibold">{item.label}</div>
                     </motion.div>
