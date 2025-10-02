@@ -197,7 +197,7 @@ export default function Landing({ onStart }: LandingProps) {
               onClick={() => {
                 setSelectedCharacter('diego');
                 playSound('anchor_button_click');
-                playAudioFile(diegoBarkSound);
+                playAudioFile(diegoBarkSound, 1, true); // Play from middle
                 localStorage.setItem('selectedCharacter', 'diego');
                 setTimeout(() => {
                   if (onStart) onStart();

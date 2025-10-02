@@ -15,7 +15,7 @@ interface AudioContextType {
   settings: AudioSettings;
   updateSettings: (newSettings: Partial<AudioSettings>) => void;
   playSound: (soundType: SoundType, volume?: number) => void;
-  playAudioFile: (audioFilePath: string, volume?: number) => void;
+  playAudioFile: (audioFilePath: string, volume?: number, startFromMiddle?: boolean) => void;
   startBackgroundMusic: (musicType: BackgroundMusicType) => void;
   stopBackgroundMusic: () => void;
   playCharacterVoice: (voiceType: CharacterVoiceType) => void;
@@ -311,16 +311,27 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Play audio file (MP3, WAV, etc.)
-  const playAudioFile = (audioFilePath: string, volume = 1) => {
+  // Play audio file (MP3, WAV, etc.) with optional start time
+  const playAudioFile = (audioFilePath: string, volume = 1, startFromMiddle = false) => {
     if (!settings.soundEffectsEnabled || settings.focusModeEnabled) return;
     
     try {
       const audio = new Audio(audioFilePath);
       audio.volume = Math.min(1, Math.max(0, settings.masterVolume * volume));
-      audio.play().catch(error => {
-        console.error('Error playing audio file:', error);
-      });
+      
+      if (startFromMiddle) {
+        // Wait for metadata to load to get duration
+        audio.addEventListener('loadedmetadata', () => {
+          audio.currentTime = audio.duration / 2; // Start from middle
+          audio.play().catch(error => {
+            console.error('Error playing audio file:', error);
+          });
+        });
+      } else {
+        audio.play().catch(error => {
+          console.error('Error playing audio file:', error);
+        });
+      }
     } catch (error) {
       console.error('Error loading audio file:', error);
     }
