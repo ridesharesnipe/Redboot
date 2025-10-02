@@ -575,56 +575,54 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         {/* Main Practice Card */}
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        {/* Header with progress and treasure */}
-        <div className="flex justify-between items-center mb-3">
-          
-          {/* Left side: Treasure counter and Diego treasure grid */}
-          <div className="flex items-center gap-3">
-            {/* Treasure counter */}
-            <div className="flex items-center gap-2">
-              <Coins className="w-5 h-5 text-yellow-500" />
-              <span className="font-bold">{treasureEarned}</span>
+        {/* Header with progress */}
+        <div className="text-center mb-4">
+          <div className="text-sm text-muted-foreground mb-1">
+            Word {currentWordIndex + 1} of {practiceWords.length}
+          </div>
+          <Progress value={progress} className="w-full max-w-md mx-auto" />
+        </div>
+        
+        {/* Treasure Collection Display - Bigger and more visible */}
+        {treasureEarned > 0 && (
+          <div className="mb-4">
+            <div className="text-center mb-2">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Coins className="w-6 h-6 text-yellow-500" />
+                <span className="font-bold text-lg">Treasures Collected: {treasureEarned}</span>
+              </div>
             </div>
-            
-            {/* Diego treasure collection grid (top-left in blue area) */}
-            {selectedCharacter === 'diego' && treasureEarned > 0 && (
-              <div className="grid grid-cols-3 gap-1 p-1.5 rounded-lg max-w-[110px]"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(10px)',
-                  border: '2px solid rgba(255, 255, 255, 0.25)',
-                  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                {Array.from({ length: treasureEarned }).map((_, index) => (
+            <div className="flex flex-wrap justify-center gap-3 p-4 rounded-xl max-w-lg mx-auto"
+              style={{
+                background: 'rgba(255, 215, 0, 0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '3px solid rgba(255, 215, 0, 0.3)',
+                boxShadow: '0 4px 24px rgba(255, 215, 0, 0.2)',
+              }}
+            >
+              {Array.from({ length: treasureEarned }).map((_, index) => {
+                // Cycle through different treasure types
+                const treasureTypes = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
+                const treasure = treasureTypes[index % treasureTypes.length];
+                
+                return (
                   <div
                     key={index}
-                    className="drop-shadow-lg w-8 h-8 flex items-center justify-center text-base rounded-md"
+                    className="drop-shadow-lg w-14 h-14 flex items-center justify-center text-3xl rounded-lg animate-pulse"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.25)',
+                      background: 'rgba(255, 255, 255, 0.3)',
                       backdropFilter: 'blur(8px)',
-                      border: '1.5px solid rgba(255, 255, 255, 0.4)',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                      border: '2px solid rgba(255, 215, 0, 0.5)',
+                      boxShadow: '0 4px 16px rgba(255, 215, 0, 0.3)',
                     }}
                   >
-                    💎
+                    {treasure}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Progress */}
-          <div className="text-center flex-1 max-w-md mx-4">
-            <div className="text-sm text-muted-foreground mb-1">
-              Word {currentWordIndex + 1} of {practiceWords.length}
+                );
+              })}
             </div>
-            <Progress value={progress} className="w-full" />
           </div>
-          
-          {/* Spacer for symmetry */}
-          <div className="w-16"></div>
-        </div>
+        )}
 
         {showFeedback ? (
           // Feedback screen
