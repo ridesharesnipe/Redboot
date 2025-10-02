@@ -641,15 +641,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         let selectedVoice = null;
         
         const getNaturalMaleVoice = () => {
-          const preferredMaleVoices = [
+          // Prioritize British English voices for pirate authenticity
+          const preferredBritishVoices = [
             'Google UK English Male',
-            'Microsoft David Online', 
+            'Microsoft George Online',
+            'Daniel (Enhanced)',
             'Daniel',
-            'Google US English Male',
-            'Alex'
+            'Arthur',
+            'Oliver'
           ];
           
-          for (const preferred of preferredMaleVoices) {
+          // First try: Look for explicitly British voices by name
+          for (const preferred of preferredBritishVoices) {
             const voice = voices.find(v => 
               v.name.includes(preferred) && 
               !v.name.includes('Compact') &&
@@ -658,6 +661,24 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             if (voice) return voice;
           }
           
+          // Second try: Find any voice with en-GB language code
+          const britishVoice = voices.find(v => 
+            v.lang.startsWith('en-GB') && 
+            !v.name.includes('Female') &&
+            !v.name.includes('Compact') &&
+            !v.name.includes('eSpeak')
+          );
+          if (britishVoice) return britishVoice;
+          
+          // Third try: Find Australian/Irish as fallback (closer to British than American)
+          const commonwealthVoice = voices.find(v => 
+            (v.lang.startsWith('en-AU') || v.lang.startsWith('en-IE')) &&
+            !v.name.includes('Female') &&
+            !v.name.includes('Compact')
+          );
+          if (commonwealthVoice) return commonwealthVoice;
+          
+          // Last resort: Any English male voice
           return voices.find(v => 
             v.lang.includes('en') && 
             !v.name.includes('Female') &&
@@ -669,6 +690,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         
         if (selectedVoice) {
           utterance.voice = selectedVoice;
+          utterance.lang = 'en-GB'; // Force British English pronunciation
         }
 
         utterance.onend = () => {
