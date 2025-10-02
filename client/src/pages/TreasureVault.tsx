@@ -98,7 +98,7 @@ export default function TreasureVault() {
       {/* Back Button */}
       <div className="max-w-5xl mx-auto mb-4">
         <Button
-          onClick={() => setLocation('/landing')}
+          onClick={() => setLocation('/dashboard')}
           variant="outline"
           className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
           data-testid="button-back-to-dashboard"
