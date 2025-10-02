@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TreasureType, TreasureNode, TreasureMapState, DEFAULT_TREASURE_NODES } from '@shared/schema';
 import redBootImage from '@assets/17586438224363330781733458024019_1758643831046.png';
+import { useAudio } from '@/contexts/AudioContext';
 
 interface TreasureRoadProps {
   totalWords: number;
@@ -43,7 +44,7 @@ const DiggingParticle = ({ delay = 0 }: { delay?: number }) => (
   />
 );
 
-// Smoke effect component - MORE VISIBLE with dark brown smoke
+// Smoke effect component - ENHANCED with bigger, more visible plumes
 const SmokeEffect = () => (
   <motion.div
     className="absolute inset-0 pointer-events-none z-10"
@@ -51,24 +52,50 @@ const SmokeEffect = () => (
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
   >
-    {[...Array(8)].map((_, i) => (
+    {[...Array(12)].map((_, i) => (
       <motion.div
         key={i}
-        className="absolute w-12 h-12 bg-amber-900 rounded-full"
+        className="absolute w-16 h-16 bg-amber-900 rounded-full"
         style={{
-          left: `${35 + Math.random() * 30}%`,
-          top: `${35 + Math.random() * 30}%`,
-          boxShadow: '0 0 20px rgba(120, 53, 15, 0.8)'
+          left: `${30 + Math.random() * 40}%`,
+          top: `${30 + Math.random() * 40}%`,
+          boxShadow: '0 0 30px rgba(120, 53, 15, 0.9), 0 0 60px rgba(92, 38, 3, 0.5)'
         }}
-        initial={{ scale: 0, opacity: 0.9 }}
+        initial={{ scale: 0, opacity: 1 }}
         animate={{ 
-          scale: [0, 1.5, 2.5],
-          opacity: [0.9, 0.6, 0],
-          y: [-10, -40, -70]
+          scale: [0, 2, 3.5],
+          opacity: [1, 0.7, 0],
+          y: [-15, -50, -90],
+          x: [0, Math.random() * 20 - 10, Math.random() * 40 - 20]
         }}
-        transition={{ duration: 1.5, delay: i * 0.15 }}
+        transition={{ duration: 2, delay: i * 0.1 }}
       />
     ))}
+  </motion.div>
+);
+
+// Seagull component - Flying birds across the screen
+const Seagull = ({ delay = 0, yPosition = 20 }: { delay?: number; yPosition?: number }) => (
+  <motion.div
+    className="absolute text-2xl z-20 pointer-events-none"
+    style={{
+      left: '-10%',
+      top: `${yPosition}%`,
+      pointerEvents: 'none'
+    }}
+    initial={{ x: 0, y: 0 }}
+    animate={{ 
+      x: ['0vw', '110vw'],
+      y: [0, Math.sin(delay) * 20, -Math.sin(delay) * 15, 0]
+    }}
+    transition={{ 
+      duration: 15 + Math.random() * 5,
+      delay,
+      repeat: Infinity,
+      ease: "linear"
+    }}
+  >
+    🦅
   </motion.div>
 );
 
@@ -105,13 +132,20 @@ const TreasureSpot = ({
       animate={{ scale: 1 }}
       transition={{ duration: 0.5, type: "spring" }}
     >
-      <div className="relative w-16 h-16 flex items-center justify-center">
+      <div className="relative w-20 h-20 flex items-center justify-center">
         
-        {/* Red X Mark (before digging) */}
+        {/* Sand mound under X mark */}
+        {!node.isRevealed && !isDigging && (
+          <div className="absolute bottom-0 w-24 h-12 rounded-t-full bg-gradient-to-b from-amber-400 to-amber-600 opacity-80 shadow-xl" style={{
+            boxShadow: '0 4px 20px rgba(217, 119, 6, 0.5), inset 0 -2px 8px rgba(180, 83, 9, 0.3)'
+          }} />
+        )}
+        
+        {/* Red X Mark (before digging) - ON TOP OF MOUND */}
         {!node.isRevealed && !isDigging && (
           <motion.div
             className={`
-              relative w-12 h-12 flex items-center justify-center
+              relative w-16 h-16 flex items-center justify-center z-10
               ${isActive ? 'scale-125' : 'scale-100'}
             `}
             animate={isActive ? { 
@@ -120,17 +154,22 @@ const TreasureSpot = ({
             } : {}}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <div className="text-red-600 font-bold text-4xl drop-shadow-lg transform">
+            <div className="text-red-600 font-bold text-5xl drop-shadow-2xl transform" style={{
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(220, 38, 38, 0.5)'
+            }}>
               ✕
             </div>
             {isActive && (
               <motion.div
-                className="absolute inset-0 border-2 border-yellow-400 rounded-full"
+                className="absolute inset-0 border-3 border-yellow-400 rounded-full"
                 animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [1, 0.7, 1]
+                  scale: [1, 1.3, 1],
+                  opacity: [1, 0.6, 1]
                 }}
                 transition={{ duration: 1.5, repeat: Infinity }}
+                style={{
+                  boxShadow: '0 0 20px rgba(250, 204, 21, 0.8)'
+                }}
               />
             )}
           </motion.div>
@@ -158,25 +197,86 @@ const TreasureSpot = ({
           )}
         </AnimatePresence>
 
-        {/* Spinning Glowing Treasure (stays above pile permanently) - 2X BIGGER */}
+        {/* Treasure Chest Opening Animation */}
         <AnimatePresence>
           {node.isRevealed && (
             <motion.div
               className="absolute -top-16 left-1/2 transform -translate-x-1/2"
-              initial={{ scale: 0, rotateY: 0, y: 50 }}
-              animate={{ 
-                scale: [0, 1.5, 1],
-                rotateY: [0, 720, 0],
-                y: [50, 0, 0]
-              }}
-              transition={{ duration: 1.5, type: "spring" }}
+              initial={{ scale: 0, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.5 }}
             >
-              {/* Permanent spinning and glowing treasure - 2X BIGGER */}
+              {/* Treasure Chest */}
               <motion.div
-                className="glass-card w-24 h-24 rounded-full flex items-center justify-center text-5xl shadow-xl bg-gradient-to-br from-yellow-400 to-amber-600 relative"
+                className="relative w-20 h-16 rounded-lg shadow-2xl"
+                style={{
+                  background: 'linear-gradient(to bottom, #92400e, #78350f)',
+                  border: '3px solid #a16207',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                {/* Chest lid */}
+                <motion.div
+                  className="absolute -top-1 left-0 right-0 h-8 rounded-t-lg"
+                  style={{
+                    background: 'linear-gradient(to bottom, #a16207, #92400e)',
+                    border: '3px solid #a16207',
+                    borderBottom: 'none',
+                    transformOrigin: 'bottom',
+                    boxShadow: 'inset 0 2px 4px rgba(255, 255, 255, 0.3)'
+                  }}
+                  initial={{ rotateX: 0 }}
+                  animate={{ rotateX: -120 }}
+                  transition={{ duration: 0.6, delay: 1.8 }}
+                >
+                  {/* Gold lock */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-yellow-500 text-sm">
+                    🔒
+                  </div>
+                </motion.div>
+                
+                {/* Chest glow when opening */}
+                <motion.div
+                  className="absolute inset-0 rounded-lg bg-yellow-300"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.6, 0] }}
+                  transition={{ duration: 1, delay: 1.8 }}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Glass Morphism Treasure flying out and spinning */}
+        <AnimatePresence>
+          {node.isRevealed && (
+            <motion.div
+              className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20"
+              initial={{ scale: 0, y: 0 }}
+              animate={{ 
+                scale: [0, 1.8, 1.2],
+                y: [0, -80, -60],
+                rotateY: [0, 1080, 720]
+              }}
+              transition={{ 
+                duration: 2,
+                delay: 2.2,
+                type: "spring",
+                bounce: 0.3
+              }}
+            >
+              {/* Glass Morphism Treasure with enhanced styling */}
+              <motion.div
+                className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-2xl relative"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  backdropFilter: 'blur(12px)',
+                  border: '3px solid rgba(255, 255, 255, 0.4)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), 0 0 40px rgba(250, 204, 21, 0.4), inset 0 2px 8px rgba(255, 255, 255, 0.3)'
+                }}
                 animate={{ 
                   rotateY: [0, 360],
-                  scale: [1, 1.1, 1],
+                  scale: [1, 1.15, 1],
                 }}
                 transition={{ 
                   rotateY: { duration: 4, repeat: Infinity, ease: "linear" },
@@ -185,31 +285,50 @@ const TreasureSpot = ({
               >
                 {TREASURE_ICONS[node.treasureType]}
                 
-                {/* Glowing effect */}
+                {/* Enhanced glowing effect */}
                 <motion.div
-                  className="absolute inset-0 rounded-full bg-yellow-300 opacity-30"
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(250, 204, 21, 0.4), transparent)',
+                  }}
                   animate={{ 
                     scale: [1, 1.5, 1],
-                    opacity: [0.3, 0.6, 0.3]
+                    opacity: [0.5, 0.8, 0.5]
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
                 
-                {/* Sparkle effects - bigger too */}
-                <div className="absolute -inset-4">
+                {/* Enhanced sparkle effects */}
+                <div className="absolute -inset-6">
                   <motion.div
-                    className="absolute top-0 left-0 text-yellow-400 text-lg"
-                    animate={{ rotate: [0, 360] }}
+                    className="absolute top-0 left-0 text-2xl"
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.2, 1]
+                    }}
                     transition={{ duration: 3, repeat: Infinity }}
                   >
                     ✨
                   </motion.div>
                   <motion.div
-                    className="absolute bottom-0 right-0 text-yellow-300 text-lg"
-                    animate={{ rotate: [360, 0] }}
+                    className="absolute bottom-0 right-0 text-2xl"
+                    animate={{ 
+                      rotate: [360, 0],
+                      scale: [1, 1.3, 1]
+                    }}
                     transition={{ duration: 2.5, repeat: Infinity }}
                   >
                     ⭐
+                  </motion.div>
+                  <motion.div
+                    className="absolute top-1/2 right-0 text-xl"
+                    animate={{ 
+                      rotate: [0, 360],
+                      x: [0, 5, 0]
+                    }}
+                    transition={{ duration: 2.8, repeat: Infinity }}
+                  >
+                    💫
                   </motion.div>
                 </div>
               </motion.div>
@@ -255,19 +374,21 @@ const TreasureShelf = ({ unlockedTreasures }: { unlockedTreasures: TreasureType[
   </div>
 );
 
-// Red Boot sprite component
+// Red Boot sprite component - BIGGER like Diego!
 const RedBootSprite = ({ position }: { position: { x: number; y: number } }) => (
   <motion.div
-    className="absolute w-20 h-20 z-10 transform -translate-x-1/2 -translate-y-1/2"
+    className="absolute w-32 h-32 z-10 transform -translate-x-1/2 -translate-y-1/2"
     animate={{ left: `${position.x}%`, top: `${position.y}%` }}
     transition={{ duration: 1.5, type: "easeInOut" }}
   >
     <motion.div
-      animate={{ y: [0, -4, 0] }}
+      animate={{ y: [0, -6, 0] }}
       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="relative w-full h-full">
-        <div className="w-16 h-16 rounded-full bg-white border-2 border-amber-600 shadow-xl overflow-hidden mx-auto">
+        <div className="w-28 h-28 rounded-full bg-white border-4 border-amber-600 shadow-2xl overflow-hidden mx-auto" style={{
+          boxShadow: '0 8px 32px rgba(217, 119, 6, 0.4), 0 0 20px rgba(251, 191, 36, 0.3)'
+        }}>
           <img 
             src={redBootImage}
             alt="Red Boot the Pirate"
@@ -275,13 +396,15 @@ const RedBootSprite = ({ position }: { position: { x: number; y: number } }) => 
           />
         </div>
         {/* Pirate hat shadow */}
-        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-4 h-2 bg-black/20 rounded-full" />
+        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black/20 rounded-full" />
       </div>
     </motion.div>
   </motion.div>
 );
 
 export default function TreasureRoad({ totalWords, masteredWords, treasureJustUnlocked }: TreasureRoadProps) {
+  const { playCharacterVoice, playSound } = useAudio();
+  
   const [mapState, setMapState] = useState<TreasureMapState>({
     currentNodeIndex: 0,
     redBootPosition: { x: 15, y: 75 }, // Start at first X
@@ -339,6 +462,12 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
     const node = treasureNodes.find(n => n.id === nodeId);
     if (!node) return;
 
+    // Play treasure chest opening sound and Red Boot's excited voice!
+    playSound('treasure_chest_open');
+    setTimeout(() => {
+      playCharacterVoice('red_boot_treasure');
+    }, 1800); // Delay to sync with chest opening animation
+
     // Reveal treasure and add to collection
     setTreasureNodes(prev => prev.map(n => 
       n.id === nodeId ? { ...n, isDigging: false, isRevealed: true } : n
@@ -354,6 +483,12 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
 
   return (
     <div className="relative w-full h-[500px] mx-auto max-w-5xl" data-testid="treasure-road">
+      {/* Flying seagulls */}
+      <Seagull delay={0} yPosition={15} />
+      <Seagull delay={3} yPosition={25} />
+      <Seagull delay={7} yPosition={10} />
+      <Seagull delay={12} yPosition={30} />
+      
       {/* Main treasure map container */}
       <div className="relative w-full h-full glass-card rounded-2xl overflow-hidden bg-gradient-to-br from-amber-200/40 via-yellow-100/30 to-orange-200/40 shadow-2xl">
         
@@ -363,11 +498,67 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         {/* Sandy beach border effect */}
         <div className="absolute inset-0 border-8 border-amber-400/40 rounded-2xl" />
         
-        {/* Decorative palm trees - bigger */}
-        <div className="absolute top-6 left-12 text-5xl drop-shadow-lg">🌴</div>
-        <div className="absolute top-16 right-16 text-4xl drop-shadow-lg">🌴</div>
-        <div className="absolute bottom-12 left-16 text-4xl drop-shadow-lg">🌴</div>
-        <div className="absolute bottom-8 right-8 text-3xl drop-shadow-lg">🌴</div>
+        {/* Decorative glass morphism palm trees - MUCH BIGGER like sea monsters */}
+        <motion.div 
+          className="absolute top-6 left-12 text-8xl drop-shadow-2xl"
+          style={{
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            borderRadius: '24px',
+            padding: '12px'
+          }}
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          🌴
+        </motion.div>
+        <motion.div 
+          className="absolute top-16 right-16 text-8xl drop-shadow-2xl"
+          style={{
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            borderRadius: '24px',
+            padding: '12px'
+          }}
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        >
+          🌴
+        </motion.div>
+        <motion.div 
+          className="absolute bottom-12 left-16 text-8xl drop-shadow-2xl"
+          style={{
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            borderRadius: '24px',
+            padding: '12px'
+          }}
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        >
+          🌴
+        </motion.div>
+        <motion.div 
+          className="absolute bottom-8 right-8 text-8xl drop-shadow-2xl"
+          style={{
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            borderRadius: '24px',
+            padding: '12px'
+          }}
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+        >
+          🌴
+        </motion.div>
         
         {/* Compass rose */}
         <div className="absolute top-6 left-1/2 transform -translate-x-1/2 glass-card w-14 h-14 rounded-full flex items-center justify-center bg-amber-400/20 shadow-lg">

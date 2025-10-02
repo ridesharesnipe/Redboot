@@ -52,6 +52,7 @@ export type CharacterVoiceType =
   | 'red_boot_adventure_complete'
   | 'red_boot_retry'
   | 'red_boot_bonus'
+  | 'red_boot_treasure'
   | 'ocean_blue_encouraging'
   | 'salty_helpful_tip';
 
@@ -154,6 +155,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.3);
           gainNode.gain.setValueAtTime(finalVolume, audioContext.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+          oscillator.start();
           oscillator.stop(audioContext.currentTime + 0.5);
           break;
         case 'ship_bell_success':
@@ -202,6 +204,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
           gainNode.gain.setValueAtTime(finalVolume * 0.3, audioContext.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+          oscillator.start();
           oscillator.stop(audioContext.currentTime + 0.1);
           break;
         case 'spell_correct':
@@ -211,6 +214,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2); // G5
           gainNode.gain.setValueAtTime(finalVolume, audioContext.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+          oscillator.start();
           oscillator.stop(audioContext.currentTime + 0.4);
           break;
         case 'spell_incorrect':
@@ -219,6 +223,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
           gainNode.gain.setValueAtTime(finalVolume, audioContext.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+          oscillator.start();
           oscillator.stop(audioContext.currentTime + 0.4);
           break;
         case 'victory_fanfare':
@@ -303,10 +308,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
           gainNode.gain.setValueAtTime(finalVolume * 0.5, audioContext.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          oscillator.start();
           oscillator.stop(audioContext.currentTime + 0.2);
       }
-      
-      oscillator.start();
     } catch (error) {
       console.error('Error playing sound:', error);
     }
@@ -610,6 +614,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         "Captain! Those tricky treasures need more practice! Ready for bonus gold?",
         "Ye found all treasures, but some were rusty! Polish them for extra coins?"
       ],
+      red_boot_treasure: [
+        "Arrr, me treasure! Shiver me timbers, look at all this loot!",
+        "Yo ho ho! Me treasure chest be full of riches, ye magnificent buccaneer!",
+        "Blimey! Found me treasure at last, arrr! This be worth a king's ransom!"
+      ],
       salty_helpful_tip: [
         'Here\'s a tip from old Salty: sound out each letter carefully!',
         'Listen well, young sailor: break the word into pieces!',
@@ -630,6 +639,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_adventure_complete':
       case 'red_boot_retry':
       case 'red_boot_bonus':
+      case 'red_boot_treasure':
         voiceConfig = { rate: 0.75, pitch: 0.9 }; // Slower, deeper male pirate voice
         break;
       case 'ocean_blue_encouraging':
