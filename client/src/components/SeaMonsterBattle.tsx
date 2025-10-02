@@ -90,13 +90,16 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
       setDiegoPosition({ x: nextMonster.x, y: nextMonster.y });
       setCurrentMonsterIndex(nextMonsterIndex);
       
+      // Diego barks when starting the battle!
+      playAudioFile('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
+      
       // Start battle animation
       setCurrentlyBattling(nextMonster.id);
       setMonsterNodes(prev => prev.map(node => 
         node.id === nextMonster.id ? { ...node, isBattling: true } : node
       ));
     }
-  }, [masteredWords, currentMonsterIndex, monsterNodes.length]);
+  }, [masteredWords, currentMonsterIndex, monsterNodes.length, playAudioFile]);
 
   // Handle external treasure unlocking
   useEffect(() => {
@@ -114,9 +117,6 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   const handleBattleComplete = (monsterId: string) => {
     const monster = monsterNodes.find(n => n.id === monsterId);
     if (!monster) return;
-
-    // Play Diego's victory bark
-    playAudioFile('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
 
     // Reveal defeated monster and add treasure
     setMonsterNodes(prev => prev.map(n => 
