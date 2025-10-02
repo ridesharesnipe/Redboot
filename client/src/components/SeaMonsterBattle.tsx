@@ -32,16 +32,16 @@ interface SeaMonsterBattleProps {
   treasureJustUnlocked?: boolean;
 }
 
-// Sea monster emojis and names
+// Sea monster emojis and names with progressively increasing treasures
 const MONSTER_DATA = {
-  [SeaMonsterType.KRAKEN]: { emoji: '🐙', name: 'Kraken', treasure: '💎' },
-  [SeaMonsterType.SHARK]: { emoji: '🦈', name: 'Mega Shark', treasure: '💎' },
-  [SeaMonsterType.SEA_DRAGON]: { emoji: '🐉', name: 'Sea Dragon', treasure: '💎' },
-  [SeaMonsterType.GIANT_SQUID]: { emoji: '🦑', name: 'Giant Squid', treasure: '💎' },
-  [SeaMonsterType.SEA_SERPENT]: { emoji: '🐍', name: 'Sea Serpent', treasure: '💎' },
-  [SeaMonsterType.LEVIATHAN]: { emoji: '🐋', name: 'Leviathan', treasure: '💎' },
-  [SeaMonsterType.MEGALODON]: { emoji: '🦈', name: 'Megalodon', treasure: '💎' },
-  [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasure: '💎' },
+  [SeaMonsterType.SHARK]: { emoji: '🦈', name: 'Mega Shark', treasures: ['🪙', '🪙'] }, // 2 coins
+  [SeaMonsterType.KRAKEN]: { emoji: '🐙', name: 'Kraken', treasures: ['💎', '💎'] }, // 2 diamonds
+  [SeaMonsterType.GIANT_SQUID]: { emoji: '🦑', name: 'Giant Squid', treasures: ['💍', '💍', '💍'] }, // 3 rings
+  [SeaMonsterType.SEA_DRAGON]: { emoji: '🐉', name: 'Sea Dragon', treasures: ['🏆', '🏆', '🏆'] }, // 3 trophies
+  [SeaMonsterType.SEA_SERPENT]: { emoji: '🐍', name: 'Sea Serpent', treasures: ['🪙', '🪙', '🪙', '🪙'] }, // 4 coins
+  [SeaMonsterType.LEVIATHAN]: { emoji: '🐋', name: 'Leviathan', treasures: ['💎', '💎', '💎', '💎'] }, // 4 diamonds
+  [SeaMonsterType.MEGALODON]: { emoji: '🦈', name: 'Megalodon', treasures: ['💍', '💍', '💍', '💍', '💍'] }, // 5 rings
+  [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasures: ['👑', '👑', '👑', '👑', '👑'] }, // 5 crowns
 };
 
 // Default monster positions scattered across the sea (widely spread out)
@@ -125,7 +125,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
     ));
     
     const monsterData = MONSTER_DATA[monster.monsterType];
-    setDefeatedTreasures(prev => [...prev, monsterData.treasure]);
+    setDefeatedTreasures(prev => [...prev, ...monsterData.treasures]); // Add all treasures from this monster
     setCurrentlyBattling(null);
   };
 
@@ -368,13 +368,13 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                       <div className="text-5xl">💨</div>
                     </motion.div>
                     
-                    {/* Treasure appears after smoke */}
+                    {/* Treasures appear after smoke - showing all earned treasures */}
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 360 }}
                       transition={{ delay: 0.8, duration: 0.6 }}
                     >
-                      <div className="mb-2 drop-shadow-2xl animate-bounce flex justify-center items-center text-5xl p-2 rounded-xl" 
+                      <div className="mb-2 drop-shadow-2xl animate-bounce flex flex-wrap justify-center items-center gap-1 text-3xl p-2 rounded-xl max-w-[120px]" 
                         style={{
                           background: 'rgba(255, 255, 255, 0.2)',
                           backdropFilter: 'blur(10px)',
@@ -382,7 +382,9 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
                         }}
                       >
-                        {monsterData.treasure}
+                        {monsterData.treasures.map((treasure, idx) => (
+                          <span key={idx}>{treasure}</span>
+                        ))}
                       </div>
                       <div className="text-xs font-bold text-white bg-green-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
                         Victory!

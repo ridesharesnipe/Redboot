@@ -534,7 +534,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             
             {/* Diego treasure collection grid (top-left in blue area) */}
             {selectedCharacter === 'diego' && treasureEarned > 0 && (
-              <div className="grid grid-cols-3 gap-1 p-1.5 rounded-lg"
+              <div className="grid grid-cols-3 gap-1 p-1.5 rounded-lg max-w-[110px]"
                 style={{
                   background: 'rgba(255, 255, 255, 0.15)',
                   backdropFilter: 'blur(10px)',
@@ -545,7 +545,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 {Array.from({ length: treasureEarned }).map((_, index) => (
                   <div
                     key={index}
-                    className="drop-shadow-lg w-8 h-8 flex items-center justify-center text-lg rounded-md"
+                    className="drop-shadow-lg w-8 h-8 flex items-center justify-center text-base rounded-md"
                     style={{
                       background: 'rgba(255, 255, 255, 0.25)',
                       backdropFilter: 'blur(8px)',
