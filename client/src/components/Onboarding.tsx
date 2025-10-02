@@ -44,7 +44,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className="min-h-[100svh] bg-gradient-to-br from-blue-400 via-sky-500 to-purple-500 overflow-x-hidden flex items-center justify-center p-4"
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-400 via-sky-500 to-purple-500 overflow-hidden flex items-center justify-center p-4"
       style={{
         background: `
           radial-gradient(circle at 30% 20%, #87CEEB 0%, #4682B4 25%),
