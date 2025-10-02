@@ -240,6 +240,28 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     }
   };
 
+  // Speak a specific word (used to repeat after submission)
+  const speakWordAgain = (word: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.rate = 0.8;
+      utterance.volume = 0.9;
+      
+      const voices = speechSynthesis.getVoices();
+      const goodVoice = voices.find(voice => 
+        voice.lang.startsWith('en') && !voice.name.includes('Google')
+      ) || voices[0];
+      
+      if (goodVoice) utterance.voice = goodVoice;
+      
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Speech synthesis failed:', error);
+      }
+    }
+  };
+
   const handleSubmit = () => {
     if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;
     
@@ -298,9 +320,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       setTreasureEarned(prev => prev + 1);
       playSound('spell_correct');
       
-      // Speak grade-appropriate correct feedback
-      const feedbackMessage = getFeedback(gradeLevel, true, false);
-      speakFeedback(feedbackMessage);
+      // First repeat the word, then give feedback
+      speakWordAgain(currentWord);
+      setTimeout(() => {
+        // Speak grade-appropriate correct feedback after word is repeated
+        const feedbackMessage = getFeedback(gradeLevel, true, false);
+        speakFeedback(feedbackMessage);
+      }, 1200); // Delay to let word finish speaking
       
       // Check if we hit a treasure milestone
       const treasureShown = checkForTreasure(newCorrectCount);
@@ -325,11 +351,15 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       
       playSound('spell_incorrect');
       
-      // Speak grade-appropriate wrong feedback
-      // showBonusRound tells us if this is a retry attempt
-      const isRetry = showBonusRound;
-      const feedbackMessage = getFeedback(gradeLevel, false, isRetry);
-      speakFeedback(feedbackMessage);
+      // First repeat the word, then give feedback
+      speakWordAgain(currentWord);
+      setTimeout(() => {
+        // Speak grade-appropriate wrong feedback after word is repeated
+        // showBonusRound tells us if this is a retry attempt
+        const isRetry = showBonusRound;
+        const feedbackMessage = getFeedback(gradeLevel, false, isRetry);
+        speakFeedback(feedbackMessage);
+      }, 1200); // Delay to let word finish speaking
     }
   };
 
