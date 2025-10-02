@@ -241,7 +241,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
               {/* Monster display */}
               {!monster.isDefeated ? (
                 <div className={`text-center ${monster.isBattling ? 'animate-pulse' : ''}`}>
-                  <div className="text-6xl mb-2 drop-shadow-2xl filter brightness-110">
+                  <div className="text-8xl mb-2 drop-shadow-2xl filter brightness-110">
                     {monsterData.emoji}
                   </div>
                   <div className="text-xs font-bold text-white bg-red-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
