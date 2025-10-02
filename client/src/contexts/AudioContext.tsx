@@ -618,7 +618,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_adventure_complete':
       case 'red_boot_retry':
       case 'red_boot_bonus':
-        voiceConfig = { rate: 0.75, pitch: 0.6 }; // Gruff, slow pirate captain voice
+        voiceConfig = { rate: 1.0, pitch: 1.0 }; // Natural English accent voice
         break;
       case 'ocean_blue_encouraging':
         voiceConfig = { rate: 1.1, pitch: 1.2 };
