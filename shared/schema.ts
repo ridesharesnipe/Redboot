@@ -37,6 +37,20 @@ export const users = pgTable("users", {
   onboardingComplete: boolean("onboarding_complete").default(false),
   childName: varchar("child_name"),
   gradeLevel: varchar("grade_level"),
+  // Red Boot's Treasure Vault
+  treasureDiamonds: integer("treasure_diamonds").default(0),
+  treasureCoins: integer("treasure_coins").default(0),
+  treasureCrowns: integer("treasure_crowns").default(0),
+  treasureBags: integer("treasure_bags").default(0),
+  treasureStars: integer("treasure_stars").default(0),
+  treasureTrophies: integer("treasure_trophies").default(0),
+  // Diego's Treasure Vault
+  diegoTreasureDiamonds: integer("diego_treasure_diamonds").default(0),
+  diegoTreasureCoins: integer("diego_treasure_coins").default(0),
+  diegoTreasureCrowns: integer("diego_treasure_crowns").default(0),
+  diegoTreasureBags: integer("diego_treasure_bags").default(0),
+  diegoTreasureStars: integer("diego_treasure_stars").default(0),
+  diegoTreasureTrophies: integer("diego_treasure_trophies").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
