@@ -20,6 +20,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User>;
   
   // Children operations
   getChildren(parentId: string): Promise<Child[]>;
@@ -67,6 +68,20 @@ export class DatabaseStorage implements IStorage {
         stripeCustomerId, 
         stripeSubscriptionId,
         isPremium: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        childName: childName || null,
+        gradeLevel: gradeLevel || null,
+        onboardingComplete,
         updatedAt: new Date(),
       })
       .where(eq(users.id, userId))

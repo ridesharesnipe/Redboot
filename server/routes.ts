@@ -18,6 +18,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
   });
 
+  // Onboarding endpoint
+  app.post('/api/onboarding', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!req.isAuthenticated() || !user?.id) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const { childName, gradeLevel, skip } = req.body;
+      
+      // If skipping, just set onboardingComplete to true
+      if (skip) {
+        const updatedUser = await storage.updateUserOnboarding(user.id, undefined, undefined, true);
+        return res.json({ user: updatedUser });
+      }
+
+      // Otherwise save the data
+      const updatedUser = await storage.updateUserOnboarding(user.id, childName, gradeLevel, true);
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error saving onboarding data:", error);
+      res.status(500).json({ message: "Failed to save onboarding data" });
+    }
+  });
+
   // Photos now stored in browser IndexedDB - no server routes needed!
 
   // Stripe routes (if Stripe is configured)

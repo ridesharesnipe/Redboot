@@ -34,6 +34,9 @@ export const users = pgTable("users", {
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   isPremium: boolean("is_premium").default(false),
+  onboardingComplete: boolean("onboarding_complete").default(false),
+  childName: varchar("child_name"),
+  gradeLevel: varchar("grade_level"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

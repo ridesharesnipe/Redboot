@@ -3,6 +3,7 @@ import { Router, Route, Switch, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SplashScreen from "@/components/SplashScreen";
+import Onboarding from "@/components/Onboarding";
 import Landing from "@/pages/landing";
 import PhotoCapturePage from "@/pages/photo-capture";
 import ParentDashboard from "@/components/ParentDashboard";
@@ -10,6 +11,7 @@ import SimplePractice from "@/components/SimplePractice";
 import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
+import { useAuth } from "@/hooks/useAuth";
 
 // Proper React Error Boundary component - moved to module scope for stability
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
@@ -61,6 +63,8 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { user, isLoading } = useAuth();
 
   // Show splash screen only on first load
   useEffect(() => {
@@ -73,8 +77,25 @@ function App() {
     }
   }, []);
 
+  // Check onboarding status after splash completes
+  useEffect(() => {
+    if (!showSplash && !isLoading && user) {
+      // Check if user has completed onboarding
+      const userWithOnboarding = user as any;
+      if (userWithOnboarding.onboardingComplete === false) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [showSplash, isLoading, user]);
+
   const handleSplashComplete = () => {
     setShowSplash(false);
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    // Refresh user data after onboarding
+    window.location.href = '/';
   };
 
   // Show splash screen for first-time visitors
@@ -84,6 +105,18 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <SplashScreen onComplete={handleSplashComplete} />
+        </TooltipProvider>
+      </AudioProvider>
+    );
+  }
+
+  // Show onboarding after splash if needed
+  if (showOnboarding && !isLoading) {
+    return (
+      <AudioProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Onboarding onComplete={handleOnboardingComplete} />
         </TooltipProvider>
       </AudioProvider>
     );
