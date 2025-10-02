@@ -305,29 +305,85 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
               </AnimatePresence>
 
               {/* Monster display */}
-              {!monster.isDefeated ? (
-                <div className={`text-center ${monster.isBattling ? 'animate-pulse' : ''}`}>
-                  <div className="text-8xl mb-2 drop-shadow-2xl filter brightness-110">
-                    {monsterData.emoji}
-                  </div>
-                  <div className="text-xs font-bold text-white bg-red-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
-                    {monsterData.name}
-                  </div>
-                </div>
-              ) : (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1, rotate: 360 }}
-                  className="text-center"
-                >
-                  <div className="text-5xl mb-1 drop-shadow-xl animate-bounce">
-                    {monsterData.treasure}
-                  </div>
-                  <div className="text-xs font-bold text-white bg-green-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
-                    Victory!
-                  </div>
-                </motion.div>
-              )}
+              <AnimatePresence mode="wait">
+                {!monster.isDefeated ? (
+                  <motion.div
+                    key="monster"
+                    exit={{ 
+                      scale: 0,
+                      opacity: 0,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className={`text-center ${monster.isBattling ? 'animate-pulse' : ''}`}
+                  >
+                    <div className="text-8xl mb-2 drop-shadow-2xl filter brightness-110">
+                      {monsterData.emoji}
+                    </div>
+                    <div className="text-xs font-bold text-white bg-red-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
+                      {monsterData.name}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="treasure"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="text-center relative"
+                  >
+                    {/* Puff of smoke appears first */}
+                    <motion.div
+                      className="absolute -top-8 left-1/2 transform -translate-x-1/2"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: [0, 2, 3],
+                        opacity: [0, 1, 0],
+                        y: [0, -30, -60],
+                      }}
+                      transition={{ duration: 1.5 }}
+                    >
+                      <div className="text-6xl">💨</div>
+                    </motion.div>
+                    <motion.div
+                      className="absolute -top-12 left-1/4 transform -translate-x-1/2"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: [0, 1.5, 2.5],
+                        opacity: [0, 0.8, 0],
+                        y: [0, -20, -50],
+                      }}
+                      transition={{ duration: 1.3, delay: 0.1 }}
+                    >
+                      <div className="text-5xl">💨</div>
+                    </motion.div>
+                    <motion.div
+                      className="absolute -top-10 left-3/4 transform -translate-x-1/2"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: [0, 1.8, 2.8],
+                        opacity: [0, 0.9, 0],
+                        y: [0, -25, -55],
+                      }}
+                      transition={{ duration: 1.4, delay: 0.2 }}
+                    >
+                      <div className="text-5xl">💨</div>
+                    </motion.div>
+                    
+                    {/* Treasure appears after smoke */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 360 }}
+                      transition={{ delay: 0.8, duration: 0.6 }}
+                    >
+                      <div className="text-5xl mb-1 drop-shadow-xl animate-bounce">
+                        {monsterData.treasure}
+                      </div>
+                      <div className="text-xs font-bold text-white bg-green-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
+                        Victory!
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
