@@ -433,41 +433,6 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           </div>
         </motion.div>
 
-        {/* Collected treasures in top-left grid */}
-        <div className="absolute top-4 left-4 z-30">
-          <div className="grid grid-cols-3 gap-2 p-2 rounded-lg"
-            style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(10px)',
-              border: '2px solid rgba(255, 255, 255, 0.25)',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            {defeatedTreasures.map((treasure, index) => (
-              <motion.div
-                key={index}
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ 
-                  scale: 1, 
-                  rotate: 0,
-                }}
-                transition={{
-                  scale: { duration: 0.5 },
-                  rotate: { duration: 0.5 },
-                }}
-                className="drop-shadow-lg w-12 h-12 flex items-center justify-center text-2xl rounded-lg"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.25)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                {treasure}
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Progress indicator */}
