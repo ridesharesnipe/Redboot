@@ -583,8 +583,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
-      {/* Prominent Back Button at top */}
-      <div className="max-w-4xl mx-auto mb-4">
+      {/* Exit Button - Top right corner */}
+      <div className="absolute top-4 right-4 z-50">
         <Button
           onClick={onCancel}
           variant="outline"
@@ -596,17 +596,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         </Button>
       </div>
       
-      <div className="max-w-4xl mx-auto space-y-4">
-        {/* Progress Header - In Blue Area */}
-        <div className="text-center mb-2">
-          <div className="text-sm text-white font-semibold mb-2">
+      <div className="max-w-4xl mx-auto pt-2">
+        {/* Progress Header - Raised higher in Blue Area */}
+        <div className="text-center mb-3">
+          <div className="text-base text-white font-bold mb-3">
             Word {currentWordIndex + 1} of {practiceWords.length}
           </div>
           <Progress value={progress} className="w-full max-w-md mx-auto" />
         </div>
 
-        {/* Main Practice Card */}
-    <Card className="max-w-2xl mx-auto">
+        {/* Main Practice Card - Moved up close to progress bar */}
+    <Card className="max-w-2xl mx-auto mt-2">
       <CardContent className="p-6">
         {/* Treasure Collection Display - At very top of white card */}
         {treasureEarned > 0 && (
