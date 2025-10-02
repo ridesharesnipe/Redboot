@@ -92,7 +92,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
       setCurrentMonsterIndex(nextMonsterIndex);
       
       // Diego barks when starting the battle!
-      playAudioFile(diegoBarkSound, 1, true); // Play from middle
+      playAudioFile(diegoBarkSound, 0.5, true); // Play from middle at 50% volume
       
       // Start battle animation
       setCurrentlyBattling(nextMonster.id);
