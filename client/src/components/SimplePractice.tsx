@@ -538,8 +538,35 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             <Progress value={progress} className="w-full" />
           </div>
           
-          {/* Spacer for symmetry */}
-          <div className="w-16"></div>
+          {/* Diego treasure collection grid (in blue area) */}
+          {selectedCharacter === 'diego' && treasureEarned > 0 ? (
+            <div className="grid grid-cols-3 gap-1 p-1.5 rounded-lg"
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              {Array.from({ length: treasureEarned }).map((_, index) => (
+                <div
+                  key={index}
+                  className="drop-shadow-lg w-8 h-8 flex items-center justify-center text-lg rounded-md"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.25)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  💎
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Spacer for symmetry when not Diego or no treasures */
+            <div className="w-16"></div>
+          )}
         </div>
 
         {showFeedback ? (
