@@ -44,16 +44,16 @@ const MONSTER_DATA = {
   [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasures: ['👑', '👑', '👑', '👑', '👑'] }, // 5 crowns
 };
 
-// Default monster positions scattered across the sea (widely spread out)
+// Default monster positions scattered across the sea (widely spread out with more spacing)
 const DEFAULT_MONSTER_NODES: Omit<SeaMonsterNode, 'isDefeated' | 'isBattling' | 'isRevealed'>[] = [
-  { id: 'monster-1', x: 12, y: 70, monsterType: SeaMonsterType.SHARK, wordIndex: 0 },
-  { id: 'monster-2', x: 50, y: 20, monsterType: SeaMonsterType.KRAKEN, wordIndex: 1 },
-  { id: 'monster-3', x: 88, y: 65, monsterType: SeaMonsterType.GIANT_SQUID, wordIndex: 2 },
-  { id: 'monster-4', x: 20, y: 10, monsterType: SeaMonsterType.SEA_DRAGON, wordIndex: 3 },
-  { id: 'monster-5', x: 80, y: 30, monsterType: SeaMonsterType.SEA_SERPENT, wordIndex: 4 },
-  { id: 'monster-6', x: 35, y: 50, monsterType: SeaMonsterType.LEVIATHAN, wordIndex: 5 },
-  { id: 'monster-7', x: 65, y: 15, monsterType: SeaMonsterType.MEGALODON, wordIndex: 6 },
-  { id: 'monster-8', x: 92, y: 45, monsterType: SeaMonsterType.HYDRA, wordIndex: 7 },
+  { id: 'monster-1', x: 8, y: 75, monsterType: SeaMonsterType.SHARK, wordIndex: 0 },
+  { id: 'monster-2', x: 55, y: 15, monsterType: SeaMonsterType.KRAKEN, wordIndex: 1 },
+  { id: 'monster-3', x: 90, y: 70, monsterType: SeaMonsterType.GIANT_SQUID, wordIndex: 2 },
+  { id: 'monster-4', x: 15, y: 8, monsterType: SeaMonsterType.SEA_DRAGON, wordIndex: 3 },
+  { id: 'monster-5', x: 82, y: 25, monsterType: SeaMonsterType.SEA_SERPENT, wordIndex: 4 },
+  { id: 'monster-6', x: 30, y: 55, monsterType: SeaMonsterType.LEVIATHAN, wordIndex: 5 },
+  { id: 'monster-7', x: 70, y: 12, monsterType: SeaMonsterType.MEGALODON, wordIndex: 6 },
+  { id: 'monster-8', x: 92, y: 50, monsterType: SeaMonsterType.HYDRA, wordIndex: 7 },
 ];
 
 export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJustUnlocked }: SeaMonsterBattleProps) {
@@ -130,7 +130,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   };
 
   return (
-    <div className="relative w-full h-[500px] mx-auto max-w-5xl" data-testid="sea-monster-battle">
+    <div className="relative w-full h-[700px] mx-auto max-w-5xl" data-testid="sea-monster-battle">
       {/* Main sea battle container with glass morphism */}
       <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl"
         style={{
