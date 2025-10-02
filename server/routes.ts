@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertChildSchema, insertWordListSchema, insertProgressSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -13,16 +14,32 @@ if (process.env.STRIPE_SECRET_KEY) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication middleware
+  await setupAuth(app);
+
   // Simple API routes for basic functionality
   app.get('/api/status', async (req, res) => {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
   });
 
+  // Auth user endpoint
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Onboarding endpoint
-  app.post('/api/onboarding', async (req, res) => {
+  app.post('/api/onboarding', isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      if (!req.isAuthenticated() || !user?.id) {
+      const userId = user?.claims?.sub;
+      if (!userId) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
@@ -30,12 +47,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If skipping, just set onboardingComplete to true
       if (skip) {
-        const updatedUser = await storage.updateUserOnboarding(user.id, undefined, undefined, true);
+        const updatedUser = await storage.updateUserOnboarding(userId, undefined, undefined, true);
         return res.json({ user: updatedUser });
       }
 
       // Otherwise save the data
-      const updatedUser = await storage.updateUserOnboarding(user.id, childName, gradeLevel, true);
+      const updatedUser = await storage.updateUserOnboarding(userId, childName, gradeLevel, true);
       res.json({ user: updatedUser });
     } catch (error) {
       console.error("Error saving onboarding data:", error);
@@ -46,14 +63,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Photos now stored in browser IndexedDB - no server routes needed!
 
   // Treasure Vault API routes
-  app.get('/api/treasures', async (req, res) => {
+  app.get('/api/treasures', isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      if (!req.isAuthenticated() || !user?.id) {
+      const userId = user?.claims?.sub;
+      if (!userId) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
-      const userData = await storage.getUser(user.id);
+      const userData = await storage.getUser(userId);
       if (!userData) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -82,10 +100,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/treasures/add', async (req, res) => {
+  app.post('/api/treasures/add', isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      if (!req.isAuthenticated() || !user?.id) {
+      const userId = user?.claims?.sub;
+      if (!userId) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
@@ -94,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid request' });
       }
 
-      await storage.addTreasures(user.id, character, amount);
+      await storage.addTreasures(userId, character, amount);
       res.json({ success: true });
     } catch (error) {
       console.error('Error adding treasures:', error);

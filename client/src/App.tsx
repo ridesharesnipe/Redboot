@@ -1,5 +1,7 @@
 import { useState, useEffect, Component, ReactNode } from "react";
 import { Router, Route, Switch, useLocation } from "wouter";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SplashScreen from "@/components/SplashScreen";
@@ -98,24 +100,28 @@ function App() {
   // Show splash screen for first-time visitors
   if (showSplash) {
     return (
-      <AudioProvider>
-        <TooltipProvider>
-          <Toaster />
-          <SplashScreen onComplete={handleSplashComplete} />
-        </TooltipProvider>
-      </AudioProvider>
+      <QueryClientProvider client={queryClient}>
+        <AudioProvider>
+          <TooltipProvider>
+            <Toaster />
+            <SplashScreen onComplete={handleSplashComplete} />
+          </TooltipProvider>
+        </AudioProvider>
+      </QueryClientProvider>
     );
   }
 
   // Show onboarding after splash if needed
   if (showOnboarding) {
     return (
-      <AudioProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Onboarding onComplete={handleOnboardingComplete} />
-        </TooltipProvider>
-      </AudioProvider>
+      <QueryClientProvider client={queryClient}>
+        <AudioProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Onboarding onComplete={handleOnboardingComplete} />
+          </TooltipProvider>
+        </AudioProvider>
+      </QueryClientProvider>
     );
   }
 
@@ -174,24 +180,26 @@ function App() {
   }, "Guide");
 
   return (
-    <AudioProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Router>
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
-            <Switch>
-              <Route path="/" component={LandingRoute} />
-              <Route path="/photo-capture" component={withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture")} />
-              <Route path="/dashboard" component={DashboardRoute} />
-              <Route path="/practice" component={PracticeRoute} />
-              <Route path="/test" component={TestRoute} />
-              <Route path="/guide" component={GuideRoute} />
-              <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
-            </Switch>
-          </div>
-        </Router>
-      </TooltipProvider>
-    </AudioProvider>
+    <QueryClientProvider client={queryClient}>
+      <AudioProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
+              <Switch>
+                <Route path="/" component={LandingRoute} />
+                <Route path="/photo-capture" component={withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture")} />
+                <Route path="/dashboard" component={DashboardRoute} />
+                <Route path="/practice" component={PracticeRoute} />
+                <Route path="/test" component={TestRoute} />
+                <Route path="/guide" component={GuideRoute} />
+                <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
+              </Switch>
+            </div>
+          </Router>
+        </TooltipProvider>
+      </AudioProvider>
+    </QueryClientProvider>
   );
 }
 
