@@ -482,12 +482,6 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
 
   return (
     <div className="relative w-full h-[500px] mx-auto max-w-5xl" data-testid="treasure-road">
-      {/* Flying colorful parrots */}
-      <Parrot delay={0} yPosition={15} />
-      <Parrot delay={3} yPosition={25} />
-      <Parrot delay={7} yPosition={10} />
-      <Parrot delay={12} yPosition={30} />
-      
       {/* Main treasure map container */}
       <div className="relative w-full h-full glass-card rounded-2xl overflow-hidden bg-gradient-to-br from-amber-200/40 via-yellow-100/30 to-orange-200/40 shadow-2xl">
         
