@@ -35,13 +35,13 @@ interface SeaMonsterBattleProps {
 // Sea monster emojis and names
 const MONSTER_DATA = {
   [SeaMonsterType.KRAKEN]: { emoji: '🐙', name: 'Kraken', treasure: '💎' },
-  [SeaMonsterType.SHARK]: { emoji: '🦈', name: 'Mega Shark', treasure: '🥇' },
+  [SeaMonsterType.SHARK]: { emoji: '🦈', name: 'Mega Shark', treasure: '🔴' },
   [SeaMonsterType.SEA_DRAGON]: { emoji: '🐉', name: 'Sea Dragon', treasure: '👑' },
-  [SeaMonsterType.GIANT_SQUID]: { emoji: '🦑', name: 'Giant Squid', treasure: '💍' },
-  [SeaMonsterType.SEA_SERPENT]: { emoji: '🐍', name: 'Sea Serpent', treasure: '❤️' },
-  [SeaMonsterType.LEVIATHAN]: { emoji: '🐋', name: 'Leviathan', treasure: '💠' },
-  [SeaMonsterType.MEGALODON]: { emoji: '🦈', name: 'Megalodon', treasure: '🏆' },
-  [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasure: '⭐' },
+  [SeaMonsterType.GIANT_SQUID]: { emoji: '🦑', name: 'Giant Squid', treasure: '💚' },
+  [SeaMonsterType.SEA_SERPENT]: { emoji: '🐍', name: 'Sea Serpent', treasure: '🟢' },
+  [SeaMonsterType.LEVIATHAN]: { emoji: '🐋', name: 'Leviathan', treasure: '💎' },
+  [SeaMonsterType.MEGALODON]: { emoji: '🦈', name: 'Megalodon', treasure: '🔴' },
+  [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasure: '💚' },
 };
 
 // Default monster positions scattered across the sea
