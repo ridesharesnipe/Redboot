@@ -618,7 +618,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_adventure_complete':
       case 'red_boot_retry':
       case 'red_boot_bonus':
-        voiceConfig = { rate: 0.9, pitch: 0.9 }; // Slightly slower, deeper male pirate voice
+        voiceConfig = { rate: 0.75, pitch: 0.9 }; // Slower, deeper male pirate voice
         break;
       case 'ocean_blue_encouraging':
         voiceConfig = { rate: 1.1, pitch: 1.2 };
