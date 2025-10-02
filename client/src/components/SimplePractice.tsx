@@ -597,27 +597,27 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       </div>
       
       <div className="max-w-4xl mx-auto space-y-4">
-        {/* Main Practice Card */}
-    <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-6">
-        {/* Header with progress */}
-        <div className="text-center mb-4">
-          <div className="text-sm text-muted-foreground mb-1">
+        {/* Progress Header - In Blue Area */}
+        <div className="text-center mb-2">
+          <div className="text-sm text-white font-semibold mb-2">
             Word {currentWordIndex + 1} of {practiceWords.length}
           </div>
           <Progress value={progress} className="w-full max-w-md mx-auto" />
         </div>
-        
-        {/* Treasure Collection Display - Bigger and more visible */}
+
+        {/* Main Practice Card */}
+    <Card className="max-w-2xl mx-auto">
+      <CardContent className="p-6">
+        {/* Treasure Collection Display - At very top of white card */}
         {treasureEarned > 0 && (
           <div className="mb-4">
-            <div className="text-center mb-2">
-              <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="text-center mb-3">
+              <div className="flex items-center justify-center gap-2 mb-2">
                 <Coins className="w-6 h-6 text-yellow-500" />
                 <span className="font-bold text-lg">Treasures Collected: {treasureEarned}</span>
               </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-3 p-4 max-w-lg mx-auto">
+            <div className="flex flex-wrap justify-center gap-3 p-4">
               {Array.from({ length: treasureEarned }).map((_, index) => {
                 // Cycle through different treasure types
                 const treasureTypes = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
