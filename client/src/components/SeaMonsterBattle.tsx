@@ -293,7 +293,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
-              className="relative w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-white"
+              className="relative w-16 h-16 rounded-full overflow-hidden shadow-2xl"
             >
               <img 
                 src={diegoImage}
