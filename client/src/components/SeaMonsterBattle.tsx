@@ -146,51 +146,54 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-900 to-transparent" />
         </div>
 
-        {/* Animated waves - multiple layers */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none">
-          {/* Wave 1 */}
+        {/* Animated waves - multiple realistic layers */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 overflow-hidden pointer-events-none z-20">
+          {/* Wave 1 - Front layer with white caps */}
           <motion.div
-            className="absolute bottom-0 left-0 w-[200%] h-20"
+            className="absolute bottom-0 left-0 w-[300%] h-28 rounded-t-full"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
+              background: 'linear-gradient(to top, rgba(59, 130, 246, 0.6) 0%, rgba(96, 165, 250, 0.4) 50%, rgba(191, 219, 254, 0.3) 100%)',
+              boxShadow: '0 -4px 20px rgba(59, 130, 246, 0.3)',
             }}
             animate={{
-              x: ['-50%', '0%'],
-              y: [0, -3, 0],
+              x: ['-66%', '0%'],
+              y: [0, -8, 0],
             }}
             transition={{
-              x: { duration: 8, repeat: Infinity, ease: 'linear' },
-              y: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
+              x: { duration: 15, repeat: Infinity, ease: 'linear' },
+              y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
             }}
           />
-          {/* Wave 2 */}
+          {/* Wave 2 - Middle layer */}
           <motion.div
-            className="absolute bottom-0 left-0 w-[200%] h-24"
+            className="absolute bottom-2 left-0 w-[300%] h-24 rounded-t-full"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(96, 165, 250, 0.2) 0%, transparent 70%)',
+              background: 'linear-gradient(to top, rgba(37, 99, 235, 0.5) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(147, 197, 253, 0.2) 100%)',
+              boxShadow: '0 -3px 15px rgba(37, 99, 235, 0.2)',
             }}
             animate={{
-              x: ['0%', '-50%'],
-              y: [0, 4, 0],
+              x: ['0%', '-66%'],
+              y: [0, 6, 0],
             }}
             transition={{
-              x: { duration: 10, repeat: Infinity, ease: 'linear' },
-              y: { duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
+              x: { duration: 18, repeat: Infinity, ease: 'linear' },
+              y: { duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 },
             }}
           />
-          {/* Wave 3 */}
+          {/* Wave 3 - Back layer */}
           <motion.div
-            className="absolute bottom-0 left-0 w-[200%] h-16"
+            className="absolute bottom-4 left-0 w-[300%] h-20 rounded-t-full"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(147, 197, 253, 0.25) 0%, transparent 70%)',
+              background: 'linear-gradient(to top, rgba(29, 78, 216, 0.4) 0%, rgba(37, 99, 235, 0.25) 50%, rgba(96, 165, 250, 0.15) 100%)',
+              boxShadow: '0 -2px 10px rgba(29, 78, 216, 0.2)',
             }}
             animate={{
-              x: ['-30%', '20%'],
-              y: [0, -2, 0],
+              x: ['-33%', '33%'],
+              y: [0, -4, 0],
             }}
             transition={{
-              x: { duration: 12, repeat: Infinity, ease: 'linear' },
-              y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1 },
+              x: { duration: 20, repeat: Infinity, ease: 'linear' },
+              y: { duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 },
             }}
           />
         </div>
