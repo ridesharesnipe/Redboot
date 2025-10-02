@@ -44,16 +44,16 @@ const MONSTER_DATA = {
   [SeaMonsterType.HYDRA]: { emoji: '🐲', name: 'Hydra', treasure: '💚' },
 };
 
-// Default monster positions scattered across the sea (spread out to prevent overlap)
+// Default monster positions scattered across the sea (widely spread out)
 const DEFAULT_MONSTER_NODES: Omit<SeaMonsterNode, 'isDefeated' | 'isBattling' | 'isRevealed'>[] = [
-  { id: 'monster-1', x: 15, y: 70, monsterType: SeaMonsterType.SHARK, wordIndex: 0 },
-  { id: 'monster-2', x: 45, y: 25, monsterType: SeaMonsterType.KRAKEN, wordIndex: 1 },
-  { id: 'monster-3', x: 75, y: 65, monsterType: SeaMonsterType.GIANT_SQUID, wordIndex: 2 },
-  { id: 'monster-4', x: 25, y: 15, monsterType: SeaMonsterType.SEA_DRAGON, wordIndex: 3 },
-  { id: 'monster-5', x: 85, y: 35, monsterType: SeaMonsterType.SEA_SERPENT, wordIndex: 4 },
-  { id: 'monster-6', x: 55, y: 55, monsterType: SeaMonsterType.LEVIATHAN, wordIndex: 5 },
-  { id: 'monster-7', x: 90, y: 20, monsterType: SeaMonsterType.MEGALODON, wordIndex: 6 },
-  { id: 'monster-8', x: 65, y: 10, monsterType: SeaMonsterType.HYDRA, wordIndex: 7 },
+  { id: 'monster-1', x: 12, y: 70, monsterType: SeaMonsterType.SHARK, wordIndex: 0 },
+  { id: 'monster-2', x: 50, y: 20, monsterType: SeaMonsterType.KRAKEN, wordIndex: 1 },
+  { id: 'monster-3', x: 88, y: 65, monsterType: SeaMonsterType.GIANT_SQUID, wordIndex: 2 },
+  { id: 'monster-4', x: 20, y: 10, monsterType: SeaMonsterType.SEA_DRAGON, wordIndex: 3 },
+  { id: 'monster-5', x: 80, y: 30, monsterType: SeaMonsterType.SEA_SERPENT, wordIndex: 4 },
+  { id: 'monster-6', x: 35, y: 50, monsterType: SeaMonsterType.LEVIATHAN, wordIndex: 5 },
+  { id: 'monster-7', x: 65, y: 15, monsterType: SeaMonsterType.MEGALODON, wordIndex: 6 },
+  { id: 'monster-8', x: 92, y: 45, monsterType: SeaMonsterType.HYDRA, wordIndex: 7 },
 ];
 
 export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJustUnlocked }: SeaMonsterBattleProps) {
