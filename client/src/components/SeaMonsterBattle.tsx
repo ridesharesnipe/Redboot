@@ -462,33 +462,44 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           </div>
         </motion.div>
 
-        {/* Floating treasures with glass morphism */}
-        <div className="absolute bottom-4 left-4 right-4 flex flex-wrap justify-center gap-2 z-30">
-          {defeatedTreasures.map((treasure, index) => (
-            <motion.div
-              key={index}
-              initial={{ scale: 0, rotate: -180, y: -50 }}
-              animate={{ 
-                scale: 1, 
-                rotate: 0,
-                y: [0, -5, 0],
-              }}
-              transition={{
-                scale: { duration: 0.5 },
-                rotate: { duration: 0.5 },
-                y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.1 }
-              }}
-              className="drop-shadow-2xl relative p-3 rounded-xl"
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(12px)',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-              }}
-            >
-              <TreasureIcon type={treasure} className="w-8 h-8" />
-            </motion.div>
-          ))}
+        {/* Floating treasures with glass morphism - clearly visible */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-30">
+          <div className="px-6 py-4 rounded-2xl"
+            style={{
+              background: 'rgba(0, 50, 100, 0.4)',
+              backdropFilter: 'blur(16px)',
+              border: '3px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 12px 48px rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            <div className="flex flex-wrap justify-center gap-4">
+              {defeatedTreasures.map((treasure, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ scale: 0, rotate: -180, y: -50 }}
+                  animate={{ 
+                    scale: 1, 
+                    rotate: 0,
+                    y: [0, -5, 0],
+                  }}
+                  transition={{
+                    scale: { duration: 0.5 },
+                    rotate: { duration: 0.5 },
+                    y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.1 }
+                  }}
+                  className="drop-shadow-2xl relative p-3 rounded-xl"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.3)',
+                    backdropFilter: 'blur(12px)',
+                    border: '2px solid rgba(255, 255, 255, 0.5)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                  }}
+                >
+                  <TreasureIcon type={treasure} className="w-16 h-16" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
