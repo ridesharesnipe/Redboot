@@ -89,6 +89,8 @@ function App() {
 
   const handleSplashComplete = () => {
     setShowSplash(false);
+    // Redirect to landing page after splash
+    window.history.replaceState({}, '', '/landing');
   };
 
   const handleOnboardingComplete = () => {
