@@ -280,7 +280,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
         >
           <div className="relative">
             {/* Pirate boat */}
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-6xl drop-shadow-2xl">
+            <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-9xl drop-shadow-2xl">
               ⛵
             </div>
             {/* Diego on the boat */}
@@ -293,7 +293,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
-              className="relative w-16 h-16 rounded-full overflow-hidden shadow-2xl"
+              className="relative w-28 h-28 rounded-full overflow-hidden shadow-2xl -bottom-8"
             >
               <img 
                 src={diegoImage}
