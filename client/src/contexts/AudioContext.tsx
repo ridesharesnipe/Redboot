@@ -706,6 +706,14 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
         selectedVoice = getNaturalMaleVoice();
         
+        // Debug logging to see what voice is selected
+        if (voices.length > 0) {
+          console.log('🎙️ Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+          console.log('✅ Selected voice for Red Boot:', selectedVoice ? `${selectedVoice.name} (${selectedVoice.lang})` : 'None');
+          const britishVoices = voices.filter(v => v.lang.startsWith('en-GB'));
+          console.log('🇬🇧 British voices available:', britishVoices.map(v => v.name));
+        }
+        
         if (selectedVoice) {
           utterance.voice = selectedVoice;
           utterance.lang = 'en-GB'; // Force British English pronunciation
