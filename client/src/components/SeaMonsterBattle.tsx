@@ -146,17 +146,51 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-900 to-transparent" />
         </div>
 
-        {/* Animated waves */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 overflow-hidden">
+        {/* Animated waves - multiple layers */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none">
+          {/* Wave 1 */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-600/30 to-transparent"
+            className="absolute bottom-0 left-0 w-[200%] h-20"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
+            }}
             animate={{
-              x: ['-100%', '0%', '-100%'],
+              x: ['-50%', '0%'],
+              y: [0, -3, 0],
             }}
             transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'linear',
+              x: { duration: 8, repeat: Infinity, ease: 'linear' },
+              y: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
+            }}
+          />
+          {/* Wave 2 */}
+          <motion.div
+            className="absolute bottom-0 left-0 w-[200%] h-24"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(96, 165, 250, 0.2) 0%, transparent 70%)',
+            }}
+            animate={{
+              x: ['0%', '-50%'],
+              y: [0, 4, 0],
+            }}
+            transition={{
+              x: { duration: 10, repeat: Infinity, ease: 'linear' },
+              y: { duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
+            }}
+          />
+          {/* Wave 3 */}
+          <motion.div
+            className="absolute bottom-0 left-0 w-[200%] h-16"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(147, 197, 253, 0.25) 0%, transparent 70%)',
+            }}
+            animate={{
+              x: ['-30%', '20%'],
+              y: [0, -2, 0],
+            }}
+            transition={{
+              x: { duration: 12, repeat: Infinity, ease: 'linear' },
+              y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1 },
             }}
           />
         </div>
@@ -234,6 +268,35 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                         ⚔️
                       </motion.div>
                     </div>
+                    
+                    {/* Glass morphism bubbles during battle */}
+                    {[...Array(8)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute rounded-full"
+                        style={{
+                          left: `${(i * 30) % 100}px`,
+                          background: 'rgba(255, 255, 255, 0.2)',
+                          backdropFilter: 'blur(4px)',
+                          border: '1px solid rgba(255, 255, 255, 0.3)',
+                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                          width: `${20 + (i % 3) * 10}px`,
+                          height: `${20 + (i % 3) * 10}px`,
+                        }}
+                        animate={{
+                          y: [0, -100, -200],
+                          x: [0, (i % 2 === 0 ? 20 : -20)],
+                          opacity: [0, 0.8, 0],
+                          scale: [0.5, 1, 0.8],
+                        }}
+                        transition={{
+                          duration: 2 + i * 0.2,
+                          repeat: Infinity,
+                          delay: i * 0.15,
+                          ease: 'easeOut',
+                        }}
+                      />
+                    ))}
                   </motion.div>
                 )}
               </AnimatePresence>
