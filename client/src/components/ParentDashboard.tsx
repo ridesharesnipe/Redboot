@@ -408,22 +408,15 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
               Ahoy! New Week Ahead!
             </h2>
-            <p className="text-lg text-amber-800 mb-4">
+            <p className="text-lg text-amber-800 mb-6">
               Time to chart new waters, matey! Upload this week's spelling treasure map to continue your adventure.
             </p>
-            <div className="flex gap-3 justify-between mt-6">
-              <Button 
-                onClick={() => setShowNewWeekPrompt(false)}
-                variant="outline"
-                data-testid="button-continue-old-week"
-              >
-                Continue Current Week
-              </Button>
+            <div className="flex flex-col gap-3 items-center mt-6">
               <Button 
                 onClick={() => {
                   onTakePhoto();
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 w-full max-w-md"
                 data-testid="button-upload-new-week"
               >
                 📤 Upload New Week's Words
@@ -504,7 +497,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   }
                 }}
                 variant="outline"
-                className="px-6 py-3"
+                className="w-full max-w-md"
                 data-testid="button-continue-current-week"
               >
                 Continue Current Week
