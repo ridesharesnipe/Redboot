@@ -8,6 +8,18 @@ Red Boot's Spelling Adventure is a pirate-themed spelling practice web applicati
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### October 2, 2025 - Treasure Map Visual Enhancements
+- **Glass Morphism Palm Trees**: Increased palm tree size to text-8xl (matching sea monster scale) with glass morphism styling (rgba backgrounds, backdrop-filter blur, white borders) and floating animations
+- **Sand Mounds**: Added amber gradient sand mounds under X marks for buried treasure effect
+- **Enhanced Digging Animation**: Upgraded to 12 smoke particles and 15 dirt particles with enhanced shadows and glowing effects
+- **Bigger Red Boot Character**: Scaled Red Boot to w-28 h-28 (matching Diego's size) with enhanced border and shadow
+- **Treasure Chest Animation**: Animated treasure chest appears when digging completes, lid rotates open with gold lock detail and glow effect
+- **Glass Morphism Treasures**: Treasures fly out of chest with 1080deg spinning animation, landing in collection area with continuous spin effect
+- **Flying Seagulls**: Added 4 animated seagulls flying across treasure map at different heights with pointer-events-none
+- **Red Boot Voice Line**: Added "Arrr, me treasure!" pirate voice line (British accent, rate 0.75, pitch 0.9) triggered when chest opens
+
 ## System Architecture
 
 ### Frontend Architecture
