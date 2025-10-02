@@ -11,7 +11,6 @@ import SimplePractice from "@/components/SimplePractice";
 import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
-import { useAuth } from "@/hooks/useAuth";
 
 // Proper React Error Boundary component - moved to module scope for stability
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
@@ -64,7 +63,6 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const { user, isLoading } = useAuth();
 
   // Show splash screen only on first load
   useEffect(() => {
@@ -79,14 +77,14 @@ function App() {
 
   // Check onboarding status after splash completes
   useEffect(() => {
-    if (!showSplash && !isLoading && user) {
-      // Check if user has completed onboarding
-      const userWithOnboarding = user as any;
-      if (userWithOnboarding.onboardingComplete === false) {
+    if (!showSplash) {
+      // Check if onboarding has been completed
+      const onboardingComplete = localStorage.getItem('redboot-onboarding-complete');
+      if (!onboardingComplete) {
         setShowOnboarding(true);
       }
     }
-  }, [showSplash, isLoading, user]);
+  }, [showSplash]);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -94,8 +92,6 @@ function App() {
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
-    // Refresh user data after onboarding
-    window.location.href = '/';
   };
 
   // Show splash screen for first-time visitors
@@ -111,7 +107,7 @@ function App() {
   }
 
   // Show onboarding after splash if needed
-  if (showOnboarding && !isLoading) {
+  if (showOnboarding) {
     return (
       <AudioProvider>
         <TooltipProvider>

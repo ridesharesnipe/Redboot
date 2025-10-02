@@ -5,8 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight, ChevronLeft, Anchor, CheckCircle2 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface OnboardingProps {
@@ -19,24 +17,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [gradeLevel, setGradeLevel] = useState("");
   const { toast } = useToast();
 
-  const saveOnboardingMutation = useMutation({
-    mutationFn: async (data: { childName?: string; gradeLevel?: string; skip?: boolean }) => {
-      return await apiRequest("/api/onboarding", "POST", data);
-    },
-    onSuccess: () => {
-      onComplete();
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to save onboarding data. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
   const handleSkip = () => {
-    saveOnboardingMutation.mutate({ skip: true });
+    // Mark onboarding as complete in localStorage
+    localStorage.setItem('redboot-onboarding-complete', 'true');
+    onComplete();
   };
 
   const handleStartAdventure = () => {
@@ -48,10 +32,15 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       });
       return;
     }
-    saveOnboardingMutation.mutate({ 
-      childName: childName.trim() || undefined, 
-      gradeLevel 
-    });
+    
+    // Save to localStorage
+    localStorage.setItem('redboot-onboarding-complete', 'true');
+    if (childName.trim()) {
+      localStorage.setItem('redboot-child-name', childName.trim());
+    }
+    localStorage.setItem('redboot-grade-level', gradeLevel);
+    
+    onComplete();
   };
 
   return (
@@ -235,7 +224,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     variant="ghost"
                     size="lg"
                     className="flex-1"
-                    disabled={saveOnboardingMutation.isPending}
                     data-testid="button-skip"
                   >
                     Skip for Now
@@ -244,17 +232,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     onClick={handleStartAdventure}
                     size="lg"
                     className="flex-1 font-bold text-lg"
-                    disabled={saveOnboardingMutation.isPending}
                     data-testid="button-start-adventure"
                   >
-                    {saveOnboardingMutation.isPending ? (
-                      "Saving..."
-                    ) : (
-                      <>
-                        <Anchor className="w-5 h-5 mr-2" />
-                        Start Adventure!
-                      </>
-                    )}
+                    <Anchor className="w-5 h-5 mr-2" />
+                    Start Adventure!
                   </Button>
                 </div>
               </div>
