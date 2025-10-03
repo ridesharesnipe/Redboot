@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAudio } from '@/contexts/AudioContext';
+import redBootImage from '@assets/17586438224363330781733458024019_1758643831046.png';
+import diegoImage from '@assets/17586535267086549247092506575635_1758653585024.png';
 
 interface TreasureCount {
   diamonds: number;
@@ -714,14 +716,40 @@ export default function TreasureVault() {
             onClick={() => switchVault('redboot')}
             data-testid="button-select-redboot"
           >
-            🥾 Red Boot's Hidden Treasure
+            <img 
+              src={redBootImage} 
+              alt="Red Boot" 
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                marginRight: '8px',
+                border: '2px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            />
+            Red Boot's Hidden Treasure
           </button>
           <button 
             className={`vault-tab ${selectedCharacter === 'diego' ? 'active' : ''}`}
             onClick={() => switchVault('diego')}
             data-testid="button-select-diego"
           >
-            🐕 Diego's Hidden Treasure
+            <img 
+              src={diegoImage} 
+              alt="Diego the Pup Pup" 
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                marginRight: '8px',
+                border: '2px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            />
+            Diego's Hidden Treasure
           </button>
         </div>
 
