@@ -10,6 +10,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 3, 2025 - 3D Sea Monster Battle Enhancements
+- **3D Perspective System**: Added CSS 3D perspective (1200px) to battle container with transformStyle: 'preserve-3d' for depth effects
+- **3D Rolling Waves**: Ocean waves now use rotateX and translateZ animations to create waves rolling toward viewer
+  - Three wave layers with varying rotation angles (-2° to 2°, -1° to 1°) and Z-depth movement
+  - Enhanced opacity and shadows for realistic depth perception
+- **3D Rocking Boat**: Diego's pirate boat animates with multi-axis rotation
+  - rotateX (-8° to 8°), rotateY (-6° to 6°), rotateZ (-4° to 4°), and translateZ (0 to 15px)
+  - Different animation durations (2.8s to 4.2s) create realistic ocean bobbing
+  - Enhanced drop shadows for 3D depth
+- **Technical Implementation**: Proper preserve-3d propagation through parent elements ensures all 3D transforms render correctly
+
 ### October 2, 2025 - Treasure Vault System & Escalating Rewards
 - **Escalating Treasure Rewards**: Practice now awards increasing treasures - first 3 words get 5 each, next 3 get 10, next 3 get 15, final words get 25 treasures each
 - **Treasure Vault Page**: New dedicated vault page with animated treasure chests for both Red Boot and Diego

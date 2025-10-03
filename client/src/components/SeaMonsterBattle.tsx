@@ -131,12 +131,14 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
 
   return (
     <div className="relative w-full h-[700px] mx-auto max-w-5xl" data-testid="sea-monster-battle">
-      {/* Main sea battle container with glass morphism */}
-      <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl"
+      {/* Main sea battle container with glass morphism and 3D perspective */}
+      <div className="relative w-full h-full rounded-3xl overflow-visible shadow-2xl"
         style={{
           background: 'linear-gradient(180deg, rgba(14, 165, 233, 0.4) 0%, rgba(3, 105, 161, 0.6) 100%)',
           backdropFilter: 'blur(20px)',
           border: '2px solid rgba(255, 255, 255, 0.3)',
+          perspective: '1200px',
+          transformStyle: 'preserve-3d',
         }}
       >
         
@@ -146,54 +148,66 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-900 to-transparent" />
         </div>
 
-        {/* Animated waves - multiple realistic layers */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 overflow-hidden pointer-events-none z-20">
-          {/* Wave 1 - Front layer with white caps */}
+        {/* Animated waves - 3D rolling waves */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 overflow-visible pointer-events-none z-20" style={{ transformStyle: 'preserve-3d' }}>
+          {/* Wave 1 - Front layer rolling toward viewer */}
           <motion.div
             className="absolute bottom-0 left-0 w-[300%] h-28 rounded-t-full"
             style={{
-              background: 'linear-gradient(to top, rgba(59, 130, 246, 0.6) 0%, rgba(96, 165, 250, 0.4) 50%, rgba(191, 219, 254, 0.3) 100%)',
-              boxShadow: '0 -4px 20px rgba(59, 130, 246, 0.3)',
+              background: 'linear-gradient(to top, rgba(59, 130, 246, 0.8) 0%, rgba(96, 165, 250, 0.6) 50%, rgba(191, 219, 254, 0.4) 100%)',
+              boxShadow: '0 -4px 20px rgba(59, 130, 246, 0.5)',
+              transformStyle: 'preserve-3d',
+              transformOrigin: 'bottom center',
             }}
             animate={{
               x: ['-66%', '0%'],
-              y: [0, -8, 0],
+              rotateX: [-2, 2, -2],
+              translateZ: [0, 30, 0],
             }}
             transition={{
               x: { duration: 15, repeat: Infinity, ease: 'linear' },
-              y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+              rotateX: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
+              translateZ: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
             }}
           />
-          {/* Wave 2 - Middle layer */}
+          {/* Wave 2 - Middle layer with 3D depth */}
           <motion.div
             className="absolute bottom-2 left-0 w-[300%] h-24 rounded-t-full"
             style={{
-              background: 'linear-gradient(to top, rgba(37, 99, 235, 0.5) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(147, 197, 253, 0.2) 100%)',
-              boxShadow: '0 -3px 15px rgba(37, 99, 235, 0.2)',
+              background: 'linear-gradient(to top, rgba(37, 99, 235, 0.7) 0%, rgba(59, 130, 246, 0.5) 50%, rgba(147, 197, 253, 0.3) 100%)',
+              boxShadow: '0 -3px 15px rgba(37, 99, 235, 0.4)',
+              transformStyle: 'preserve-3d',
+              transformOrigin: 'bottom center',
             }}
             animate={{
               x: ['0%', '-66%'],
-              y: [0, 6, 0],
+              rotateX: [2, -2, 2],
+              translateZ: [-10, 20, -10],
             }}
             transition={{
               x: { duration: 18, repeat: Infinity, ease: 'linear' },
-              y: { duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 },
+              rotateX: { duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
+              translateZ: { duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
             }}
           />
-          {/* Wave 3 - Back layer */}
+          {/* Wave 3 - Back layer in distance */}
           <motion.div
             className="absolute bottom-4 left-0 w-[300%] h-20 rounded-t-full"
             style={{
-              background: 'linear-gradient(to top, rgba(29, 78, 216, 0.4) 0%, rgba(37, 99, 235, 0.25) 50%, rgba(96, 165, 250, 0.15) 100%)',
-              boxShadow: '0 -2px 10px rgba(29, 78, 216, 0.2)',
+              background: 'linear-gradient(to top, rgba(29, 78, 216, 0.6) 0%, rgba(37, 99, 235, 0.4) 50%, rgba(96, 165, 250, 0.2) 100%)',
+              boxShadow: '0 -2px 10px rgba(29, 78, 216, 0.3)',
+              transformStyle: 'preserve-3d',
+              transformOrigin: 'bottom center',
             }}
             animate={{
               x: ['-33%', '33%'],
-              y: [0, -4, 0],
+              rotateX: [-1, 1, -1],
+              translateZ: [-20, 10, -20],
             }}
             transition={{
               x: { duration: 20, repeat: Infinity, ease: 'linear' },
-              y: { duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 },
+              rotateX: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 },
+              translateZ: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 },
             }}
           />
         </div>
@@ -397,9 +411,10 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           );
         })}
 
-        {/* Diego on pirate boat */}
+        {/* Diego on pirate boat with 3D rocking */}
         <motion.div
           className="absolute transform -translate-x-1/2 -translate-y-1/2 z-40"
+          style={{ transformStyle: 'preserve-3d' }}
           animate={{
             left: `${diegoPosition.x}%`,
             top: `${diegoPosition.y}%`,
@@ -409,22 +424,53 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
             ease: 'easeInOut',
           }}
         >
-          <div className="relative">
+          <motion.div
+            className="relative"
+            style={{ transformStyle: 'preserve-3d', transformOrigin: 'center bottom' }}
+            animate={{
+              rotateX: [-8, 8, -8],
+              rotateY: [-6, 6, -6],
+              rotateZ: [-4, 4, -4],
+              translateZ: [0, 15, 0],
+            }}
+            transition={{
+              rotateX: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' },
+              rotateY: { duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
+              rotateZ: { duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 },
+              translateZ: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+            }}
+          >
             {/* Pirate boat */}
-            <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-9xl drop-shadow-2xl">
+            <motion.div 
+              className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-9xl"
+              style={{ transformStyle: 'preserve-3d', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
+              animate={{
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
               ⛵
-            </div>
+            </motion.div>
             {/* Diego on the boat */}
             <motion.div
               animate={{
-                y: [0, -5, 0],
+                y: [0, -8, 0],
+                scale: [1, 1.02, 1],
               }}
               transition={{
-                duration: 2,
+                duration: 2.5,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
               className="relative w-28 h-28 rounded-full overflow-hidden shadow-2xl -bottom-8"
+              style={{
+                boxShadow: '0 15px 50px rgba(0,0,0,0.5)',
+                border: '3px solid rgba(255,255,255,0.3)',
+              }}
             >
               <img 
                 src={diegoImage}
@@ -432,7 +478,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                 className="w-full h-full object-cover"
               />
             </motion.div>
-          </div>
+          </motion.div>
         </motion.div>
 
       </div>
