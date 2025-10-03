@@ -70,18 +70,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Photos now stored in browser IndexedDB - no server routes needed!
 
-  // Treasure Vault API routes
-  app.get('/api/treasures', isAuthenticated, async (req, res) => {
+  // Treasure Vault API routes - accessible without authentication
+  app.get('/api/treasures', async (req: any, res) => {
     try {
+      // If not authenticated, return empty treasures
+      if (!req.isAuthenticated()) {
+        return res.json({
+          redboot: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+          diego: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+        });
+      }
+
       const user = req.user as any;
       const userId = user?.claims?.sub;
       if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        return res.json({
+          redboot: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+          diego: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+        });
       }
 
       const userData = await storage.getUser(userId);
       if (!userData) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.json({
+          redboot: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+          diego: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+        });
       }
 
       res.json({
