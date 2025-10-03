@@ -22,10 +22,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
   });
 
-  // Auth user endpoint
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Auth user endpoint - returns null if not authenticated instead of 401
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      if (!req.isAuthenticated()) {
+        return res.json(null);
+      }
+      
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.json(null);
+      }
+      
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
