@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -41,6 +42,15 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const [showPhotoHistory, setShowPhotoHistory] = useState(false);
   const [storageSize, setStorageSize] = useState<string>('');
   const [replacingPhotoId, setReplacingPhotoId] = useState<string | null>(null);
+  
+  // Fetch word lists and progress from database
+  const { data: wordLists } = useQuery({
+    queryKey: ['/api/word-lists'],
+  });
+  
+  const { data: progressRecords } = useQuery({
+    queryKey: ['/api/progress'],
+  });
 
   // Check if new week detection is needed
   const checkIfNewWeek = () => {
@@ -111,28 +121,45 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     if (checkIfNewWeek()) {
       setShowNewWeekPrompt(true);
     } else {
-      // Load current words and calculate real progress
-      const saved = localStorage.getItem('currentSpellingWords');
-      if (saved) {
-        try {
-          const { words, savedDate } = JSON.parse(saved);
-          
-          // Calculate real progress from practice sessions
-          const practiceProgress = localStorage.getItem('practiceProgress');
-          let realStats = {
-            totalWords: words?.length || 0,
-            newWords: 0,
-            learningWords: 0, 
-            masteredWords: 0,
-            troubleWords: 0,
-            daysThisWeek: [false, false, false, false, false],
-            readyForTest: false,
-            treasureCount: 0
-          };
-          
-          if (practiceProgress && words) {
-            try {
-              const progressData = JSON.parse(practiceProgress);
+      // Try database first for word lists
+      let words: string[] | undefined;
+      let savedDate: string | undefined;
+      
+      if (wordLists && Array.isArray(wordLists) && wordLists.length > 0) {
+        const mostRecentList = wordLists[0];
+        words = mostRecentList.words;
+        savedDate = mostRecentList.createdDate || new Date().toISOString();
+      } else {
+        // Fallback to localStorage
+        const saved = localStorage.getItem('currentSpellingWords');
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            words = data.words;
+            savedDate = data.savedDate;
+          } catch (e) {
+            // Ignore parse errors
+          }
+        }
+      }
+      
+      if (words && words.length > 0) {
+        // Calculate real progress from practice sessions
+        const practiceProgress = localStorage.getItem('practiceProgress');
+        let realStats = {
+          totalWords: words.length,
+          newWords: 0,
+          learningWords: 0, 
+          masteredWords: 0,
+          troubleWords: 0,
+          daysThisWeek: [false, false, false, false, false],
+          readyForTest: false,
+          treasureCount: 0
+        };
+        
+        if (practiceProgress) {
+          try {
+            const progressData = JSON.parse(practiceProgress);
               
               // Calculate word status based on practice data
               words.forEach((word: string) => {
@@ -180,23 +207,20 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               const masteryRate = realStats.totalWords > 0 ? realStats.masteredWords / realStats.totalWords : 0;
               realStats.readyForTest = masteryRate >= 0.7;
               
-            } catch (e) {
-              console.error('Failed to parse practice progress:', e);
-            }
+          } catch (e) {
+            console.error('Failed to parse practice progress:', e);
           }
-          
-          setStats(realStats);
-          
-          // Set weekData to prevent null reference errors
-          setWeekData({
-            words: words || [],
-            practiceData: {},
-            weekStart: new Date(savedDate || Date.now()),
-            practiceHistory: []
-          });
-        } catch (e) {
-          console.error('Failed to parse words:', e);
         }
+        
+        setStats(realStats);
+        
+        // Set weekData to prevent null reference errors
+        setWeekData({
+          words: words || [],
+          practiceData: {},
+          weekStart: new Date(savedDate || Date.now()),
+          practiceHistory: []
+        });
       }
     }
   };

@@ -70,6 +70,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Photos now stored in browser IndexedDB - no server routes needed!
 
+  // Word Lists API routes
+  app.get('/api/word-lists', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user as any;
+      const userId = user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      // For now, use the user's childName as the default child
+      // Later can expand to support multiple children
+      const children = await storage.getChildren(userId);
+      
+      // If no children exist, create a default one from user's childName
+      let childId: string;
+      if (children.length === 0) {
+        const userData = await storage.getUser(userId);
+        if (!userData || !userData.childName) {
+          return res.json([]);
+        }
+        const newChild = await storage.createChild({
+          parentId: userId,
+          name: userData.childName,
+          grade: userData.gradeLevel || undefined,
+        });
+        childId = newChild.id;
+      } else {
+        childId = children[0].id;
+      }
+
+      const wordLists = await storage.getWordLists(childId);
+      res.json(wordLists);
+    } catch (error) {
+      console.error('Error fetching word lists:', error);
+      res.status(500).json({ message: 'Failed to fetch word lists' });
+    }
+  });
+
+  app.post('/api/word-lists', isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const userId = user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      // Validate request body
+      const validatedData = insertWordListSchema.parse(req.body);
+
+      // Get or create child for this user
+      const children = await storage.getChildren(userId);
+      let childId: string;
+      
+      if (children.length === 0) {
+        const userData = await storage.getUser(userId);
+        if (!userData || !userData.childName) {
+          return res.status(400).json({ message: 'User must complete onboarding first' });
+        }
+        const newChild = await storage.createChild({
+          parentId: userId,
+          name: userData.childName,
+          grade: userData.gradeLevel || undefined,
+        });
+        childId = newChild.id;
+      } else {
+        childId = children[0].id;
+      }
+
+      // Create word list
+      const wordList = await storage.createWordList({
+        ...validatedData,
+        childId,
+      });
+      
+      res.json(wordList);
+    } catch (error) {
+      console.error('Error creating word list:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid request data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to create word list' });
+    }
+  });
+
+  app.get('/api/word-lists/:id', isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const userId = user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const wordList = await storage.getWordList(req.params.id);
+      if (!wordList) {
+        return res.status(404).json({ message: 'Word list not found' });
+      }
+
+      // Verify ownership: Check that the word list's child belongs to this parent
+      const child = await storage.getChild(wordList.childId);
+      if (!child || child.parentId !== userId) {
+        return res.status(403).json({ message: 'Access denied: You do not own this word list' });
+      }
+
+      res.json(wordList);
+    } catch (error) {
+      console.error('Error fetching word list:', error);
+      res.status(500).json({ message: 'Failed to fetch word list' });
+    }
+  });
+
+  // Progress API routes
+  app.get('/api/progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user as any;
+      const userId = user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      // Get child
+      const children = await storage.getChildren(userId);
+      if (children.length === 0) {
+        return res.json([]);
+      }
+      
+      const childId = children[0].id;
+      const progressData = await storage.getProgress(childId);
+      res.json(progressData);
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+      res.status(500).json({ message: 'Failed to fetch progress' });
+    }
+  });
+
+  app.post('/api/progress', isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const userId = user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      // Validate request body
+      const validatedData = insertProgressSchema.parse(req.body);
+
+      // Get child
+      const children = await storage.getChildren(userId);
+      if (children.length === 0) {
+        return res.status(400).json({ message: 'No child profile found' });
+      }
+      
+      const childId = children[0].id;
+      
+      // Create progress record
+      const progressRecord = await storage.createProgress({
+        ...validatedData,
+        childId,
+      });
+      
+      res.json(progressRecord);
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid request data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to save progress' });
+    }
+  });
+
   // Treasure Vault API routes - accessible without authentication
   app.get('/api/treasures', async (req: any, res) => {
     try {

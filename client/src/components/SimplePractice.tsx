@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +30,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [showTreasureRoad, setShowTreasureRoad] = useState(false);
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
+  const [currentWordListId, setCurrentWordListId] = useState<string | null>(null);
+  const [practiceStartTime] = useState<Date>(new Date());
+  const [correctWords, setCorrectWords] = useState<string[]>([]);
+  const [incorrectWords, setIncorrectWords] = useState<string[]>([]);
   
   // ADD these new state variables for Tricky Treasures
   const [trickyWords, setTrickyWords] = useState<string[]>([]);
@@ -36,6 +41,27 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [showBonusRound, setShowBonusRound] = useState(false);
   const [bonusRoundWords, setBonusRoundWords] = useState<string[]>([]);
   const [practiceComplete, setPracticeComplete] = useState(false);
+  
+  // Fetch most recent word list from database
+  const { data: wordLists, isLoading: isLoadingWordLists } = useQuery({
+    queryKey: ['/api/word-lists'],
+    enabled: true,
+  });
+  
+  // Mutation to save progress to database
+  const saveProgressMutation = useMutation({
+    mutationFn: async (progressData: {
+      wordListId: string;
+      characterUsed: string;
+      correctWords: string[];
+      incorrectWords: string[];
+      timeSpent: number;
+      score: number;
+    }) => {
+      const response = await apiRequest('POST', '/api/progress', progressData);
+      return await response.json();
+    },
+  });
   
   // Calculate milestones dynamically based on actual word count
   const getTreasureMilestones = () => {
@@ -60,16 +86,29 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     return 25;                        // Final words → 25 treasures each
   };
 
-  // Save treasures to database and complete practice
+  // Save treasures and progress to database and complete practice
   const saveTreasuresAndComplete = async (results: { correct: number; total: number; treasureEarned: number }) => {
     try {
       // Save treasures to database
-      await apiRequest('/api/treasures/add', 'POST', {
+      await apiRequest('POST', '/api/treasures/add', {
         character: selectedCharacter,
         amount: results.treasureEarned
       });
+      
+      // Save progress to database if we have a word list ID
+      if (currentWordListId) {
+        const timeSpent = Math.floor((new Date().getTime() - practiceStartTime.getTime()) / 1000);
+        await saveProgressMutation.mutateAsync({
+          wordListId: currentWordListId,
+          characterUsed: selectedCharacter,
+          correctWords,
+          incorrectWords,
+          timeSpent,
+          score: results.correct,
+        });
+      }
     } catch (error) {
-      console.error('Failed to save treasures:', error);
+      console.error('Failed to save treasures/progress:', error);
       // Continue even if save fails - don't block completion
     }
     onComplete(results);
@@ -176,18 +215,40 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     // Reset message history for fresh feedback variety
     resetMessageHistory();
     
-    // FIX 2: Read from simple localStorage instead of complex spellingStorage
-    const savedWords = localStorage.getItem('currentSpellingWords');
-    console.log('🎮 Game checking localStorage for words...');
+    // Wait for word lists to load
+    if (isLoadingWordLists) {
+      return;
+    }
     
+    // Try database first
+    if (wordLists && Array.isArray(wordLists) && wordLists.length > 0) {
+      const mostRecentList = wordLists[0];
+      const words = mostRecentList.words || [];
+      
+      if (words.length > 0) {
+        setPracticeWords(words);
+        setCurrentWordListId(mostRecentList.id);
+        playCharacterVoice('red_boot_ahoy');
+        // Also save to localStorage for backward compatibility
+        localStorage.setItem('currentSpellingWords', JSON.stringify({ 
+          words, 
+          savedDate: new Date().toISOString(),
+          wordListId: mostRecentList.id 
+        }));
+        return;
+      }
+    }
+    
+    // Fallback to localStorage for backward compatibility
+    const savedWords = localStorage.getItem('currentSpellingWords');
     if (savedWords) {
       try {
         const data = JSON.parse(savedWords);
         const words = data.words || [];
-        console.log('🎮 Game loaded words:', words);
         
         if (words.length > 0) {
           setPracticeWords(words);
+          setCurrentWordListId(data.wordListId || null);
           playCharacterVoice('red_boot_ahoy');
           return;
         }
@@ -196,14 +257,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
     }
     
-    console.log('❌ No words found in localStorage');
+    // No words found
     toast({
       title: "No Words to Practice",
       description: "Add some spelling words first by taking a photo of your list!",
       variant: "destructive",
     });
     onCancel();
-  }, [onCancel, playCharacterVoice, toast]);
+  }, [wordLists, isLoadingWordLists, onCancel, playCharacterVoice, toast]);
 
   // Speak current word when it changes
   useEffect(() => {
@@ -296,7 +357,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     setIsCorrect(correct);
     setShowFeedback(true);
     
-    // Save practice progress to localStorage for Captain's Log tracking
+    // Track correct/incorrect words for database
+    if (correct) {
+      setCorrectWords(prev => [...prev, currentWord]);
+    } else {
+      setIncorrectWords(prev => [...prev, currentWord]);
+    }
+    
+    // Save practice progress to localStorage for backward compatibility
     if (currentWord) {
       const savedProgress = localStorage.getItem('practiceProgress');
       let progressData: any = {};
@@ -332,7 +400,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       
       // Save back to localStorage
       localStorage.setItem('practiceProgress', JSON.stringify(progressData));
-      console.log('📊 Progress saved:', { word: currentWord, correct, progressData });
     }
     
     // Get grade level from localStorage for age-appropriate feedback

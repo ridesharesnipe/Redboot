@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,15 @@ import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves } from "lucide-react";
+
+// Calculate week number of the year (1-52)
+function getWeekNumber(date: Date): number {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
 
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
@@ -15,6 +24,31 @@ export default function PhotoCapturePage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [savedWordListId, setSavedWordListId] = useState<string | null>(null);
+
+  // Mutation to save word list to database
+  const saveWordListMutation = useMutation({
+    mutationFn: async (words: string[]) => {
+      const weekNumber = getWeekNumber(new Date());
+      const response = await apiRequest('POST', '/api/word-lists', {
+        weekNumber,
+        words,
+        practiceCount: 0,
+        bestScore: 0,
+      });
+      return await response.json();
+    },
+    onSuccess: (data: any) => {
+      setSavedWordListId(data.id);
+      // Also save to localStorage for backward compatibility during transition
+      const dataToSave = { 
+        words: extractedWords, 
+        savedDate: new Date().toISOString(),
+        wordListId: data.id 
+      };
+      localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+    },
+  });
 
 
   const handleImageCapture = (imageData: string) => {
@@ -22,16 +56,11 @@ export default function PhotoCapturePage() {
   };
 
   const handleWordsExtracted = (words: string[]) => {
-    console.log('📋 Parent received words:', words);
     setExtractedWords(words);
     setIsProcessing(false);
     
-    // FIX 6: Save immediately to prevent race conditions
-    const dataToSave = { words, savedDate: new Date().toISOString() };
-    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-    console.log('💾 Parent saved words to localStorage:', words);
-    
-    // Using simplified localStorage approach
+    // Save to database immediately
+    saveWordListMutation.mutate(words);
   };
 
   const handleRetake = () => {
@@ -40,13 +69,7 @@ export default function PhotoCapturePage() {
   };
 
   const handleSaveWords = () => {
-    // FIX 4: Use consistent storage  
-    const dataToSave = { words: extractedWords, savedDate: new Date().toISOString() };
-    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-    console.log('💾 HandleSaveWords saved:', extractedWords);
-    
-    // Using simplified localStorage approach
-    
+    // Words are already saved to database in handleWordsExtracted
     toast({
       title: "Treasure Maps Saved!",
       description: `${extractedWords.length} pirate flashcards have been added to your collection!`,
@@ -55,18 +78,12 @@ export default function PhotoCapturePage() {
   };
 
   const handleStartPractice = () => {
-    // FIX 4: Use consistent storage  
-    const dataToSave = { words: extractedWords, savedDate: new Date().toISOString() };
-    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-    console.log('💾 HandleStartPractice saved:', extractedWords);
-    
-    // Using simplified localStorage approach
-    
+    // Words are already saved to database in handleWordsExtracted
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",
     });
-    setLocation("/practice"); // Go to practice route, not game/1
+    setLocation("/practice");
   };
 
   const removeWord = (wordToRemove: string) => {
