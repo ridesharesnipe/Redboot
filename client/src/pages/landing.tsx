@@ -177,13 +177,10 @@ export default function Landing({ onStart }: LandingProps) {
                 selectedCharacter === 'redboot' ? 'ring-8 ring-yellow-400 rounded-3xl shadow-2xl' : 'hover:shadow-xl'
               }`}
               onClick={() => {
-                setSelectedCharacter('redboot');
                 playSound('anchor_button_click');
                 playCharacterVoice('red_boot_ahoy');
                 localStorage.setItem('selectedCharacter', 'redboot');
-                setTimeout(() => {
-                  if (onStart) onStart();
-                }, 1000);
+                if (onStart) onStart();
               }}
               data-testid="character-select-redboot"
             >
@@ -215,13 +212,10 @@ export default function Landing({ onStart }: LandingProps) {
                 selectedCharacter === 'diego' ? 'ring-8 ring-blue-400 rounded-3xl shadow-2xl' : 'hover:shadow-xl'
               }`}
               onClick={() => {
-                setSelectedCharacter('diego');
                 playSound('anchor_button_click');
                 playAudioFile(diegoBarkSound, 1, true); // Play from middle
                 localStorage.setItem('selectedCharacter', 'diego');
-                setTimeout(() => {
-                  if (onStart) onStart();
-                }, 1000);
+                if (onStart) onStart();
               }}
               data-testid="character-select-diego"
             >
