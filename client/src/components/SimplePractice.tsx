@@ -177,7 +177,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     };
     
     const milestones = getTreasureMilestones();
-    console.log('🏴‍☠️ Checking treasure milestone:', correctCount, 'against milestones:', milestones);
     
     if (milestones.includes(correctCount)) {
       const treasure = treasureMap[correctCount];
@@ -289,7 +288,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         
         // Fallback timeout in case speech synthesis fails silently
         const fallbackTimer = setTimeout(() => {
-          console.log('Speech synthesis fallback timeout, enabling input');
           setIsWordSpoken(true);
         }, 3000);
         
@@ -299,7 +297,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           setIsWordSpoken(true);
         };
         utterance.onerror = () => {
-          console.log('Speech synthesis error, enabling input anyway');
           clearTimeout(fallbackTimer);
           setIsWordSpoken(true);
         };

@@ -322,8 +322,6 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         await loadPhotos();
         await loadStorageSize();
         setReplacingPhotoId(null);
-        
-        console.log('Photo replaced successfully with', words.length, 'words');
       };
       
       reader.readAsDataURL(file);
