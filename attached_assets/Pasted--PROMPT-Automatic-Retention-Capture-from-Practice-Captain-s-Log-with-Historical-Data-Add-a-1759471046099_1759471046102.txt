@@ -1,0 +1,638 @@
+
+# PROMPT: Automatic Retention Capture from Practice & Captain's Log with Historical Data
+
+```
+Add automatic retention tracking and Captain's Log with historical weekly data to the existing Red Boot's Spelling Adventure app. All retention data captured automatically from the existing practice flow - no changes to practice UI needed.
+
+═══════════════════════════════════════════════════════════════
+
+EXISTING APP:
+═══════════════════════════════════════════════════════════════
+
+- React app with Replit database
+- Child profiles exist (name, grade, etc.)
+- Weekly spelling lists uploaded (10 words per week)
+- Practice flow: Red Boot says word → Child types → Feedback → Next word
+- Multiple rounds: Round 1 (all words), Round 2+ (missed words only)
+- Practice continues until all mastered or 3 rounds max
+
+═══════════════════════════════════════════════════════════════
+
+PART 1: ADD RETENTION TRACKING TO DATABASE
+═══════════════════════════════════════════════════════════════
+
+MODIFY CHILD PROFILE SCHEMA:
+
+Add to existing weekly list structure:
+
+```javascript
+childProfile: {
+  childId: string,
+  childName: string,
+  gradeLevel: string,
+  
+  weeklyLists: [
+    {
+      weekId: string,
+      weekStartDate: string, // "2025-10-07" (Monday)
+      weekEndDate: string, // "2025-10-11" (Friday)
+      words: string[], // ["steady", "pretty", "happy", ...]
+      
+      // ADD THIS: Word retention data
+      wordRetention: {
+        "steady": {
+          firstAttemptCorrect: boolean, // true = got it first try
+          totalAttempts: number, // How many times attempted
+          attemptsToMaster: number, // How many tries until correct
+          mastered: boolean, // true when finally correct
+          difficulty: string // "easy", "medium", "hard"
+        },
+        "pretty": {
+          firstAttemptCorrect: false,
+          totalAttempts: 3,
+          attemptsToMaster: 3,
+          mastered: true,
+          difficulty: "hard"
+        }
+        // ... one entry per word
+      },
+      
+      // ADD THIS: Practice sessions
+      practiceSessions: [
+        {
+          sessionId: string,
+          date: string, // ISO timestamp
+          duration: number, // Seconds
+          totalWords: number, // 10
+          masteredWords: number, // 6
+          totalAttempts: number, // 14
+          accuracy: number // 71 (percentage)
+        }
+      ],
+      
+      // ADD THIS: Week summary
+      weekSummary: {
+        totalSessions: number, // 4
+        totalPracticeTime: number, // 2880 seconds
+        easyWords: number, // 7 (mastered in 1 attempt)
+        mediumWords: number, // 2 (mastered in 2 attempts)
+        hardWords: number, // 1 (took 3+ attempts)
+        hardWordsList: string[], // ["carry"]
+        fridayTestScore: number | null // 90 (optional)
+      }
+    }
+    // ... array of weeks (never delete old weeks)
+  ]
+}
+```
+
+KEY PRINCIPLE: **Never delete old weeks** - keep appending to array
+
+═══════════════════════════════════════════════════════════════
+
+PART 2: CAPTURE RETENTION DATA FROM PRACTICE
+═══════════════════════════════════════════════════════════════
+
+ADD TRACKING TO EXISTING PRACTICE SESSION:
+
+No UI changes - just add tracking behind the scenes
+
+STEP 1: Initialize tracking at session start
+```javascript
+async function startPracticeSession() {
+  const account = await database.getAccount();
+  const childId = account.activeChildId;
+  const childProfile = await database.getChildProfile(childId);
+  
+  // Get current week
+  const currentWeek = getCurrentWeek(childProfile);
+  if (!currentWeek) {
+    showError("Please upload this week's spelling list first!");
+    return;
+  }
+  
+  // Initialize session tracking
+  const sessionTracking = {
+    sessionId: generateUniqueId('session'),
+    childId: childId,
+    weekId: currentWeek.weekId,
+    sessionStartTime: new Date().toISOString(),
+    words: currentWeek.words,
+    wordTracking: {},
+    missedWords: [],
+    currentRound: 1,
+    totalAttempts: 0
+  };
+  
+  // Initialize tracking for each word
+  currentWeek.words.forEach(word => {
+    sessionTracking.wordTracking[word] = {
+      firstAttemptCorrect: null,
+      totalAttempts: 0,
+      mastered: false,
+      attemptsToMaster: null
+    };
+  });
+  
+  setState({ sessionTracking });
+  
+  // Start practice (existing flow continues normally)
+  presentWord(currentWeek.words[0]);
+}
+```
+
+STEP 2: Track each word attempt
+```javascript
+function handleWordAttempt(word, userInput, correctWord) {
+  const isCorrect = userInput.trim().toLowerCase() === correctWord.toLowerCase();
+  const { sessionTracking } = state;
+  const wordData = sessionTracking.wordTracking[word];
+  
+  // Increment attempts
+  wordData.totalAttempts++;
+  sessionTracking.totalAttempts++;
+  
+  // Round 1: Track first attempt
+  if (sessionTracking.currentRound === 1) {
+    wordData.firstAttemptCorrect = isCorrect;
+  }
+  
+  if (isCorrect) {
+    // Word mastered!
+    wordData.mastered = true;
+    wordData.attemptsToMaster = wordData.totalAttempts;
+    
+    // Remove from missed words
+    sessionTracking.missedWords = sessionTracking.missedWords.filter(w => w !== word);
+    
+    // Show feedback and advance Red Boot (existing code)
+    
+  } else {
+    // Word wrong
+    if (!sessionTracking.missedWords.includes(word)) {
+      sessionTracking.missedWords.push(word);
+    }
+    
+    // Show feedback, don't advance (existing code)
+  }
+  
+  setState({ sessionTracking });
+  
+  // Continue to next word (existing code)
+}
+```
+
+STEP 3: Save everything at session end
+```javascript
+async function endPracticeSession() {
+  const { sessionTracking } = state;
+  const childProfile = await database.getChildProfile(sessionTracking.childId);
+  
+  const currentWeek = childProfile.weeklyLists.find(
+    week => week.weekId === sessionTracking.weekId
+  );
+  
+  // ═════════════════════════════════════════════════
+  // Calculate difficulty for each word
+  // ═════════════════════════════════════════════════
+  Object.keys(sessionTracking.wordTracking).forEach(word => {
+    const wordData = sessionTracking.wordTracking[word];
+    const attempts = wordData.attemptsToMaster || wordData.totalAttempts;
+    
+    // 1 attempt = easy, 2 = medium, 3+ = hard
+    if (attempts === 1) {
+      wordData.difficulty = "easy";
+    } else if (attempts === 2) {
+      wordData.difficulty = "medium";
+    } else {
+      wordData.difficulty = "hard";
+    }
+  });
+  
+  // ═════════════════════════════════════════════════
+  // Save word retention data
+  // ═════════════════════════════════════════════════
+  if (!currentWeek.wordRetention) {
+    currentWeek.wordRetention = {};
+  }
+  
+  Object.keys(sessionTracking.wordTracking).forEach(word => {
+    const wordData = sessionTracking.wordTracking[word];
+    currentWeek.wordRetention[word] = {
+      firstAttemptCorrect: wordData.firstAttemptCorrect,
+      totalAttempts: wordData.totalAttempts,
+      attemptsToMaster: wordData.attemptsToMaster,
+      mastered: wordData.mastered,
+      difficulty: wordData.difficulty
+    };
+  });
+  
+  // ═════════════════════════════════════════════════
+  // Save practice session record
+  // ═════════════════════════════════════════════════
+  const duration = Math.round((Date.now() - new Date(sessionTracking.sessionStartTime)) / 1000);
+  const masteredCount = Object.values(sessionTracking.wordTracking).filter(w => w.mastered).length;
+  const accuracy = Math.round((masteredCount / sessionTracking.words.length) * 100);
+  
+  if (!currentWeek.practiceSessions) {
+    currentWeek.practiceSessions = [];
+  }
+  
+  currentWeek.practiceSessions.push({
+    sessionId: sessionTracking.sessionId,
+    date: new Date().toISOString(),
+    duration: duration,
+    totalWords: sessionTracking.words.length,
+    masteredWords: masteredCount,
+    totalAttempts: sessionTracking.totalAttempts,
+    accuracy: accuracy
+  });
+  
+  // ═════════════════════════════════════════════════
+  // Update week summary
+  // ═════════════════════════════════════════════════
+  let easyCount = 0, mediumCount = 0, hardCount = 0;
+  const hardWords = [];
+  
+  Object.keys(currentWeek.wordRetention).forEach(word => {
+    const data = currentWeek.wordRetention[word];
+    if (data.difficulty === "easy") easyCount++;
+    else if (data.difficulty === "medium") mediumCount++;
+    else if (data.difficulty === "hard") {
+      hardCount++;
+      hardWords.push(word);
+    }
+  });
+  
+  if (!currentWeek.weekSummary) {
+    currentWeek.weekSummary = {};
+  }
+  
+  currentWeek.weekSummary = {
+    totalSessions: currentWeek.practiceSessions.length,
+    totalPracticeTime: currentWeek.practiceSessions.reduce((sum, s) => sum + s.duration, 0),
+    easyWords: easyCount,
+    mediumWords: mediumCount,
+    hardWords: hardCount,
+    hardWordsList: hardWords,
+    fridayTestScore: currentWeek.weekSummary?.fridayTestScore || null
+  };
+  
+  // Save to database
+  await database.updateChildProfile(sessionTracking.childId, childProfile);
+  
+  // Show completion screen with stats
+  showSessionComplete({
+    masteredWords: masteredCount,
+    totalWords: sessionTracking.words.length,
+    accuracy: accuracy,
+    duration: duration
+  });
+}
+```
+
+HELPER FUNCTION:
+```javascript
+function getCurrentWeek(childProfile) {
+  const today = new Date();
+  const monday = getMonday(today);
+  const weekStartDate = monday.toISOString().split('T')[0];
+  
+  return childProfile.weeklyLists.find(week => week.weekStartDate === weekStartDate);
+}
+
+function getMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+}
+
+function generateUniqueId(prefix) {
+  return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+```
+
+═══════════════════════════════════════════════════════════════
+
+PART 3: CAPTAIN'S LOG - WEEKLY HISTORY VIEW
+═══════════════════════════════════════════════════════════════
+
+CREATE NEW SCREEN: Captain's Log
+
+SCREEN LAYOUT:
+```
+┌─────────────────────────────────────────┐
+│ ← Back │
+│ │
+│ Sarah's Captain's Log │
+│ 1st Grade │
+│ │
+│ ═══════════════════════════════════ │
+│ │
+│ 📅 Week of Oct 7-11, 2025 │
+│ ┌──────────────────────────────────┐ │
+│ │ Words: steady, pretty, happy... │ │
+│ │ │ │
+│ │ 📊 Retention Insights: │ │
+│ │ ✅ Easy Words: 7 │ │
+│ │ 🟡 Medium Words: 2 │ │
+│ │ 🔴 Hard Words: 1 (carry) │ │
+│ │ │ │
+│ │ • Sessions: 4 │ │
+│ │ • Practice Time: 48 min │ │
+│ │ • Avg Accuracy: 85% │ │
+│ │ │ │
+│ │ [View Details] │ │
+│ └──────────────────────────────────┘ │
+│ │
+│ 📅 Week of Sep 30 - Oct 4, 2025 │
+│ ┌──────────────────────────────────┐ │
+│ │ Words: because, friends... │ │
+│ │ │ │
+│ │ 📊 Retention Insights: │ │
+│ │ ✅ Easy: 6 🟡 Medium: 2 🔴 Hard: 2│ │
+│ │ │ │
+│ │ • Sessions: 5 │ │
+│ │ • Practice Time: 52 min │ │
+│ │ │ │
+│ │ [View Details] │ │
+│ └──────────────────────────────────┘ │
+│ │
+│ [Show More Weeks] │
+│ │
+└─────────────────────────────────────────┘
+```
+
+IMPLEMENTATION:
+```javascript
+function CaptainsLog() {
+  const [activeChild, setActiveChild] = useState(null);
+  const [weeksToShow, setWeeksToShow] = useState(5);
+
+  useEffect(() => {
+    loadActiveChild();
+  }, []);
+
+  async function loadActiveChild() {
+    const account = await database.getAccount();
+    const childProfile = await database.getChildProfile(account.activeChildId);
+    setActiveChild(childProfile);
+  }
+
+  if (!activeChild) return <LoadingSpinner />;
+
+  // Sort weeks newest first
+  const sortedWeeks = [...activeChild.weeklyLists].sort((a, b) => 
+    b.weekStartDate.localeCompare(a.weekStartDate)
+  );
+
+  return (
+    <div className="captains-log">
+      <button className="back-btn" onClick={() => history.back()}>
+        ← Back
+      </button>
+      
+      <h1>{activeChild.childName || "My Child"}'s Captain's Log</h1>
+      <p className="grade-level">{activeChild.gradeLevel}</p>
+      
+      <div className="weeks-list">
+        {sortedWeeks.slice(0, weeksToShow).map(week => (
+          <WeekCard key={week.weekId} week={week} />
+        ))}
+      </div>
+      
+      {sortedWeeks.length > weeksToShow && (
+        <button 
+          className="btn-secondary"
+          onClick={() => setWeeksToShow(weeksToShow + 5)}
+        >
+          Show More Weeks
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+WEEK CARD COMPONENT:
+```javascript
+function WeekCard({ week }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="week-card">
+      <h3>📅 Week of {formatWeekRange(week)}</h3>
+      
+      <div className="week-summary">
+        <p className="words-preview">
+          Words: {week.words.slice(0, 3).join(', ')}{week.words.length > 3 && '...'}
+        </p>
+        
+        {week.weekSummary && (
+          <>
+            <div className="retention-insights">
+              <h4>📊 Retention Insights:</h4>
+              <p>✅ Easy Words: {week.weekSummary.easyWords}</p>
+              <p>🟡 Medium Words: {week.weekSummary.mediumWords}</p>
+              <p>🔴 Hard Words: {week.weekSummary.hardWords}
+                {week.weekSummary.hardWordsList.length > 0 && 
+                  ` (${week.weekSummary.hardWordsList.join(', ')})`
+                }
+              </p>
+            </div>
+            
+            <div className="week-stats">
+              <p>• Sessions: {week.weekSummary.totalSessions}</p>
+              <p>• Practice Time: {Math.round(week.weekSummary.totalPracticeTime / 60)} min</p>
+              {week.practiceSessions && week.practiceSessions.length > 0 && (
+                <p>• Avg Accuracy: {Math.round(
+                  week.practiceSessions.reduce((sum, s) => sum + s.accuracy, 0) / 
+                  week.practiceSessions.length
+                )}%</p>
+              )}
+              {week.weekSummary.fridayTestScore && (
+                <p>• Test Score: {week.weekSummary.fridayTestScore}%</p>
+              )}
+            </div>
+          </>
+        )}
+        
+        <button 
+          className="btn-link"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'Hide Details' : 'View Details'}
+        </button>
+      </div>
+      
+      {expanded && <WeekDetails week={week} />}
+    </div>
+  );
+}
+
+function formatWeekRange(week) {
+  const start = new Date(week.weekStartDate);
+  const end = new Date(week.weekEndDate);
+  return `${start.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} - ${end.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
+}
+```
+
+WEEK DETAILS (EXPANDED):
+```javascript
+function WeekDetails({ week }) {
+  return (
+    <div className="week-details">
+      <h4>Spelling Words:</h4>
+      <div className="words-grid">
+        {week.words.map((word, index) => {
+          const retention = week.wordRetention?.[word];
+          return (
+            <div key={index} className={`word-item ${retention?.difficulty || 'unknown'}`}>
+              {index + 1}. {word}
+              {retention?.mastered && ' ✓'}
+              {retention && (
+                <span className="attempts-badge">
+                  {retention.attemptsToMaster || retention.totalAttempts} tries
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      {week.practiceSessions && week.practiceSessions.length > 0 && (
+        <>
+          <h4>Practice Sessions:</h4>
+          <div className="sessions-list">
+            {week.practiceSessions.map(session => (
+              <div key={session.sessionId} className="session-item">
+                <p className="session-date">
+                  {new Date(session.date).toLocaleDateString()} - 
+                  {new Date(session.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </p>
+                <p>• Duration: {Math.round(session.duration / 60)} minutes</p>
+                <p>• Mastered: {session.masteredWords}/{session.totalWords} words</p>
+                <p>• Accuracy: {session.accuracy}%</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+```
+
+═══════════════════════════════════════════════════════════════
+
+PART 4: INTEGRATION WITH EXISTING APP
+═══════════════════════════════════════════════════════════════
+
+FILES TO CREATE:
+
+1. `components/CaptainsLog/CaptainsLog.tsx` - Main screen
+2. `components/CaptainsLog/WeekCard.tsx` - Week card component
+3. `components/CaptainsLog/WeekDetails.tsx` - Expanded details
+
+FILES TO MODIFY:
+
+1. Practice session component - Add tracking logic from Part 2
+2. Home screen - Add button to Captain's Log
+3. Database functions - Add updateChildProfile()
+
+NAVIGATION:
+
+Add Captain's Log button to home screen:
+```javascript
+<button className="btn-secondary" onClick={() => navigateToCaptainsLog()}>
+  📊 Captain's Log
+</button>
+```
+
+═══════════════════════════════════════════════════════════════
+
+PART 5: STYLING
+═══════════════════════════════════════════════════════════════
+
+```css
+/* Week Card */
+.week-card {
+  background: white;
+  border: 2px solid #1E3A5F;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Retention Insights */
+.retention-insights p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+/* Difficulty Colors */
+.word-item.easy { color: #22c55e; }
+.word-item.medium { color: #eab308; }
+.word-item.hard { color: #ef4444; }
+
+.attempts-badge {
+  background: #e5e7eb;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* Sessions List */
+.session-item {
+  background: #f3f4f6;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+```
+
+═══════════════════════════════════════════════════════════════
+
+PART 6: TESTING CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+□ Practice session tracks word attempts correctly
+□ First attempt result captured (Round 1)
+□ Retry attempts tracked (Round 2+)
+□ Difficulty calculated: 1=easy, 2=medium, 3+=hard
+□ Word retention saved to database
+□ Practice session record saved
+□ Week summary calculated correctly
+□ Captain's Log displays all weeks
+□ Weeks sorted newest first
+□ Retention insights show accurate counts
+□ Hard words list displays correctly
+□ Week details expand/collapse
+□ Practice time totals accurate
+□ "Show More Weeks" loads additional weeks
+□ Works on mobile devices
+□ No errors in console
+
+═══════════════════════════════════════════════════════════════
+
+OUTPUT DELIVERABLES:
+═══════════════════════════════════════════════════════════════
+
+Provide:
+1. Modified practice session file with tracking code
+2. CaptainsLog.tsx component
+3. WeekCard.tsx component  
+4. WeekDetails.tsx component
+5. CSS styling for all components
+6. Database update function
+7. Navigation integration code
+8. Testing confirmation
+
+═══════════════════════════════════════════════════════════════
+
+END OF PROMPT
+```
+
+This focused prompt covers just the retention tracking and Captain's Log - nothing else!
