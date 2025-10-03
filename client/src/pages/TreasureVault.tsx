@@ -17,13 +17,26 @@ interface UserTreasures {
   diego: TreasureCount;
 }
 
+interface FallingTreasure {
+  id: number;
+  emoji: string;
+  x: number;
+  y: number;
+  rotation: number;
+  velocity: number;
+  delay: number;
+}
+
 export default function TreasureVault() {
   const [, setLocation] = useLocation();
   const { playSound } = useAudio();
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
   const [chestOpen, setChestOpen] = useState(false);
+  const [fallingTreasures, setFallingTreasures] = useState<FallingTreasure[]>([]);
+  const [showTreasurePiles, setShowTreasurePiles] = useState(false);
   const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const bubblesRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>();
 
   const { data: treasures, isLoading } = useQuery<UserTreasures>({
     queryKey: ['/api/treasures'],
@@ -41,6 +54,34 @@ export default function TreasureVault() {
 
   const getTotalTreasures = (treasureCount: TreasureCount): number => {
     return Object.values(treasureCount).reduce((sum, count) => sum + count, 0);
+  };
+
+  // Create cascading treasure shower
+  const createTreasureShower = () => {
+    const allTreasureEmojis = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
+    const newTreasures: FallingTreasure[] = [];
+    
+    // Create 30 treasures with staggered timing
+    for (let i = 0; i < 30; i++) {
+      newTreasures.push({
+        id: Date.now() + i,
+        emoji: allTreasureEmojis[Math.floor(Math.random() * allTreasureEmojis.length)],
+        x: Math.random() * 100, // Random X position (percentage)
+        y: -20, // Start above screen
+        rotation: Math.random() * 360,
+        velocity: 2 + Math.random() * 3, // Fall speed
+        delay: i * 80, // Stagger spawn by 80ms
+      });
+    }
+    
+    setFallingTreasures(newTreasures);
+    setShowTreasurePiles(false);
+    
+    // Show treasure piles after animation completes (3 seconds)
+    setTimeout(() => {
+      setFallingTreasures([]);
+      setShowTreasurePiles(true);
+    }, 3000);
   };
 
   // Create underwater bubbles
@@ -131,6 +172,7 @@ export default function TreasureVault() {
     if (!chestOpen) {
       playSound('treasure_chest_open');
       setChestOpen(true);
+      createTreasureShower(); // Start treasure shower animation
       
       // Play character-specific sound
       if (selectedCharacter === 'diego') {
@@ -148,6 +190,8 @@ export default function TreasureVault() {
       }
     } else {
       setChestOpen(false);
+      setShowTreasurePiles(false);
+      setFallingTreasures([]);
     }
   };
 
@@ -289,6 +333,44 @@ export default function TreasureVault() {
           }
           50% {
             transform: translateX(calc(100vw + 100px)) scaleX(-1);
+          }
+        }
+
+        /* Treasure shower animations */
+        @keyframes fall {
+          0% {
+            top: -10%;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            top: 100%;
+            opacity: 0;
+          }
+        }
+
+        @keyframes twinkle {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1.3);
+            opacity: 0.8;
+          }
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
 
@@ -696,8 +778,41 @@ export default function TreasureVault() {
             </div>
           </div>
 
+          {/* Falling treasure shower animation */}
+          {fallingTreasures.length > 0 && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'none',
+              zIndex: 1000,
+              overflow: 'hidden'
+            }}>
+              {fallingTreasures.map((treasure, index) => (
+                <div
+                  key={treasure.id}
+                  className="falling-treasure"
+                  style={{
+                    position: 'absolute',
+                    left: `${treasure.x}%`,
+                    top: `${treasure.y}%`,
+                    fontSize: '40px',
+                    animation: `fall 2s ease-in forwards, twinkle 0.5s infinite alternate, spin 1.5s linear infinite`,
+                    animationDelay: `${treasure.delay}ms`,
+                    filter: 'drop-shadow(0 0 10px gold) drop-shadow(0 0 20px yellow)',
+                    textShadow: '0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ffd700, 0 0 40px #ffd700',
+                  }}
+                >
+                  {treasure.emoji}
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Treasure display area */}
-          {chestOpen && (
+          {showTreasurePiles && (
             <div className="treasure-area">
               {/* Diamonds pile */}
               <div className="treasure-pile" data-testid="treasure-diamonds">
