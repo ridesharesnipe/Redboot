@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pirate Treasure Vault - Ocean Adventure</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Fredoka:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #1e3c72 30%, #0b1929 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ocean waves animation */
+        .ocean {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(0,119,190,0.8) 0%, rgba(0,50,100,1) 100%);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(ellipse at center, transparent, rgba(255,255,255,0.1));
+            animation: wave 8s infinite ease-in-out;
+        }
+
+        .wave:nth-child(2) {
+            animation-delay: -2s;
+            opacity: 0.5;
+            animation-duration: 10s;
+        }
+
+        .wave:nth-child(3) {
+            animation-delay: -4s;
+            opacity: 0.3;
+            animation-duration: 12s;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.1);
+            }
+        }
+
+        /* Underwater bubbles */
+        .bubbles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in;
+        }
+
+        @keyframes rise {
+            to {
+                transform: translateY(-120vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Fish swimming */
+        .fish {
+            position: fixed;
+            width: 60px;
+            height: 30px;
+            opacity: 0.6;
+            z-index: 0;
+            animation: swim 20s infinite ease-in-out;
+        }
+
+        .fish::before {
+            content: '🐠';
+            font-size: 40px;
+            position: absolute;
+        }
+
+        @keyframes swim {
+            0%, 100% {
+                transform: translateX(-100px) scaleX(1);
+            }
+            50% {
+                transform: translateX(calc(100vw + 100px)) scaleX(-1);
+            }
+        }
+
+        /* Navigation */
+        .vault-nav {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            justify-content: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .vault-tab {
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #fff;
+            border: 3px solid #d4af37;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .vault-tab.active {
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(212,175,55,0.5);
+        }
+
+        .vault-tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        /* Main container */
+        .container {
+            flex: 1;
+            padding: 20px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .vault-title {
+            font-family: 'Pirata One', cursive;
+            font-size: 48px;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                         0 0 30px rgba(255,215,0,0.5);
+            margin-bottom: 10px;
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                            0 0 30px rgba(255,215,0,0.5);
+            }
+            50% {
+                text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                            0 0 50px rgba(255,215,0,0.8);
+            }
+        }
+
+        /* Total count */
+        .total-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .total-label {
+            color: #fff;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .total-count {
+            font-size: 64px;
+            font-weight: 700;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.6),
+                         3px 3px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Pirate Chest 3D */
+        .chest-container {
+            perspective: 1000px;
+            margin: 40px auto;
+            width: 280px;
+            height: 200px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .chest-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+            transform: rotateY(-15deg);
+        }
+
+        .chest-3d:hover {
+            transform: rotateY(0deg) scale(1.05);
+        }
+
+        .chest-body {
+            position: absolute;
+            width: 280px;
+            height: 160px;
+            bottom: 0;
+            background: linear-gradient(to bottom, 
+                #8b4513 0%, #654321 10%, 
+                #8b4513 20%, #654321 30%,
+                #8b4513 40%, #654321 50%,
+                #8b4513 60%, #654321 70%,
+                #8b4513 80%, #654321 90%,
+                #8b4513 100%);
+            border-radius: 0 0 10px 10px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5),
+                        0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .chest-body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 20px,
+                rgba(0,0,0,0.3) 20px,
+                rgba(0,0,0,0.3) 22px
+            );
+            border-radius: 0 0 10px 10px;
+        }
+
+        /* Metal bands */
+        .metal-band {
+            position: absolute;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(to bottom, #707070 0%, #404040 50%, #707070 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .metal-band.top {
+            top: 20px;
+        }
+
+        .metal-band.bottom {
+            bottom: 20px;
+        }
+
+        /* Chest lid */
+        .chest-lid {
+            position: absolute;
+            width: 280px;
+            height: 80px;
+            top: -40px;
+            background: linear-gradient(135deg, 
+                #a0522d 0%, #8b4513 25%, 
+                #654321 50%, #8b4513 75%, 
+                #a0522d 100%);
+            border-radius: 140px 140px 0 0;
+            transform-origin: bottom;
+            transition: transform 0.5s;
+            box-shadow: inset 0 -5px 20px rgba(0,0,0,0.4),
+                        0 -5px 15px rgba(0,0,0,0.3);
+        }
+
+        .chest-3d.open .chest-lid {
+            transform: rotateX(-110deg);
+        }
+
+        /* Lock */
+        .chest-lock {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5),
+                        inset 0 -3px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            z-index: 10;
+        }
+
+        .chest-lock::after {
+            content: '🔓';
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.5));
+        }
+
+        /* Treasure display area */
+        .treasure-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Individual treasure pile */
+        .treasure-pile {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            min-height: 200px;
+            border: 2px solid rgba(212,175,55,0.5);
+            transition: all 0.3s;
+        }
+
+        .treasure-pile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .treasure-pile-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Canvas for treasure visualization */
+        .treasure-canvas {
+            width: 100%;
+            height: 120px;
+            margin: 10px 0;
+        }
+
+        .treasure-count-display {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        /* Add treasure button */
+        .add-treasure-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #d4af37 0%, #8b4513 100%);
+            border: 4px solid #654321;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-treasure-btn:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 15px 40px rgba(212,175,55,0.6);
+        }
+
+        /* Celebration coins */
+        .coin-particle {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 25px;
+            animation: coinFall 2s ease-in forwards;
+        }
+
+        @keyframes coinFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .vault-title {
+                font-size: 36px;
+            }
+            
+            .treasure-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ocean waves -->
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <!-- Underwater bubbles -->
+    <div class="bubbles" id="bubbles"></div>
+
+    <!-- Swimming fish -->
+    <div class="fish" style="top: 60%; animation-delay: 0s;"></div>
+    <div class="fish" style="top: 70%; animation-delay: 5s;"></div>
+    <div class="fish" style="top: 50%; animation-delay: 10s;"></div>
+
+    <!-- Navigation -->
+    <div class="vault-nav">
+        <button class="vault-tab" onclick="switchVault('blackbeard')">
+            ⚓ Blackbeard's Vault
+        </button>
+        <button class="vault-tab active" onclick="switchVault('sparrow')">
+            🏴‍☠️ Captain's Treasure
+        </button>
+        <button class="vault-tab" onclick="switchVault('davy')">
+            🦑 Davy Jones' Locker
+        </button>
+    </div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="vault-title">⚓ Captain's Treasure Vault ⚓</h1>
+        </div>
+
+        <!-- Total display -->
+        <div class="total-display">
+            <div class="total-label">Total Plunder</div>
+            <div class="total-count" id="totalCount">0</div>
+        </div>
+
+        <!-- Pirate Chest -->
+        <div class="chest-container" onclick="openChest()">
+            <div class="chest-3d" id="chest3d">
+                <div class="chest-lid">
+                    <div class="metal-band" style="top: 20px;"></div>
+                </div>
+                <div class="chest-body">
+                    <div class="metal-band top"></div>
+                    <div class="metal-band bottom"></div>
+                    <div class="chest-lock"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treasure display area -->
+        <div class="treasure-area">
+            <!-- Diamonds pile -->
+            <div class="treasure-pile">
+                <div class="treasure-pile-label">💎 Diamonds</div>
+                <canvas class="treasure-canvas" id="canvas-diamonds"></canvas>
+                <div class="treasure-count-display" id="count-diamonds">0</div>
+            </div>
+
+            <!-- Gold Coins pile -->
+            <div class="treasure-pile">
+                <div class="treasure-pile-label">🪙 Gold Coins</div>
+                <canvas class="treasure-canvas" id="canvas-coins"></canvas>
+                <div class="treasure-count-display" id="count-coins">0</div>
+            </div>
+
+            <!-- Crowns pile -->
+            <div class="treasure-pile">
+                <div class="treasure-pile-label">👑 Royal Crowns</div>
+                <canvas class="treasure-canvas" id="canvas-crowns"></canvas>
+                <div class="treasure-count-display" id="count-crowns">0</div>
+            </div>
+
+            <!-- Money Bags pile -->
+            <div class="treasure-pile">
+                <div class="treasure-pile-label">💰 Money Bags</div>
+                <canvas class="treasure-canvas" id="canvas-bags"></canvas>
+                <div class="treasure-count-display" id="count-bags">0</div>
+            </div>
+
+            <!-- Pearls pile -->
+            <div class="treasure-pile">
+                <div class="treasure-pile-label">🦪 Pearls</div>
+                <canvas class="treasure-canvas" id="canvas-pearls"></canvas>
+                <div class="treasure-count-display" id="count-pearls">0</div>
+            </div>
+
+            <!-- Rubies pile -->
+            <div class="treasure-pile">
+                <div class="treasure-pile-label">💎 Rubies</div>
+                <canvas class="treasure-canvas" id="canvas-rubies"></canvas>
+                <div class="treasure-count-display" id="count-rubies">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add treasure button -->
+    <button class="add-treasure-btn" onclick="addRandomTreasure()">⚓</button>
+
+    <script>
+        // Treasure data
+        let treasures = {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            pearls: 0,
+            rubies: 0
+        };
+
+        // Treasure visual properties
+        const treasureVisuals = {
+            diamonds: { emoji: '💎', color: '#b9f2ff', size: 15 },
+            coins: { emoji: '🪙', color: '#ffd700', size: 12 },
+            crowns: { emoji: '👑', color: '#ffd700', size: 20 },
+            bags: { emoji: '💰', color: '#8b7355', size: 18 },
+            pearls: { emoji: '⚪', color: '#f8f8ff', size: 10 },
+            rubies: { emoji: '🔴', color: '#dc143c', size: 14 }
+        };
+
+        // Initialize canvases
+        const canvases = {};
+        const contexts = {};
+        
+        Object.keys(treasures).forEach(type => {
+            const canvas = document.getElementById(`canvas-${type}`);
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 120;
+            canvases[type] = canvas;
+            contexts[type] = canvas.getContext('2d');
+        });
+
+        // Create underwater bubbles
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            for (let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.width = bubble.style.height = (Math.random() * 20 + 10) + 'px';
+                bubble.style.animationDelay = Math.random() * 10 + 's';
+                bubble.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(bubble);
+            }
+        }
+
+        // Draw treasure pile on canvas
+        function drawTreasurePile(type) {
+            const ctx = contexts[type];
+            const canvas = canvases[type];
+            const count = treasures[type];
+            const visual = treasureVisuals[type];
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (count === 0) return;
+            
+            // Calculate grid layout
+            const maxPerRow = Math.min(15, Math.ceil(Math.sqrt(count * 2)));
+            const itemSize = visual.size;
+            const spacing = itemSize * 0.3;
+            
+            // Draw each item
+            let drawn = 0;
+            for (let row = 0; drawn < count; row++) {
+                const rowCount = Math.min(maxPerRow - Math.floor(row / 2), count - drawn);
+                const startX = (canvas.width - (rowCount * (itemSize + spacing))) / 2;
+                const y = canvas.height - (row + 1) * (itemSize + spacing);
+                
+                for (let col = 0; col < rowCount && drawn < count; col++) {
+                    const x = startX + col * (itemSize + spacing);
+                    
+                    // Add slight randomization for natural pile look
+                    const offsetX = (Math.random() - 0.5) * 4;
+                    const offsetY = (Math.random() - 0.5) * 4;
+                    
+                    // Draw emoji
+                    ctx.font = `${itemSize}px Arial`;
+                    ctx.fillText(visual.emoji, x + offsetX, y + offsetY);
+                    
+                    drawn++;
+                }
+            }
+        }
+
+        // Update treasure display
+        function updateTreasureDisplay(type) {
+            document.getElementById(`count-${type}`).textContent = treasures[type];
+            drawTreasurePile(type);
+        }
+
+        // Add treasure with animation
+        function addTreasure(type, amount = 1) {
+            treasures[type] += amount;
+            updateTreasureDisplay(type);
+            updateTotal();
+            
+            // Create falling coin animation
+            for (let i = 0; i < Math.min(amount, 5); i++) {
+                setTimeout(() => {
+                    createCoinParticle(type);
+                }, i * 100);
+            }
+            
+            // Animate count
+            const countEl = document.getElementById(`count-${type}`);
+            countEl.style.animation = 'none';
+            setTimeout(() => {
+                countEl.style.animation = 'pulse 0.5s';
+            }, 10);
+        }
+
+        // Create falling coin particle
+        function createCoinParticle(type) {
+            const particle = document.createElement('div');
+            particle.className = 'coin-particle';
+            particle.textContent = treasureVisuals[type].emoji;
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = '-50px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 2000);
+        }
+
+        // Update total
+        function updateTotal() {
+            const total = Object.values(treasures).reduce((a, b) => a + b, 0);
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        // Open chest animation
+        function openChest() {
+            const chest = document.getElementById('chest3d');
+            chest.classList.add('open');
+            
+            // Add random treasures
+            const types = Object.keys(treasures);
+            const numRewards = Math.floor(Math.random() * 4) + 3;
+            
+            for (let i = 0; i < numRewards; i++) {
+                setTimeout(() => {
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    const amount = Math.floor(Math.random() * 10) + 5;
+                    addTreasure(type, amount);
+                }, i * 200);
+            }
+            
+            setTimeout(() => {
+                chest.classList.remove('open');
+            }, 2000);
+        }
+
+        // Add random treasure
+        function addRandomTreasure() {
+            const types = Object.keys(treasures);
+            const type = types[Math.floor(Math.random() * types.length)];
+            const amount = Math.floor(Math.random() * 15) + 5;
+            addTreasure(type, amount);
+        }
+
+        // Switch vault
+        function switchVault(vault) {
+            document.querySelectorAll('.vault-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reset treasures for demo
+            Object.keys(treasures).forEach(key => {
+                treasures[key] = 0;
+                updateTreasureDisplay(key);
+            });
+            updateTotal();
+            
+            // Change title based on vault
+            const titles = {
+                blackbeard: "⚓ Blackbeard's Hidden Treasure ⚓",
+                sparrow: "⚓ Captain's Treasure Vault ⚓",
+                davy: "⚓ Davy Jones' Sunken Fortune ⚓"
+            };
+            document.querySelector('.vault-title').textContent = titles[vault] || titles.sparrow;
+        }
+
+        // Initialize
+        createBubbles();
+        
+        // Add initial treasures for demo
+        setTimeout(() => {
+            addTreasure('coins', 25);
+            setTimeout(() => addTreasure('diamonds', 15), 500);
+            setTimeout(() => addTreasure('bags', 8), 1000);
+            setTimeout(() => addTreasure('crowns', 5), 1500);
+        }, 1000);
+    </script>
+</body>
+</html>
