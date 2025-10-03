@@ -387,15 +387,12 @@ export default function TreasureVault() {
         }
 
         .vault-tab {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 10px 18px;
-          border-radius: 12px;
+          padding: 15px 30px;
+          border-radius: 15px;
           font-weight: 600;
-          font-size: 16px;
+          font-size: 18px;
           color: #fff;
-          border: 2px solid #d4af37;
+          border: 3px solid #d4af37;
           cursor: pointer;
           transition: all 0.3s;
           background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
@@ -723,11 +720,11 @@ export default function TreasureVault() {
               src={redBootImage} 
               alt="Red Boot" 
               style={{
-                width: '28px',
-                height: '28px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                marginRight: '10px',
+                marginRight: '8px',
                 border: '2px solid rgba(255,255,255,0.5)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
@@ -743,11 +740,11 @@ export default function TreasureVault() {
               src={diegoImage} 
               alt="Diego the Pup Pup" 
               style={{
-                width: '28px',
-                height: '28px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                marginRight: '10px',
+                marginRight: '8px',
                 border: '2px solid rgba(255,255,255,0.5)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
