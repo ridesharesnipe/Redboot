@@ -28,7 +28,8 @@ export default function PhotoCapturePage() {
   
   // Use refs for save state tracking (prevents stale closure issues)
   const currentSavePromiseRef = useRef<Promise<any> | null>(null);
-  const currentSaveTokenRef = useRef<string>('');
+  const currentSaveTokenRef = useRef<string>(''); // Token for current save attempt
+  const lastSavedTokenRef = useRef<string>(''); // Token of last SUCCESSFUL save
   const lastSavedWordListIdRef = useRef<string | null>(null);
 
   // Centralized save function with promise queuing to prevent race conditions
@@ -42,9 +43,9 @@ export default function PhotoCapturePage() {
       }
     }
     
-    // Recheck after await using refs (fresh state, not stale closure)
+    // Recheck after await using lastSavedTokenRef (tracks successful saves only)
     const saveToken = JSON.stringify(wordsToSave);
-    if (lastSavedWordListIdRef.current && currentSaveTokenRef.current === saveToken) {
+    if (lastSavedWordListIdRef.current && lastSavedTokenRef.current === saveToken) {
       return; // Already saved these exact words, no-op
     }
     
@@ -66,6 +67,7 @@ export default function PhotoCapturePage() {
       if (currentSaveTokenRef.current === saveToken) {
         setSavedWordListId(data.id);
         lastSavedWordListIdRef.current = data.id; // Track in ref for fresh reads
+        lastSavedTokenRef.current = saveToken; // Mark these words as successfully saved
         
         // Also save to localStorage for backward compatibility
         const dataToSave = { 
@@ -104,6 +106,7 @@ export default function PhotoCapturePage() {
     if (!shouldSaveToDb) {
       setSavedWordListId(null);
       lastSavedWordListIdRef.current = null; // Reset ref too
+      lastSavedTokenRef.current = ''; // Reset successful save tracker
       currentSaveTokenRef.current = ''; // Invalidate previous save token
     }
     
@@ -130,13 +133,14 @@ export default function PhotoCapturePage() {
     setExtractedWords([]);
     setSavedWordListId(null); // Reset saved state for fresh upload
     lastSavedWordListIdRef.current = null; // Reset ref too
+    lastSavedTokenRef.current = ''; // Reset successful save tracker
   };
 
   const handleSaveWords = async () => {
-    // Check if words need saving (either not saved yet, or words changed since last save)
+    // Check if words need saving (compare against last SUCCESSFUL save)
     const currentToken = JSON.stringify(extractedWords);
     const needsSave = extractedWords.length > 0 && 
-      (!savedWordListId || currentSaveTokenRef.current !== currentToken);
+      (!savedWordListId || lastSavedTokenRef.current !== currentToken);
     
     if (needsSave) {
       try {
@@ -158,10 +162,10 @@ export default function PhotoCapturePage() {
   };
 
   const handleStartPractice = async () => {
-    // Check if words need saving (either not saved yet, or words changed since last save)
+    // Check if words need saving (compare against last SUCCESSFUL save)
     const currentToken = JSON.stringify(extractedWords);
     const needsSave = extractedWords.length > 0 && 
-      (!savedWordListId || currentSaveTokenRef.current !== currentToken);
+      (!savedWordListId || lastSavedTokenRef.current !== currentToken);
     
     if (needsSave) {
       try {
