@@ -50,7 +50,7 @@ const DEFAULT_MONSTER_NODES: Omit<SeaMonsterNode, 'isDefeated' | 'isBattling' | 
   { id: 'monster-2', x: 48, y: 12, monsterType: SeaMonsterType.KRAKEN, wordIndex: 1 },
   { id: 'monster-3', x: 82, y: 72, monsterType: SeaMonsterType.GIANT_SQUID, wordIndex: 2 },
   { id: 'monster-4', x: 10, y: 22, monsterType: SeaMonsterType.SEA_DRAGON, wordIndex: 3 },
-  { id: 'monster-5', x: 72, y: 40, monsterType: SeaMonsterType.SEA_SERPENT, wordIndex: 4 },
+  { id: 'monster-5', x: 52, y: 40, monsterType: SeaMonsterType.SEA_SERPENT, wordIndex: 4 },
   { id: 'monster-6', x: 25, y: 58, monsterType: SeaMonsterType.LEVIATHAN, wordIndex: 5 },
   { id: 'monster-7', x: 90, y: 10, monsterType: SeaMonsterType.MEGALODON, wordIndex: 6 },
   { id: 'monster-8', x: 85, y: 48, monsterType: SeaMonsterType.HYDRA, wordIndex: 7 },
