@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -25,51 +25,131 @@ export default function PhotoCapturePage() {
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [savedWordListId, setSavedWordListId] = useState<string | null>(null);
+  
+  // Use refs for save state tracking (prevents stale closure issues)
+  const currentSavePromiseRef = useRef<Promise<any> | null>(null);
+  const currentSaveTokenRef = useRef<string>('');
+  const lastSavedWordListIdRef = useRef<string | null>(null);
 
-  // Mutation to save word list to database
-  const saveWordListMutation = useMutation({
-    mutationFn: async (words: string[]) => {
+  // Centralized save function with promise queuing to prevent race conditions
+  const saveWords = async (wordsToSave: string[]) => {
+    // Wait for any in-flight save to complete before starting new one
+    if (currentSavePromiseRef.current) {
+      try {
+        await currentSavePromiseRef.current;
+      } catch (error) {
+        // Ignore errors from previous save, proceed with current save
+      }
+    }
+    
+    // Recheck after await using refs (fresh state, not stale closure)
+    const saveToken = JSON.stringify(wordsToSave);
+    if (lastSavedWordListIdRef.current && currentSaveTokenRef.current === saveToken) {
+      return; // Already saved these exact words, no-op
+    }
+    
+    // Update token for this save attempt
+    currentSaveTokenRef.current = saveToken;
+    
+    // Create and store the save promise
+    const savePromise = (async () => {
       const weekNumber = getWeekNumber(new Date());
       const response = await apiRequest('POST', '/api/word-lists', {
         weekNumber,
-        words,
+        words: wordsToSave,
         practiceCount: 0,
         bestScore: 0,
       });
-      return await response.json();
-    },
-    onSuccess: (data: any) => {
-      setSavedWordListId(data.id);
-      // Also save to localStorage for backward compatibility during transition
-      const dataToSave = { 
-        words: extractedWords, 
-        savedDate: new Date().toISOString(),
-        wordListId: data.id 
-      };
-      localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-    },
-  });
+      const data = await response.json();
+      
+      // Only update if this save is still current (not superseded by retake)
+      if (currentSaveTokenRef.current === saveToken) {
+        setSavedWordListId(data.id);
+        lastSavedWordListIdRef.current = data.id; // Track in ref for fresh reads
+        
+        // Also save to localStorage for backward compatibility
+        const dataToSave = { 
+          words: wordsToSave, 
+          savedDate: new Date().toISOString(),
+          wordListId: data.id 
+        };
+        localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+      }
+      
+      return data;
+    })();
+    
+    currentSavePromiseRef.current = savePromise;
+    
+    try {
+      return await savePromise;
+    } finally {
+      // Clear promise ref when done
+      if (currentSavePromiseRef.current === savePromise) {
+        currentSavePromiseRef.current = null;
+      }
+    }
+  };
 
 
   const handleImageCapture = (imageData: string) => {
     setCapturedImage(imageData);
   };
 
-  const handleWordsExtracted = (words: string[]) => {
+  const handleWordsExtracted = async (words: string[], shouldSaveToDb: boolean = false) => {
     setExtractedWords(words);
     setIsProcessing(false);
     
-    // Save to database immediately
-    saveWordListMutation.mutate(words);
+    // Only reset saved state if this is a new extraction (not a save confirmation)
+    if (!shouldSaveToDb) {
+      setSavedWordListId(null);
+      lastSavedWordListIdRef.current = null; // Reset ref too
+      currentSaveTokenRef.current = ''; // Invalidate previous save token
+    }
+    
+    // Save to database when user confirms (shouldSaveToDb = true)
+    if (shouldSaveToDb) {
+      try {
+        await saveWords(words);
+        toast({
+          title: "Words Saved!",
+          description: `${words.length} spelling words saved successfully.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save words. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handleRetake = () => {
     setCapturedImage(null);
     setExtractedWords([]);
+    setSavedWordListId(null); // Reset saved state for fresh upload
+    lastSavedWordListIdRef.current = null; // Reset ref too
   };
 
-  const handleSaveWords = () => {
-    // Words are already saved to database in handleWordsExtracted
+  const handleSaveWords = async () => {
+    // Check if words need saving (either not saved yet, or words changed since last save)
+    const currentToken = JSON.stringify(extractedWords);
+    const needsSave = extractedWords.length > 0 && 
+      (!savedWordListId || currentSaveTokenRef.current !== currentToken);
+    
+    if (needsSave) {
+      try {
+        await saveWords(extractedWords);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save words. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     toast({
       title: "Treasure Maps Saved!",
       description: `${extractedWords.length} pirate flashcards have been added to your collection!`,
@@ -77,8 +157,24 @@ export default function PhotoCapturePage() {
     setLocation("/dashboard");
   };
 
-  const handleStartPractice = () => {
-    // Words are already saved to database in handleWordsExtracted
+  const handleStartPractice = async () => {
+    // Check if words need saving (either not saved yet, or words changed since last save)
+    const currentToken = JSON.stringify(extractedWords);
+    const needsSave = extractedWords.length > 0 && 
+      (!savedWordListId || currentSaveTokenRef.current !== currentToken);
+    
+    if (needsSave) {
+      try {
+        await saveWords(extractedWords);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save words. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",

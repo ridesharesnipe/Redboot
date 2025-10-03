@@ -67,7 +67,9 @@ export const children = pgTable("children", {
   weeklyStreak: integer("weekly_streak").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_children_parent_id").on(table.parentId),
+]);
 
 // Word lists table
 export const wordLists = pgTable("word_lists", {
@@ -79,7 +81,10 @@ export const wordLists = pgTable("word_lists", {
   testDate: timestamp("test_date"),
   practiceCount: integer("practice_count").default(0),
   bestScore: integer("best_score").default(0),
-});
+}, (table) => [
+  index("idx_word_lists_child_id").on(table.childId),
+  index("idx_word_lists_week_number").on(table.weekNumber),
+]);
 
 // Progress tracking table
 export const progress = pgTable("progress", {
@@ -92,7 +97,10 @@ export const progress = pgTable("progress", {
   timeSpent: integer("time_spent").default(0), // in seconds
   score: integer("score").default(0),
   completedAt: timestamp("completed_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_progress_child_id").on(table.childId),
+  index("idx_progress_word_list_id").on(table.wordListId),
+]);
 
 // Photos table for storing spelling list photos
 export const photos = pgTable("photos", {

@@ -9,7 +9,7 @@ import { Upload, Check, X, Edit, Loader } from 'lucide-react';
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
-  onWordsExtracted: (words: string[]) => void;
+  onWordsExtracted: (words: string[], shouldSaveToDb?: boolean) => void;
   onCancel?: () => void;
 }
 
@@ -318,8 +318,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         setEditableWords([...demoWords]);
         setShowWordList(true);
         
-        // CRITICAL FIX: Notify parent page of demo words
-        onWordsExtracted(demoWords);
+        // CRITICAL FIX: Notify parent page of demo words (don't save to DB yet)
+        onWordsExtracted(demoWords, false);
         
         playSound('ship_bell_success');
         toast({
@@ -340,8 +340,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setEditableWords([...words]);
       setShowWordList(true);
 
-      // CRITICAL FIX: Notify parent page of extracted words
-      onWordsExtracted(words);
+      // CRITICAL FIX: Notify parent page of extracted words (don't save to DB yet)
+      onWordsExtracted(words, false);
 
       // Don't save to photoStorage here - wait for user confirmation in saveWords()
       
@@ -641,8 +641,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       // Don't fail if photo storage fails
     }
     
-    // CRITICAL FIX: Always notify parent of final confirmed words
-    onWordsExtracted(finalWords);
+    // CRITICAL FIX: Always notify parent of final confirmed words AND save to DB
+    onWordsExtracted(finalWords, true);
     playSound('cannon_achievement');
     
     toast({
