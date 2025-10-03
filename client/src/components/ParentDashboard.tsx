@@ -569,8 +569,8 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             </div>
           )}
 
-          {stats?.totalWords ? (
-            <div className="space-y-4">
+          <div className="space-y-4">
+            {stats?.totalWords ? (
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <Button 
                   onClick={onViewPractice}
@@ -589,6 +589,28 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   Treasure Vault
                 </Button>
               </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Button 
+                  onClick={onTakePhoto}
+                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow w-full sm:w-auto"
+                  data-testid="button-upload-words"
+                >
+                  📸 Upload This Week's Words
+                </Button>
+                <Button 
+                  onClick={() => setLocation('/vault')}
+                  variant="secondary"
+                  className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600 text-lg px-6 py-6"
+                  data-testid="button-treasure-vault"
+                >
+                  <Gem className="w-5 h-5 mr-2" />
+                  Treasure Vault
+                </Button>
+              </div>
+            )}
+            
+            {stats?.totalWords && (
               <div>
                 <Button 
                   onClick={() => {
@@ -609,16 +631,8 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   Clear All Words & Start Fresh
                 </Button>
               </div>
-            </div>
-          ) : (
-            <Button 
-              onClick={onTakePhoto}
-              className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
-              data-testid="button-upload-words"
-            >
-              📸 Upload This Week's Words
-            </Button>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
 
