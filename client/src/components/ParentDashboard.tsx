@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
+import { useLocation } from "wouter";
 
 interface ParentDashboardProps {
   onTakePhoto: () => void;
@@ -14,6 +15,7 @@ interface ParentDashboardProps {
 }
 
 export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTest, onViewGuide }: ParentDashboardProps) {
+  const [, setLocation] = useLocation();
   const [stats, setStats] = useState<{
     totalWords: number;
     newWords: number;
@@ -569,13 +571,24 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
           {stats?.totalWords ? (
             <div className="space-y-4">
-              <Button 
-                onClick={onViewPractice}
-                className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
-                data-testid="button-practice-now"
-              >
-                🚀 Practice Now!
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Button 
+                  onClick={onViewPractice}
+                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow w-full sm:w-auto"
+                  data-testid="button-practice-now"
+                >
+                  🚀 Practice Now!
+                </Button>
+                <Button 
+                  onClick={() => setLocation('/vault')}
+                  variant="secondary"
+                  className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600 text-lg px-6 py-6"
+                  data-testid="button-treasure-vault"
+                >
+                  <Gem className="w-5 h-5 mr-2" />
+                  Treasure Vault
+                </Button>
+              </div>
               <div>
                 <Button 
                   onClick={() => {
