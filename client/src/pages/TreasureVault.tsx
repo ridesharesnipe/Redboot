@@ -39,6 +39,9 @@ export default function TreasureVault() {
   const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const bubblesRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
+  const treasureIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const treasurePileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const treasureIdCounter = useRef(0);
 
   const { data: treasures, isLoading } = useQuery<UserTreasures>({
     queryKey: ['/api/treasures'],
@@ -58,32 +61,67 @@ export default function TreasureVault() {
     return Object.values(treasureCount).reduce((sum, count) => sum + count, 0);
   };
 
-  // Create cascading treasure shower
-  const createTreasureShower = () => {
+  // Continuous treasure shower - spawns treasures continuously
+  const startContinuousTreasureShower = () => {
     const allTreasureEmojis = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
-    const newTreasures: FallingTreasure[] = [];
     
-    // Create 30 treasures with staggered timing
-    for (let i = 0; i < 30; i++) {
-      newTreasures.push({
-        id: Date.now() + i,
-        emoji: allTreasureEmojis[Math.floor(Math.random() * allTreasureEmojis.length)],
-        x: Math.random() * 100, // Random X position (percentage)
-        y: -20, // Start above screen
-        rotation: Math.random() * 360,
-        velocity: 2 + Math.random() * 3, // Fall speed
-        delay: i * 80, // Stagger spawn by 80ms
-      });
+    // Clear any existing interval and timeout
+    if (treasureIntervalRef.current) {
+      clearInterval(treasureIntervalRef.current);
+    }
+    if (treasurePileTimeoutRef.current) {
+      clearTimeout(treasurePileTimeoutRef.current);
     }
     
-    setFallingTreasures(newTreasures);
     setShowTreasurePiles(false);
     
-    // Show treasure piles after animation completes (3 seconds)
+    // Spawn new treasures every 150ms for continuous effect
+    treasureIntervalRef.current = setInterval(() => {
+      setFallingTreasures(prev => {
+        // Create 2-3 new treasures each cycle
+        const newTreasures: FallingTreasure[] = [];
+        const count = 2 + Math.floor(Math.random() * 2); // 2-3 treasures
+        
+        for (let i = 0; i < count; i++) {
+          treasureIdCounter.current += 1;
+          newTreasures.push({
+            id: treasureIdCounter.current,
+            emoji: allTreasureEmojis[Math.floor(Math.random() * allTreasureEmojis.length)],
+            x: Math.random() * 100,
+            y: -20,
+            rotation: Math.random() * 360,
+            velocity: 2 + Math.random() * 3,
+            delay: 0, // No delay needed since we're spawning continuously
+          });
+        }
+        
+        // Add new treasures and keep only the last 50 to prevent memory issues
+        // Treasures older than 50 have already fallen off screen
+        const updated = [...prev, ...newTreasures].slice(-50);
+        return updated;
+      });
+    }, 150); // Spawn every 150ms
+    
+    // Show treasure piles after 2 seconds but keep rain going
+    treasurePileTimeoutRef.current = setTimeout(() => {
+      setShowTreasurePiles(true);
+    }, 2000);
+  };
+
+  // Stop the continuous treasure shower
+  const stopTreasureShower = () => {
+    if (treasureIntervalRef.current) {
+      clearInterval(treasureIntervalRef.current);
+      treasureIntervalRef.current = null;
+    }
+    if (treasurePileTimeoutRef.current) {
+      clearTimeout(treasurePileTimeoutRef.current);
+      treasurePileTimeoutRef.current = null;
+    }
+    // Fade out existing treasures
     setTimeout(() => {
       setFallingTreasures([]);
-      setShowTreasurePiles(true);
-    }, 3000);
+    }, 500);
   };
 
   // Create underwater bubbles
@@ -150,6 +188,18 @@ export default function TreasureVault() {
     createBubbles();
   }, []);
 
+  // Cleanup interval and timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (treasureIntervalRef.current) {
+        clearInterval(treasureIntervalRef.current);
+      }
+      if (treasurePileTimeoutRef.current) {
+        clearTimeout(treasurePileTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Initialize canvases and draw treasures when chest opens
   useEffect(() => {
     if (chestOpen && treasures) {
@@ -174,7 +224,7 @@ export default function TreasureVault() {
     if (!chestOpen) {
       playSound('treasure_chest_open');
       setChestOpen(true);
-      createTreasureShower(); // Start treasure shower animation
+      startContinuousTreasureShower(); // Start continuous treasure shower animation
       
       // Play character-specific sound
       if (selectedCharacter === 'diego') {
@@ -192,8 +242,8 @@ export default function TreasureVault() {
       }
     } else {
       setChestOpen(false);
+      stopTreasureShower(); // Stop the continuous rain
       setShowTreasurePiles(false);
-      setFallingTreasures([]);
     }
   };
 
