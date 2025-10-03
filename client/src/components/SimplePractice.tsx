@@ -389,12 +389,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   const nextWord = () => {
+    console.log('🔍 nextWord called - currentWordIndex:', currentWordIndex, 'getTotalWords():', getTotalWords(), 'practiceWords.length:', practiceWords.length, 'showBonusRound:', showBonusRound);
+    
     setUserInput('');
     setShowFeedback(false);
     setIsWordSpoken(false);
     
     const totalWordsForSession = getTotalWords();
+    console.log('🔍 Checking condition:', currentWordIndex, '>=', totalWordsForSession - 1, '=', currentWordIndex >= totalWordsForSession - 1);
+    
     if (currentWordIndex >= totalWordsForSession - 1) {
+      console.log('🔍 End of session branch');
       // Check if this is end of bonus round
       if (showBonusRound) {
         // Bonus round complete - finish immediately
@@ -437,6 +442,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         }
       }
     } else {
+      console.log('🔍 Moving to next word - incrementing index from', currentWordIndex, 'to', currentWordIndex + 1);
       setCurrentWordIndex(prev => prev + 1);
     }
   };
