@@ -14,21 +14,29 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 // Middleware to validate anonymous session
 async function validateSession(req: any, res: any, next: any) {
-  const playerId = req.headers['x-player-id'] as string;
-  const sessionToken = req.headers['x-session-token'] as string;
+  try {
+    const playerId = req.headers['x-player-id'] as string;
+    const sessionToken = req.headers['x-session-token'] as string;
 
-  if (!playerId || !sessionToken) {
-    return res.status(401).json({ message: 'Unauthorized: Missing credentials' });
+    if (!playerId || !sessionToken) {
+      console.error('❌ Missing credentials - playerId:', playerId, 'sessionToken:', !!sessionToken);
+      return res.status(401).json({ message: 'Unauthorized: Missing credentials' });
+    }
+
+    console.log('🔐 Validating session for player:', playerId.substring(0, 8) + '...');
+
+    // Validate session or create new user
+    const isValid = await storage.validateSession(playerId, sessionToken);
+    if (!isValid) {
+      console.log('✨ Creating new user for player:', playerId.substring(0, 8) + '...');
+      await storage.getOrCreateUser(playerId, sessionToken);
+    }
+
+    next();
+  } catch (error) {
+    console.error('❌ Session validation error:', error);
+    return res.status(500).json({ message: 'Session validation failed', error: String(error) });
   }
-
-  // Validate session or create new user
-  const isValid = await storage.validateSession(playerId, sessionToken);
-  if (!isValid) {
-    // Create new user if doesn't exist
-    await storage.getOrCreateUser(playerId, sessionToken);
-  }
-
-  next();
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -110,6 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/word-lists', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
+      console.log('📝 Creating word list for player:', playerId.substring(0, 8) + '...', 'Words:', req.body.words?.length);
 
       // Validate request body
       const validatedData = insertWordListSchema.parse(req.body);
@@ -119,7 +128,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let childId: string;
       
       if (children.length === 0) {
+        console.log('👶 No child found, creating one...');
         const userData = await storage.getUser(playerId);
+        console.log('👤 User data:', { childName: userData?.childName, gradeLevel: userData?.gradeLevel });
+        
         // Use child name from user data, or default to "My Child" if not set
         const childName = userData?.childName || "My Child";
         const newChild = await storage.createChild({
@@ -127,24 +139,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: childName,
           grade: userData?.gradeLevel || undefined,
         });
+        console.log('✅ Created child:', newChild.id);
         childId = newChild.id;
       } else {
         childId = children[0].id;
+        console.log('✅ Using existing child:', childId);
       }
 
       // Create word list
+      console.log('📋 Creating word list with childId:', childId);
       const wordList = await storage.createWordList({
         ...validatedData,
         childId,
       });
+      console.log('✅ Word list created:', wordList.id);
       
       res.json(wordList);
     } catch (error) {
-      console.error('Error creating word list:', error);
+      console.error('❌ Error creating word list:', error);
       if (error instanceof z.ZodError) {
+        console.error('❌ Validation error:', error.errors);
         return res.status(400).json({ message: 'Invalid request data', errors: error.errors });
       }
-      res.status(500).json({ message: 'Failed to create word list' });
+      res.status(500).json({ message: 'Failed to create word list', error: String(error) });
     }
   });
 
