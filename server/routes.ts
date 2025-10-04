@@ -125,13 +125,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (children.length === 0) {
         const userData = await storage.getUser(userId);
-        if (!userData || !userData.childName) {
-          return res.status(400).json({ message: 'User must complete onboarding first' });
-        }
+        // Use child name from user data, or default to "My Child" if not set
+        const childName = userData?.childName || "My Child";
         const newChild = await storage.createChild({
           parentId: userId,
-          name: userData.childName,
-          grade: userData.gradeLevel || undefined,
+          name: childName,
+          grade: userData?.gradeLevel || undefined,
         });
         childId = newChild.id;
       } else {
