@@ -169,11 +169,14 @@ export default function PhotoCapturePage() {
     
     if (needsSave) {
       try {
+        console.log('Attempting to save words before practice:', extractedWords);
         await saveWords(extractedWords);
+        console.log('Words saved successfully!');
       } catch (error) {
+        console.error('Failed to save words:', error);
         toast({
           title: "Error",
-          description: "Failed to save words. Please try again.",
+          description: error instanceof Error ? error.message : "Failed to save words. Please try again.",
           variant: "destructive",
         });
         return;
