@@ -73,33 +73,34 @@ export class DatabaseStorage implements IStorage {
     
     while (retries > 0) {
       try {
-        // Try to get existing user
-        let user = await this.getUser(id);
+        // Try to get existing user (without throwing on connection errors)
+        const [user] = await db.select().from(users).where(eq(users.id, id));
         
-        if (!user) {
-          console.log('📝 Creating new anonymous user...');
-          // Create new anonymous user with session token
-          const [newUser] = await db
-            .insert(users)
-            .values({
-              id,
-              sessionToken,
-              onboardingComplete: false,
-            })
-            .returning();
-          console.log('✅ User created successfully');
-          user = newUser;
-        } else {
+        if (user) {
           console.log('✅ User found:', user.id.substring(0, 8) + '...');
+          return user;
         }
         
-        return user;
+        // User doesn't exist, create new one
+        console.log('📝 Creating new anonymous user...');
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            id,
+            sessionToken,
+            onboardingComplete: false,
+          })
+          .returning();
+        console.log('✅ User created successfully');
+        return newUser;
       } catch (error: any) {
         lastError = error;
-        console.error(`❌ Database error in getOrCreateUser (attempt ${4 - retries}/3):`, error?.message);
+        console.error(`❌ Database error in getOrCreateUser (attempt ${4 - retries}/3):`, error);
+        console.error(`❌ Error details:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
         retries--;
         if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          console.log(`⏳ Waiting 2 seconds before retry...`);
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
         }
       }
     }
