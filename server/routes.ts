@@ -12,6 +12,25 @@ if (process.env.STRIPE_SECRET_KEY) {
   });
 }
 
+// Middleware to validate anonymous session
+async function validateSession(req: any, res: any, next: any) {
+  const playerId = req.headers['x-player-id'] as string;
+  const sessionToken = req.headers['x-session-token'] as string;
+
+  if (!playerId || !sessionToken) {
+    return res.status(401).json({ message: 'Unauthorized: Missing credentials' });
+  }
+
+  // Validate session or create new user
+  const isValid = await storage.validateSession(playerId, sessionToken);
+  if (!isValid) {
+    // Create new user if doesn't exist
+    await storage.getOrCreateUser(playerId, sessionToken);
+  }
+
+  next();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Simple API routes for basic functionality
   app.get('/api/status', async (req, res) => {
@@ -19,13 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Auth user endpoint - now returns player data from anonymous ID
-  app.get('/api/auth/user', async (req: any, res) => {
+  app.get('/api/auth/user', validateSession, async (req: any, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.json(null);
-      }
-      
       const user = await storage.getUser(playerId);
       res.json(user);
     } catch (error) {
@@ -34,13 +49,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Onboarding endpoint (no auth required - uses anonymous player ID)
-  app.post('/api/onboarding', async (req, res) => {
+  // Onboarding endpoint (uses anonymous player ID with session validation)
+  app.post('/api/onboarding', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       const { childName, gradeLevel, skip } = req.body;
       
@@ -61,13 +73,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Photos now stored in browser IndexedDB - no server routes needed!
 
-  // Word Lists API routes (no auth required - uses anonymous player ID)
-  app.get('/api/word-lists', async (req: any, res) => {
+  // Word Lists API routes (uses anonymous player ID with session validation)
+  app.get('/api/word-lists', validateSession, async (req: any, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       // For now, use the user's childName as the default child
       // Later can expand to support multiple children
@@ -98,12 +107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/word-lists', async (req, res) => {
+  app.post('/api/word-lists', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       // Validate request body
       const validatedData = insertWordListSchema.parse(req.body);
@@ -142,12 +148,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/word-lists/:id', async (req, res) => {
+  app.get('/api/word-lists/:id', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       const wordList = await storage.getWordList(req.params.id);
       if (!wordList) {
@@ -167,13 +170,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Progress API routes (no auth required - uses anonymous player ID)
-  app.get('/api/progress', async (req: any, res) => {
+  // Progress API routes (uses anonymous player ID with session validation)
+  app.get('/api/progress', validateSession, async (req: any, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       // Get child
       const children = await storage.getChildren(playerId);
@@ -190,12 +190,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/progress', async (req, res) => {
+  app.post('/api/progress', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       // Validate request body
       const validatedData = insertProgressSchema.parse(req.body);
@@ -224,53 +221,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Treasure Vault API routes (no auth required - uses anonymous player ID)
-  app.get('/api/treasures', async (req: any, res) => {
+  // Treasure Vault API routes (uses anonymous player ID with session validation)
+  app.get('/api/treasures', validateSession, async (req: any, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      
-      // Return empty treasures if no player ID
-      if (!playerId) {
-        return res.json({
-          redboot: {
-            diamonds: 0,
-            coins: 0,
-            crowns: 0,
-            bags: 0,
-            stars: 0,
-            trophies: 0,
-          },
-          diego: {
-            diamonds: 0,
-            coins: 0,
-            crowns: 0,
-            bags: 0,
-            stars: 0,
-            trophies: 0,
-          },
-        });
-      }
-
       const userData = await storage.getUser(playerId);
+      
       if (!userData) {
-        return res.json({
-          redboot: {
-            diamonds: 0,
-            coins: 0,
-            crowns: 0,
-            bags: 0,
-            stars: 0,
-            trophies: 0,
-          },
-          diego: {
-            diamonds: 0,
-            coins: 0,
-            crowns: 0,
-            bags: 0,
-            stars: 0,
-            trophies: 0,
-          },
-        });
+        return res.status(404).json({ message: 'User not found' });
       }
 
       res.json({
@@ -297,12 +255,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/treasures/add', async (req, res) => {
+  app.post('/api/treasures/add', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
-      if (!playerId) {
-        return res.status(400).json({ message: 'Player ID required' });
-      }
 
       const { character, amount } = req.body;
       if (!character || !amount || amount <= 0) {

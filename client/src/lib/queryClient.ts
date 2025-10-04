@@ -1,5 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { getPlayerId } from "./playerId";
+import { getPlayerId, getSessionToken } from "./playerId";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -15,6 +15,7 @@ export async function apiRequest(
 ): Promise<Response> {
   const headers: Record<string, string> = {
     "X-Player-Id": getPlayerId(),
+    "X-Session-Token": getSessionToken(),
   };
   
   if (data) {
@@ -41,6 +42,7 @@ export const getQueryFn: <T>(options: {
     const res = await fetch(queryKey.join("/") as string, {
       headers: {
         "X-Player-Id": getPlayerId(),
+        "X-Session-Token": getSessionToken(),
       },
       credentials: "include",
     });

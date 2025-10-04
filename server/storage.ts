@@ -16,8 +16,10 @@ import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
-  // User operations (required for Replit Auth)
+  // User operations (anonymous players with session security)
   getUser(id: string): Promise<User | undefined>;
+  getOrCreateUser(id: string, sessionToken: string): Promise<User>;
+  validateSession(id: string, sessionToken: string): Promise<boolean>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User>;
@@ -44,6 +46,43 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  async getOrCreateUser(id: string, sessionToken: string): Promise<User> {
+    // Try to get existing user
+    let user = await this.getUser(id);
+    
+    if (!user) {
+      // Create new anonymous user with session token
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          id,
+          sessionToken,
+          onboardingComplete: false,
+        })
+        .returning();
+      user = newUser;
+    }
+    
+    return user;
+  }
+
+  async validateSession(id: string, sessionToken: string): Promise<boolean> {
+    const user = await this.getUser(id);
+    if (!user) return false;
+    
+    // If user has no session token yet (old data), set it
+    if (!user.sessionToken) {
+      await db
+        .update(users)
+        .set({ sessionToken, updatedAt: new Date() })
+        .where(eq(users.id, id));
+      return true;
+    }
+    
+    // Validate session token matches
+    return user.sessionToken === sessionToken;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
