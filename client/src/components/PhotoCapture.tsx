@@ -781,18 +781,64 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   if (isProcessing) {
     return (
       <div className="min-h-screen glass-gradient-bg flex items-center justify-center p-4">
-        <Card className="glass-card max-w-md mx-auto glass-floating">
+        <Card className="glass-card max-w-2xl mx-auto glass-floating">
           <CardContent className="p-8 text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto mb-6"></div>
-            <h3 className="text-2xl font-bold mb-4 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>🔍 Scanning Treasure Map...</h3>
-            <p className="text-white/80 mb-6 text-lg">
-              Extracting your treasure words... {ocrProgress}%
+            <h3 className="text-3xl font-bold mb-2 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+              🔍 Scanning Treasure Map...
+            </h3>
+            <p className="text-white/90 mb-8 text-xl font-semibold">
+              Please wait while we extract your spelling words
             </p>
-            <div className="w-full bg-white/20 rounded-full h-4">
-              <div 
-                className="bg-gradient-to-r from-blue-400 to-green-400 h-4 rounded-full transition-all duration-300 shadow-lg" 
-                style={{ width: `${ocrProgress}%` }}
-              />
+            
+            {/* Progress Bar with Sailing Boat */}
+            <div className="relative mb-8">
+              {/* Ocean Waves Background */}
+              <div className="w-full bg-gradient-to-b from-blue-300/30 to-blue-500/40 rounded-full h-16 border-4 border-blue-300/50 overflow-hidden relative">
+                {/* Animated Waves */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+                
+                {/* Progress Fill (Water) */}
+                <div 
+                  className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 h-full transition-all duration-500 shadow-lg relative overflow-hidden" 
+                  style={{ width: `${ocrProgress}%` }}
+                >
+                  {/* Wave animation inside progress */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+                </div>
+                
+                {/* Sailing Boat - Moves with progress */}
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 transition-all duration-500 text-4xl"
+                  style={{ 
+                    left: `${Math.max(2, ocrProgress - 3)}%`,
+                    transform: 'translateY(-50%)',
+                  }}
+                >
+                  ⛵
+                </div>
+              </div>
+              
+              {/* Progress Percentage */}
+              <div className="mt-4 text-3xl font-bold text-white glass-text-glow">
+                {ocrProgress}%
+              </div>
+            </div>
+            
+            {/* Status Message */}
+            <div className="bg-yellow-100/90 border-l-4 border-yellow-500 p-4 rounded-lg">
+              <p className="text-yellow-800 font-semibold text-lg">
+                ⚠️ Processing in progress...
+              </p>
+              <p className="text-yellow-700 mt-2">
+                Do not close this page or start practice yet. The boat is sailing to collect your words!
+              </p>
+            </div>
+            
+            {/* Loading Animation */}
+            <div className="mt-6 flex justify-center gap-2">
+              <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
           </CardContent>
         </Card>
