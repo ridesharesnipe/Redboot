@@ -18,8 +18,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const { toast } = useToast();
 
   const handleSkip = () => {
-    // Mark onboarding as complete in localStorage
+    // Grade level is required even when skipping
+    if (!gradeLevel) {
+      toast({
+        title: "Grade level required",
+        description: "Please select your child's grade level before continuing. The child's name is optional.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Save grade level (child name is optional)
     localStorage.setItem('redboot-onboarding-complete', 'true');
+    localStorage.setItem('redboot-grade-level', gradeLevel);
+    
     onComplete();
   };
 
@@ -182,15 +194,15 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   {/* Grade Level (required) */}
                   <div className="space-y-2">
                     <Label htmlFor="grade-level" className="text-base font-semibold text-gray-700">
-                      Grade Level <span className="text-red-600">*</span>
+                      Grade Level <span className="text-red-600">* Required</span>
                     </Label>
                     <Select value={gradeLevel} onValueChange={setGradeLevel}>
                       <SelectTrigger 
                         id="grade-level" 
-                        className="text-lg"
+                        className="text-lg border-2 border-red-200"
                         data-testid="select-grade-level"
                       >
-                        <SelectValue placeholder="Select grade level" />
+                        <SelectValue placeholder="Select grade level *" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="K">Kindergarten</SelectItem>
@@ -201,8 +213,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         <SelectItem value="5th">5th Grade</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-sm text-gray-600">
-                      We use grade level for age-appropriate encouragement
+                    <p className="text-sm text-red-600 font-semibold">
+                      ⚠️ Grade level is required for practice and testing
                     </p>
                   </div>
                 </div>
