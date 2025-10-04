@@ -14,6 +14,12 @@ import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
 import TreasureVault from "@/pages/TreasureVault";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
+import { getPlayerId, getSessionToken } from "@/lib/playerId";
+
+// Initialize player ID and session token IMMEDIATELY before any components render
+// This ensures all queries have valid credentials from the start
+getPlayerId();
+getSessionToken();
 
 // Proper React Error Boundary component - moved to module scope for stability
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
