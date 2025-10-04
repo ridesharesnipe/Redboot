@@ -44,37 +44,68 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    // Retry logic for transient database connection issues
+    let retries = 3;
+    let lastError;
+    
+    while (retries > 0) {
+      try {
+        const [user] = await db.select().from(users).where(eq(users.id, id));
+        return user;
+      } catch (error: any) {
+        lastError = error;
+        console.error(`Database connection attempt failed (${4 - retries}/3):`, error?.message);
+        retries--;
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        }
+      }
+    }
+    
+    console.error('All database connection attempts failed:', lastError);
+    throw lastError;
   }
 
   async getOrCreateUser(id: string, sessionToken: string): Promise<User> {
-    try {
-      // Try to get existing user
-      let user = await this.getUser(id);
-      
-      if (!user) {
-        console.log('📝 Creating new anonymous user...');
-        // Create new anonymous user with session token
-        const [newUser] = await db
-          .insert(users)
-          .values({
-            id,
-            sessionToken,
-            onboardingComplete: false,
-          })
-          .returning();
-        console.log('✅ User created successfully');
-        user = newUser;
-      } else {
-        console.log('✅ User found:', user.id.substring(0, 8) + '...');
+    // Retry logic for transient database connection issues
+    let retries = 3;
+    let lastError;
+    
+    while (retries > 0) {
+      try {
+        // Try to get existing user
+        let user = await this.getUser(id);
+        
+        if (!user) {
+          console.log('📝 Creating new anonymous user...');
+          // Create new anonymous user with session token
+          const [newUser] = await db
+            .insert(users)
+            .values({
+              id,
+              sessionToken,
+              onboardingComplete: false,
+            })
+            .returning();
+          console.log('✅ User created successfully');
+          user = newUser;
+        } else {
+          console.log('✅ User found:', user.id.substring(0, 8) + '...');
+        }
+        
+        return user;
+      } catch (error: any) {
+        lastError = error;
+        console.error(`❌ Database error in getOrCreateUser (attempt ${4 - retries}/3):`, error?.message);
+        retries--;
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        }
       }
-      
-      return user;
-    } catch (error: any) {
-      console.error('❌ Database error in getOrCreateUser:', error);
-      throw new Error(`Failed to create user: ${error?.message || String(error)}`);
     }
+    
+    console.error('❌ All retry attempts failed in getOrCreateUser');
+    throw new Error(`Failed to create user after 3 attempts: ${lastError?.message || String(lastError)}`);
   }
 
   async validateSession(id: string, sessionToken: string): Promise<boolean> {
