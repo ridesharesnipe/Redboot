@@ -806,16 +806,75 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
                 </div>
                 
-                {/* Sailing Boat - Moves with progress */}
+                {/* 3D Sailing Pirate Boat - Moves with progress */}
                 <div 
-                  className="absolute top-1/2 -translate-y-1/2 transition-all duration-500 text-4xl"
+                  className="absolute top-1/2 -translate-y-1/2 transition-all duration-500"
                   style={{ 
                     left: `${Math.max(2, ocrProgress - 3)}%`,
                     transform: 'translateY(-50%)',
                   }}
                 >
-                  ⛵
+                  <div className="relative" style={{ 
+                    transform: 'perspective(200px) rotateY(-15deg)',
+                    animation: 'rockBoat 2s ease-in-out infinite'
+                  }}>
+                    {/* Boat Hull */}
+                    <div className="relative w-16 h-8" style={{
+                      background: 'linear-gradient(to bottom, #8B4513 0%, #654321 100%)',
+                      clipPath: 'polygon(10% 100%, 90% 100%, 100% 50%, 95% 20%, 5% 20%, 0% 50%)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.2)',
+                      transform: 'translateZ(10px)'
+                    }}>
+                      {/* Hull Highlight */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                    </div>
+                    
+                    {/* Main Sail */}
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2" style={{
+                      width: 0,
+                      height: 0,
+                      borderLeft: '12px solid transparent',
+                      borderRight: '12px solid transparent',
+                      borderBottom: '28px solid #f5f5dc',
+                      filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))',
+                      transform: 'translateZ(5px)'
+                    }}>
+                      {/* Jolly Roger skull */}
+                      <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs">💀</div>
+                    </div>
+                    
+                    {/* Mast */}
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-1 h-12 bg-gradient-to-b from-amber-900 to-amber-700" style={{
+                      boxShadow: '1px 0 2px rgba(0,0,0,0.3)',
+                      transform: 'translateZ(8px)'
+                    }}></div>
+                    
+                    {/* Flag */}
+                    <div className="absolute -top-14 left-1/2 text-xs" style={{
+                      animation: 'waveFlag 0.5s ease-in-out infinite'
+                    }}>🏴‍☠️</div>
+                    
+                    {/* Waves splash */}
+                    <div className="absolute -bottom-1 left-0 right-0 text-center text-xs opacity-70" style={{
+                      animation: 'splash 1.5s ease-in-out infinite'
+                    }}>💦</div>
+                  </div>
                 </div>
+                
+                <style>{`
+                  @keyframes rockBoat {
+                    0%, 100% { transform: perspective(200px) rotateY(-15deg) rotateZ(-2deg); }
+                    50% { transform: perspective(200px) rotateY(-15deg) rotateZ(2deg); }
+                  }
+                  @keyframes waveFlag {
+                    0%, 100% { transform: translateX(0) rotate(0deg); }
+                    50% { transform: translateX(2px) rotate(5deg); }
+                  }
+                  @keyframes splash {
+                    0%, 100% { opacity: 0.3; transform: translateY(0) scale(0.8); }
+                    50% { opacity: 0.7; transform: translateY(-2px) scale(1); }
+                  }
+                `}</style>
               </div>
               
               {/* Progress Percentage */}
