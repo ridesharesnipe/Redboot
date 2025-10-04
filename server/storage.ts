@@ -49,40 +49,55 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrCreateUser(id: string, sessionToken: string): Promise<User> {
-    // Try to get existing user
-    let user = await this.getUser(id);
-    
-    if (!user) {
-      // Create new anonymous user with session token
-      const [newUser] = await db
-        .insert(users)
-        .values({
-          id,
-          sessionToken,
-          onboardingComplete: false,
-        })
-        .returning();
-      user = newUser;
+    try {
+      // Try to get existing user
+      let user = await this.getUser(id);
+      
+      if (!user) {
+        console.log('📝 Creating new anonymous user...');
+        // Create new anonymous user with session token
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            id,
+            sessionToken,
+            onboardingComplete: false,
+          })
+          .returning();
+        console.log('✅ User created successfully');
+        user = newUser;
+      } else {
+        console.log('✅ User found:', user.id.substring(0, 8) + '...');
+      }
+      
+      return user;
+    } catch (error: any) {
+      console.error('❌ Database error in getOrCreateUser:', error);
+      throw new Error(`Failed to create user: ${error?.message || String(error)}`);
     }
-    
-    return user;
   }
 
   async validateSession(id: string, sessionToken: string): Promise<boolean> {
-    const user = await this.getUser(id);
-    if (!user) return false;
-    
-    // If user has no session token yet (old data), set it
-    if (!user.sessionToken) {
-      await db
-        .update(users)
-        .set({ sessionToken, updatedAt: new Date() })
-        .where(eq(users.id, id));
-      return true;
+    try {
+      const user = await this.getUser(id);
+      if (!user) return false;
+      
+      // If user has no session token yet (old data), set it
+      if (!user.sessionToken) {
+        await db
+          .update(users)
+          .set({ sessionToken, updatedAt: new Date() })
+          .where(eq(users.id, id));
+        return true;
+      }
+      
+      // Validate session token matches
+      return user.sessionToken === sessionToken;
+    } catch (error) {
+      console.error('Database error in validateSession:', error);
+      // On database error, return false to trigger user creation
+      return false;
     }
-    
-    // Validate session token matches
-    return user.sessionToken === sessionToken;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
