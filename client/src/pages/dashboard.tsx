@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -16,7 +15,6 @@ import type { Child } from "@shared/schema";
 import { Anchor, Crown, LogOut, Upload, Mic, Map, User, TrendingUp, Plus } from "lucide-react";
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddChild, setShowAddChild] = useState(false);
@@ -108,13 +106,8 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground" data-testid="text-user-greeting">
-              Welcome, {(user as any)?.firstName || 'Captain'}!
+              Welcome, Captain!
             </span>
-            <Link href="/subscribe">
-              <Button variant="default" data-testid="button-upgrade">
-                <Crown className="w-4 h-4 mr-2" />Upgrade
-              </Button>
-            </Link>
             <Button 
               variant="ghost"
               onClick={handleLogout}
@@ -307,30 +300,6 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Subscription Status */}
-        {!(user as any)?.isPremium && (
-          <Card className="bg-treasure-500 text-treasure-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-bold mb-4" data-testid="text-trial-title">Free Trial Active</h3>
-                  <p className="text-treasure-100" data-testid="text-trial-subtitle">
-                    Unlock all characters with Premium
-                  </p>
-                </div>
-                <Link href="/subscribe">
-                  <Button 
-                    variant="outline"
-                    data-testid="button-upgrade-now"
-                  >
-                    Upgrade Now
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );

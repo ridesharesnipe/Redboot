@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertChildSchema, insertWordListSchema, insertProgressSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -14,27 +13,20 @@ if (process.env.STRIPE_SECRET_KEY) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup authentication middleware
-  await setupAuth(app);
-
   // Simple API routes for basic functionality
   app.get('/api/status', async (req, res) => {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
   });
 
-  // Auth user endpoint - returns null if not authenticated instead of 401
+  // Auth user endpoint - now returns player data from anonymous ID
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      if (!req.isAuthenticated()) {
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
         return res.json(null);
       }
       
-      const userId = req.user?.claims?.sub;
-      if (!userId) {
-        return res.json(null);
-      }
-      
-      const user = await storage.getUser(userId);
+      const user = await storage.getUser(playerId);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -42,25 +34,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Onboarding endpoint
-  app.post('/api/onboarding', isAuthenticated, async (req, res) => {
+  // Onboarding endpoint (no auth required - uses anonymous player ID)
+  app.post('/api/onboarding', async (req, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       const { childName, gradeLevel, skip } = req.body;
       
       // If skipping, just set onboardingComplete to true
       if (skip) {
-        const updatedUser = await storage.updateUserOnboarding(userId, undefined, undefined, true);
+        const updatedUser = await storage.updateUserOnboarding(playerId, undefined, undefined, true);
         return res.json({ user: updatedUser });
       }
 
       // Otherwise save the data
-      const updatedUser = await storage.updateUserOnboarding(userId, childName, gradeLevel, true);
+      const updatedUser = await storage.updateUserOnboarding(playerId, childName, gradeLevel, true);
       res.json({ user: updatedUser });
     } catch (error) {
       console.error("Error saving onboarding data:", error);
@@ -70,28 +61,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Photos now stored in browser IndexedDB - no server routes needed!
 
-  // Word Lists API routes
-  app.get('/api/word-lists', isAuthenticated, async (req: any, res) => {
+  // Word Lists API routes (no auth required - uses anonymous player ID)
+  app.get('/api/word-lists', async (req: any, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       // For now, use the user's childName as the default child
       // Later can expand to support multiple children
-      const children = await storage.getChildren(userId);
+      const children = await storage.getChildren(playerId);
       
       // If no children exist, create a default one from user's childName
       let childId: string;
       if (children.length === 0) {
-        const userData = await storage.getUser(userId);
+        const userData = await storage.getUser(playerId);
         if (!userData || !userData.childName) {
           return res.json([]);
         }
         const newChild = await storage.createChild({
-          parentId: userId,
+          parentId: playerId,
           name: userData.childName,
           grade: userData.gradeLevel || undefined,
         });
@@ -108,27 +98,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/word-lists', isAuthenticated, async (req, res) => {
+  app.post('/api/word-lists', async (req, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       // Validate request body
       const validatedData = insertWordListSchema.parse(req.body);
 
       // Get or create child for this user
-      const children = await storage.getChildren(userId);
+      const children = await storage.getChildren(playerId);
       let childId: string;
       
       if (children.length === 0) {
-        const userData = await storage.getUser(userId);
+        const userData = await storage.getUser(playerId);
         // Use child name from user data, or default to "My Child" if not set
         const childName = userData?.childName || "My Child";
         const newChild = await storage.createChild({
-          parentId: userId,
+          parentId: playerId,
           name: childName,
           grade: userData?.gradeLevel || undefined,
         });
@@ -153,12 +142,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/word-lists/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/word-lists/:id', async (req, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       const wordList = await storage.getWordList(req.params.id);
@@ -168,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Verify ownership: Check that the word list's child belongs to this parent
       const child = await storage.getChild(wordList.childId);
-      if (!child || child.parentId !== userId) {
+      if (!child || child.parentId !== playerId) {
         return res.status(403).json({ message: 'Access denied: You do not own this word list' });
       }
 
@@ -179,17 +167,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Progress API routes
-  app.get('/api/progress', isAuthenticated, async (req: any, res) => {
+  // Progress API routes (no auth required - uses anonymous player ID)
+  app.get('/api/progress', async (req: any, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       // Get child
-      const children = await storage.getChildren(userId);
+      const children = await storage.getChildren(playerId);
       if (children.length === 0) {
         return res.json([]);
       }
@@ -203,19 +190,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/progress', isAuthenticated, async (req, res) => {
+  app.post('/api/progress', async (req, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       // Validate request body
       const validatedData = insertProgressSchema.parse(req.body);
 
       // Get child
-      const children = await storage.getChildren(userId);
+      const children = await storage.getChildren(playerId);
       if (children.length === 0) {
         return res.status(400).json({ message: 'No child profile found' });
       }
@@ -238,11 +224,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Treasure Vault API routes - accessible without authentication
+  // Treasure Vault API routes (no auth required - uses anonymous player ID)
   app.get('/api/treasures', async (req: any, res) => {
     try {
-      // If not authenticated, return empty treasures
-      if (!req.isAuthenticated()) {
+      const playerId = req.headers['x-player-id'] as string;
+      
+      // Return empty treasures if no player ID
+      if (!playerId) {
         return res.json({
           redboot: {
             diamonds: 0,
@@ -263,30 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.json({
-          redboot: {
-            diamonds: 0,
-            coins: 0,
-            crowns: 0,
-            bags: 0,
-            stars: 0,
-            trophies: 0,
-          },
-          diego: {
-            diamonds: 0,
-            coins: 0,
-            crowns: 0,
-            bags: 0,
-            stars: 0,
-            trophies: 0,
-          },
-        });
-      }
-
-      const userData = await storage.getUser(userId);
+      const userData = await storage.getUser(playerId);
       if (!userData) {
         return res.json({
           redboot: {
@@ -332,12 +297,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/treasures/add', isAuthenticated, async (req, res) => {
+  app.post('/api/treasures/add', async (req, res) => {
     try {
-      const user = req.user as any;
-      const userId = user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
+      const playerId = req.headers['x-player-id'] as string;
+      if (!playerId) {
+        return res.status(400).json({ message: 'Player ID required' });
       }
 
       const { character, amount } = req.body;
@@ -345,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid request' });
       }
 
-      await storage.addTreasures(userId, character, amount);
+      await storage.addTreasures(playerId, character, amount);
       res.json({ success: true });
     } catch (error) {
       console.error('Error adding treasures:', error);

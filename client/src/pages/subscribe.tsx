@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { ArrowLeft, Lock, Shield, Check, Users, CreditCard, Crown, Fish, Dog, Telescope } from "lucide-react";
 
@@ -91,24 +90,13 @@ const SubscribeForm = () => {
 };
 
 export default function Subscribe() {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [clientSecret, setClientSecret] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
-
-    // Check if user is already premium
-    if ((user as any).isPremium) {
-      toast({
-        title: "Already Premium",
-        description: "You already have access to all premium features!",
-      });
-      setLocation("/");
-      return;
-    }
+    // Note: This page is for subscription features - may not be needed in free version
 
     // Create subscription
     apiRequest("POST", "/api/get-or-create-subscription")
@@ -137,7 +125,7 @@ export default function Subscribe() {
         });
         setLocation("/");
       });
-  }, [user, toast, setLocation]);
+  }, [toast, setLocation]);
 
   if (isLoading || !clientSecret) {
     return (

@@ -10,7 +10,6 @@ import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
 import { Users, Compass, Anchor, Play, Star, Check, Crown, Shield, Gem } from "lucide-react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 import redBootLandingHead from "@assets/17585900152718502939350575537720_1758590021649.png";
@@ -25,7 +24,6 @@ export default function Landing({ onStart }: LandingProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego' | null>(null);
   const { playSound, startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
   const [, setLocation] = useLocation();
-  const { isAuthenticated } = useAuth();
 
   // Initialize audio on first user interaction (mobile-friendly)
   const initializeAudio = () => {
@@ -133,22 +131,20 @@ export default function Landing({ onStart }: LandingProps) {
               <Compass className="w-5 h-5 mr-2" />
               Start Adventure
             </Button>
-            {isAuthenticated && (
-              <Button 
-                onClick={() => {
-                  initializeAudio();
-                  playSound('treasure_chest_open');
-                  setLocation('/vault');
-                }}
-                variant="secondary" 
-                className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600"
-                size="lg"
-                data-testid="button-treasure-vault"
-              >
-                <Gem className="w-5 h-5 mr-2" />
-                Treasure Vault
-              </Button>
-            )}
+            <Button 
+              onClick={() => {
+                initializeAudio();
+                playSound('treasure_chest_open');
+                setLocation('/vault');
+              }}
+              variant="secondary" 
+              className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600"
+              size="lg"
+              data-testid="button-treasure-vault"
+            >
+              <Gem className="w-5 h-5 mr-2" />
+              Treasure Vault
+            </Button>
             <Button 
               onClick={handleDemo}
               variant="secondary" 
