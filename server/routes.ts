@@ -126,8 +126,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const playerId = req.headers['x-player-id'] as string;
       console.log('📝 Creating word list for player:', playerId.substring(0, 8) + '...', 'Words:', req.body.words?.length);
 
-      // Validate request body
-      const validatedData = insertWordListSchema.parse(req.body);
+      // Validate request body (without childId - we'll add it below)
+      const requestSchema = z.object({
+        weekNumber: z.number(),
+        words: z.array(z.string()),
+        practiceCount: z.number().optional().default(0),
+        bestScore: z.number().optional().default(0),
+      });
+      const validatedData = requestSchema.parse(req.body);
 
       // Get or create child for this user
       const children = await storage.getChildren(playerId);
