@@ -33,9 +33,15 @@ async function validateSession(req: any, res: any, next: any) {
     }
 
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Session validation error:', error);
-    return res.status(500).json({ message: 'Session validation failed', error: String(error) });
+    console.error('❌ Error stack:', error?.stack);
+    console.error('❌ Error message:', error?.message);
+    return res.status(500).json({ 
+      message: 'Session validation failed', 
+      error: error?.message || String(error),
+      stack: error?.stack
+    });
   }
 }
 
