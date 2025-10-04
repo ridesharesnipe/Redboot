@@ -9,7 +9,7 @@ import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves } from "lucide-react";
+import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves, Loader } from "lucide-react";
 
 // Calculate week number of the year (1-52)
 function getWeekNumber(date: Date): number {
@@ -25,6 +25,7 @@ export default function PhotoCapturePage() {
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [savedWordListId, setSavedWordListId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Use refs for save state tracking (prevents stale closure issues)
   const currentSavePromiseRef = useRef<Promise<any> | null>(null);
@@ -162,31 +163,46 @@ export default function PhotoCapturePage() {
   };
 
   const handleStartPractice = async () => {
+    if (extractedWords.length === 0) {
+      toast({
+        title: "No Words Found",
+        description: "Please upload a photo with spelling words first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    
     // Check if words need saving (compare against last SUCCESSFUL save)
     const currentToken = JSON.stringify(extractedWords);
-    const needsSave = extractedWords.length > 0 && 
-      (!savedWordListId || lastSavedTokenRef.current !== currentToken);
+    const needsSave = !savedWordListId || lastSavedTokenRef.current !== currentToken;
     
     if (needsSave) {
       try {
-        console.log('Attempting to save words before practice:', extractedWords);
+        console.log('🔄 Saving words before starting practice:', extractedWords);
         await saveWords(extractedWords);
-        console.log('Words saved successfully!');
-      } catch (error) {
-        console.error('Failed to save words:', error);
+        console.log('✅ Words saved successfully!');
+      } catch (error: any) {
+        console.error('❌ Failed to save words:', error);
+        setIsSaving(false);
         toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Failed to save words. Please try again.",
+          title: "Save Error",
+          description: error?.message || "Failed to save words to database. Please try the 'Save Flashcards' button first.",
           variant: "destructive",
         });
         return;
       }
     }
+    
+    setIsSaving(false);
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",
     });
-    setLocation("/practice");
+    setTimeout(() => {
+      setLocation("/practice");
+    }, 500);
   };
 
   const removeWord = (wordToRemove: string) => {
@@ -306,11 +322,21 @@ export default function PhotoCapturePage() {
                       </Button>
                       <Button 
                         onClick={handleStartPractice}
-                        className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 px-6 py-3 rounded-2xl font-bold"
+                        disabled={isSaving}
+                        className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 px-6 py-3 rounded-2xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                         data-testid="button-start-practice"
                       >
-                        <i className="lni lni-play mr-2" style={{ fontSize: '1.25rem' }}></i>
-                        Start Adventure!
+                        {isSaving ? (
+                          <>
+                            <Loader className="w-5 h-5 mr-2 animate-spin" />
+                            Saving Words...
+                          </>
+                        ) : (
+                          <>
+                            <i className="lni lni-play mr-2" style={{ fontSize: '1.25rem' }}></i>
+                            Start Adventure!
+                          </>
+                        )}
                       </Button>
                     </div>
                   </CardContent>
