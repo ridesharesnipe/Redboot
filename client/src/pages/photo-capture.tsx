@@ -8,7 +8,6 @@ import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves, Loader } from "lucide-react";
 
@@ -22,7 +21,6 @@ function getWeekNumber(date: Date): number {
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -210,58 +208,6 @@ export default function PhotoCapturePage() {
   const removeWord = (wordToRemove: string) => {
     setExtractedWords(words => words.filter(word => word !== wordToRemove));
   };
-
-  // Show authentication required message
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center">
-        <Card className="max-w-md mx-auto bg-white/90">
-          <CardContent className="p-8 text-center">
-            <Loader className="w-12 h-12 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-lg text-gray-700">Checking login status...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center p-4">
-        <Card className="max-w-lg mx-auto bg-white/90 backdrop-blur-sm">
-          <CardContent className="p-8">
-            <div className="text-center mb-6">
-              <div className="text-6xl mb-4">🔒</div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
-                Login Required
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Ahoy! You need to log in before uploading your spelling treasure maps.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Button
-                onClick={() => window.location.href = '/api/auth/login'}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-lg py-6"
-                data-testid="button-login"
-              >
-                🏴‍☠️ Log In to Continue
-              </Button>
-              <Button
-                onClick={() => setLocation('/')}
-                variant="outline"
-                className="text-gray-700"
-                data-testid="button-back-home"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600">
