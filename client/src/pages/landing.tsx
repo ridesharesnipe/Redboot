@@ -6,6 +6,7 @@ import SaltyCharacter from "@/components/SaltyCharacter";
 import DiegoCharacter from "@/components/DiegoCharacter";
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
 import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
+import seagullSound from "@assets/seagull-sound-effect-272695_1759647609171.mp3";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
 import { Users, Compass, Anchor, Play, Star, Check, Crown, Shield, Gem } from "lucide-react";
@@ -25,11 +26,35 @@ export default function Landing({ onStart }: LandingProps) {
   const { playSound, startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
   const [, setLocation] = useLocation();
 
+  // Periodic seagull sounds for atmosphere
+  useEffect(() => {
+    if (!audioInitialized) return;
+    
+    const playSeagull = () => {
+      playAudioFile(seagullSound, 0.3);
+    };
+    
+    // Play seagull sound every 15-25 seconds (random interval)
+    const scheduleNextSeagull = () => {
+      const delay = 15000 + Math.random() * 10000; // 15-25 seconds
+      return setTimeout(() => {
+        playSeagull();
+        const nextTimer = scheduleNextSeagull();
+        return () => clearTimeout(nextTimer);
+      }, delay);
+    };
+    
+    const timer = scheduleNextSeagull();
+    return () => clearTimeout(timer);
+  }, [audioInitialized, playAudioFile]);
+
   // Initialize audio on first user interaction (mobile-friendly)
   const initializeAudio = () => {
     if (!audioInitialized) {
       setAudioInitialized(true);
       startBackgroundMusic('ocean_ambient');
+      // Play seagull sound for atmosphere
+      playAudioFile(seagullSound, 0.4);
       // Welcome message after audio context is unlocked
       setTimeout(() => {
         playCharacterVoice('red_boot_welcome');
@@ -42,6 +67,8 @@ export default function Landing({ onStart }: LandingProps) {
     if (!audioInitialized) {
       setAudioInitialized(true);
       startBackgroundMusic('ocean_ambient');
+      // Play seagull sound on start
+      playAudioFile(seagullSound, 0.4);
     }
     playSound('anchor_button_click');
     playCharacterVoice('red_boot_ahoy');

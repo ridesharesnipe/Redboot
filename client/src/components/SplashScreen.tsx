@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAudio } from "@/contexts/AudioContext";
 import { Flag } from "lucide-react";
 import redBootSplash from "@assets/17585900152718502939350575537720_1758590021649.png";
+import seagullSound from "@assets/seagull-sound-effect-272695_1759647609171.mp3";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -10,11 +11,14 @@ interface SplashScreenProps {
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [timeLeft, setTimeLeft] = useState(10);
   const [isVisible, setIsVisible] = useState(true);
-  const { startBackgroundMusic, playCharacterVoice } = useAudio();
+  const { startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
 
   useEffect(() => {
     // Start pirate adventure music immediately
     startBackgroundMusic('pirate_adventure');
+    
+    // Play seagull sound for pirate harbor atmosphere
+    playAudioFile(seagullSound, 0.4);
     
     // Red Boot welcome after a short delay
     const voiceTimer = setTimeout(() => {
@@ -34,12 +38,18 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         return prev - 1;
       });
     }, 1000);
+    
+    // Play another seagull sound mid-way through countdown
+    const seagullTimer = setTimeout(() => {
+      playAudioFile(seagullSound, 0.3);
+    }, 5000);
 
     return () => {
       clearInterval(timer);
       clearTimeout(voiceTimer);
+      clearTimeout(seagullTimer);
     };
-  }, [startBackgroundMusic, playCharacterVoice, onComplete]);
+  }, [startBackgroundMusic, playCharacterVoice, playAudioFile, onComplete]);
 
   return (
     <div 
