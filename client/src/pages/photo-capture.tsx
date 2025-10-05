@@ -176,7 +176,7 @@ export default function PhotoCapturePage() {
     setLocation("/dashboard");
   };
 
-  const handleStartPractice = async () => {
+  const handleStartPractice = () => {
     if (extractedWords.length === 0) {
       toast({
         title: "No Words Found",
@@ -186,30 +186,7 @@ export default function PhotoCapturePage() {
       return;
     }
 
-    setIsSaving(true);
-    
-    // Check if words need saving (compare against last SUCCESSFUL save)
-    const currentToken = JSON.stringify(extractedWords);
-    const needsSave = !savedWordListId || lastSavedTokenRef.current !== currentToken;
-    
-    if (needsSave) {
-      try {
-        console.log('🔄 Saving words before starting practice:', extractedWords);
-        await saveWords(extractedWords);
-        console.log('✅ Words saved successfully!');
-      } catch (error: any) {
-        console.error('❌ Failed to save words:', error);
-        setIsSaving(false);
-        toast({
-          title: "Save Error",
-          description: error?.message || "Failed to save words to database. Please try the 'Save Flashcards' button first.",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-    
-    setIsSaving(false);
+    // Skip database save - proceed directly to practice
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",
