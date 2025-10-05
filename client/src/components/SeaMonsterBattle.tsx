@@ -106,16 +106,20 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
 
   // Handle external treasure unlocking
   useEffect(() => {
-    if (treasureJustUnlocked && currentMonsterIndex < monsterNodes.length) {
-      const currentMonster = monsterNodes[currentMonsterIndex];
-      if (currentMonster && !currentMonster.isBattling) {
-        setCurrentlyBattling(currentMonster.id);
-        setMonsterNodes(prev => prev.map(node => 
-          node.id === currentMonster.id ? { ...node, isBattling: true } : node
-        ));
-      }
+    if (treasureJustUnlocked) {
+      setMonsterNodes(prev => {
+        if (currentMonsterIndex >= prev.length) return prev;
+        const currentMonster = prev[currentMonsterIndex];
+        if (currentMonster && !currentMonster.isBattling) {
+          setCurrentlyBattling(currentMonster.id);
+          return prev.map(node => 
+            node.id === currentMonster.id ? { ...node, isBattling: true } : node
+          );
+        }
+        return prev;
+      });
     }
-  }, [treasureJustUnlocked, currentMonsterIndex, monsterNodes]);
+  }, [treasureJustUnlocked, currentMonsterIndex]);
 
   const handleBattleComplete = (monsterId: string) => {
     const monster = monsterNodes.find(n => n.id === monsterId);
