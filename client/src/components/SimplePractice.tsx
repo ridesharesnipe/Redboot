@@ -131,8 +131,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   // ADD bonus round logic helper functions
   const getCurrentWord = () => {
     if (showBonusRound && bonusRoundWords.length > 0) {
+      if (currentWordIndex >= bonusRoundWords.length) return null;
       return bonusRoundWords[currentWordIndex];
     }
+    if (currentWordIndex >= practiceWords.length) return null;
     return practiceWords[currentWordIndex];
   };
   
@@ -267,18 +269,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Speak current word when it changes
   useEffect(() => {
-    if (practiceWords.length > 0 && currentWordIndex < practiceWords.length && !showFeedback) {
+    const word = getCurrentWord();
+    if (word && !showFeedback) {
       setIsWordSpoken(false);
       // Small delay to let Red Boot's greeting finish
       setTimeout(() => {
         speakCurrentWord();
       }, currentWordIndex === 0 ? 3000 : 1000);
     }
-  }, [currentWordIndex, practiceWords, showFeedback]);
+  }, [currentWordIndex, practiceWords, showFeedback, showBonusRound, bonusRoundWords]);
 
   const speakCurrentWord = () => {
-    if (practiceWords.length > 0 && currentWordIndex < practiceWords.length) {
-      const word = practiceWords[currentWordIndex];
+    const word = getCurrentWord();
+    if (word) {
       
       // Use speech synthesis to speak the word clearly
       if ('speechSynthesis' in window) {
@@ -348,6 +351,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;
     
     const currentWord = getCurrentWord();
+    if (!currentWord) return; // Safety check
     const userAnswer = userInput.trim().toLowerCase();
     const correct = userAnswer === currentWord.toLowerCase();
     
@@ -508,6 +512,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   const skipWord = () => {
     const currentWord = getCurrentWord();
+    if (!currentWord) return; // Safety check
     
     // Add skipped word to tricky words queue for bonus round
     if (!trickyWords.includes(currentWord)) {
