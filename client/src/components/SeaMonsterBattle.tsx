@@ -468,7 +468,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
-              className="relative w-28 h-28 rounded-full overflow-hidden shadow-2xl -bottom-8"
+              className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-28 h-28 rounded-full overflow-hidden shadow-2xl"
               style={{
                 boxShadow: '0 15px 50px rgba(0,0,0,0.5)',
                 border: '3px solid rgba(255,255,255,0.3)',
