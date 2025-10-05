@@ -63,6 +63,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [defeatedTreasures, setDefeatedTreasures] = useState<string[]>([]);
   const [currentlyBattling, setCurrentlyBattling] = useState<string | null>(null);
+  const [totalCorrectAnswers, setTotalCorrectAnswers] = useState(0);
 
   // Initialize/update monster nodes when totalWords changes
   useEffect(() => {
@@ -83,13 +84,14 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
 
   // Handle word mastery progression
   useEffect(() => {
-    if (masteredWords > currentMonsterIndex && currentMonsterIndex < monsterNodes.length) {
+    if (masteredWords > totalCorrectAnswers && currentMonsterIndex < monsterNodes.length) {
       const nextMonsterIndex = Math.min(masteredWords - 1, monsterNodes.length - 1);
       const nextMonster = monsterNodes[nextMonsterIndex];
       
       // Move Diego to next monster position
       setDiegoPosition({ x: nextMonster.x, y: nextMonster.y });
       setCurrentMonsterIndex(nextMonsterIndex);
+      setTotalCorrectAnswers(masteredWords);
       
       // Diego barks when starting the battle!
       playAudioFile(diegoBarkSound, 0.4, true); // Play from middle at 40% volume
@@ -100,7 +102,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
         node.id === nextMonster.id ? { ...node, isBattling: true } : node
       ));
     }
-  }, [masteredWords, currentMonsterIndex, monsterNodes.length, playAudioFile]);
+  }, [masteredWords, totalCorrectAnswers, currentMonsterIndex, monsterNodes.length, playAudioFile]);
 
   // Handle external treasure unlocking
   useEffect(() => {
