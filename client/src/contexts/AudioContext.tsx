@@ -118,9 +118,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         backgroundMusicRef.current.pause();
         backgroundMusicRef.current = null;
       }
-      if (speechSynthRef.current) {
-        speechSynthRef.current.cancel();
-      }
+      cancelSpeech();
     };
   }, []);
 
@@ -556,12 +554,26 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Track current speech session to prevent canceled speech from continuing
+  const speechSessionRef = useRef<number>(0);
+
+  // Centralized speech cancellation that updates session tracking
+  const cancelSpeech = () => {
+    if (speechSynthRef.current) {
+      speechSynthRef.current.cancel();
+      speechSessionRef.current++; // Invalidate all pending speech sessions
+    }
+  };
+
   // Play character voice using Speech Synthesis API with better voice selection
   const playCharacterVoice = (voiceType: CharacterVoiceType) => {
     if (!settings.characterVoiceEnabled || settings.focusModeEnabled || !speechSynthRef.current) return;
 
     const synth = speechSynthRef.current;
-    synth.cancel(); // Stop any current speech
+    cancelSpeech(); // Stop any current speech and invalidate sessions
+
+    // Create unique session ID to detect if this speech has been superseded
+    const currentSession = speechSessionRef.current;
 
     // Duck background music during speech
     if (musicGainRef.current && audioContextRef.current) {
@@ -748,21 +760,79 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           utterance.lang = 'en-GB'; // Force British English pronunciation
         }
 
-        utterance.onend = () => {
-          // Restore background music volume after speech
-          if (musicGainRef.current && audioContextRef.current) {
-            setTimeout(() => {
-              try {
-                musicGainRef.current!.gain.linearRampToValueAtTime(
-                  settings.masterVolume * 0.15,
-                  audioContextRef.current!.currentTime + 0.5
-                );
-              } catch (e) {}
-            }, 100);
+        // Split long text into chunks to prevent browser truncation
+        const chunkText = (text: string, maxLength: number = 200): string[] => {
+          if (text.length <= maxLength) return [text];
+          
+          const chunks: string[] = [];
+          let currentPos = 0;
+          
+          while (currentPos < text.length) {
+            let endPos = currentPos + maxLength;
+            
+            // If we're not at the end, try to break at a sentence or phrase boundary
+            if (endPos < text.length) {
+              const remainingText = text.substring(currentPos, endPos);
+              const lastPeriod = remainingText.lastIndexOf('. ');
+              const lastComma = remainingText.lastIndexOf(', ');
+              const lastSpace = remainingText.lastIndexOf(' ');
+              
+              if (lastPeriod > maxLength * 0.5) {
+                endPos = currentPos + lastPeriod + 2;
+              } else if (lastComma > maxLength * 0.5) {
+                endPos = currentPos + lastComma + 2;
+              } else if (lastSpace > maxLength * 0.5) {
+                endPos = currentPos + lastSpace + 1;
+              }
+            }
+            
+            chunks.push(text.substring(currentPos, Math.min(endPos, text.length)));
+            currentPos = endPos;
           }
+          
+          return chunks;
         };
-
-        synth.speak(utterance);
+        
+        // Speak text chunks sequentially
+        const chunks = chunkText(text);
+        let chunkIndex = 0;
+        
+        const speakNextChunk = () => {
+          // Check if this speech session has been superseded
+          if (currentSession !== speechSessionRef.current || chunkIndex >= chunks.length) {
+            // Session canceled or all chunks complete - restore music
+            if (musicGainRef.current && audioContextRef.current) {
+              setTimeout(() => {
+                try {
+                  musicGainRef.current!.gain.linearRampToValueAtTime(
+                    settings.masterVolume * 0.15,
+                    audioContextRef.current!.currentTime + 0.5
+                  );
+                } catch (e) {}
+              }, 100);
+            }
+            return;
+          }
+          
+          const chunkUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+          chunkUtterance.rate = voiceConfig.rate;
+          chunkUtterance.pitch = voiceConfig.pitch;
+          chunkUtterance.volume = settings.masterVolume;
+          if (selectedVoice) {
+            chunkUtterance.voice = selectedVoice;
+            chunkUtterance.lang = 'en-GB';
+          }
+          
+          chunkUtterance.onend = () => {
+            chunkIndex++;
+            speakNextChunk();
+          };
+          
+          synth.speak(chunkUtterance);
+        };
+        
+        // Start speaking first chunk
+        speakNextChunk();
       };
 
       // Handle voice loading
@@ -779,7 +849,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (!settings.characterVoiceEnabled || settings.focusModeEnabled || !speechSynthRef.current) return;
 
     const synth = speechSynthRef.current;
-    synth.cancel(); // Stop any current speech
+    cancelSpeech(); // Stop any current speech and invalidate sessions
+
+    // Create unique session ID to detect if this speech has been superseded
+    const currentSession = speechSessionRef.current;
 
     // Duck background music during speech
     if (musicGainRef.current && audioContextRef.current) {
@@ -853,21 +926,79 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         utterance.lang = 'en-GB'; // British English pronunciation
       }
 
-      utterance.onend = () => {
-        // Restore background music volume after speech
-        if (musicGainRef.current && audioContextRef.current) {
-          setTimeout(() => {
-            try {
-              musicGainRef.current!.gain.linearRampToValueAtTime(
-                settings.masterVolume * 0.15,
-                audioContextRef.current!.currentTime + 0.5
-              );
-            } catch (e) {}
-          }, 100);
+      // Split long text into chunks to prevent browser truncation
+      const chunkText = (text: string, maxLength: number = 200): string[] => {
+        if (text.length <= maxLength) return [text];
+        
+        const chunks: string[] = [];
+        let currentPos = 0;
+        
+        while (currentPos < text.length) {
+          let endPos = currentPos + maxLength;
+          
+          // If we're not at the end, try to break at a sentence or phrase boundary
+          if (endPos < text.length) {
+            const remainingText = text.substring(currentPos, endPos);
+            const lastPeriod = remainingText.lastIndexOf('. ');
+            const lastComma = remainingText.lastIndexOf(', ');
+            const lastSpace = remainingText.lastIndexOf(' ');
+            
+            if (lastPeriod > maxLength * 0.5) {
+              endPos = currentPos + lastPeriod + 2;
+            } else if (lastComma > maxLength * 0.5) {
+              endPos = currentPos + lastComma + 2;
+            } else if (lastSpace > maxLength * 0.5) {
+              endPos = currentPos + lastSpace + 1;
+            }
+          }
+          
+          chunks.push(text.substring(currentPos, Math.min(endPos, text.length)));
+          currentPos = endPos;
         }
+        
+        return chunks;
       };
-
-      synth.speak(utterance);
+      
+      // Speak text chunks sequentially
+      const chunks = chunkText(message);
+      let chunkIndex = 0;
+      
+      const speakNextChunk = () => {
+        // Check if this speech session has been superseded
+        if (currentSession !== speechSessionRef.current || chunkIndex >= chunks.length) {
+          // Session canceled or all chunks complete - restore music
+          if (musicGainRef.current && audioContextRef.current) {
+            setTimeout(() => {
+              try {
+                musicGainRef.current!.gain.linearRampToValueAtTime(
+                  settings.masterVolume * 0.15,
+                  audioContextRef.current!.currentTime + 0.5
+                );
+              } catch (e) {}
+            }, 100);
+          }
+          return;
+        }
+        
+        const chunkUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+        chunkUtterance.rate = 0.75;
+        chunkUtterance.pitch = 1.0;
+        chunkUtterance.volume = settings.masterVolume;
+        if (selectedVoice) {
+          chunkUtterance.voice = selectedVoice;
+          chunkUtterance.lang = 'en-GB';
+        }
+        
+        chunkUtterance.onend = () => {
+          chunkIndex++;
+          speakNextChunk();
+        };
+        
+        synth.speak(chunkUtterance);
+      };
+      
+      // Start speaking first chunk
+      speakNextChunk();
     };
 
     // Handle voice loading
