@@ -11,19 +11,33 @@ interface SplashScreenProps {
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [timeLeft, setTimeLeft] = useState(10);
   const [isVisible, setIsVisible] = useState(true);
+  const [audioStarted, setAudioStarted] = useState(false);
   const { startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
 
-  useEffect(() => {
-    // Start pirate adventure music immediately
+  // Initialize audio and start countdown when user clicks
+  const handleStart = () => {
+    if (audioStarted) return;
+    setAudioStarted(true);
+    
+    // Start pirate adventure music
     startBackgroundMusic('pirate_adventure');
     
     // Play seagull sound for pirate harbor atmosphere
     playAudioFile(seagullSound, 0.4);
     
     // Red Boot welcome after a short delay
-    const voiceTimer = setTimeout(() => {
+    setTimeout(() => {
       playCharacterVoice('red_boot_ahoy');
     }, 1500);
+    
+    // Play another seagull sound mid-way through countdown
+    setTimeout(() => {
+      playAudioFile(seagullSound, 0.3);
+    }, 5000);
+  };
+
+  useEffect(() => {
+    if (!audioStarted) return;
 
     // Countdown timer
     const timer = setInterval(() => {
@@ -38,18 +52,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         return prev - 1;
       });
     }, 1000);
-    
-    // Play another seagull sound mid-way through countdown
-    const seagullTimer = setTimeout(() => {
-      playAudioFile(seagullSound, 0.3);
-    }, 5000);
 
     return () => {
       clearInterval(timer);
-      clearTimeout(voiceTimer);
-      clearTimeout(seagullTimer);
     };
-  }, [startBackgroundMusic, playCharacterVoice, playAudioFile, onComplete]);
+  }, [audioStarted, onComplete]);
 
   return (
     <div 
@@ -154,24 +161,39 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
 
         {/* Pirate-themed loading text - bigger */}
-        <div className="mb-4 sm:mb-6">
-          <div className="text-xl sm:text-2xl md:text-3xl text-white font-bold drop-shadow-xl font-sans">
-            <div className="flex items-center justify-center gap-3">
-              <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
-              <span className="text-center">Preparing the ship for adventure...</span>
-              <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
+        {audioStarted ? (
+          <div className="mb-4 sm:mb-6">
+            <div className="text-xl sm:text-2xl md:text-3xl text-white font-bold drop-shadow-xl font-sans">
+              <div className="flex items-center justify-center gap-3">
+                <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
+                <span className="text-center">Preparing the ship for adventure...</span>
+                <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="mb-4 sm:mb-6">
+            <button
+              onClick={handleStart}
+              className="bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-4 px-8 rounded-full text-2xl sm:text-3xl shadow-2xl transform hover:scale-105 transition-all duration-200 border-4 border-green-300 animate-pulse"
+              style={{ fontFamily: "'Pirata One', cursive" }}
+              data-testid="button-start-splash"
+            >
+              🏴‍☠️ Tap to Start! 🏴‍☠️
+            </button>
+          </div>
+        )}
 
         {/* Countdown with treasure chest style */}
-        <div className="flex justify-center items-center">
-          <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-24 h-24 flex items-center justify-center border-4 border-yellow-600 shadow-xl transform animate-bounce">
-            <span className="text-4xl font-bold text-white drop-shadow-lg">
-              {timeLeft}
-            </span>
+        {audioStarted && (
+          <div className="flex justify-center items-center">
+            <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-24 h-24 flex items-center justify-center border-4 border-yellow-600 shadow-xl transform animate-bounce">
+              <span className="text-4xl font-bold text-white drop-shadow-lg">
+                {timeLeft}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Magical sparkles */}
         <div className="absolute inset-0 pointer-events-none">
