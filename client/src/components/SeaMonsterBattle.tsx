@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
 import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
@@ -63,7 +63,10 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [defeatedTreasures, setDefeatedTreasures] = useState<string[]>([]);
   const [currentlyBattling, setCurrentlyBattling] = useState<string | null>(null);
-  const [totalCorrectAnswers, setTotalCorrectAnswers] = useState(0);
+  
+  // Use ref to track previous masteredWords to prevent infinite loops
+  const prevMasteredWordsRef = useRef(0);
+  const initialNodesRef = useRef<typeof DEFAULT_MONSTER_NODES>([]);
 
   // Initialize/update monster nodes when totalWords changes
   useEffect(() => {
@@ -75,47 +78,57 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
         isRevealed: false
       }));
       setMonsterNodes(newMonsters);
+      // Store initial nodes in ref
+      initialNodesRef.current = DEFAULT_MONSTER_NODES.slice(0, Math.min(totalWords, 8));
       // Set initial Diego position to first monster
       if (newMonsters.length > 0) {
         setDiegoPosition({ x: newMonsters[0].x, y: newMonsters[0].y });
       }
+      // Reset prev mastered words when word list changes
+      prevMasteredWordsRef.current = 0;
     }
   }, [totalWords]);
 
-  // Handle word mastery progression
+  // Handle word mastery progression - only trigger when masteredWords actually increases
   useEffect(() => {
-    if (masteredWords > totalCorrectAnswers && currentMonsterIndex < monsterNodes.length) {
-      const nextMonsterIndex = Math.min(masteredWords - 1, monsterNodes.length - 1);
-      const nextMonster = monsterNodes[nextMonsterIndex];
+    if (masteredWords > prevMasteredWordsRef.current && masteredWords > 0) {
+      const nextMonsterIndex = Math.min(masteredWords - 1, initialNodesRef.current.length - 1);
+      const nextMonsterTemplate = initialNodesRef.current[nextMonsterIndex];
       
-      // Move Diego to next monster position
-      setDiegoPosition({ x: nextMonster.x, y: nextMonster.y });
-      setCurrentMonsterIndex(nextMonsterIndex);
-      setTotalCorrectAnswers(masteredWords);
-      
-      // Diego barks when starting the battle!
-      playAudioFile(diegoBarkSound, 0.4, true); // Play from middle at 40% volume
-      
-      // Start battle animation
-      setCurrentlyBattling(nextMonster.id);
-      setMonsterNodes(prev => prev.map(node => 
-        node.id === nextMonster.id ? { ...node, isBattling: true } : node
-      ));
+      if (nextMonsterTemplate) {
+        // Move Diego to next monster position
+        setDiegoPosition({ x: nextMonsterTemplate.x, y: nextMonsterTemplate.y });
+        setCurrentMonsterIndex(nextMonsterIndex);
+        
+        // Diego barks when starting the battle!
+        playAudioFile(diegoBarkSound, 0.4, true);
+        
+        // Start battle animation using functional update
+        const monsterId = `monster-${nextMonsterIndex + 1}`;
+        setCurrentlyBattling(monsterId);
+        setMonsterNodes(prev => prev.map(node => 
+          node.id === monsterId ? { ...node, isBattling: true } : node
+        ));
+        
+        // Update ref to current value
+        prevMasteredWordsRef.current = masteredWords;
+      }
     }
-  }, [masteredWords, totalCorrectAnswers, currentMonsterIndex, monsterNodes, playAudioFile]);
+  }, [masteredWords, playAudioFile]);
 
   // Handle external treasure unlocking
   useEffect(() => {
-    if (treasureJustUnlocked && currentMonsterIndex < monsterNodes.length) {
-      const currentMonster = monsterNodes[currentMonsterIndex];
-      if (currentMonster && !currentMonster.isBattling) {
-        setCurrentlyBattling(currentMonster.id);
+    if (treasureJustUnlocked && currentMonsterIndex < initialNodesRef.current.length) {
+      const currentMonsterTemplate = initialNodesRef.current[currentMonsterIndex];
+      if (currentMonsterTemplate) {
+        const monsterId = `monster-${currentMonsterIndex + 1}`;
+        setCurrentlyBattling(monsterId);
         setMonsterNodes(prev => prev.map(node => 
-          node.id === currentMonster.id ? { ...node, isBattling: true } : node
+          node.id === monsterId && !node.isBattling ? { ...node, isBattling: true } : node
         ));
       }
     }
-  }, [treasureJustUnlocked, currentMonsterIndex, monsterNodes]);
+  }, [treasureJustUnlocked, currentMonsterIndex]);
 
   const handleBattleComplete = (monsterId: string) => {
     const monster = monsterNodes.find(n => n.id === monsterId);
