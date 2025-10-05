@@ -70,14 +70,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { childName, gradeLevel, skip } = req.body;
       
-      // If skipping, just set onboardingComplete to true
+      // If skipping, save gradeLevel but use default child name
       if (skip) {
-        const updatedUser = await storage.updateUserOnboarding(playerId, undefined, undefined, true);
+        const defaultChildName = "My Child";
+        const updatedUser = await storage.updateUserOnboarding(playerId, defaultChildName, gradeLevel, true);
         return res.json({ user: updatedUser });
       }
 
-      // Otherwise save the data
-      const updatedUser = await storage.updateUserOnboarding(playerId, childName, gradeLevel, true);
+      // Otherwise save the data (childName optional, gradeLevel required)
+      const finalChildName = childName && childName.trim() ? childName.trim() : "My Child";
+      const updatedUser = await storage.updateUserOnboarding(playerId, finalChildName, gradeLevel, true);
       res.json({ user: updatedUser });
     } catch (error) {
       console.error("Error saving onboarding data:", error);

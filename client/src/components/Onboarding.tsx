@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight, ChevronLeft, Anchor, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -15,9 +16,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [screen, setScreen] = useState<1 | 2>(1);
   const [childName, setChildName] = useState("");
   const [gradeLevel, setGradeLevel] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     // Grade level is required even when skipping
     if (!gradeLevel) {
       toast({
@@ -28,14 +30,34 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       return;
     }
     
-    // Save grade level (child name is optional)
-    localStorage.setItem('redboot-onboarding-complete', 'true');
-    localStorage.setItem('redboot-grade-level', gradeLevel);
+    setIsSaving(true);
     
-    onComplete();
+    try {
+      // Save to database via API - send skip: true with gradeLevel
+      await apiRequest('POST', '/api/onboarding', {
+        gradeLevel,
+        skip: true
+      });
+      
+      // Save to localStorage
+      localStorage.setItem('redboot-onboarding-complete', 'true');
+      localStorage.setItem('redboot-grade-level', gradeLevel);
+      
+      onComplete();
+    } catch (error: any) {
+      console.error('Onboarding save error:', error);
+      const errorMessage = error?.message || "Failed to save onboarding data. Please try again.";
+      toast({
+        title: "Save Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleStartAdventure = () => {
+  const handleStartAdventure = async () => {
     if (!gradeLevel) {
       toast({
         title: "Grade level required",
@@ -45,14 +67,35 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       return;
     }
     
-    // Save to localStorage
-    localStorage.setItem('redboot-onboarding-complete', 'true');
-    if (childName.trim()) {
-      localStorage.setItem('redboot-child-name', childName.trim());
-    }
-    localStorage.setItem('redboot-grade-level', gradeLevel);
+    setIsSaving(true);
     
-    onComplete();
+    try {
+      // Save to database via API
+      await apiRequest('POST', '/api/onboarding', {
+        childName: childName.trim() || undefined,
+        gradeLevel,
+        skip: false
+      });
+      
+      // Save to localStorage
+      localStorage.setItem('redboot-onboarding-complete', 'true');
+      if (childName.trim()) {
+        localStorage.setItem('redboot-child-name', childName.trim());
+      }
+      localStorage.setItem('redboot-grade-level', gradeLevel);
+      
+      onComplete();
+    } catch (error: any) {
+      console.error('Onboarding save error:', error);
+      const errorMessage = error?.message || "Failed to save onboarding data. Please try again.";
+      toast({
+        title: "Save Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -226,6 +269,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     variant="outline"
                     size="lg"
                     className="flex-1"
+                    disabled={isSaving}
                     data-testid="button-back"
                   >
                     <ChevronLeft className="w-5 h-5 mr-2" />
@@ -236,18 +280,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     variant="ghost"
                     size="lg"
                     className="flex-1"
+                    disabled={isSaving}
                     data-testid="button-skip"
                   >
-                    Skip for Now
+                    {isSaving ? "Saving..." : "Skip for Now"}
                   </Button>
                   <Button
                     onClick={handleStartAdventure}
+                    disabled={isSaving}
                     size="lg"
                     className="flex-1 font-bold text-lg"
                     data-testid="button-start-adventure"
                   >
                     <Anchor className="w-5 h-5 mr-2" />
-                    Start Adventure!
+                    {isSaving ? "Saving..." : "Start Adventure!"}
                   </Button>
                 </div>
               </div>
