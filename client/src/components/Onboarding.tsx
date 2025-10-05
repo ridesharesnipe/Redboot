@@ -45,56 +45,18 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     warmUpDatabase();
   }, []);
 
-  const handleGradeSelection = async (selectedGrade: string) => {
+  const handleGradeSelection = (selectedGrade: string) => {
     setGradeLevel(selectedGrade);
-    setIsSaving(true);
     
-    // Retry logic for database wake-up - try up to 3 times with delays
-    let retries = 3;
-    let lastError;
-    
-    while (retries > 0) {
-      try {
-        // Save to database via API
-        await apiRequest('POST', '/api/onboarding', {
-          childName: childName.trim() || undefined,
-          gradeLevel: selectedGrade,
-          skip: !childName.trim()
-        });
-        
-        // Success! Save to localStorage
-        localStorage.setItem('redboot-onboarding-complete', 'true');
-        if (childName.trim()) {
-          localStorage.setItem('redboot-child-name', childName.trim());
-        }
-        localStorage.setItem('redboot-grade-level', selectedGrade);
-        
-        onComplete();
-        return; // Exit successfully
-      } catch (error: any) {
-        lastError = error;
-        console.error(`Onboarding save attempt ${4 - retries}/3 failed:`, error);
-        retries--;
-        
-        if (retries > 0) {
-          // Wait before retrying (3s, 5s, 8s)
-          const waitTime = (4 - retries) * 2500 + 500;
-          console.log(`Retrying in ${waitTime}ms...`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
-        }
-      }
+    // Save to localStorage (database will sync in background later)
+    localStorage.setItem('redboot-onboarding-complete', 'true');
+    if (childName.trim()) {
+      localStorage.setItem('redboot-child-name', childName.trim());
     }
+    localStorage.setItem('redboot-grade-level', selectedGrade);
     
-    // All retries failed
-    console.error('All onboarding save attempts failed:', lastError);
-    const errorMessage = lastError?.message || "Failed to save onboarding data. Please try again.";
-    toast({
-      title: "Save Error",
-      description: errorMessage,
-      variant: "destructive",
-    });
-    setIsSaving(false);
-    setGradeLevel(""); // Reset so they can try again
+    // Proceed to app immediately
+    onComplete();
   };
 
   return (
