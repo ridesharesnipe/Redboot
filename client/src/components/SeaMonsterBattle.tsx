@@ -60,9 +60,10 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   const { playAudioFile } = useAudio();
   const [diegoPosition, setDiegoPosition] = useState({ x: 10, y: 80 });
   const [monsterNodes, setMonsterNodes] = useState<SeaMonsterNode[]>([]);
+  const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [defeatedTreasures, setDefeatedTreasures] = useState<string[]>([]);
   const [currentlyBattling, setCurrentlyBattling] = useState<string | null>(null);
-  const [lastProcessedMastery, setLastProcessedMastery] = useState(0);
+  const [totalCorrectAnswers, setTotalCorrectAnswers] = useState(0);
 
   // Initialize/update monster nodes when totalWords changes
   useEffect(() => {
@@ -78,45 +79,43 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
       if (newMonsters.length > 0) {
         setDiegoPosition({ x: newMonsters[0].x, y: newMonsters[0].y });
       }
-      // Reset mastery tracking when word list changes
-      setLastProcessedMastery(0);
     }
   }, [totalWords]);
 
-  // Handle word mastery progression - simple state-based tracking
+  // Handle word mastery progression
   useEffect(() => {
-    if (masteredWords > lastProcessedMastery && masteredWords > 0) {
-      // Use functional update to get current monsterNodes without including in deps
-      setMonsterNodes(prev => {
-        if (prev.length === 0) return prev;
-        
-        const nextMonsterIndex = Math.min(masteredWords - 1, prev.length - 1);
-        const nextMonster = prev[nextMonsterIndex];
-        
-        if (nextMonster) {
-          // Move Diego to next monster position
-          setDiegoPosition({ x: nextMonster.x, y: nextMonster.y });
-          
-          // Diego barks when starting the battle!
-          playAudioFile(diegoBarkSound, 0.4, true);
-          
-          // Start battle animation
-          setCurrentlyBattling(nextMonster.id);
-          
-          // Update last processed to prevent re-processing
-          setLastProcessedMastery(masteredWords);
-          
-          // Return updated nodes with battling state
-          return prev.map(node => 
-            node.id === nextMonster.id ? { ...node, isBattling: true } : node
-          );
-        }
-        return prev;
-      });
+    if (masteredWords > totalCorrectAnswers && currentMonsterIndex < monsterNodes.length) {
+      const nextMonsterIndex = Math.min(masteredWords - 1, monsterNodes.length - 1);
+      const nextMonster = monsterNodes[nextMonsterIndex];
+      
+      // Move Diego to next monster position
+      setDiegoPosition({ x: nextMonster.x, y: nextMonster.y });
+      setCurrentMonsterIndex(nextMonsterIndex);
+      setTotalCorrectAnswers(masteredWords);
+      
+      // Diego barks when starting the battle!
+      playAudioFile(diegoBarkSound, 0.4, true); // Play from middle at 40% volume
+      
+      // Start battle animation
+      setCurrentlyBattling(nextMonster.id);
+      setMonsterNodes(prev => prev.map(node => 
+        node.id === nextMonster.id ? { ...node, isBattling: true } : node
+      ));
     }
-  }, [masteredWords, lastProcessedMastery, playAudioFile]);
+  }, [masteredWords, totalCorrectAnswers, currentMonsterIndex, monsterNodes.length, playAudioFile]);
 
-  // Handle external treasure unlocking (simplified - no longer needed with mastery-based progression)
+  // Handle external treasure unlocking
+  useEffect(() => {
+    if (treasureJustUnlocked && currentMonsterIndex < monsterNodes.length) {
+      const currentMonster = monsterNodes[currentMonsterIndex];
+      if (currentMonster && !currentMonster.isBattling) {
+        setCurrentlyBattling(currentMonster.id);
+        setMonsterNodes(prev => prev.map(node => 
+          node.id === currentMonster.id ? { ...node, isBattling: true } : node
+        ));
+      }
+    }
+  }, [treasureJustUnlocked, currentMonsterIndex, monsterNodes]);
 
   const handleBattleComplete = (monsterId: string) => {
     const monster = monsterNodes.find(n => n.id === monsterId);
