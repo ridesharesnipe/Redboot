@@ -304,14 +304,6 @@ export default function PhotoCapturePage() {
                         Upload Another Photo
                       </Button>
                       <Button 
-                        onClick={handleSaveWords}
-                        className="bg-emerald-500 text-white hover:bg-emerald-600 px-6 py-3 rounded-2xl font-bold"
-                        data-testid="button-save-words"
-                      >
-                        <i className="lni lni-save mr-2" style={{ fontSize: '1.25rem' }}></i>
-                        Save Flashcards
-                      </Button>
-                      <Button 
                         onClick={handleStartPractice}
                         disabled={isSaving}
                         className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 px-6 py-3 rounded-2xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
@@ -335,7 +327,12 @@ export default function PhotoCapturePage() {
               </div>
 
               {/* Flashcard Grid */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border-2 border-blue-200">
+              <div className="bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-400 backdrop-blur-sm rounded-3xl p-8 border-4 border-yellow-300 shadow-2xl relative overflow-hidden">
+                {/* Decorative elements */}
+                <div className="absolute top-4 left-4 text-6xl opacity-20">🗺️</div>
+                <div className="absolute bottom-4 right-4 text-6xl opacity-20">💎</div>
+                <div className="absolute top-1/2 right-8 text-5xl opacity-10 transform -rotate-12">⚓</div>
+                
                 <FlashcardGrid
                   words={extractedWords}
                   onRemoveWord={removeWord}
