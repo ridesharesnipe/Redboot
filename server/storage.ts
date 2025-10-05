@@ -67,8 +67,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrCreateUser(id: string, sessionToken: string): Promise<User> {
-    // Retry logic for transient database connection issues - increased for mobile devices
-    let retries = 5; // Increased from 3 to 5 for better mobile reliability
+    // Retry logic for transient database connection issues - Neon can take 30+ seconds to wake from sleep
+    let retries = 5;
     let lastError;
     
     while (retries > 0) {
@@ -99,8 +99,9 @@ export class DatabaseStorage implements IStorage {
         console.error(`❌ Error details:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
         retries--;
         if (retries > 0) {
-          const waitTime = retries > 2 ? 1500 : 3000; // Wait 1.5s for first retries, 3s for final retries
-          console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+          // Exponential backoff: 5s, 8s, 12s, 20s - allows up to 45 seconds total for database wake-up
+          const waitTime = 5000 + (5 - retries) * 4000;
+          console.log(`⏳ Waiting ${waitTime}ms before retry (database may be waking from sleep)...`);
           await new Promise(resolve => setTimeout(resolve, waitTime));
         }
       }
