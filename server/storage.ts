@@ -67,8 +67,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrCreateUser(id: string, sessionToken: string): Promise<User> {
-    // Retry logic for transient database connection issues
-    let retries = 3;
+    // Retry logic for transient database connection issues - increased for mobile devices
+    let retries = 5; // Increased from 3 to 5 for better mobile reliability
     let lastError;
     
     while (retries > 0) {
@@ -95,18 +95,19 @@ export class DatabaseStorage implements IStorage {
         return newUser;
       } catch (error: any) {
         lastError = error;
-        console.error(`❌ Database error in getOrCreateUser (attempt ${4 - retries}/3):`, error);
+        console.error(`❌ Database error in getOrCreateUser (attempt ${6 - retries}/5):`, error);
         console.error(`❌ Error details:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
         retries--;
         if (retries > 0) {
-          console.log(`⏳ Waiting 2 seconds before retry...`);
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+          const waitTime = retries > 2 ? 1500 : 3000; // Wait 1.5s for first retries, 3s for final retries
+          console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
         }
       }
     }
     
     console.error('❌ All retry attempts failed in getOrCreateUser');
-    throw new Error(`Failed to create user after 3 attempts: ${lastError?.message || String(lastError)}`);
+    throw new Error(`Failed to create user after 5 attempts: ${lastError?.message || String(lastError)}`);
   }
 
   async validateSession(id: string, sessionToken: string): Promise<boolean> {

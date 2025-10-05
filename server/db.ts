@@ -8,7 +8,12 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Use HTTP connection instead of WebSocket for better stability
-const sql = neon(process.env.DATABASE_URL);
+// Use HTTP connection with extended timeout for mobile devices
+const sql = neon(process.env.DATABASE_URL, {
+  fetchOptions: {
+    // Increase timeout to 10 seconds for slow mobile connections
+    signal: AbortSignal.timeout(10000)
+  }
+});
 
 export const db = drizzle(sql, { schema });
