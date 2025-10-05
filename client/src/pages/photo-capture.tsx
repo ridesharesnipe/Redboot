@@ -96,12 +96,18 @@ export default function PhotoCapturePage() {
 
 
   const handleImageCapture = (imageData: string) => {
-    setCapturedImage(imageData);
+    // Don't set capturedImage yet - let PhotoCapture stay mounted to show progress
+    // It will be set when words are extracted
+    setIsProcessing(true);
   };
 
-  const handleWordsExtracted = async (words: string[], shouldSaveToDb: boolean = false) => {
+  const handleWordsExtracted = async (words: string[], imageData: string, shouldSaveToDb: boolean = false) => {
     setExtractedWords(words);
     setIsProcessing(false);
+    // Set the captured image now that processing is complete
+    if (imageData && !capturedImage) {
+      setCapturedImage(imageData);
+    }
     
     // Only reset saved state if this is a new extraction (not a save confirmation)
     if (!shouldSaveToDb) {

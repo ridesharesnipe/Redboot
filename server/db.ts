@@ -8,12 +8,8 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Use HTTP connection with extended timeout for mobile devices
-const sql = neon(process.env.DATABASE_URL, {
-  fetchOptions: {
-    // Increase timeout to 10 seconds for slow mobile connections
-    signal: AbortSignal.timeout(10000)
-  }
-});
+// Use HTTP connection without timeout to handle Neon database wake-up from sleep
+// Neon databases can be suspended and may take 30+ seconds to reactivate
+const sql = neon(process.env.DATABASE_URL);
 
 export const db = drizzle(sql, { schema });

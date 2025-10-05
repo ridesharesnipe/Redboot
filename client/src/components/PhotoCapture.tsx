@@ -9,7 +9,7 @@ import { Upload, Check, X, Edit, Loader } from 'lucide-react';
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
-  onWordsExtracted: (words: string[], shouldSaveToDb?: boolean) => void;
+  onWordsExtracted: (words: string[], imageData: string, shouldSaveToDb?: boolean) => void;
   onCancel?: () => void;
 }
 
@@ -319,7 +319,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         setShowWordList(true);
         
         // CRITICAL FIX: Notify parent page of demo words (don't save to DB yet)
-        onWordsExtracted(demoWords, false);
+        onWordsExtracted(demoWords, capturedImage || '', false);
         
         playSound('ship_bell_success');
         toast({
@@ -341,7 +341,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setShowWordList(true);
 
       // CRITICAL FIX: Notify parent page of extracted words (don't save to DB yet)
-      onWordsExtracted(words, false);
+      onWordsExtracted(words, capturedImage || '', false);
 
       // Don't save to photoStorage here - wait for user confirmation in saveWords()
       
@@ -642,7 +642,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
     
     // CRITICAL FIX: Always notify parent of final confirmed words AND save to DB
-    onWordsExtracted(finalWords, true);
+    onWordsExtracted(finalWords, capturedImage || '', true);
     playSound('cannon_achievement');
     
     toast({
@@ -913,19 +913,19 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           {capturedImage ? (
             <div className="text-center">
               <div className="mb-6">
-                <div className="relative bg-white rounded-xl p-4 max-w-4xl mx-auto">
+                <div className="relative bg-white rounded-xl p-4 max-w-6xl mx-auto">
                   <img 
                     src={capturedImage} 
                     alt="Captured spelling list"
                     className="w-full h-auto rounded-lg shadow-2xl"
                     style={{
-                      maxHeight: '600px',
-                      minHeight: '400px',
+                      maxHeight: '800px',
+                      minHeight: '500px',
                       objectFit: 'contain'
                     }}
                   />
-                  <p className="text-center text-gray-500 mt-2 text-sm">
-                    Check that all words are visible
+                  <p className="text-center text-gray-500 mt-3 text-base font-medium">
+                    📸 Check that all words are clearly visible
                   </p>
                 </div>
               </div>
