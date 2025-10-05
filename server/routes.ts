@@ -258,8 +258,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const playerId = req.headers['x-player-id'] as string;
       const userData = await storage.getUser(playerId);
       
+      // If user doesn't exist yet, return empty treasure vault (all zeros)
       if (!userData) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.json({
+          redboot: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+          diego: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+        });
       }
 
       res.json({
