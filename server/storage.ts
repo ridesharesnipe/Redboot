@@ -163,17 +163,34 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({ 
-        childName: childName || null,
-        gradeLevel: gradeLevel || null,
-        onboardingComplete,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId))
-      .returning();
-    return user;
+    // Retry logic for transient database connection issues (e.g., waking from sleep)
+    let retries = 3;
+    let lastError;
+    
+    while (retries > 0) {
+      try {
+        const [user] = await db
+          .update(users)
+          .set({ 
+            childName: childName || null,
+            gradeLevel: gradeLevel || null,
+            onboardingComplete,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userId))
+          .returning();
+        return user;
+      } catch (error: any) {
+        lastError = error;
+        retries--;
+        if (retries > 0) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
+        }
+      }
+    }
+    
+    throw new Error(`Failed to update user onboarding after 3 retries: ${lastError?.message || 'Unknown error'}`);
   }
 
   async addTreasures(userId: string, character: 'redboot' | 'diego', totalAmount: number): Promise<User> {
