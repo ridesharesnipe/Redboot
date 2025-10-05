@@ -76,7 +76,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
-  const { playSound, playCharacterVoice, speakFeedback } = useAudio();
+  const { playSound, playCharacterVoice, speakFeedback, stopBackgroundMusic } = useAudio();
+  
+  // Stop background music and sounds when practice starts
+  useEffect(() => {
+    stopBackgroundMusic();
+  }, [stopBackgroundMusic]);
 
   // Escalating treasure reward system
   const getTreasureAmount = (correctCount: number): number => {
