@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronRight, ChevronLeft, Anchor, CheckCircle2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Anchor, CheckCircle2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -17,7 +17,30 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [childName, setChildName] = useState("");
   const [gradeLevel, setGradeLevel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isWarmingUp, setIsWarmingUp] = useState(true);
   const { toast } = useToast();
+
+  // Pre-warm database on mount to avoid cold start when grade is selected
+  useEffect(() => {
+    const warmUpDatabase = async () => {
+      try {
+        // Call /api/auth/user to wake up database and establish session
+        await fetch('/api/auth/user', {
+          headers: {
+            'X-Player-Id': localStorage.getItem('redboot-player-id') || '',
+            'X-Session-Token': localStorage.getItem('redboot-session-token') || '',
+          },
+        });
+        setIsWarmingUp(false);
+      } catch (error) {
+        console.error('Database warm-up error:', error);
+        // Still allow user to proceed even if warm-up fails
+        setIsWarmingUp(false);
+      }
+    };
+    
+    warmUpDatabase();
+  }, []);
 
   const handleGradeSelection = async (selectedGrade: string) => {
     setGradeLevel(selectedGrade);
@@ -192,13 +215,17 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     <Label htmlFor="grade-level" className="text-base font-semibold text-gray-700">
                       Grade Level <span className="text-red-600">* Required</span>
                     </Label>
-                    <Select value={gradeLevel} onValueChange={handleGradeSelection} disabled={isSaving}>
+                    <Select value={gradeLevel} onValueChange={handleGradeSelection} disabled={isSaving || isWarmingUp}>
                       <SelectTrigger 
                         id="grade-level" 
                         className="text-lg border-2 border-red-200"
                         data-testid="select-grade-level"
                       >
-                        <SelectValue placeholder={isSaving ? "Saving..." : "Select grade level *"} />
+                        <SelectValue placeholder={
+                          isSaving ? "Saving..." : 
+                          isWarmingUp ? "Preparing..." : 
+                          "Select grade level *"
+                        } />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="K">Kindergarten</SelectItem>
@@ -209,9 +236,16 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         <SelectItem value="5th">5th Grade</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-sm text-blue-600 font-semibold">
-                      ✨ Selecting a grade will automatically start your adventure!
-                    </p>
+                    {isWarmingUp ? (
+                      <p className="text-sm text-amber-600 font-semibold flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Getting ready... (waking up database)
+                      </p>
+                    ) : (
+                      <p className="text-sm text-blue-600 font-semibold">
+                        ✨ Selecting a grade will automatically start your adventure!
+                      </p>
+                    )}
                   </div>
                 </div>
 
