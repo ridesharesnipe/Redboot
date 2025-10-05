@@ -56,6 +56,11 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  // Set timeout to 60 seconds to allow for database wake-up from sleep
+  server.timeout = 60000;
+  server.headersTimeout = 61000; // Must be greater than timeout
+  server.requestTimeout = 60000;
+
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
