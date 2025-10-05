@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 5, 2025 - Atmospheric Sound Effects Integration
+- **Seagull Sounds on Splash Screen**: Ambient seagull calls play on the first-time visitor splash screen (plays at 0s and 5s during 10-second countdown)
+- **Seagull Sounds on Landing Page**: Periodic seagull calls every 15-25 seconds (randomized) for pirate harbor atmosphere with proper timer cleanup on navigation
+- **Harbor Waves on Photo Upload**: Dock/harbor water ambience plays on photo capture page for immersive pirate dock experience
+- **Audio Files**: seagull-sound-effect-272695.mp3 and amb_harbor_waves-24587.mp3 integrated via AudioContext playAudioFile()
+- **Technical Implementation**: Uses refs for timer management with proper cleanup to prevent audio leaks, browser-compatible TypeScript types
+
 ### October 3, 2025 - 3D Sea Monster Battle Enhancements
 - **3D Perspective System**: Added CSS 3D perspective (1200px) to battle container with transformStyle: 'preserve-3d' for depth effects
 - **3D Rolling Waves**: Ocean waves now use rotateX and translateZ animations to create waves rolling toward viewer
