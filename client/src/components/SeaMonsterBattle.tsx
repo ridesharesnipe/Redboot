@@ -102,7 +102,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
         node.id === nextMonster.id ? { ...node, isBattling: true } : node
       ));
     }
-  }, [masteredWords, totalCorrectAnswers, currentMonsterIndex, monsterNodes.length, playAudioFile]);
+  }, [masteredWords, totalCorrectAnswers, currentMonsterIndex, monsterNodes, playAudioFile]);
 
   // Handle external treasure unlocking
   useEffect(() => {
