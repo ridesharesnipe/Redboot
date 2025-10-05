@@ -13,14 +13,14 @@ interface OnboardingProps {
 }
 
 export default function Onboarding({ onComplete }: OnboardingProps) {
-  const [screen, setScreen] = useState<1 | 2>(1);
+  const [screen, setScreen] = useState<0 | 1 | 2>(0); // Start at 0 for loading screen
   const [childName, setChildName] = useState("");
   const [gradeLevel, setGradeLevel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isWarmingUp, setIsWarmingUp] = useState(true);
   const { toast } = useToast();
 
-  // Pre-warm database on mount to avoid cold start when grade is selected
+  // Pre-warm database on mount and auto-advance to screen 1 when ready
   useEffect(() => {
     const warmUpDatabase = async () => {
       try {
@@ -32,10 +32,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           },
         });
         setIsWarmingUp(false);
+        // Auto-advance to screen 1 once database is ready
+        setScreen(1);
       } catch (error) {
         console.error('Database warm-up error:', error);
         // Still allow user to proceed even if warm-up fails
         setIsWarmingUp(false);
+        setScreen(1);
       }
     };
     
@@ -102,21 +105,48 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       <div className="relative z-10 w-full max-w-2xl mx-auto">
         <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-4 border-yellow-400">
           <CardContent className="p-8">
-            {/* Progress dots */}
-            <div className="flex justify-center gap-2 mb-6">
-              <div 
-                className={`w-3 h-3 rounded-full transition-all ${
-                  screen === 1 ? 'bg-blue-600 w-8' : 'bg-gray-300'
-                }`}
-                data-testid="progress-dot-1"
-              />
-              <div 
-                className={`w-3 h-3 rounded-full transition-all ${
-                  screen === 2 ? 'bg-blue-600 w-8' : 'bg-gray-300'
-                }`}
-                data-testid="progress-dot-2"
-              />
-            </div>
+            {/* Progress dots - only show for screens 1 and 2 */}
+            {screen !== 0 && (
+              <div className="flex justify-center gap-2 mb-6">
+                <div 
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    screen === 1 ? 'bg-blue-600 w-8' : 'bg-gray-300'
+                  }`}
+                  data-testid="progress-dot-1"
+                />
+                <div 
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    screen === 2 ? 'bg-blue-600 w-8' : 'bg-gray-300'
+                  }`}
+                  data-testid="progress-dot-2"
+                />
+              </div>
+            )}
+
+            {/* Screen 0: Loading the Ship */}
+            {screen === 0 && (
+              <div className="space-y-8 text-center py-12" data-testid="onboarding-screen-loading">
+                <div>
+                  <h1 
+                    className="text-5xl sm:text-6xl font-bold text-blue-700 mb-6 drop-shadow-lg"
+                    style={{ fontFamily: "'Pirata One', cursive" }}
+                  >
+                    Loading the Ship...
+                  </h1>
+                  <div className="text-7xl mb-6 animate-bounce">⛵</div>
+                </div>
+
+                <div className="flex flex-col items-center gap-4">
+                  <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+                  <p className="text-xl text-gray-600 font-semibold">
+                    Preparing for your adventure...
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    (Waking up the database)
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Screen 1: Welcome + Science */}
             {screen === 1 && (
@@ -215,17 +245,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     <Label htmlFor="grade-level" className="text-base font-semibold text-gray-700">
                       Grade Level <span className="text-red-600">* Required</span>
                     </Label>
-                    <Select value={gradeLevel} onValueChange={handleGradeSelection} disabled={isSaving || isWarmingUp}>
+                    <Select value={gradeLevel} onValueChange={handleGradeSelection} disabled={isSaving}>
                       <SelectTrigger 
                         id="grade-level" 
                         className="text-lg border-2 border-red-200"
                         data-testid="select-grade-level"
                       >
-                        <SelectValue placeholder={
-                          isSaving ? "Saving..." : 
-                          isWarmingUp ? "Preparing..." : 
-                          "Select grade level *"
-                        } />
+                        <SelectValue placeholder={isSaving ? "Saving..." : "Select grade level *"} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="K">Kindergarten</SelectItem>
@@ -236,16 +262,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         <SelectItem value="5th">5th Grade</SelectItem>
                       </SelectContent>
                     </Select>
-                    {isWarmingUp ? (
-                      <p className="text-sm text-amber-600 font-semibold flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Getting ready... (waking up database)
-                      </p>
-                    ) : (
-                      <p className="text-sm text-blue-600 font-semibold">
-                        ✨ Selecting a grade will automatically start your adventure!
-                      </p>
-                    )}
+                    <p className="text-sm text-blue-600 font-semibold">
+                      ✨ Selecting a grade will automatically start your adventure!
+                    </p>
                   </div>
                 </div>
 
