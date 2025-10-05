@@ -728,7 +728,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               <div className="mb-4">
                 <p className="text-muted-foreground mb-2">The correct spelling is:</p>
                 <p className="text-3xl font-bold" style={{ fontFamily: 'var(--font-fun)' }}>
-                  {currentWord}
+                  {getCurrentWord()}
                 </p>
               </div>
             )}
