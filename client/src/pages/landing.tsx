@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import RedBootCharacter from "@/components/RedBootCharacter";
@@ -25,27 +25,41 @@ export default function Landing({ onStart }: LandingProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego' | null>(null);
   const { playSound, startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
   const [, setLocation] = useLocation();
+  const seagullTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
 
   // Periodic seagull sounds for atmosphere
   useEffect(() => {
     if (!audioInitialized) return;
     
+    isMountedRef.current = true;
+    
     const playSeagull = () => {
+      if (!isMountedRef.current) return;
       playAudioFile(seagullSound, 0.3);
     };
     
     // Play seagull sound every 15-25 seconds (random interval)
     const scheduleNextSeagull = () => {
+      if (!isMountedRef.current) return;
+      
       const delay = 15000 + Math.random() * 10000; // 15-25 seconds
-      return setTimeout(() => {
+      seagullTimerRef.current = setTimeout(() => {
+        if (!isMountedRef.current) return; // Guard at callback start
         playSeagull();
-        const nextTimer = scheduleNextSeagull();
-        return () => clearTimeout(nextTimer);
+        scheduleNextSeagull(); // Schedule the next one
       }, delay);
     };
     
-    const timer = scheduleNextSeagull();
-    return () => clearTimeout(timer);
+    scheduleNextSeagull(); // Start the scheduling
+    
+    return () => {
+      isMountedRef.current = false;
+      if (seagullTimerRef.current) {
+        clearTimeout(seagullTimerRef.current);
+        seagullTimerRef.current = null;
+      }
+    };
   }, [audioInitialized, playAudioFile]);
 
   // Initialize audio on first user interaction (mobile-friendly)
