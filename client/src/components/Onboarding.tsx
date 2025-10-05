@@ -19,62 +19,16 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  const handleSkip = async () => {
-    // Grade level is required even when skipping
-    if (!gradeLevel) {
-      toast({
-        title: "Grade level required",
-        description: "Please select your child's grade level before continuing. The child's name is optional.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSaving(true);
-    
-    try {
-      // Save to database via API - send skip: true with gradeLevel
-      await apiRequest('POST', '/api/onboarding', {
-        gradeLevel,
-        skip: true
-      });
-      
-      // Save to localStorage
-      localStorage.setItem('redboot-onboarding-complete', 'true');
-      localStorage.setItem('redboot-grade-level', gradeLevel);
-      
-      onComplete();
-    } catch (error: any) {
-      console.error('Onboarding save error:', error);
-      const errorMessage = error?.message || "Failed to save onboarding data. Please try again.";
-      toast({
-        title: "Save Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleStartAdventure = async () => {
-    if (!gradeLevel) {
-      toast({
-        title: "Grade level required",
-        description: "Please select your child's grade level to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+  const handleGradeSelection = async (selectedGrade: string) => {
+    setGradeLevel(selectedGrade);
     setIsSaving(true);
     
     try {
       // Save to database via API
       await apiRequest('POST', '/api/onboarding', {
         childName: childName.trim() || undefined,
-        gradeLevel,
-        skip: false
+        gradeLevel: selectedGrade,
+        skip: !childName.trim()
       });
       
       // Save to localStorage
@@ -82,7 +36,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       if (childName.trim()) {
         localStorage.setItem('redboot-child-name', childName.trim());
       }
-      localStorage.setItem('redboot-grade-level', gradeLevel);
+      localStorage.setItem('redboot-grade-level', selectedGrade);
       
       onComplete();
     } catch (error: any) {
@@ -93,7 +47,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
       setIsSaving(false);
     }
   };
@@ -239,13 +192,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     <Label htmlFor="grade-level" className="text-base font-semibold text-gray-700">
                       Grade Level <span className="text-red-600">* Required</span>
                     </Label>
-                    <Select value={gradeLevel} onValueChange={setGradeLevel}>
+                    <Select value={gradeLevel} onValueChange={handleGradeSelection} disabled={isSaving}>
                       <SelectTrigger 
                         id="grade-level" 
                         className="text-lg border-2 border-red-200"
                         data-testid="select-grade-level"
                       >
-                        <SelectValue placeholder="Select grade level *" />
+                        <SelectValue placeholder={isSaving ? "Saving..." : "Select grade level *"} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="K">Kindergarten</SelectItem>
@@ -256,44 +209,23 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         <SelectItem value="5th">5th Grade</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-sm text-red-600 font-semibold">
-                      ⚠️ Grade level is required for practice and testing
+                    <p className="text-sm text-blue-600 font-semibold">
+                      ✨ Selecting a grade will automatically start your adventure!
                     </p>
                   </div>
                 </div>
 
-                {/* Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                {/* Back Button */}
+                <div className="flex justify-center pt-4">
                   <Button
                     onClick={() => setScreen(1)}
                     variant="outline"
                     size="lg"
-                    className="flex-1"
                     disabled={isSaving}
                     data-testid="button-back"
                   >
                     <ChevronLeft className="w-5 h-5 mr-2" />
                     Back
-                  </Button>
-                  <Button
-                    onClick={handleSkip}
-                    variant="ghost"
-                    size="lg"
-                    className="flex-1"
-                    disabled={isSaving}
-                    data-testid="button-skip"
-                  >
-                    {isSaving ? "Saving..." : "Skip for Now"}
-                  </Button>
-                  <Button
-                    onClick={handleStartAdventure}
-                    disabled={isSaving}
-                    size="lg"
-                    className="flex-1 font-bold text-lg"
-                    data-testid="button-start-adventure"
-                  >
-                    <Anchor className="w-5 h-5 mr-2" />
-                    {isSaving ? "Saving..." : "Start Adventure!"}
                   </Button>
                 </div>
               </div>
