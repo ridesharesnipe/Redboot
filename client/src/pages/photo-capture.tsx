@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,9 @@ import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAudio } from "@/contexts/AudioContext";
 import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves, Loader } from "lucide-react";
+import harborWavesSound from "@assets/amb_harbor_waves-24587_1759648211592.mp3";
 
 // Calculate week number of the year (1-52)
 function getWeekNumber(date: Date): number {
@@ -21,6 +23,7 @@ function getWeekNumber(date: Date): number {
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { playAudioFile } = useAudio();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -32,6 +35,11 @@ export default function PhotoCapturePage() {
   const currentSaveTokenRef = useRef<string>(''); // Token for current save attempt
   const lastSavedTokenRef = useRef<string>(''); // Token of last SUCCESSFUL save
   const lastSavedWordListIdRef = useRef<string | null>(null);
+
+  // Play harbor waves ambient sound when page loads
+  useEffect(() => {
+    playAudioFile(harborWavesSound, 0.3);
+  }, [playAudioFile]);
 
   // Centralized save function with promise queuing to prevent race conditions
   const saveWords = async (wordsToSave: string[]) => {
