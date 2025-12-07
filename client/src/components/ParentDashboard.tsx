@@ -555,345 +555,320 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
   const readinessInfo = getReadinessMessage();
   const weekProgress = getWeekProgress();
+  const todayData = getTodaysPracticeData();
 
   return (
-    <div className="min-h-screen glass-gradient-bg p-6">
-      {/* Prominent Back Button */}
-      <div className="max-w-4xl mx-auto mb-4 flex gap-3">
-        <Button
-          onClick={() => window.location.href = '/'}
-          variant="outline"
-          className="bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 font-semibold px-6 py-3 shadow-lg"
-          data-testid="button-back-to-home"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Home
-        </Button>
-        <Button
-          onClick={() => {
-            // Clear onboarding flag to show it again
-            localStorage.removeItem('redboot-onboarding-complete');
-            window.location.href = '/';
-          }}
-          variant="outline"
-          className="bg-amber-500/90 hover:bg-amber-600 text-white font-semibold px-6 py-3 shadow-lg"
-          data-testid="button-update-child-info"
-        >
-          <Scroll className="w-5 h-5 mr-2" />
-          Update Child Info
-        </Button>
-      </div>
-      
-      <div className="max-w-4xl mx-auto space-y-8">
-      {/* TOP SECTION - Week Status */}
-      <Card className="glass-card glass-floating">
-        <CardContent className="p-8 text-center">
-          <h1 className="text-5xl font-bold mb-6 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-            ⚓ Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'} ⚓
-          </h1>
-          
-          {stats?.totalWords ? (
-            <div className="mb-6">
-              <div className="text-3xl mb-3 text-white glass-text-glow">✅ {stats.totalWords} words uploaded!</div>
-              <p className="text-white/80 text-xl">Ready for spelling practice!</p>
-            </div>
-          ) : (
-            <div className="mb-6">
-              <div className="text-3xl mb-3 text-white glass-text-glow">📸 Time for new words!</div>
-              <p className="text-white/80 text-xl">Upload this week's spelling list to start your adventure!</p>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {stats?.totalWords ? (
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Button 
-                  onClick={onViewPractice}
-                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow w-full sm:w-auto"
-                  data-testid="button-practice-now"
-                >
-                  🚀 Practice Now!
-                </Button>
-                <Button 
-                  onClick={() => setLocation('/vault')}
-                  variant="secondary"
-                  className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600 text-lg px-6 py-6"
-                  data-testid="button-treasure-vault"
-                >
-                  <Gem className="w-5 h-5 mr-2" />
-                  Treasure Vault
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Button 
-                  onClick={onTakePhoto}
-                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow w-full sm:w-auto"
-                  data-testid="button-upload-words"
-                >
-                  📸 Upload This Week's Words
-                </Button>
-                <Button 
-                  onClick={() => setLocation('/vault')}
-                  variant="secondary"
-                  className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600 text-lg px-6 py-6"
-                  data-testid="button-treasure-vault"
-                >
-                  <Gem className="w-5 h-5 mr-2" />
-                  Treasure Vault
-                </Button>
-              </div>
-            )}
+    <div className="min-h-screen aurora-bg p-4 md:p-6">
+      <div className="aurora-content">
+        {/* Header with navigation */}
+        <div className="max-w-6xl mx-auto mb-6 flex flex-wrap gap-3">
+          <Button
+            onClick={() => window.location.href = '/'}
+            className="clay-button clay-button-primary px-5 py-3 flex items-center gap-2 micro-bounce"
+            data-testid="button-back-to-home"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </Button>
+          <Button
+            onClick={() => {
+              localStorage.removeItem('redboot-onboarding-complete');
+              window.location.href = '/';
+            }}
+            className="clay-button clay-button-accent px-5 py-3 flex items-center gap-2 micro-bounce"
+            data-testid="button-update-child-info"
+          >
+            <Scroll className="w-5 h-5" />
+            Update Child Info
+          </Button>
+        </div>
+        
+        {/* Main Bento Grid Layout */}
+        <div className="max-w-6xl mx-auto">
+          <div className="bento-grid">
             
-            {stats?.totalWords && (
-              <div>
-                <Button 
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to clear all words and start fresh? This will delete all progress for this week.')) {
-                      // Clear all stored data
-                      localStorage.removeItem('currentSpellingWords');
-                      localStorage.removeItem('spellingProgress');
-                      localStorage.removeItem('weeklyStats');
-                      // Refresh the page to reset
-                      window.location.reload();
-                    }
-                  }}
-                  variant="outline"
-                  className="bg-red-500/20 hover:bg-red-500/30 text-white border-red-400 hover:border-red-300"
-                  data-testid="button-clear-words"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Clear All Words & Start Fresh
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* MIDDLE SECTION - Today's Progress (BIG and VISUAL) */}
-      {stats?.totalWords ? (
-        <Card className="glass-card glass-floating">
-          <CardContent className="p-8 text-center">
-            {(() => {
-              const todayData = getTodaysPracticeData();
-              return (
-                <>
+            {/* Hero Card - Week Status (spans 4 columns) */}
+            <div className="bento-span-4 clay-card slide-up-enter stagger-1 p-6 md:p-8">
+              <div className="text-center">
+                <h1 className="text-3xl md:text-5xl font-bold mb-4 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  ⚓ Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'} ⚓
+                </h1>
+                
+                {stats?.totalWords ? (
                   <div className="mb-6">
+                    <div className="text-2xl md:text-3xl mb-2 text-green-700 font-bold">✅ {stats.totalWords} words uploaded!</div>
+                    <p className="text-gray-600 text-lg">Ready for spelling practice!</p>
+                  </div>
+                ) : (
+                  <div className="mb-6">
+                    <div className="text-2xl md:text-3xl mb-2 text-amber-600 font-bold">📸 Time for new words!</div>
+                    <p className="text-gray-600 text-lg">Upload this week's spelling list to start your adventure!</p>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {stats?.totalWords ? (
+                    <>
+                      <Button 
+                        onClick={onViewPractice}
+                        className="clay-button px-8 py-4 text-xl sparkle-hover pulse-glow-success"
+                        data-testid="button-practice-now"
+                      >
+                        🚀 Practice Now!
+                      </Button>
+                      <Button 
+                        onClick={() => setLocation('/vault')}
+                        className="clay-button clay-button-accent px-8 py-4 text-xl sparkle-hover pulse-glow-gold"
+                        data-testid="button-treasure-vault"
+                      >
+                        <Gem className="w-6 h-6 inline mr-2" />
+                        Treasure Vault
+                      </Button>
+                      {stats?.readyForTest && new Date().getDay() === 5 && (
+                        <Button 
+                          onClick={onStartTest}
+                          className="clay-button px-8 py-4 text-xl sparkle-hover pulse-glow bg-gradient-to-r from-purple-500 to-pink-500"
+                          data-testid="button-take-test"
+                        >
+                          👑 Take Test!
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        onClick={onTakePhoto}
+                        className="clay-button clay-button-primary px-8 py-4 text-xl sparkle-hover pulse-glow"
+                        data-testid="button-upload-words"
+                      >
+                        📸 Upload This Week's Words
+                      </Button>
+                      <Button 
+                        onClick={() => setLocation('/vault')}
+                        className="clay-button clay-button-accent px-8 py-4 text-xl sparkle-hover"
+                        data-testid="button-treasure-vault"
+                      >
+                        <Gem className="w-6 h-6 inline mr-2" />
+                        Treasure Vault
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Today's Progress Card (spans 2 columns) */}
+            {stats?.totalWords ? (
+              <div className="bento-span-2 bento-row-2 clay-card slide-up-enter stagger-2 p-6">
+                <div className="text-center h-full flex flex-col justify-between">
+                  <div>
+                    <div className="text-4xl mb-3 icon-bounce inline-block">⛵</div>
+                    <h2 className="text-xl md:text-2xl font-bold mb-2 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
+                      Today's Journey
+                    </h2>
                     {todayData.wordsToday > 0 ? (
                       <>
-                        <h2 className="text-5xl font-bold mb-4 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-                          You spelled {todayData.correctToday} out of {todayData.wordsToday} words today!
-                        </h2>
-                        <p className="text-2xl text-white/80">
+                        <p className="text-3xl md:text-4xl font-bold text-green-600 mb-2">
+                          {todayData.correctToday}/{todayData.wordsToday}
+                        </p>
+                        <p className="text-gray-600">
                           {todayData.correctToday === todayData.wordsToday 
                             ? "Perfect spelling today! 🌟" 
                             : todayData.correctToday > todayData.wordsToday / 2
                             ? "Great job practicing! 🚀"
-                            : "Keep practicing - you're getting better! 💪"
+                            : "Keep practicing! 💪"
                           }
                         </p>
                       </>
                     ) : (
-                      <>
-                        <h2 className="text-5xl font-bold mb-4 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-                          Ready to practice today?
-                        </h2>
-                        <p className="text-2xl text-white/80">
-                          {stats.totalWords} spelling words are waiting for you! 📚✨
-                        </p>
-                      </>
+                      <p className="text-lg text-gray-500">Start practicing to begin your journey!</p>
                     )}
                   </div>
                   
-                  {/* Visual Progress Bar - Daily Progress */}
-                  <div className="mb-8">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-xl font-bold">🏴‍☠️</span>
-                      <span className="text-xl font-bold">🏝️</span>
+                  <div className="mt-4">
+                    <div className="relative h-4 bg-blue-100 rounded-full overflow-hidden">
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full transition-all duration-500"
+                        style={{ width: `${todayData.wordsToday > 0 ? Math.round((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100) : 0}%` }}
+                      />
                     </div>
-                    <div className="relative">
-                      {todayData.wordsToday > 0 ? (
-                        <>
-                          <Progress 
-                            value={Math.round((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100)} 
-                            className="h-8 bg-blue-200"
-                          />
-                          <div 
-                            className="absolute top-0 text-3xl transform -translate-y-1"
-                            style={{ 
-                              left: `${Math.min(Math.max((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100, 5), 95)}%`,
-                              transform: 'translateX(-50%) translateY(-10px)'
-                            }}
-                          >
-                            ⛵
-                          </div>
-                          <p className="text-lg mt-4 text-blue-100">
-                            {Math.round((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100)}% correct today!
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <Progress value={0} className="h-8 bg-blue-200" />
-                          <div className="absolute top-0 left-2 text-3xl transform -translate-y-1">⛵</div>
-                          <p className="text-lg mt-4 text-blue-100">Start practicing to begin your journey!</p>
-                        </>
-                      )}
-                    </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {todayData.wordsToday > 0 ? `${Math.round((todayData.correctToday / Math.max(todayData.wordsToday, 1)) * 100)}% correct` : 'No practice yet'}
+                    </p>
                   </div>
-                  
-                  {/* Treasures Collected Today */}
-                  <div>
-                    <h3 className="text-2xl font-bold mb-4">Treasures Earned Today:</h3>
-                    <div className="flex justify-center gap-4 text-4xl">
-                      {todayData.treasuresEarned > 0 ? (
-                        Array.from({ length: Math.min(todayData.treasuresEarned, 8) }).map((_, i) => (
-                          <span key={i} className="animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>
-                            {['🪙', '💚', '❤️', '💎', '⭐', '👑', '🏆', '✨'][i % 8]}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-2xl text-blue-100">Practice spelling to earn treasures! 🏴‍☠️✨</span>
-                      )}
-                    </div>
-                    {todayData.treasuresEarned > 8 && (
-                      <p className="text-xl text-yellow-200 mt-2">
-                        +{todayData.treasuresEarned - 8} more treasures! 🎉
-                      </p>
-                    )}
-                  </div>
-                </>
-              );
-            })()}
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="bg-gradient-to-r from-orange-400 to-red-400 text-white shadow-xl">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
-              Ready to start your spelling adventure?
-            </h2>
-            <p className="text-2xl text-orange-100 mb-6">
-              Upload your spelling words to begin collecting treasures! 📸✨
-            </p>
-            <div className="text-6xl mb-4">🏴‍☠️</div>
-            <p className="text-xl text-orange-100">
-              Red Boot is waiting for you to start the adventure!
-            </p>
-          </CardContent>
-        </Card>
-      )}
+                </div>
+              </div>
+            ) : null}
 
-
-      {/* BOTTOM SECTION - Week Overview (SIMPLE) */}
-      {stats?.totalWords ? (
-        <Card className="glass-card glass-floating">
-          <CardHeader>
-            <CardTitle className="text-4xl font-bold text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-              🏴‍☠️ This Week's Practice 🏴‍☠️
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8">
-            <div className="space-y-6">
-              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day, index) => {
-                const practiced = stats?.daysThisWeek?.[index] || false;
-                const isToday = new Date().getDay() === (index + 1); // Monday is 1
-                const isFriday = index === 4;
-                const isFuture = new Date().getDay() < (index + 1);
+            {/* Treasures Card (spans 2 columns) */}
+            <div className="bento-span-2 bento-row-2 clay-card slide-up-enter stagger-3 p-6 bg-gradient-to-br from-amber-50 to-yellow-100">
+              <div className="text-center h-full flex flex-col justify-between">
+                <div>
+                  <div className="text-4xl mb-3 icon-bounce inline-block">💎</div>
+                  <h2 className="text-xl md:text-2xl font-bold mb-2 text-amber-800" style={{ fontFamily: 'var(--font-pirate)' }}>
+                    Treasures Today
+                  </h2>
+                </div>
                 
-                return (
-                  <div 
-                    key={day} 
-                    className={`flex items-center justify-between p-6 rounded-xl border-2 transition-all ${
-                      practiced 
-                        ? 'bg-green-100 border-green-400 text-green-800' 
-                        : isToday 
-                        ? 'bg-yellow-100 border-yellow-400 text-yellow-800 animate-pulse'
-                        : isFuture 
-                        ? 'bg-gray-100 border-gray-300 text-gray-500'
-                        : isFriday
-                        ? 'bg-red-100 border-red-400 text-red-800'
-                        : 'bg-blue-100 border-blue-300 text-blue-800'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`text-4xl ${
-                        practiced 
-                          ? '✅'
-                          : isToday 
-                          ? '👆'
-                          : isFriday 
-                          ? '👑'
-                          : isFuture 
-                          ? '⏳'
-                          : '📚'
-                      }`}>
+                <div className="flex flex-wrap justify-center gap-2 my-4">
+                  {todayData.treasuresEarned > 0 ? (
+                    Array.from({ length: Math.min(todayData.treasuresEarned, 8) }).map((_, i) => (
+                      <span key={i} className="text-3xl animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>
+                        {['🪙', '💚', '❤️', '💎', '⭐', '👑', '🏆', '✨'][i % 8]}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">Spell words correctly to earn treasures!</p>
+                  )}
+                </div>
+                
+                {todayData.treasuresEarned > 8 && (
+                  <p className="text-amber-700 font-bold">
+                    +{todayData.treasuresEarned - 8} more! 🎉
+                  </p>
+                )}
+                
+                <Button 
+                  onClick={() => setLocation('/vault')}
+                  className="clay-button clay-button-accent px-6 py-3 text-lg mt-2 micro-bounce"
+                  data-testid="button-view-vault"
+                >
+                  View Vault 💰
+                </Button>
+              </div>
+            </div>
+
+            {/* Weekly Schedule Cards */}
+            {stats?.totalWords ? (
+              <>
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, index) => {
+                  const practiced = stats?.daysThisWeek?.[index] || false;
+                  const isToday = new Date().getDay() === (index + 1);
+                  const isFriday = index === 4;
+                  const isFuture = new Date().getDay() < (index + 1);
+                  
+                  let cardStyle = "clay-card slide-up-enter p-4 text-center";
+                  let bgStyle = "";
+                  let textColor = "text-gray-800";
+                  
+                  if (practiced) {
+                    bgStyle = "bg-gradient-to-br from-green-100 to-emerald-100";
+                    textColor = "text-green-800";
+                  } else if (isToday) {
+                    bgStyle = "bg-gradient-to-br from-yellow-100 to-amber-100";
+                    textColor = "text-amber-800";
+                  } else if (isFuture) {
+                    bgStyle = "bg-gradient-to-br from-gray-50 to-gray-100";
+                    textColor = "text-gray-400";
+                  } else if (isFriday) {
+                    bgStyle = "bg-gradient-to-br from-purple-100 to-pink-100";
+                    textColor = "text-purple-800";
+                  } else {
+                    bgStyle = "bg-gradient-to-br from-blue-50 to-blue-100";
+                    textColor = "text-blue-800";
+                  }
+                  
+                  return (
+                    <div 
+                      key={day} 
+                      className={`${cardStyle} stagger-${index + 1} ${bgStyle} ${isToday ? 'pulse-glow-gold' : ''}`}
+                    >
+                      <div className={`text-2xl mb-2 ${practiced ? 'icon-bounce' : ''}`}>
                         {practiced ? '✅' : isToday ? '👆' : isFriday ? '👑' : isFuture ? '⏳' : '📚'}
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold">{day}:</div>
-                        <div className="text-xl">
-                          {practiced 
-                            ? `✓ Practiced! (Great job!)` 
-                            : isToday 
-                            ? 'Practice now!'
-                            : isFriday 
-                            ? 'Test Day!'
-                            : isFuture 
-                            ? '[Coming up]'
-                            : 'Ready to practice'
-                          }
-                        </div>
+                      <div className={`text-lg font-bold ${textColor}`}>{day}</div>
+                      <div className={`text-sm ${textColor} opacity-80`}>
+                        {practiced 
+                          ? 'Done!' 
+                          : isToday 
+                          ? 'Today!'
+                          : isFriday 
+                          ? 'Test'
+                          : isFuture 
+                          ? 'Soon'
+                          : 'Ready'
+                        }
                       </div>
+                      {isToday && !practiced && (
+                        <Button 
+                          onClick={onViewPractice}
+                          className="clay-button px-3 py-1 text-sm mt-2 micro-bounce"
+                          data-testid={`button-start-${day.toLowerCase()}`}
+                        >
+                          Start! 🚀
+                        </Button>
+                      )}
+                      {isFriday && stats?.readyForTest && (
+                        <Button 
+                          onClick={onStartTest}
+                          className="clay-button px-3 py-1 text-sm mt-2 micro-bounce bg-gradient-to-r from-purple-400 to-pink-400"
+                          data-testid={`button-test-${day.toLowerCase()}`}
+                        >
+                          Test! 👑
+                        </Button>
+                      )}
                     </div>
-                    
-                    {practiced && (
-                      <div className="text-lg font-bold text-green-700">
-                        {Math.max(1, Math.floor((stats?.masteredWords || 0) / 5))} words learned! 🌟
-                      </div>
-                    )}
-                    
-                    {isToday && !practiced && (
-                      <Button 
-                        onClick={onViewPractice}
-                        size="lg"
-                        className="text-xl px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
-                      >
-                        Start Today! 🚀
-                      </Button>
-                    )}
-                    
-                    {isFriday && stats?.readyForTest && (
-                      <Button 
-                        onClick={onStartTest}
-                        size="lg"
-                        className="text-xl px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-bold"
-                      >
-                        Take Test! 👑
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </>
+            ) : null}
+
+            {/* Help & Settings Card */}
+            <div className="bento-span-4 clay-card slide-up-enter stagger-6 p-4">
+              <div className="flex flex-wrap gap-3 justify-center items-center">
+                <Button 
+                  onClick={onViewGuide}
+                  className="clay-button clay-button-primary px-6 py-3 flex items-center gap-2 micro-bounce"
+                  data-testid="button-view-guide"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                  Need Help?
+                </Button>
+                
+                {stats?.totalWords && (
+                  <Button 
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to clear all words and start fresh? This will delete all progress for this week.')) {
+                        localStorage.removeItem('currentSpellingWords');
+                        localStorage.removeItem('spellingProgress');
+                        localStorage.removeItem('weeklyStats');
+                        window.location.reload();
+                      }
+                    }}
+                    variant="outline"
+                    className="px-6 py-3 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 transition-colors flex items-center gap-2"
+                    data-testid="button-clear-words"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                    Clear Words
+                  </Button>
+                )}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      ) : null}
+
+          </div>
+        </div>
+
+        {/* No words state - show prompt to upload */}
+        {!stats?.totalWords && (
+          <div className="max-w-6xl mx-auto mt-8">
+            <div className="clay-card p-8 text-center slide-up-enter">
+              <h2 className="text-3xl font-bold mb-4 text-amber-700" style={{ fontFamily: 'var(--font-pirate)' }}>
+                Ready to start your spelling adventure?
+              </h2>
+              <p className="text-xl text-gray-600 mb-6">
+                Upload your spelling words to begin collecting treasures! 📸✨
+              </p>
+              <div className="text-6xl mb-4">🏴‍☠️</div>
+              <p className="text-lg text-gray-500">
+                Red Boot is waiting for you to start the adventure!
+              </p>
+            </div>
+          </div>
+        )}
 
 
-
-      {/* Simple Help Button */}
-      <div className="text-center">
-        <Button 
-          onClick={onViewGuide}
-          className="glass-button glass-button-large text-white font-bold glass-text-glow"
-          data-testid="button-view-guide-simple"
-        >
-          <HelpCircle className="w-6 h-6 mr-3" />
-          ❓ Need Help? Click Here! ❓
-        </Button>
       </div>
-    </div>
     </div>
   );
 }
