@@ -356,10 +356,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // Check if we hit a treasure milestone
       const treasureShown = checkForTreasure(newCorrectCount);
       
-      if (!treasureShown) {
-        // Normal flow - move to next word after brief delay (only in feedback view)
-        // The nextWord function will handle this transition
+      if (treasureShown) {
+        // Treasure milestone! Auto-advance after celebration completes (3.5 seconds)
+        setTimeout(() => {
+          nextWord();
+        }, 3500);
       }
+      // For non-treasure words, user clicks "Next Word" button manually
     } else {
       // ADD this new tracking for wrong answers:
       setWordAttempts(prev => ({
