@@ -10,6 +10,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### December 7, 2025 - UI Modernization with 2025 Design Trends
+- **Bento Grid Layout**: Dashboard reorganized into modular grid boxes for stats, word list, practice button, and treasure preview
+- **Aurora Background**: Soft moving ocean-themed color gradients with CSS animations (--aurora-color-1/2/3 custom properties)
+- **Claymorphism Styling**: Soft 3D tactile feel for all cards and buttons using clay-card and clay-button classes
+  - Cards: Multi-layered shadows, subtle borders, 1px/2px transforms on hover
+  - Buttons: 3D pressed effects with transform on click, gradient highlights
+- **Micro-Interactions**: Enhanced button animations including micro-bounce, sparkle-hover, pulse-glow, and icon-bounce effects
+- **shadcn Button Components**: All buttons converted to use shadcn Button component with consistent hover/disabled behavior
+- **data-testid Coverage**: Every interactive element has descriptive data-testid attributes for testing
+- **Friday Take Test Button**: Restored "Take Test" CTA that appears when readyForTest is true on Fridays
+
 ### October 5, 2025 - Atmospheric Sound Effects Integration
 - **Seagull Sounds on Splash Screen**: Ambient seagull calls play on the first-time visitor splash screen (plays at 0s and 5s during 10-second countdown)
 - **Seagull Sounds on Landing Page**: Periodic seagull calls every 15-25 seconds (randomized) for pirate harbor atmosphere with proper timer cleanup on navigation
