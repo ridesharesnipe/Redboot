@@ -26,9 +26,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [treasureEarned, setTreasureEarned] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [isWordSpoken, setIsWordSpoken] = useState(false);
-  const [showTreasureRoad, setShowTreasureRoad] = useState(false);
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
+  const [isAutoAdvancing, setIsAutoAdvancing] = useState(false); // Prevents double-advance on treasure milestones
   
   // ADD these new state variables for Tricky Treasures
   const [trickyWords, setTrickyWords] = useState<string[]>([]);
@@ -205,20 +205,22 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     onCancel();
   }, [onCancel, playCharacterVoice, toast]);
 
-  // Speak current word when it changes
+  // Speak current word when it changes (works for both main and bonus rounds)
   useEffect(() => {
-    if (practiceWords.length > 0 && currentWordIndex < practiceWords.length && !showFeedback) {
+    const totalWords = getTotalWords();
+    if (totalWords > 0 && currentWordIndex < totalWords && !showFeedback) {
       setIsWordSpoken(false);
       // Small delay to let Red Boot's greeting finish
       setTimeout(() => {
         speakCurrentWord();
       }, currentWordIndex === 0 ? 3000 : 1000);
     }
-  }, [currentWordIndex, practiceWords, showFeedback]);
+  }, [currentWordIndex, practiceWords, bonusRoundWords, showBonusRound, showFeedback]);
 
   const speakCurrentWord = () => {
-    if (practiceWords.length > 0 && currentWordIndex < practiceWords.length) {
-      const word = practiceWords[currentWordIndex];
+    const totalWords = getTotalWords();
+    if (totalWords > 0 && currentWordIndex < totalWords) {
+      const word = getCurrentWord();
       
       // Use speech synthesis to speak the word clearly
       if ('speechSynthesis' in window) {
@@ -358,8 +360,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       
       if (treasureShown) {
         // Treasure milestone! Auto-advance after celebration completes (3.5 seconds)
+        setIsAutoAdvancing(true);
         setTimeout(() => {
           nextWord();
+          setIsAutoAdvancing(false);
         }, 3500);
       }
       // For non-treasure words, user clicks "Next Word" button manually
@@ -463,16 +467,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   const repeatWord = () => {
     speakCurrentWord();
-  };
-
-  // Handle treasure road close (not needed with new system)
-  const handleTreasureRoadClose = () => {
-    setShowTreasureRoad(false);
-    if (sessionResults) {
-      setTimeout(() => {
-        saveTreasuresAndComplete(sessionResults);
-      }, 500);
-    }
   };
 
   if (isComplete) {
@@ -603,7 +597,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         {/* Progress Header - Raised higher in Blue Area */}
         <div className="text-center mb-3">
           <div className="text-base text-white font-bold mb-3">
-            Word {currentWordIndex + 1} of {practiceWords.length}
+            Word {currentWordIndex + 1} of {getTotalWords()}
+            {showBonusRound && <span className="ml-2 text-yellow-300">⚡ Bonus Round</span>}
           </div>
           <Progress value={progress} className="w-full max-w-md mx-auto" />
         </div>
@@ -676,8 +671,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 onClick={nextWord} 
                 className="bg-blue-600 hover:bg-blue-700 px-8"
                 data-testid="button-next-word"
+                disabled={isAutoAdvancing}
               >
-                {currentWordIndex >= practiceWords.length - 1 ? 'Finish' : 'Next Word'}
+                {isAutoAdvancing ? 'Celebrating...' : (currentWordIndex >= getTotalWords() - 1 ? 'Finish' : 'Next Word')}
               </Button>
             </div>
           </div>
