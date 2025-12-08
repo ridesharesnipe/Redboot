@@ -55,7 +55,7 @@ export default function ChildSetup({ onComplete }: ChildSetupProps) {
               className="text-2xl sm:text-3xl font-bold text-amber-600 mb-2"
               style={{ fontFamily: "'Pirata One', cursive" }}
             >
-              Ahoy, New Sailor!
+              Ahoy, New Pirate!
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
               Tell me about the young pirate who'll be sailing with us!
