@@ -164,259 +164,184 @@ export default function Landing({ onStart }: LandingProps) {
               Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4 safe-area-x">
-            {/* Start Adventure - Primary Glass Button */}
+          {/* Modern 2025 Pill Buttons */}
+          <div className="flex flex-wrap justify-center gap-3 px-4 safe-area-x">
             <button 
               onClick={handleStartAdventure}
-              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(22, 163, 74, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 40px rgba(34, 197, 94, 0.3)'
-              }}
+              className="px-6 py-3 rounded-full font-semibold text-sm text-white bg-emerald-500 hover:bg-emerald-600 transition-all duration-150 ease-out hover:scale-[1.02] active:scale-[0.98]"
+              style={{ boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)' }}
               data-testid="button-start-adventure"
             >
-              <span className="flex items-center justify-center gap-2 drop-shadow-md">
-                <Compass className="w-5 h-5" />
+              <span className="flex items-center gap-2">
+                <Compass className="w-4 h-4" />
                 Start Adventure
               </span>
-              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%)',
-                pointerEvents: 'none'
-              }} />
             </button>
             
-            {/* Treasure Vault - Gold Glass Button */}
             <button 
               onClick={() => {
                 initializeAudio();
                 playSound('treasure_chest_open');
                 setLocation('/vault');
               }}
-              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(217, 119, 6, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 40px rgba(245, 158, 11, 0.3)'
-              }}
+              className="px-6 py-3 rounded-full font-semibold text-sm text-white bg-amber-500 hover:bg-amber-600 transition-all duration-150 ease-out hover:scale-[1.02] active:scale-[0.98]"
+              style={{ boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)' }}
               data-testid="button-treasure-vault"
             >
-              <span className="flex items-center justify-center gap-2 drop-shadow-md">
-                <Gem className="w-5 h-5" />
+              <span className="flex items-center gap-2">
+                <Gem className="w-4 h-4" />
                 Treasure Vault
               </span>
-              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%)',
-                pointerEvents: 'none'
-              }} />
             </button>
             
-            {/* Start Demo - Deep Blue Glass Button */}
             <button 
               onClick={handleDemo}
-              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(29, 78, 216, 0.85) 100%)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.35)',
-                boxShadow: '0 8px 32px rgba(29, 78, 216, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 40px rgba(59, 130, 246, 0.2)'
-              }}
+              className="px-6 py-3 rounded-full font-semibold text-sm text-white/90 bg-white/10 hover:bg-white/20 border border-white/30 transition-all duration-150 ease-out hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm"
               data-testid="button-watch-demo"
             >
-              <span className="flex items-center justify-center gap-2 drop-shadow-md">
-                <Play className="w-5 h-5" />
-                Start Demo
+              <span className="flex items-center gap-2">
+                <Play className="w-4 h-4" />
+                Watch Demo
               </span>
-              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%)',
-                pointerEvents: 'none'
-              }} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Character Crew Section - Ocean to Shore Transition */}
-      <section className="py-16 px-4 relative overflow-hidden" style={{
-        background: 'linear-gradient(180deg, #0c4a6e 0%, #0e7490 30%, #22d3ee 60%, #a5f3fc 85%, #ecfeff 100%)'
-      }}>
-        {/* Subtle wave overlay */}
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.3' d='M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,186.7C960,213,1056,235,1152,224C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'bottom'
-        }} />
-        
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 text-white drop-shadow-lg" style={{ fontFamily: "'Pirata One', cursive" }} data-testid="text-crew-title">
-            Choose Your Adventure!
-          </h2>
-          <p className="text-lg sm:text-xl text-cyan-100 mb-8 font-medium drop-shadow">Select your hero to begin your spelling journey!</p>
+      {/* Character Selection - Light Ocean Theme */}
+      <section className="py-16 px-4 bg-gradient-to-b from-sky-100 via-cyan-50 to-sky-100">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-sky-900 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-crew-title">
+              Choose Your Hero
+            </h2>
+            <p className="text-sky-600 text-sm">Select a character to begin your spelling adventure</p>
+          </div>
           
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto">
-            {/* Red Boot - Treasure Hunt */}
+          {/* Side-by-side character grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            {/* Red Boot Card */}
             <div 
-              className={`group text-center cursor-pointer p-6 rounded-3xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${
-                selectedCharacter === 'redboot' ? 'ring-4 ring-yellow-400 scale-105' : ''
+              className={`group cursor-pointer rounded-2xl p-5 transition-all duration-150 ease-out hover:scale-[1.02] hover:shadow-lg ${
+                selectedCharacter === 'redboot' 
+                  ? 'bg-amber-50 ring-2 ring-amber-400 shadow-lg' 
+                  : 'bg-white/80 hover:bg-white'
               }`}
-              style={{
-                background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.6) 0%, rgba(6, 95, 120, 0.7) 100%)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 15px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 60px rgba(239, 68, 68, 0.15)'
-              }}
+              style={{ border: '1px solid rgba(14, 165, 233, 0.15)' }}
               onClick={() => {
                 playSound('anchor_button_click');
                 playCharacterVoice('red_boot_ahoy');
+                setSelectedCharacter('redboot');
                 localStorage.setItem('selectedCharacter', 'redboot');
                 if (onStart) onStart();
               }}
               data-testid="character-select-redboot"
             >
-              <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl p-1 transition-all character-idle-sway ${
-                  selectedCharacter === 'redboot' ? 'animate-pulse' : ''
-                }`} style={{
-                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(239, 68, 68, 0.3) 100%)',
-                  boxShadow: '0 8px 30px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.3)'
-                }}>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm">
                   <img 
                     src={redBootCrew} 
-                    alt="Red Boot the Brave Captain" 
-                    className="w-full h-full object-cover rounded-xl"
+                    alt="Red Boot" 
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                {selectedCharacter === 'redboot' && (
-                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center animate-bounce shadow-lg">
-                    <Check className="w-6 h-6 text-white" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-lg text-slate-800">Red Boot</h3>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Free</span>
                   </div>
-                )}
+                  <p className="text-amber-600 text-sm font-medium mb-1">⚓ Treasure Hunt</p>
+                  <p className="text-slate-500 text-xs">Dig up buried treasures on mysterious islands</p>
+                </div>
               </div>
-              <h3 className="font-bold text-2xl text-white mb-2 drop-shadow-lg" style={{ fontFamily: "'Fredoka One', cursive" }}>Red Boot</h3>
-              <p className="text-base text-amber-300 font-semibold mb-2 drop-shadow">⚓ Treasure Hunt Adventure</p>
-              <p className="text-sm text-cyan-100 mb-3 drop-shadow">Dig up buried treasures on mysterious islands!</p>
-              <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-lg" style={{
-                boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
-              }}>FREE</div>
             </div>
             
-            {/* Diego - Sea Monster Battle */}
+            {/* Diego Card */}
             <div 
-              className={`group text-center cursor-pointer p-6 rounded-3xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${
-                selectedCharacter === 'diego' ? 'ring-4 ring-cyan-300 scale-105' : ''
+              className={`group cursor-pointer rounded-2xl p-5 transition-all duration-150 ease-out hover:scale-[1.02] hover:shadow-lg ${
+                selectedCharacter === 'diego' 
+                  ? 'bg-cyan-50 ring-2 ring-cyan-400 shadow-lg' 
+                  : 'bg-white/80 hover:bg-white'
               }`}
-              style={{
-                background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.6) 0%, rgba(6, 95, 120, 0.7) 100%)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 15px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 60px rgba(6, 182, 212, 0.15)'
-              }}
+              style={{ border: '1px solid rgba(14, 165, 233, 0.15)' }}
               onClick={() => {
                 playSound('anchor_button_click');
                 playAudioFile(diegoBarkSound, 1, true);
+                setSelectedCharacter('diego');
                 localStorage.setItem('selectedCharacter', 'diego');
                 if (onStart) onStart();
               }}
               data-testid="character-select-diego"
             >
-              <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl p-1 transition-all character-idle-sway ${
-                  selectedCharacter === 'diego' ? 'animate-pulse' : ''
-                }`} style={{
-                  background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)',
-                  boxShadow: '0 8px 30px rgba(6, 182, 212, 0.3), inset 0 1px 0 rgba(255,255,255,0.3)'
-                }}>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-cyan-100 to-blue-100 shadow-sm">
                   <img 
                     src={diegoImage} 
                     alt="Diego the Pup Pup" 
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                {selectedCharacter === 'diego' && (
-                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center animate-bounce shadow-lg">
-                    <Check className="w-6 h-6 text-white" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-lg text-slate-800">Diego</h3>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Free</span>
                   </div>
-                )}
+                  <p className="text-cyan-600 text-sm font-medium mb-1">🌊 Sea Monster Battle</p>
+                  <p className="text-slate-500 text-xs">Battle sea monsters and claim their treasures</p>
+                </div>
               </div>
-              <h3 className="font-bold text-2xl text-white mb-2 drop-shadow-lg" style={{ fontFamily: "'Fredoka One', cursive" }}>Diego the Pup Pup</h3>
-              <p className="text-base text-cyan-300 font-semibold mb-2 drop-shadow">🌊 Sea Monster Battle</p>
-              <p className="text-sm text-cyan-100 mb-3 drop-shadow">Battle fearsome sea monsters and claim their treasures!</p>
-              <div className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-lg" style={{
-                boxShadow: '0 4px 15px rgba(6, 182, 212, 0.4)'
-              }}>FREE</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section - Sandy Beach Arrival */}
-      <section className="py-12 px-4 relative" style={{
-        background: 'linear-gradient(180deg, #ecfeff 0%, #fef3c7 30%, #fef9c3 60%, #fffbeb 100%)'
-      }}>
-        {/* Beach sand texture overlay */}
-        <div className="absolute inset-0 opacity-30" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(251, 191, 36, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%)'
-        }} />
-        
-        <div className="max-w-6xl mx-auto relative z-10">
+      {/* Features Section - Light Ocean Theme */}
+      <section className="py-16 px-4 bg-gradient-to-b from-sky-50 to-white">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl text-amber-700 mb-3 drop-shadow-sm" style={{ fontFamily: "'Pirata One', cursive" }} data-testid="text-features-title">
-              Amazing Pirate Features
+            <h2 className="text-2xl sm:text-3xl font-bold text-sky-900 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-features-title">
+              How It Works
             </h2>
-            <p className="text-lg text-amber-600/80 font-medium">Everything ye need for a grand spelling adventure!</p>
+            <p className="text-sky-600 text-sm">Three simple steps to spelling success</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Photo Upload Card */}
-            <div className="clay-card bento-hover-float bento-hover-green rounded-3xl p-6 bg-white/90 backdrop-blur-sm text-center" style={{
-              boxShadow: '0 8px 32px rgba(34, 197, 94, 0.15), 0 0 0 1px rgba(34, 197, 94, 0.1), inset 0 2px 4px rgba(255,255,255,0.9)'
-            }}>
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-lg" style={{
-                boxShadow: '0 8px 20px rgba(34, 197, 94, 0.35)'
-              }}>
-                <span className="text-4xl">📸</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Snap & Upload */}
+            <div className="rounded-xl p-5 bg-white border border-sky-100 text-center transition-all duration-150 hover:shadow-md hover:border-sky-200">
+              <div className="w-12 h-12 rounded-lg bg-emerald-100 mx-auto mb-4 flex items-center justify-center">
+                <Compass className="w-6 h-6 text-emerald-600" />
               </div>
-              <h3 className="font-bold text-xl mb-3 text-emerald-800" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-feature-photo-title">
-                Photo Upload
+              <h3 className="font-semibold text-base text-slate-800 mb-2" data-testid="text-feature-photo-title">
+                Snap & Upload
               </h3>
-              <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-photo-desc">
-                Snap a photo of your spelling list and watch the magic happen! Words appear ready for adventure.
+              <p className="text-slate-500 text-xs leading-relaxed" data-testid="text-feature-photo-desc">
+                Take a photo of your spelling list and words appear instantly
               </p>
             </div>
 
-            {/* Epic Adventures Card */}
-            <div className="clay-card bento-hover-float bento-hover-purple rounded-3xl p-6 bg-white/90 backdrop-blur-sm text-center" style={{
-              boxShadow: '0 8px 32px rgba(147, 51, 234, 0.15), 0 0 0 1px rgba(147, 51, 234, 0.1), inset 0 2px 4px rgba(255,255,255,0.9)'
-            }}>
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-lg" style={{
-                boxShadow: '0 8px 20px rgba(147, 51, 234, 0.35)'
-              }}>
-                <span className="text-4xl">⚔️</span>
+            {/* Play & Learn */}
+            <div className="rounded-xl p-5 bg-white border border-sky-100 text-center transition-all duration-150 hover:shadow-md hover:border-sky-200">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 mx-auto mb-4 flex items-center justify-center">
+                <Star className="w-6 h-6 text-purple-600" />
               </div>
-              <h3 className="font-bold text-xl mb-3 text-purple-800" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-feature-game-title">
-                Epic Adventures
+              <h3 className="font-semibold text-base text-slate-800 mb-2" data-testid="text-feature-game-title">
+                Play & Learn
               </h3>
-              <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-game-desc">
-                Battle sea monsters, dig for treasure, and become the greatest spelling pirate of all!
+              <p className="text-slate-500 text-xs leading-relaxed" data-testid="text-feature-game-desc">
+                Battle monsters and hunt treasure while mastering spelling
               </p>
             </div>
 
-            {/* Treasure Maps Card */}
-            <div className="clay-card bento-hover-float bento-hover-gold rounded-3xl p-6 bg-white/90 backdrop-blur-sm text-center" style={{
-              boxShadow: '0 8px 32px rgba(245, 158, 11, 0.15), 0 0 0 1px rgba(245, 158, 11, 0.1), inset 0 2px 4px rgba(255,255,255,0.9)'
-            }}>
-              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-lg" style={{
-                boxShadow: '0 8px 20px rgba(245, 158, 11, 0.35)'
-              }}>
-                <span className="text-4xl">🗺️</span>
+            {/* Track Progress */}
+            <div className="rounded-xl p-5 bg-white border border-sky-100 text-center transition-all duration-150 hover:shadow-md hover:border-sky-200">
+              <div className="w-12 h-12 rounded-lg bg-amber-100 mx-auto mb-4 flex items-center justify-center">
+                <Crown className="w-6 h-6 text-amber-600" />
               </div>
-              <h3 className="font-bold text-xl mb-3 text-amber-800" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-feature-progress-title">
-                Treasure Maps
+              <h3 className="font-semibold text-base text-slate-800 mb-2" data-testid="text-feature-progress-title">
+                Track Progress
               </h3>
-              <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-progress-desc">
-                Track your progress on magical maps and watch your treasure collection grow!
+              <p className="text-slate-500 text-xs leading-relaxed" data-testid="text-feature-progress-desc">
+                Watch your treasure grow as you master each word
               </p>
             </div>
           </div>
