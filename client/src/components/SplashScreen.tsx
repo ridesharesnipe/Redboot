@@ -44,9 +44,10 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          // Fade out effect before completing
+          // Smooth fade out effect before completing
           setIsVisible(false);
-          setTimeout(onComplete, 500);
+          // Longer delay for smooth transition (allows voice to finish)
+          setTimeout(onComplete, 1000);
           return 0;
         }
         return prev - 1;
@@ -60,8 +61,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div 
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-1000 ease-out ${
+        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
       }`}
       style={{
         background: `

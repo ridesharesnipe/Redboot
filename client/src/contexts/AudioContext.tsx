@@ -585,62 +585,66 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       } catch (e) {}
     }
 
-    // Varied phrases for each character to reduce repetition
+    // Get child's name for personalized phrases
+    const childName = localStorage.getItem('redboot-child-name') || 'matey';
+    const name = childName.trim() || 'matey';
+
+    // Kid-friendly pirate phrases with child's name
     const characterPhrases: Record<CharacterVoiceType, string[]> = {
       red_boot_ahoy: [
-        'Ahoy there, me hearty! Ready to set sail on a spellin\' adventure, ye scurvy dog?',
-        'Avast, ye landlubber! Time to hoist the colors and hunt fer word treasure!',
-        'Shiver me timbers and splice the mainbrace! Let\'s find some spellin\' doubloons!'
+        `Ahoy ${name}! Ready to find some treasure? Let's go on a spelling adventure!`,
+        `Yo ho ho ${name}! Time to hunt for word treasure!`,
+        `Shiver me timbers, ${name}! Let's find some spelling gold!`
       ],
       red_boot_welcome: [
-        'Welcome aboard me ship, ye brave buccaneer! Let\'s sail the seven seas fer treasure!',
-        'All hands on deck! We be settin\' sail fer Spellin\' Island, ye scallywag!',
-        'Batten down the hatches, me hearty! We be sailin\' into dangerous waters full of words!'
+        `Welcome aboard, ${name}! Let's sail to Treasure Island!`,
+        `All hands on deck, ${name}! We're sailing to Spelling Island!`,
+        `Hold on tight, ${name}! This adventure is going to be amazing!`
       ],
       red_boot_great_job: [
-        'Blimey! That be some fine piratin\', ye magnificent sea dog!',
-        'Yo ho ho! Ye\'ve struck pure spellin\' gold, ye clever buccaneer!',
-        'Arrr! Ye be sailin\' like a true captain of the high seas, matey!'
+        `Arrr, great job ${name}! You spelled it perfectly!`,
+        `Yo ho ho, ${name}! You found the treasure!`,
+        `Amazing, Captain ${name}! You're a spelling superstar!`
       ],
       red_boot_try_again: [
-        'Don\'t be walkin\' the plank yet, ye brave sailor! Every pirate makes mistakes!',
-        'Steady as she goes, me hearty! Even the finest sea dogs need more practice!',
-        'No worries, ye scallywag! Back to the treasure map we go, arrr!'
+        `Oops! Try again, ${name}! You've got this!`,
+        `Almost there, ${name}! Give it another try!`,
+        `No worries, ${name}! Pirates never give up!`
       ],
       red_boot_adventure_complete: [
-        'Blimey! Ye\'ve completed the whole adventure! Ye be a true spellin\' pirate captain now, arrr!',
-        'Shiver me timbers! Ye\'ve found all the treasure on the seven seas, ye magnificent buccaneer!',
-        'Land ho! Ye\'ve mastered every dangerous water from here to Davy Jones\' locker, me hearty!'
+        `Shiver me timbers, ${name}! You finished the whole adventure! You're a spelling champion!`,
+        `Wow, ${name}! You found ALL the treasure! Amazing job, Captain!`,
+        `Land ho, ${name}! You did it! You're the best pirate speller ever!`
       ],
       ocean_blue_encouraging: [
-        'Keep going! The treasure is just ahead!',
-        'You\'re doing wonderfully! I can see the treasure chest!',
-        'Don\'t stop now! We\'re so close to victory!'
+        `Keep going, ${name}! The treasure is just ahead!`,
+        `You're doing great, ${name}! I can see the treasure chest!`,
+        `Don't stop now, ${name}! We're so close!`
       ],
       red_boot_retry: [
-        "Arrr, that treasure be buried deep! Try again, matey!",
-        "Not quite, sailor! Give it another go!",
-        "That word be a tricky one! Listen carefully!"
+        `Arrr, that's a tricky one! Try again, ${name}!`,
+        `Not quite, ${name}! Give it another go!`,
+        `Oops! Listen carefully and try again, ${name}!`
       ],
       red_boot_bonus: [
-        "Ahoy! Some treasures were buried extra deep! Want to dig 'em up again?",
-        "Captain! Those tricky treasures need more practice! Ready for bonus gold?",
-        "Ye found all treasures, but some were rusty! Polish them for extra coins?"
+        `Ahoy ${name}! Want to practice some tricky words for bonus treasure?`,
+        `Captain ${name}! Ready for some bonus gold? Let's practice more!`,
+        `Great job ${name}! Want to polish up some tricky words for extra coins?`
       ],
       red_boot_treasure: [
-        "Arrr, me treasure! Shiver me timbers, look at all this loot!",
-        "Yo ho ho! Me treasure chest be full of riches, ye magnificent buccaneer!",
-        "Blimey! Found me treasure at last, arrr! This be worth a king's ransom!"
+        `Arrr, look at all this treasure, ${name}! Shiver me timbers!`,
+        `Yo ho ho, ${name}! Your treasure chest is full of gold!`,
+        `Amazing, ${name}! You found so much treasure!`
       ],
       red_boot_skip: [
-        "It's okay, matey! We'll try that treasure again another time, arrr!",
-        "No worries, sailor! We'll come back to this one later, ye scallywag!",
-        "Fair winds! That word can wait - we'll tackle it another day, me hearty!"
+        `It's okay, ${name}! We'll try that word another time!`,
+        `No worries, ${name}! We'll come back to this one later!`,
+        `That's fine, ${name}! Pirates always come back for more treasure!`
       ],
       salty_helpful_tip: [
-        'Here\'s a tip from old Salty: sound out each letter carefully!',
-        'Listen well, young sailor: break the word into pieces!',
-        'Old Salty says: practice makes perfect pirates!'
+        `Here's a tip, ${name}: sound out each letter carefully!`,
+        `Listen well, ${name}: break the word into pieces!`,
+        `Remember ${name}: practice makes perfect pirates!`
       ]
     };
 
@@ -659,13 +663,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       case 'red_boot_bonus':
       case 'red_boot_treasure':
       case 'red_boot_skip':
-        voiceConfig = { rate: 0.75, pitch: 0.9 }; // Slower, deeper male pirate voice
+        voiceConfig = { rate: 0.9, pitch: 1.0 }; // Natural, friendly voice
         break;
       case 'ocean_blue_encouraging':
-        voiceConfig = { rate: 1.1, pitch: 1.2 };
+        voiceConfig = { rate: 0.95, pitch: 1.0 }; // Natural encouraging voice
         break;
       case 'salty_helpful_tip':
-        voiceConfig = { rate: 0.65, pitch: 0.5 }; // Very gruff old sea dog
+        voiceConfig = { rate: 0.85, pitch: 1.0 }; // Slightly slower for tips
         break;
     }
 
@@ -681,83 +685,26 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         const voices = synth.getVoices();
         let selectedVoice = null;
         
-        const getNaturalMaleVoice = () => {
-          // Known male voice names (allow-list approach)
-          const knownMaleNames = [
-            'Male', 'George', 'Daniel', 'Arthur', 'Oliver', 'Alex', 
-            'David', 'James', 'Thomas', 'Ryan', 'Aaron', 'Bruce'
-          ];
-          
-          // Known female voice names to exclude
-          const knownFemaleNames = [
-            'Female', 'Sonia', 'Susan', 'Zira', 'Catherine', 'Karen',
-            'Moira', 'Samantha', 'Victoria', 'Fiona', 'Kate', 'Serena'
-          ];
-          
-          const isMaleVoice = (voice: SpeechSynthesisVoice) => {
-            const name = voice.name;
-            // Check if it contains known male indicators
-            if (knownMaleNames.some(male => name.includes(male))) return true;
-            // Exclude known female voices
-            if (knownFemaleNames.some(female => name.includes(female))) return false;
-            // Exclude compact/espeak voices
-            if (name.includes('Compact') || name.includes('eSpeak')) return false;
-            return true;
-          };
-          
-          // Prioritize British male voices for pirate authenticity
-          const preferredBritishMaleVoices = [
-            'Google UK English Male',
-            'Microsoft George Online',
-            'Daniel (Enhanced)',
-            'Daniel',
-            'Arthur',
-            'Oliver'
-          ];
-          
-          // First try: Look for explicitly preferred British male voices
-          for (const preferred of preferredBritishMaleVoices) {
-            const voice = voices.find(v => v.name.includes(preferred));
-            if (voice) return voice;
-          }
-          
-          // Second try: Find any male voice with en-GB language code
-          const britishMaleVoice = voices.find(v => 
-            v.lang.startsWith('en-GB') && isMaleVoice(v)
+        // Get the best natural-sounding voice (same approach as spelling test)
+        const getNaturalVoice = () => {
+          // Prefer non-Google voices as they tend to sound more natural on most devices
+          const naturalVoice = voices.find(voice => 
+            voice.lang.startsWith('en') && !voice.name.includes('Google')
           );
-          if (britishMaleVoice) return britishMaleVoice;
+          if (naturalVoice) return naturalVoice;
           
-          // Third try: Find male Australian/Irish voices (closer to British than American)
-          const commonwealthMaleVoice = voices.find(v => 
-            (v.lang.startsWith('en-AU') || v.lang.startsWith('en-IE')) &&
-            isMaleVoice(v)
-          );
-          if (commonwealthMaleVoice) return commonwealthMaleVoice;
+          // Fallback: any English voice
+          const englishVoice = voices.find(voice => voice.lang.startsWith('en'));
+          if (englishVoice) return englishVoice;
           
-          // Fourth try: Any US/Canadian male voice
-          const americanMaleVoice = voices.find(v => 
-            (v.lang.startsWith('en-US') || v.lang.startsWith('en-CA')) &&
-            isMaleVoice(v)
-          );
-          if (americanMaleVoice) return americanMaleVoice;
-          
-          // Last resort: First available male voice
-          return voices.find(isMaleVoice) || voices[0];
+          // Last resort: first available voice
+          return voices[0];
         };
 
-        selectedVoice = getNaturalMaleVoice();
-        
-        // Debug logging to see what voice is selected
-        if (voices.length > 0) {
-          console.log('🎙️ Available voices:', voices.map(v => `${v.name} (${v.lang})`));
-          console.log('✅ Selected voice for Red Boot:', selectedVoice ? `${selectedVoice.name} (${selectedVoice.lang})` : 'None');
-          const britishVoices = voices.filter(v => v.lang.startsWith('en-GB'));
-          console.log('🇬🇧 British voices available:', britishVoices.map(v => v.name));
-        }
+        selectedVoice = getNaturalVoice();
         
         if (selectedVoice) {
           utterance.voice = selectedVoice;
-          utterance.lang = 'en-GB'; // Force British English pronunciation
         }
 
         // Split long text into chunks to prevent browser truncation
@@ -820,7 +767,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           chunkUtterance.volume = settings.masterVolume;
           if (selectedVoice) {
             chunkUtterance.voice = selectedVoice;
-            chunkUtterance.lang = 'en-GB';
           }
           
           chunkUtterance.onend = () => {
@@ -866,64 +812,31 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
     const speakText = () => {
       const utterance = new SpeechSynthesisUtterance(message);
-      utterance.rate = 0.75; // Slower pirate-like delivery
+      utterance.rate = 0.9; // Natural speaking rate
       utterance.pitch = 1.0;
       utterance.volume = settings.masterVolume;
 
-      // Select Red Boot's British pirate voice
+      // Select natural-sounding voice (same as spelling test)
       const voices = synth.getVoices();
       
-      const getNaturalMaleVoice = () => {
-        const knownMaleNames = ['Male', 'Daniel', 'Arthur', 'George', 'Oliver', 'James', 'Thomas'];
-        const knownFemaleNames = ['Female', 'Samantha', 'Victoria', 'Karen', 'Susan', 'Moira', 'Fiona', 'Kate'];
-        
-        const isMaleVoice = (voice: SpeechSynthesisVoice) => {
-          const name = voice.name;
-          if (knownMaleNames.some(male => name.includes(male))) return true;
-          if (knownFemaleNames.some(female => name.includes(female))) return false;
-          if (name.includes('Compact') || name.includes('eSpeak')) return false;
-          return true;
-        };
-        
-        const preferredBritishMaleVoices = [
-          'Google UK English Male',
-          'Microsoft George Online',
-          'Daniel (Enhanced)',
-          'Daniel',
-          'Arthur',
-          'Oliver'
-        ];
-        
-        for (const preferred of preferredBritishMaleVoices) {
-          const voice = voices.find(v => v.name.includes(preferred));
-          if (voice) return voice;
-        }
-        
-        const britishMaleVoice = voices.find(v => 
-          v.lang.startsWith('en-GB') && isMaleVoice(v)
+      const getNaturalVoice = () => {
+        // Prefer non-Google voices as they tend to sound more natural
+        const naturalVoice = voices.find(voice => 
+          voice.lang.startsWith('en') && !voice.name.includes('Google')
         );
-        if (britishMaleVoice) return britishMaleVoice;
+        if (naturalVoice) return naturalVoice;
         
-        const commonwealthMaleVoice = voices.find(v => 
-          (v.lang.startsWith('en-AU') || v.lang.startsWith('en-IE')) &&
-          isMaleVoice(v)
-        );
-        if (commonwealthMaleVoice) return commonwealthMaleVoice;
+        // Fallback: any English voice
+        const englishVoice = voices.find(voice => voice.lang.startsWith('en'));
+        if (englishVoice) return englishVoice;
         
-        const americanMaleVoice = voices.find(v => 
-          (v.lang.startsWith('en-US') || v.lang.startsWith('en-CA')) &&
-          isMaleVoice(v)
-        );
-        if (americanMaleVoice) return americanMaleVoice;
-        
-        return voices.find(isMaleVoice) || voices[0];
+        return voices[0];
       };
 
-      const selectedVoice = getNaturalMaleVoice();
+      const selectedVoice = getNaturalVoice();
       
       if (selectedVoice) {
         utterance.voice = selectedVoice;
-        utterance.lang = 'en-GB'; // British English pronunciation
       }
 
       // Split long text into chunks to prevent browser truncation
@@ -981,12 +894,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         }
         
         const chunkUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
-        chunkUtterance.rate = 0.75;
+        chunkUtterance.rate = 0.9; // Natural speaking rate
         chunkUtterance.pitch = 1.0;
         chunkUtterance.volume = settings.masterVolume;
         if (selectedVoice) {
           chunkUtterance.voice = selectedVoice;
-          chunkUtterance.lang = 'en-GB';
         }
         
         chunkUtterance.onend = () => {
