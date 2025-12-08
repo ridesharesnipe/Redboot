@@ -113,9 +113,71 @@ export const photos = pgTable("photos", {
   weekStart: timestamp("week_start").notNull(), // Week the photo belongs to
 });
 
+// Tricky Words table - tracks words kids struggle with across sessions
+export const trickyWords = pgTable("tricky_words", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  word: varchar("word").notNull(),
+  status: varchar("status").notNull().default('active'), // 'active' | 'mastered'
+  mistakeCount: integer("mistake_count").default(1), // How many times they got it wrong
+  correctStreak: integer("correct_streak").default(0), // Consecutive correct answers
+  lastPracticed: timestamp("last_practiced").defaultNow(),
+  masteredAt: timestamp("mastered_at"), // When they finally mastered it
+  addedAt: timestamp("added_at").defaultNow(),
+}, (table) => [
+  index("idx_tricky_words_user_id").on(table.userId),
+  index("idx_tricky_words_status").on(table.status),
+]);
+
+// Achievement definitions - what badges are available
+export const achievements = pgTable("achievements", {
+  id: varchar("id").primaryKey(), // e.g., 'perfect_week', 'word_master_10'
+  title: varchar("title").notNull(),
+  description: varchar("description").notNull(),
+  icon: varchar("icon").notNull(), // Emoji or icon name
+  category: varchar("category").notNull(), // 'spelling', 'streak', 'treasure', 'special'
+  threshold: integer("threshold").default(1), // Number required to earn (e.g., 10 words for Word Master)
+  rarity: varchar("rarity").notNull().default('common'), // 'common', 'rare', 'epic', 'legendary'
+});
+
+// User achievements - tracks which badges each user has earned
+export const userAchievements = pgTable("user_achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  achievementId: varchar("achievement_id").references(() => achievements.id, { onDelete: 'cascade' }).notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  metadata: jsonb("metadata").$type<Record<string, any>>(), // Extra context about how they earned it
+}, (table) => [
+  index("idx_user_achievements_user_id").on(table.userId),
+]);
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   children: many(children),
+  trickyWords: many(trickyWords),
+  achievements: many(userAchievements),
+}));
+
+export const trickyWordsRelations = relations(trickyWords, ({ one }) => ({
+  user: one(users, {
+    fields: [trickyWords.userId],
+    references: [users.id],
+  }),
+}));
+
+export const achievementsRelations = relations(achievements, ({ many }) => ({
+  userAchievements: many(userAchievements),
+}));
+
+export const userAchievementsRelations = relations(userAchievements, ({ one }) => ({
+  user: one(users, {
+    fields: [userAchievements.userId],
+    references: [users.id],
+  }),
+  achievement: one(achievements, {
+    fields: [userAchievements.achievementId],
+    references: [achievements.id],
+  }),
 }));
 
 export const childrenRelations = relations(children, ({ one, many }) => ({
