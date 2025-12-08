@@ -347,6 +347,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       setTreasureEarned(prev => prev + treasureAmount);
       playSound('spell_correct');
       
+      // Record correct attempt for tricky word tracking (helps master tricky words)
+      apiRequest('/api/tricky-words/attempt', 'POST', { word: currentWord, correct: true }).catch(err => {
+        console.error('Failed to record correct attempt:', err);
+      });
+      
       // First repeat the word, then give feedback
       speakWordAgain(currentWord);
       setTimeout(() => {
@@ -374,12 +379,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         [currentWord]: (prev[currentWord] || 0) + 1
       }));
       
-      // If wrong twice, mark as tricky
+      // If wrong twice, mark as tricky and persist to database
       if ((wordAttempts[currentWord] || 0) >= 1) {
         if (!trickyWords.includes(currentWord)) {
           setTrickyWords(prev => [...prev, currentWord]);
+          // Persist tricky word to database
+          apiRequest('/api/tricky-words', 'POST', { word: currentWord }).catch(err => {
+            console.error('Failed to save tricky word:', err);
+          });
         }
       }
+      
+      // Record attempt for tricky word tracking
+      apiRequest('/api/tricky-words/attempt', 'POST', { word: currentWord, correct: false }).catch(err => {
+        console.error('Failed to record tricky word attempt:', err);
+      });
       
       playSound('spell_incorrect');
       
@@ -454,6 +468,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     // Add skipped word to tricky words queue for bonus round
     if (!trickyWords.includes(currentWord)) {
       setTrickyWords(prev => [...prev, currentWord]);
+      // Persist skipped word as tricky to database
+      apiRequest('/api/tricky-words', 'POST', { word: currentWord }).catch(err => {
+        console.error('Failed to save skipped word as tricky:', err);
+      });
     }
     
     // Red Boot says it's okay, we'll try again later
