@@ -199,19 +199,32 @@ export default function Landing({ onStart }: LandingProps) {
         </div>
       </section>
 
-      {/* Character Crew Section */}
-      <section className="py-16 px-4 bg-gradient-to-b from-blue-100 to-purple-100">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-fun text-foreground mb-4" data-testid="text-crew-title">
+      {/* Character Crew Section - Ocean to Shore Transition */}
+      <section className="py-16 px-4 relative overflow-hidden" style={{
+        background: 'linear-gradient(180deg, #0c4a6e 0%, #0e7490 30%, #22d3ee 60%, #a5f3fc 85%, #ecfeff 100%)'
+      }}>
+        {/* Subtle wave overlay */}
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.3' d='M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,186.7C960,213,1056,235,1152,224C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'bottom'
+        }} />
+        
+        <div className="max-w-6xl mx-auto text-center relative z-10">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 text-white drop-shadow-lg" style={{ fontFamily: "'Pirata One', cursive" }} data-testid="text-crew-title">
             Choose Your Adventure!
           </h2>
-          <p className="text-xl text-gray-600 mb-6">Select your hero to begin your spelling journey!</p>
+          <p className="text-lg sm:text-xl text-cyan-100 mb-8 font-medium drop-shadow">Select your hero to begin your spelling journey!</p>
+          
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto">
             {/* Red Boot - Treasure Hunt */}
             <div 
-              className={`text-center cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                selectedCharacter === 'redboot' ? 'ring-8 ring-yellow-400 rounded-3xl shadow-2xl' : 'hover:shadow-xl'
+              className={`clay-card bento-hover-float text-center cursor-pointer p-6 rounded-3xl bg-white/95 backdrop-blur-sm transition-all duration-300 ${
+                selectedCharacter === 'redboot' ? 'ring-4 ring-yellow-400 shadow-2xl scale-105' : ''
               }`}
+              style={{
+                boxShadow: '0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8)'
+              }}
               onClick={() => {
                 playSound('anchor_button_click');
                 playCharacterVoice('red_boot_ahoy');
@@ -221,125 +234,140 @@ export default function Landing({ onStart }: LandingProps) {
               data-testid="character-select-redboot"
             >
               <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 p-2 transition-all character-idle-sway ${
+                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-100 via-orange-50 to-red-100 p-2 transition-all character-idle-sway ${
                   selectedCharacter === 'redboot' ? 'animate-pulse' : ''
-                }`}>
+                }`} style={{
+                  boxShadow: '0 8px 25px rgba(239, 68, 68, 0.25), inset 0 2px 4px rgba(255,255,255,0.8)'
+                }}>
                   <img 
                     src={redBootCrew} 
                     alt="Red Boot the Brave Captain" 
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 </div>
                 {selectedCharacter === 'redboot' && (
-                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
-                    <Check className="w-8 h-8 text-white" />
+                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                    <Check className="w-6 h-6 text-white" />
                   </div>
                 )}
               </div>
-              <h3 className="font-bold text-2xl text-red-700 mb-2">Red Boot</h3>
-              <p className="text-lg text-gray-700 font-semibold mb-2">⚓ Treasure Hunt Adventure</p>
+              <h3 className="font-bold text-2xl text-red-700 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>Red Boot</h3>
+              <p className="text-base text-amber-700 font-semibold mb-2">⚓ Treasure Hunt Adventure</p>
               <p className="text-sm text-gray-600 mb-3">Dig up buried treasures on mysterious islands!</p>
-              <div className="bg-green-100 text-green-800 text-sm px-4 py-2 rounded-full mb-4 inline-block font-bold">FREE</div>
+              <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-md">FREE</div>
             </div>
             
             {/* Diego - Sea Monster Battle */}
             <div 
-              className={`text-center cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                selectedCharacter === 'diego' ? 'ring-8 ring-blue-400 rounded-3xl shadow-2xl' : 'hover:shadow-xl'
+              className={`clay-card bento-hover-float text-center cursor-pointer p-6 rounded-3xl bg-white/95 backdrop-blur-sm transition-all duration-300 ${
+                selectedCharacter === 'diego' ? 'ring-4 ring-cyan-400 shadow-2xl scale-105' : ''
               }`}
+              style={{
+                boxShadow: '0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8)'
+              }}
               onClick={() => {
                 playSound('anchor_button_click');
-                playAudioFile(diegoBarkSound, 1, true); // Play from middle
+                playAudioFile(diegoBarkSound, 1, true);
                 localStorage.setItem('selectedCharacter', 'diego');
                 if (onStart) onStart();
               }}
               data-testid="character-select-diego"
             >
               <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2 transition-all character-idle-sway ${
+                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 p-2 transition-all character-idle-sway ${
                   selectedCharacter === 'diego' ? 'animate-pulse' : ''
-                }`}>
+                }`} style={{
+                  boxShadow: '0 8px 25px rgba(6, 182, 212, 0.25), inset 0 2px 4px rgba(255,255,255,0.8)'
+                }}>
                   <img 
                     src={diegoImage} 
                     alt="Diego the Pup Pup" 
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 </div>
                 {selectedCharacter === 'diego' && (
-                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center animate-bounce">
-                    <Check className="w-8 h-8 text-white" />
+                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                    <Check className="w-6 h-6 text-white" />
                   </div>
                 )}
               </div>
-              <h3 className="font-bold text-2xl text-blue-700 mb-2">Diego the Pup Pup</h3>
-              <p className="text-lg text-gray-700 font-semibold mb-2">🌊 Sea Monster Battle</p>
+              <h3 className="font-bold text-2xl text-cyan-700 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>Diego the Pup Pup</h3>
+              <p className="text-base text-blue-700 font-semibold mb-2">🌊 Sea Monster Battle</p>
               <p className="text-sm text-gray-600 mb-3">Battle fearsome sea monsters and claim their treasures!</p>
-              <div className="bg-orange-100 text-orange-800 text-sm px-4 py-2 rounded-full mb-4 inline-block font-bold">FREE</div>
+              <div className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-md">FREE</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-8 px-4 bg-gradient-to-b from-white to-green-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-fun text-center text-green-600 mb-4" data-testid="text-features-title">
-            Amazing Pirate Features
-          </h2>
+      {/* Features Section - Sandy Beach Arrival */}
+      <section className="py-12 px-4 relative" style={{
+        background: 'linear-gradient(180deg, #ecfeff 0%, #fef3c7 30%, #fef9c3 60%, #fffbeb 100%)'
+      }}>
+        {/* Beach sand texture overlay */}
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(251, 191, 36, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%)'
+        }} />
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl text-amber-700 mb-3 drop-shadow-sm" style={{ fontFamily: "'Pirata One', cursive" }} data-testid="text-features-title">
+              Amazing Pirate Features
+            </h2>
+            <p className="text-lg text-amber-600/80 font-medium">Everything ye need for a grand spelling adventure!</p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg ring-4 ring-green-200">
-                  <i className="lni lni-cloud-upload text-yellow-400 text-5xl drop-shadow-lg" style={{ 
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    padding: '8px',
-                    borderRadius: '50%'
-                  }}></i>
-                </div>
-                <h3 className="font-bold text-2xl mb-4 text-green-800" data-testid="text-feature-photo-title">
-                  Photo Upload
-                </h3>
-                <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-photo-desc">
-                  Take photos of homework with your phone, then upload them to Red Boot's magic system and watch spelling words appear like treasure!
-                </p>
-              </CardContent>
-            </Card>
+            {/* Photo Upload Card */}
+            <div className="clay-card bento-hover-float bento-hover-green rounded-3xl p-6 bg-white/90 backdrop-blur-sm text-center" style={{
+              boxShadow: '0 8px 32px rgba(34, 197, 94, 0.15), 0 0 0 1px rgba(34, 197, 94, 0.1), inset 0 2px 4px rgba(255,255,255,0.9)'
+            }}>
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-lg" style={{
+                boxShadow: '0 8px 20px rgba(34, 197, 94, 0.35)'
+              }}>
+                <span className="text-4xl">📸</span>
+              </div>
+              <h3 className="font-bold text-xl mb-3 text-emerald-800" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-feature-photo-title">
+                Photo Upload
+              </h3>
+              <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-photo-desc">
+                Snap a photo of your spelling list and watch the magic happen! Words appear ready for adventure.
+              </p>
+            </div>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg ring-4 ring-purple-200">
-                  <i className="lni lni-game text-orange-400 text-5xl drop-shadow-lg" style={{ 
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    padding: '8px',
-                    borderRadius: '50%'
-                  }}>⚔️</i>
-                </div>
-                <h3 className="font-bold text-2xl mb-4 text-purple-800" data-testid="text-feature-game-title">
-                  Epic Adventures
-                </h3>
-                <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-game-desc">
-                  Battle spelling monsters with Red Boot and Diego and discover hidden treasures across magical islands!
-                </p>
-              </CardContent>
-            </Card>
+            {/* Epic Adventures Card */}
+            <div className="clay-card bento-hover-float bento-hover-purple rounded-3xl p-6 bg-white/90 backdrop-blur-sm text-center" style={{
+              boxShadow: '0 8px 32px rgba(147, 51, 234, 0.15), 0 0 0 1px rgba(147, 51, 234, 0.1), inset 0 2px 4px rgba(255,255,255,0.9)'
+            }}>
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-lg" style={{
+                boxShadow: '0 8px 20px rgba(147, 51, 234, 0.35)'
+              }}>
+                <span className="text-4xl">⚔️</span>
+              </div>
+              <h3 className="font-bold text-xl mb-3 text-purple-800" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-feature-game-title">
+                Epic Adventures
+              </h3>
+              <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-game-desc">
+                Battle sea monsters, dig for treasure, and become the greatest spelling pirate of all!
+              </p>
+            </div>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg ring-4 ring-cyan-200">
-                  <i className="lni lni-world text-red-400 text-5xl drop-shadow-lg" style={{ 
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    padding: '8px',
-                    borderRadius: '50%'
-                  }}>🗺️</i>
-                </div>
-                <h3 className="font-bold text-2xl mb-4 text-cyan-800" data-testid="text-feature-progress-title">
-                  Treasure Maps
-                </h3>
-                <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-progress-desc">
-                  Follow Diego the Pup Pup through pirate adventures and track your spelling progress on magical treasure maps!
-                </p>
-              </CardContent>
-            </Card>
+            {/* Treasure Maps Card */}
+            <div className="clay-card bento-hover-float bento-hover-gold rounded-3xl p-6 bg-white/90 backdrop-blur-sm text-center" style={{
+              boxShadow: '0 8px 32px rgba(245, 158, 11, 0.15), 0 0 0 1px rgba(245, 158, 11, 0.1), inset 0 2px 4px rgba(255,255,255,0.9)'
+            }}>
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-lg" style={{
+                boxShadow: '0 8px 20px rgba(245, 158, 11, 0.35)'
+              }}>
+                <span className="text-4xl">🗺️</span>
+              </div>
+              <h3 className="font-bold text-xl mb-3 text-amber-800" style={{ fontFamily: "'Fredoka One', cursive" }} data-testid="text-feature-progress-title">
+                Treasure Maps
+              </h3>
+              <p className="text-gray-700 text-base leading-relaxed" data-testid="text-feature-progress-desc">
+                Track your progress on magical maps and watch your treasure collection grow!
+              </p>
+            </div>
           </div>
         </div>
       </section>
