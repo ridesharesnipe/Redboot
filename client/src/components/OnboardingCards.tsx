@@ -4,7 +4,7 @@ import { ChevronRight, Sparkles, Brain, Gamepad2, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import redBootThinking from "@/assets/characters/red-boot-thinking.jpg";
 import redBootPointing from "@/assets/characters/red-boot-pointing.jpg";
-import redBootCelebrating from "@/assets/characters/red-boot-celebrating.jpg";
+import redBootJumping from "@assets/1765213908924_1765214014077.jpg";
 
 interface OnboardingCardsProps {
   onComplete: () => void;
@@ -47,7 +47,7 @@ const cards: CardData[] = [
     title: "Watch Them Shine",
     subtitle: "Confidence That Lasts",
     description: "Your child will master spelling through play, build confidence, and develop study skills that last a lifetime.",
-    image: redBootCelebrating,
+    image: redBootJumping,
     icon: Trophy,
     accentColor: "text-emerald-600",
     bgGradient: "from-emerald-50 to-green-100",
