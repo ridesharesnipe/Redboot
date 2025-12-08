@@ -161,40 +161,76 @@ export default function Landing({ onStart }: LandingProps) {
               Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4 safe-area-x">
-            <Button 
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4 safe-area-x">
+            {/* Start Adventure - Primary Glass Button */}
+            <button 
               onClick={handleStartAdventure}
-              variant="default" className="font-bold w-full sm:w-auto"
-              size="lg"
+              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+              style={{
+                background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(22, 163, 74, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 40px rgba(34, 197, 94, 0.3)'
+              }}
               data-testid="button-start-adventure"
             >
-              <Compass className="w-5 h-5 mr-2" />
-              Start Adventure
-            </Button>
-            <Button 
+              <span className="flex items-center justify-center gap-2 drop-shadow-md">
+                <Compass className="w-5 h-5" />
+                Start Adventure
+              </span>
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%)',
+                pointerEvents: 'none'
+              }} />
+            </button>
+            
+            {/* Treasure Vault - Gold Glass Button */}
+            <button 
               onClick={() => {
                 initializeAudio();
                 playSound('treasure_chest_open');
                 setLocation('/vault');
               }}
-              variant="secondary" 
-              className="font-bold w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 border-2 border-yellow-600"
-              size="lg"
+              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+              style={{
+                background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(217, 119, 6, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 40px rgba(245, 158, 11, 0.3)'
+              }}
               data-testid="button-treasure-vault"
             >
-              <Gem className="w-5 h-5 mr-2" />
-              Treasure Vault
-            </Button>
-            <Button 
+              <span className="flex items-center justify-center gap-2 drop-shadow-md">
+                <Gem className="w-5 h-5" />
+                Treasure Vault
+              </span>
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%)',
+                pointerEvents: 'none'
+              }} />
+            </button>
+            
+            {/* Start Demo - Deep Blue Glass Button */}
+            <button 
               onClick={handleDemo}
-              variant="secondary" 
-              className="font-bold w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-50 border-2 border-blue-600"
-              size="lg"
+              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+              style={{
+                background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(29, 78, 216, 0.85) 100%)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.35)',
+                boxShadow: '0 8px 32px rgba(29, 78, 216, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 40px rgba(59, 130, 246, 0.2)'
+              }}
               data-testid="button-watch-demo"
             >
-              <Play className="w-5 h-5 mr-2 text-blue-600" />
-              Start Demo
-            </Button>
+              <span className="flex items-center justify-center gap-2 drop-shadow-md">
+                <Play className="w-5 h-5" />
+                Start Demo
+              </span>
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%)',
+                pointerEvents: 'none'
+              }} />
+            </button>
           </div>
         </div>
       </section>
@@ -219,11 +255,14 @@ export default function Landing({ onStart }: LandingProps) {
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto">
             {/* Red Boot - Treasure Hunt */}
             <div 
-              className={`clay-card bento-hover-float text-center cursor-pointer p-6 rounded-3xl bg-white/95 backdrop-blur-sm transition-all duration-300 ${
-                selectedCharacter === 'redboot' ? 'ring-4 ring-yellow-400 shadow-2xl scale-105' : ''
+              className={`group text-center cursor-pointer p-6 rounded-3xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${
+                selectedCharacter === 'redboot' ? 'ring-4 ring-yellow-400 scale-105' : ''
               }`}
               style={{
-                boxShadow: '0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8)'
+                background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.6) 0%, rgba(6, 95, 120, 0.7) 100%)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 15px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 60px rgba(239, 68, 68, 0.15)'
               }}
               onClick={() => {
                 playSound('anchor_button_click');
@@ -234,10 +273,11 @@ export default function Landing({ onStart }: LandingProps) {
               data-testid="character-select-redboot"
             >
               <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-100 via-orange-50 to-red-100 p-2 transition-all character-idle-sway ${
+                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl p-1 transition-all character-idle-sway ${
                   selectedCharacter === 'redboot' ? 'animate-pulse' : ''
                 }`} style={{
-                  boxShadow: '0 8px 25px rgba(239, 68, 68, 0.25), inset 0 2px 4px rgba(255,255,255,0.8)'
+                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(239, 68, 68, 0.3) 100%)',
+                  boxShadow: '0 8px 30px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.3)'
                 }}>
                   <img 
                     src={redBootCrew} 
@@ -251,19 +291,24 @@ export default function Landing({ onStart }: LandingProps) {
                   </div>
                 )}
               </div>
-              <h3 className="font-bold text-2xl text-red-700 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>Red Boot</h3>
-              <p className="text-base text-amber-700 font-semibold mb-2">⚓ Treasure Hunt Adventure</p>
-              <p className="text-sm text-gray-600 mb-3">Dig up buried treasures on mysterious islands!</p>
-              <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-md">FREE</div>
+              <h3 className="font-bold text-2xl text-white mb-2 drop-shadow-lg" style={{ fontFamily: "'Fredoka One', cursive" }}>Red Boot</h3>
+              <p className="text-base text-amber-300 font-semibold mb-2 drop-shadow">⚓ Treasure Hunt Adventure</p>
+              <p className="text-sm text-cyan-100 mb-3 drop-shadow">Dig up buried treasures on mysterious islands!</p>
+              <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-lg" style={{
+                boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
+              }}>FREE</div>
             </div>
             
             {/* Diego - Sea Monster Battle */}
             <div 
-              className={`clay-card bento-hover-float text-center cursor-pointer p-6 rounded-3xl bg-white/95 backdrop-blur-sm transition-all duration-300 ${
-                selectedCharacter === 'diego' ? 'ring-4 ring-cyan-400 shadow-2xl scale-105' : ''
+              className={`group text-center cursor-pointer p-6 rounded-3xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${
+                selectedCharacter === 'diego' ? 'ring-4 ring-cyan-300 scale-105' : ''
               }`}
               style={{
-                boxShadow: '0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8)'
+                background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.6) 0%, rgba(6, 95, 120, 0.7) 100%)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 15px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 60px rgba(6, 182, 212, 0.15)'
               }}
               onClick={() => {
                 playSound('anchor_button_click');
@@ -274,10 +319,11 @@ export default function Landing({ onStart }: LandingProps) {
               data-testid="character-select-diego"
             >
               <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 p-2 transition-all character-idle-sway ${
+                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 relative overflow-hidden rounded-2xl p-1 transition-all character-idle-sway ${
                   selectedCharacter === 'diego' ? 'animate-pulse' : ''
                 }`} style={{
-                  boxShadow: '0 8px 25px rgba(6, 182, 212, 0.25), inset 0 2px 4px rgba(255,255,255,0.8)'
+                  background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)',
+                  boxShadow: '0 8px 30px rgba(6, 182, 212, 0.3), inset 0 1px 0 rgba(255,255,255,0.3)'
                 }}>
                   <img 
                     src={diegoImage} 
@@ -291,10 +337,12 @@ export default function Landing({ onStart }: LandingProps) {
                   </div>
                 )}
               </div>
-              <h3 className="font-bold text-2xl text-cyan-700 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>Diego the Pup Pup</h3>
-              <p className="text-base text-blue-700 font-semibold mb-2">🌊 Sea Monster Battle</p>
-              <p className="text-sm text-gray-600 mb-3">Battle fearsome sea monsters and claim their treasures!</p>
-              <div className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-md">FREE</div>
+              <h3 className="font-bold text-2xl text-white mb-2 drop-shadow-lg" style={{ fontFamily: "'Fredoka One', cursive" }}>Diego the Pup Pup</h3>
+              <p className="text-base text-cyan-300 font-semibold mb-2 drop-shadow">🌊 Sea Monster Battle</p>
+              <p className="text-sm text-cyan-100 mb-3 drop-shadow">Battle fearsome sea monsters and claim their treasures!</p>
+              <div className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white text-sm px-4 py-2 rounded-full inline-block font-bold shadow-lg" style={{
+                boxShadow: '0 4px 15px rgba(6, 182, 212, 0.4)'
+              }}>FREE</div>
             </div>
           </div>
         </div>
