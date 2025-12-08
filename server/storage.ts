@@ -3,6 +3,9 @@ import {
   children,
   wordLists,
   progress,
+  trickyWords,
+  achievements,
+  userAchievements,
   type User,
   type UpsertUser,
   type Child,
@@ -11,9 +14,15 @@ import {
   type InsertWordList,
   type Progress,
   type InsertProgress,
+  type TrickyWord,
+  type InsertTrickyWord,
+  type Achievement,
+  type InsertAchievement,
+  type UserAchievement,
+  type InsertUserAchievement,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (anonymous players with session security)
@@ -39,6 +48,19 @@ export interface IStorage {
   getProgress(childId: string): Promise<Progress[]>;
   createProgress(progressData: InsertProgress): Promise<Progress>;
   getWeeklyProgress(childId: string, weekNumber: number): Promise<Progress[]>;
+  
+  // Tricky words operations
+  getTrickyWords(userId: string, status?: 'active' | 'mastered'): Promise<TrickyWord[]>;
+  addTrickyWord(userId: string, word: string): Promise<TrickyWord>;
+  updateTrickyWord(id: string, updates: Partial<TrickyWord>): Promise<TrickyWord>;
+  recordTrickyWordAttempt(userId: string, word: string, correct: boolean): Promise<TrickyWord>;
+  
+  // Achievement operations
+  getAchievements(): Promise<Achievement[]>;
+  getUserAchievements(userId: string): Promise<(UserAchievement & { achievement: Achievement })[]>;
+  awardAchievement(userId: string, achievementId: string, metadata?: Record<string, any>): Promise<UserAchievement>;
+  hasAchievement(userId: string, achievementId: string): Promise<boolean>;
+  seedAchievements(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -301,6 +323,217 @@ export class DatabaseStorage implements IStorage {
         )
       );
     return result.map(row => row.progress);
+  }
+
+  // Tricky words operations
+  async getTrickyWords(userId: string, status?: 'active' | 'mastered'): Promise<TrickyWord[]> {
+    if (status) {
+      return await db
+        .select()
+        .from(trickyWords)
+        .where(and(eq(trickyWords.userId, userId), eq(trickyWords.status, status)))
+        .orderBy(desc(trickyWords.addedAt));
+    }
+    return await db
+      .select()
+      .from(trickyWords)
+      .where(eq(trickyWords.userId, userId))
+      .orderBy(desc(trickyWords.addedAt));
+  }
+
+  async addTrickyWord(userId: string, word: string): Promise<TrickyWord> {
+    // Check if word already exists for this user
+    const [existing] = await db
+      .select()
+      .from(trickyWords)
+      .where(and(eq(trickyWords.userId, userId), eq(trickyWords.word, word.toLowerCase())));
+    
+    if (existing) {
+      // Word exists - increment mistake count and reset to active if mastered
+      const [updated] = await db
+        .update(trickyWords)
+        .set({
+          mistakeCount: (existing.mistakeCount || 0) + 1,
+          status: 'active',
+          correctStreak: 0,
+          lastPracticed: new Date(),
+        })
+        .where(eq(trickyWords.id, existing.id))
+        .returning();
+      return updated;
+    }
+    
+    // Create new tricky word
+    const [newTrickyWord] = await db
+      .insert(trickyWords)
+      .values({
+        userId,
+        word: word.toLowerCase(),
+        status: 'active',
+        mistakeCount: 1,
+        correctStreak: 0,
+      })
+      .returning();
+    return newTrickyWord;
+  }
+
+  async updateTrickyWord(id: string, updates: Partial<TrickyWord>): Promise<TrickyWord> {
+    const [updated] = await db
+      .update(trickyWords)
+      .set({ ...updates, lastPracticed: new Date() })
+      .where(eq(trickyWords.id, id))
+      .returning();
+    return updated;
+  }
+
+  async recordTrickyWordAttempt(userId: string, word: string, correct: boolean): Promise<TrickyWord> {
+    // Find the tricky word
+    const [existing] = await db
+      .select()
+      .from(trickyWords)
+      .where(and(eq(trickyWords.userId, userId), eq(trickyWords.word, word.toLowerCase())));
+    
+    if (!existing) {
+      // If word doesn't exist and they got it wrong, add it
+      if (!correct) {
+        return this.addTrickyWord(userId, word);
+      }
+      // If correct and word doesn't exist, create it as mastered
+      const [newWord] = await db
+        .insert(trickyWords)
+        .values({
+          userId,
+          word: word.toLowerCase(),
+          status: 'mastered',
+          mistakeCount: 0,
+          correctStreak: 1,
+          masteredAt: new Date(),
+        })
+        .returning();
+      return newWord;
+    }
+    
+    if (correct) {
+      const newStreak = (existing.correctStreak || 0) + 1;
+      // Master word after 3 correct answers in a row
+      const isMastered = newStreak >= 3;
+      
+      const [updated] = await db
+        .update(trickyWords)
+        .set({
+          correctStreak: newStreak,
+          status: isMastered ? 'mastered' : 'active',
+          masteredAt: isMastered ? new Date() : existing.masteredAt,
+          lastPracticed: new Date(),
+        })
+        .where(eq(trickyWords.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // Wrong answer - reset streak and increment mistakes
+      const [updated] = await db
+        .update(trickyWords)
+        .set({
+          correctStreak: 0,
+          mistakeCount: (existing.mistakeCount || 0) + 1,
+          status: 'active',
+          lastPracticed: new Date(),
+        })
+        .where(eq(trickyWords.id, existing.id))
+        .returning();
+      return updated;
+    }
+  }
+
+  // Achievement operations
+  async getAchievements(): Promise<Achievement[]> {
+    return await db.select().from(achievements);
+  }
+
+  async getUserAchievements(userId: string): Promise<(UserAchievement & { achievement: Achievement })[]> {
+    const result = await db
+      .select()
+      .from(userAchievements)
+      .innerJoin(achievements, eq(userAchievements.achievementId, achievements.id))
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(desc(userAchievements.earnedAt));
+    
+    return result.map(row => ({
+      ...row.user_achievements,
+      achievement: row.achievements,
+    }));
+  }
+
+  async awardAchievement(userId: string, achievementId: string, metadata?: Record<string, any>): Promise<UserAchievement> {
+    // Check if already awarded
+    const hasIt = await this.hasAchievement(userId, achievementId);
+    if (hasIt) {
+      const [existing] = await db
+        .select()
+        .from(userAchievements)
+        .where(and(eq(userAchievements.userId, userId), eq(userAchievements.achievementId, achievementId)));
+      return existing;
+    }
+    
+    const [newAchievement] = await db
+      .insert(userAchievements)
+      .values({
+        userId,
+        achievementId,
+        metadata,
+      })
+      .returning();
+    return newAchievement;
+  }
+
+  async hasAchievement(userId: string, achievementId: string): Promise<boolean> {
+    const [existing] = await db
+      .select()
+      .from(userAchievements)
+      .where(and(eq(userAchievements.userId, userId), eq(userAchievements.achievementId, achievementId)));
+    return !!existing;
+  }
+
+  async seedAchievements(): Promise<void> {
+    const defaultAchievements: InsertAchievement[] = [
+      // Spelling achievements
+      { id: 'first_word', title: 'First Mate', description: 'Spell your first word correctly', icon: '⚓', category: 'spelling', threshold: 1, rarity: 'common' },
+      { id: 'word_master_10', title: 'Word Hunter', description: 'Master 10 spelling words', icon: '🎯', category: 'spelling', threshold: 10, rarity: 'common' },
+      { id: 'word_master_50', title: 'Word Wizard', description: 'Master 50 spelling words', icon: '🧙', category: 'spelling', threshold: 50, rarity: 'rare' },
+      { id: 'word_master_100', title: 'Spelling Captain', description: 'Master 100 spelling words', icon: '👑', category: 'spelling', threshold: 100, rarity: 'epic' },
+      { id: 'perfect_session', title: 'Perfect Voyage', description: 'Complete a practice session with no mistakes', icon: '⭐', category: 'spelling', threshold: 1, rarity: 'common' },
+      { id: 'perfect_week', title: 'Legendary Week', description: 'Get 100% on your Friday test', icon: '🏆', category: 'spelling', threshold: 1, rarity: 'legendary' },
+      
+      // Streak achievements
+      { id: 'streak_3', title: 'Setting Sail', description: 'Practice 3 days in a row', icon: '⛵', category: 'streak', threshold: 3, rarity: 'common' },
+      { id: 'streak_7', title: 'Week Warrior', description: 'Practice 7 days in a row', icon: '🗓️', category: 'streak', threshold: 7, rarity: 'rare' },
+      { id: 'streak_30', title: 'Ocean Master', description: 'Practice 30 days in a row', icon: '🌊', category: 'streak', threshold: 30, rarity: 'legendary' },
+      
+      // Treasure achievements
+      { id: 'treasure_50', title: 'Treasure Finder', description: 'Collect 50 treasures', icon: '💎', category: 'treasure', threshold: 50, rarity: 'common' },
+      { id: 'treasure_200', title: 'Treasure Hunter', description: 'Collect 200 treasures', icon: '💰', category: 'treasure', threshold: 200, rarity: 'rare' },
+      { id: 'treasure_500', title: 'Treasure King', description: 'Collect 500 treasures', icon: '👑', category: 'treasure', threshold: 500, rarity: 'epic' },
+      
+      // Tricky word achievements
+      { id: 'tricky_conquered_5', title: 'Tricky Tackler', description: 'Master 5 tricky words', icon: '💪', category: 'spelling', threshold: 5, rarity: 'common' },
+      { id: 'tricky_conquered_20', title: 'Tricky Terminator', description: 'Master 20 tricky words', icon: '🦸', category: 'spelling', threshold: 20, rarity: 'rare' },
+      
+      // Special achievements
+      { id: 'sea_monster_slayer', title: 'Sea Monster Slayer', description: 'Complete 10 practice sessions with Diego', icon: '🐙', category: 'special', threshold: 10, rarity: 'rare' },
+      { id: 'treasure_hunter', title: 'Red Boot\'s Treasure Hunter', description: 'Complete 10 practice sessions with Red Boot', icon: '🏴‍☠️', category: 'special', threshold: 10, rarity: 'rare' },
+    ];
+
+    // Insert achievements, ignoring conflicts
+    for (const achievement of defaultAchievements) {
+      try {
+        await db
+          .insert(achievements)
+          .values(achievement)
+          .onConflictDoNothing();
+      } catch (error) {
+        // Ignore duplicate key errors
+      }
+    }
   }
 }
 
