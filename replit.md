@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### December 8, 2025 - Comprehensive Responsive Design Overhaul
+- **Game Component Responsive Heights**: SeaMonsterBattle and TreasureRoad converted from fixed 500-700px heights to responsive min-h-[50vh] md:min-h-[60vh] lg:min-h-[700px]
+- **Scaled Emojis & Characters**: Sea monsters, palm trees, boats, and characters use responsive text sizing (text-5xl sm:text-6xl md:text-8xl) to scale across devices
+- **Responsive Spelling Input**: SimplePractice input area uses clamp() for fluid font-size (24px to 48px), letter-spacing, and border width
+- **Mobile CSS Utilities**: Added game-specific breakpoints at 480px and 768px in index.css with .game-container, .game-emoji-lg/xl, .game-character classes
+- **Treasure Display Optimization**: Treasure collection shows max 12 items on mobile with "+X" indicator for remaining
+- **Responsive Patterns**: Tailwind mobile-first approach with sm:/md:/lg: breakpoints, inline clamp() for continuous scaling
+
 ### December 7, 2025 - UI Modernization with 2025 Design Trends
 - **Bento Grid Layout**: Dashboard reorganized into modular grid boxes for stats, word list, practice button, and treasure preview
 - **Aurora Background**: Soft moving ocean-themed color gradients with CSS animations (--aurora-color-1/2/3 custom properties)
