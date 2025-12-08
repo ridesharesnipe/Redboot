@@ -107,13 +107,23 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   // Save treasures to database and complete practice
   const saveTreasuresAndComplete = async (results: { correct: number; total: number; treasureEarned: number }) => {
     try {
-      // Save treasures to database
-      await apiRequest('/api/treasures/add', 'POST', {
+      // Save treasures to database - server handles achievement checking
+      const response = await apiRequest('/api/treasures/add', 'POST', {
         character: selectedCharacter,
         amount: results.treasureEarned
       });
+      const data = await response.json();
       
-      // Check and award achievements based on results
+      // Show celebration for any newly awarded achievements from server
+      if (data.newlyAwarded && data.newlyAwarded.length > 0) {
+        toast({
+          title: "🏅 Badges Earned!",
+          description: `You earned ${data.newlyAwarded.length} new badge${data.newlyAwarded.length > 1 ? 's' : ''}! Check your badge collection.`,
+        });
+        playSound('cannon_achievement');
+      }
+      
+      // Also check for perfect session and first word achievements (client-side triggers)
       await checkAndAwardAchievements(results);
     } catch (error) {
       console.error('Failed to save treasures:', error);

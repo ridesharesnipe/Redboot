@@ -228,7 +228,11 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Calculate new treasure amounts based on character
-    const updates: any = { updatedAt: new Date() };
+    // Also increment practice count for tracking achievements
+    const updates: any = { 
+      updatedAt: new Date(),
+      practiceCount: (currentUser.practiceCount || 0) + 1
+    };
     
     if (character === 'redboot') {
       updates.treasureDiamonds = (currentUser.treasureDiamonds || 0) + amountPerType + (remainder > 0 ? 1 : 0);

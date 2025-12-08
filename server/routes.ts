@@ -314,7 +314,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await storage.addTreasures(playerId, character, amount);
-      res.json({ success: true });
+      
+      // Check for treasure-based achievements after adding treasures
+      const newlyAwarded: string[] = [];
+      const user = await storage.getUser(playerId);
+      if (user) {
+        // Calculate total treasures for this character
+        const totalTreasures = character === 'redboot' 
+          ? (user.treasureDiamonds || 0) + (user.treasureCoins || 0) + (user.treasureCrowns || 0) + 
+            (user.treasureBags || 0) + (user.treasureStars || 0) + (user.treasureTrophies || 0)
+          : (user.diegoTreasureDiamonds || 0) + (user.diegoTreasureCoins || 0) + (user.diegoTreasureCrowns || 0) + 
+            (user.diegoTreasureBags || 0) + (user.diegoTreasureStars || 0) + (user.diegoTreasureTrophies || 0);
+        
+        // Check treasure milestones
+        const treasureAchievements = [
+          { id: 'treasure_50', threshold: 50 },
+          { id: 'treasure_200', threshold: 200 },
+          { id: 'treasure_500', threshold: 500 },
+        ];
+        
+        for (const achievement of treasureAchievements) {
+          if (totalTreasures >= achievement.threshold) {
+            const hasIt = await storage.hasAchievement(playerId, achievement.id);
+            if (!hasIt) {
+              await storage.awardAchievement(playerId, achievement.id, { totalTreasures, character });
+              newlyAwarded.push(achievement.id);
+            }
+          }
+        }
+        
+        // Check character-specific achievements (10 practice sessions)
+        const characterAchievement = character === 'redboot' ? 'treasure_hunter' : 'sea_monster_slayer';
+        const practiceSessions = (user.practiceCount || 0) + 1;
+        if (practiceSessions >= 10) {
+          const hasIt = await storage.hasAchievement(playerId, characterAchievement);
+          if (!hasIt) {
+            await storage.awardAchievement(playerId, characterAchievement, { practiceSessions, character });
+            newlyAwarded.push(characterAchievement);
+          }
+        }
+      }
+      
+      res.json({ success: true, newlyAwarded });
     } catch (error) {
       console.error('Error adding treasures:', error);
       res.status(500).json({ message: 'Failed to add treasures' });
