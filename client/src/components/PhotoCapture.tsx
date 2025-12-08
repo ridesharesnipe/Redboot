@@ -49,25 +49,44 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     };
   }, [stream]);
 
+  // FIX: Bind stream to video element after camera view renders
+  useEffect(() => {
+    if (stream && isCameraActive && videoRef.current) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(error => {
+        console.error('Error playing video:', error);
+      });
+    }
+  }, [stream, isCameraActive]);
+
   // Start camera
   const startCamera = async () => {
     setCameraError(null);
+    
+    // Check if camera is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraError('Camera not available on this device. Please use the upload option.');
+      toast({
+        title: "Camera Not Available",
+        description: "Your browser doesn't support camera access. Please upload a photo instead.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'environment', // Back camera on mobile
-          width: { ideal: 1920, min: 1280 },
-          height: { ideal: 1080, min: 720 }
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
         }
       });
       
       setStream(mediaStream);
       setIsCameraActive(true);
+      setCameraError(null);
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
-      }
     } catch (error) {
       console.error('Error accessing camera:', error);
       setCameraError('Camera access denied. You can still upload a photo instead.');
@@ -282,7 +301,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       });
 
       await worker.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ',
+        // FIX: Include digits 0-9 for numbered lists like "1. word"
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .',
         tessedit_pageseg_mode: 6 as any, // Single uniform block of text
         tessedit_ocr_engine_mode: 1 as any,
       });
@@ -290,21 +310,19 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const result = await worker.recognize(preprocessedImage);
       await worker.terminate();
       
-      // Extract words from both structured data and raw text
-      let allWords = extractWordsFromStructuredData(result.data);
-      const textWords = extractWordsFromText(result.data.text);
-      textWords.forEach(w => {
-        if (!allWords.includes(w)) {
-          allWords.push(w);
-        }
-      });
+      // FIX: Prioritize numbered words extraction (most spelling lists are numbered)
+      const numberedWords = extractWordsFromText(result.data.text);
+      console.log(`📝 Extracted numbered words:`, numberedWords);
+      
+      // Only use structured data as fallback if numbered extraction found nothing
+      let allWords = numberedWords.length > 0 ? numberedWords : extractWordsFromStructuredData(result.data);
       
       console.log(`✅ OCR found ${allWords.length} words:`, allWords);
       setOcrProgress(100);
 
-      // Deduplicate and keep unique words
-      const uniqueWords = Array.from(new Set(allWords));
-      console.log(`🎯 TOTAL UNIQUE WORDS FOUND: ${uniqueWords.length}`, uniqueWords);
+      // Deduplicate and limit to reasonable spelling list size (max 20 words)
+      const uniqueWords = Array.from(new Set(allWords)).slice(0, 20);
+      console.log(`🎯 FINAL WORDS (max 20): ${uniqueWords.length}`, uniqueWords);
       
       let words = uniqueWords;
 
@@ -503,6 +521,34 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     return corrections[word] || word;
   };
 
+  // Check if a word looks like a real spelling word (not garbage OCR output)
+  const isValidSpellingWord = (word: string): boolean => {
+    if (!word || word.length < 3 || word.length > 15) return false;
+    
+    // Must be all letters
+    if (!/^[a-zA-Z]+$/.test(word)) return false;
+    
+    // Reject words with 3+ consecutive same letters (garbage like "fffl", "ssst")
+    if (/(.)\1\1/.test(word)) return false;
+    
+    // Reject words that are just repeated patterns (like "stst", "bsbs")
+    if (/^(.{1,2})\1+$/.test(word)) return false;
+    
+    // Reject words with too many consonants in a row (garbage text)
+    if (/[bcdfghjklmnpqrstvwxz]{5,}/i.test(word)) return false;
+    
+    // Must have at least one vowel (real words have vowels)
+    if (!/[aeiou]/i.test(word)) return false;
+    
+    // Reject very short words that are likely noise
+    if (word.length === 3 && !/^(the|and|for|but|not|you|all|can|had|her|was|one|our|out|day|get|has|him|his|how|its|may|new|now|old|see|two|way|who|boy|did|man|men|run|say|she|too|use|art|ask|bad|bag|bat|bed|big|bit|box|bus|buy|car|cat|cup|cut|dog|dry|eat|end|eye|far|few|fly|fun|got|gun|hat|hit|hot|job|key|kid|lay|led|leg|let|lie|lit|lot|low|mad|map|met|mix|mud|net|nor|nut|odd|oil|own|pay|pen|pet|pie|pin|pit|pop|pot|put|ran|raw|red|rid|rip|row|rub|sad|sat|sea|set|sit|six|sky|sun|tap|ten|tie|tip|top|try|van|via|war|wet|win|won|yes|yet|zip)$/.test(word)) {
+      // Short words must be common English words
+      return false;
+    }
+    
+    return true;
+  };
+
   // Extract and clean words from OCR text
   const extractWordsFromText = (text: string): string[] => {
     console.log('Extracting words from OCR text:', text);
@@ -530,12 +576,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       
       // Look for numbered lists with more flexible patterns
       const numberedPatterns = [
-        /^\s*(\d+)[\.\)\s]\s*([a-zA-Z]{2,20})/,           // "1. word" or "1) word" (allow 2-20 chars)
-        /^\s*(\d+)\s+([a-zA-Z]{2,20})/,                   // "1 word"
-        /(\d+)\.\s*([a-zA-Z]{2,20})/,                     // anywhere in line "1. word"
-        /(\d+)\s+([a-zA-Z]{2,20})\b/,                     // "1 word" with word boundary
-        /^\s*(\d{1,2})\s*\.\s*([a-zA-Z]+)/,              // More flexible "10. word" or "1. word"
-        /(\d{1,2})\.([a-zA-Z]+)/                         // "10.word" (no space)
+        /^\s*(\d+)[\.\)\s]\s*([a-zA-Z]{3,15})/,           // "1. word" or "1) word"
+        /^\s*(\d+)\s+([a-zA-Z]{3,15})/,                   // "1 word"
+        /(\d+)\.\s*([a-zA-Z]{3,15})/,                     // anywhere in line "1. word"
+        /(\d+)\s+([a-zA-Z]{3,15})\b/,                     // "1 word" with word boundary
+        /^\s*(\d{1,2})\s*\.\s*([a-zA-Z]{3,15})/,         // More flexible "10. word" or "1. word"
+        /(\d{1,2})\.([a-zA-Z]{3,15})/                     // "10.word" (no space)
       ];
       
       for (const pattern of numberedPatterns) {
@@ -546,6 +592,12 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           
           // Handle common OCR errors
           word = fixOCRErrors(word);
+          
+          // STRICT: Only accept valid spelling words
+          if (!isValidSpellingWord(word)) {
+            console.log(`Rejected invalid word: "${word}"`);
+            return;
+          }
           
           // Fix common number OCR errors
           if (number === 0 && word === 'waited') number = 9; // "0. waited" -> "9. waited"
@@ -559,20 +611,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         }
       }
       
-      // Also look for specific known words that might be missed
-      const knownWords = ['jail', 'spray', 'mail', 'play', 'paint', 'tray', 'braid', 'delay', 'waited', 'holiday', 'training', 'saying'];
-      for (const knownWord of knownWords) {
-        if (cleanLine.toLowerCase().includes(knownWord)) {
-          console.log(`Found known word: ${knownWord}`);
-          // Add to other words if not already found in numbered list
-          if (!numberedWords.includes(knownWord)) {
-            otherWords.push(knownWord);
-          }
-          return;
-        }
-      }
-      
-      // Skip fragments that are clearly header parts
+      // Skip fragments that are clearly header parts or garbage
       if (cleanLine.length < 15 && (/elling|pate|tern|ain|att/i.test(cleanLine))) {
         console.log('Skipping suspected header fragment:', cleanLine);
         return;
@@ -582,25 +621,30 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const bulletMatch = cleanLine.match(/^[•\-*]\s*([a-zA-Z]{3,15})/);
       if (bulletMatch) {
         const word = bulletMatch[1].toLowerCase().trim();
-        console.log('Found bullet word:', word);
-        otherWords.push(word);
+        if (isValidSpellingWord(word)) {
+          console.log('Found bullet word:', word);
+          otherWords.push(word);
+        }
         return;
       }
       
-      // Extract individual words from line (more flexible approach)
-      const lineWords = cleanLine.match(/\b[a-zA-Z]{2,20}\b/g); // Accept 2-20 letter words
+      // Extract individual words from line (STRICT filtering)
+      const lineWords = cleanLine.match(/\b[a-zA-Z]{3,15}\b/g); // Only 3-15 letter words
       if (lineWords) {
         lineWords.forEach(word => {
           const cleanWord = word.toLowerCase().trim();
           // Filter out common non-spelling words and header fragments
-          const skipWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att', 'word', 'list', 'spelling', 'homework', 'test', 'on', 'an', 'at', 'be', 'by', 'do', 'go', 'he', 'if', 'in', 'is', 'it', 'me', 'my', 'no', 'of', 'or', 'so', 'to', 'up', 'us', 'we'];
+          const skipWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say', 'she', 'too', 'use', 'elling', 'pate', 'tern', 'ain', 'att', 'word', 'list', 'spelling', 'homework', 'test', 'pattern', 'week', 'date', 'name', 'class', 'grade'];
           
-          if (!skipWords.includes(cleanWord) && cleanWord.length >= 2) {
-            console.log('Found word:', cleanWord);
+          // STRICT: Must pass validation AND not be a skip word
+          if (!skipWords.includes(cleanWord) && isValidSpellingWord(cleanWord)) {
+            console.log('Found valid word:', cleanWord);
             // Avoid duplicates
             if (!otherWords.includes(cleanWord) && !numberedWords.includes(cleanWord)) {
               otherWords.push(cleanWord);
             }
+          } else {
+            console.log(`Rejected word: "${cleanWord}"`);
           }
         });
       }
