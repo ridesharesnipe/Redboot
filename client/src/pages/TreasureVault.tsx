@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { useAudio } from '@/contexts/AudioContext';
 import redBootImage from '@assets/17586438224363330781733458024019_1758643831046.png';
 import diegoImage from '@assets/17586535267086549247092506575635_1758653585024.png';
+import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 
 interface TreasureCount {
   diamonds: number;
@@ -31,7 +32,7 @@ interface FallingTreasure {
 
 export default function TreasureVault() {
   const [, setLocation] = useLocation();
-  const { playSound } = useAudio();
+  const { playSound, playAudioFile } = useAudio();
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
   const [chestOpen, setChestOpen] = useState(false);
   const [fallingTreasures, setFallingTreasures] = useState<FallingTreasure[]>([]);
@@ -223,6 +224,7 @@ export default function TreasureVault() {
   const openChest = () => {
     if (!chestOpen) {
       playSound('treasure_chest_open');
+      playAudioFile(sparkleSound, 0.7); // Play sparkle sound when jewels rain down
       setChestOpen(true);
       startContinuousTreasureShower(); // Start continuous treasure shower animation
       

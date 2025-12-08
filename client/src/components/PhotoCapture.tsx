@@ -7,6 +7,7 @@ import { useAudio } from "@/contexts/AudioContext";
 import { photoStorage, getWeekStart } from "@/lib/photoStorage";
 import { Upload, Check, X, Edit, Loader, Camera, Sparkles } from 'lucide-react';
 import redBootImage from "@assets/1765213908924_1765214014077.jpg";
+import sparkleSound from "@assets/sparkle-355937_1765236810252.mp3";
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
@@ -34,7 +35,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const { toast } = useToast();
-  const { playSound } = useAudio();
+  const { playSound, playAudioFile } = useAudio();
 
   // Treasure jewels for celebration animation
   const treasureJewels = ['💎', '💚', '⭐', '👑', '💰', '🏆', '💜', '💙', '🔶', '✨'];
@@ -335,6 +336,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         setTreasureWords(demoWords);
         setShowTreasureCelebration(true);
         playSound('treasure_chest_open');
+        playAudioFile(sparkleSound, 0.7);
         
         // After 3 seconds, show the word list
         setTimeout(() => {
@@ -367,6 +369,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       setTreasureWords(words);
       setShowTreasureCelebration(true);
       playSound('treasure_chest_open');
+      playAudioFile(sparkleSound, 0.7);
       
       // After 3 seconds, show the word list
       setTimeout(() => {
