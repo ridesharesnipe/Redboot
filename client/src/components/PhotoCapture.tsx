@@ -43,7 +43,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   };
 
-  // Preprocess image for better OCR with 300 DPI and adaptive binarization
+  // Preprocess image for better OCR with optimized scaling
   const preprocessImageForOCR = async (imageData: string): Promise<string> => {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
@@ -51,9 +51,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const img = new Image();
       
       img.onload = () => {
-        // Scale to ~300 DPI equivalent (3x-4x original size for better OCR)
-        const targetDPI = 300;
-        const scale = 3.5;
+        // Optimized scale - 2x is sufficient for most spelling lists
+        const scale = 2;
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         
@@ -158,136 +157,51 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     });
   };
 
-  // Process image with MULTI-PASS OCR for maximum word detection
+  // Process image with FAST single-pass OCR
   const processImage = async (imageData: string) => {
     setIsProcessing(true);
     setOcrProgress(0);
     
     try {
-      console.log('🚀 Starting MULTI-PASS OCR processing...');
+      console.log('🚀 Starting FAST OCR processing...');
       
       // Preprocess image for better OCR
-      console.log('📸 Pass 1: Preprocessing with Otsu thresholding...');
+      console.log('📸 Preprocessing image...');
+      setOcrProgress(10);
       const preprocessedImage = await preprocessImageForOCR(imageData);
       
       // Lazy-load tesseract.js
       const { createWorker } = await import('tesseract.js');
       
-      let allWords: string[] = [];
-      const wordConfidence = new Map<string, number>(); // Track best confidence per word
-      
-      // PASS 1: PSM 11 (Sparse text - best for buttons/pills)
-      console.log('🔍 Pass 1: Trying PSM 11 (sparse text detection)...');
-      const worker1 = await createWorker('eng', 1, {
+      // Single optimized pass - PSM 6 works well for spelling lists (single block of text)
+      console.log('🔍 Running OCR...');
+      const worker = await createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
-            setOcrProgress(Math.round(m.progress * 30)); // 0-30%
+            setOcrProgress(20 + Math.round(m.progress * 70)); // 20-90%
           }
         }
       });
 
-      await worker1.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
-        tessedit_pageseg_mode: 11 as any, // Sparse text
+      await worker.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ',
+        tessedit_pageseg_mode: 6 as any, // Single uniform block of text
         tessedit_ocr_engine_mode: 1 as any,
-        user_defined_dpi: '300',
       });
 
-      const result1 = await worker1.recognize(preprocessedImage);
-      await worker1.terminate();
+      const result = await worker.recognize(preprocessedImage);
+      await worker.terminate();
       
-      // Try BOTH structured AND text extraction, combine results
-      let words1 = extractWordsFromStructuredData(result1.data);
-      const textWords1 = extractWordsFromText(result1.data.text);
-      textWords1.forEach(w => {
-        if (!words1.includes(w)) {
-          words1.push(w);
-        }
-      });
-      console.log(`✅ Pass 1 found ${words1.length} words:`, words1);
-      words1.forEach(w => {
-        allWords.push(w);
-        wordConfidence.set(w, result1.data.confidence || 0);
-      });
-
-      // PASS 2: PSM 3 (Automatic - good for mixed layouts)
-      console.log('🔍 Pass 2: Trying PSM 3 (automatic layout detection)...');
-      const worker2 = await createWorker('eng', 1, {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setOcrProgress(30 + Math.round(m.progress * 30)); // 30-60%
-          }
-        }
-      });
-
-      await worker2.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
-        tessedit_pageseg_mode: 3 as any, // Automatic
-        tessedit_ocr_engine_mode: 1 as any,
-        user_defined_dpi: '300',
-      });
-
-      const result2 = await worker2.recognize(preprocessedImage);
-      await worker2.terminate();
-      
-      // Try BOTH structured AND text extraction, combine results
-      let words2 = extractWordsFromStructuredData(result2.data);
-      const textWords2 = extractWordsFromText(result2.data.text);
-      textWords2.forEach(w => {
-        if (!words2.includes(w)) {
-          words2.push(w);
-        }
-      });
-      console.log(`✅ Pass 2 found ${words2.length} words:`, words2);
-      words2.forEach(w => {
-        if (!wordConfidence.has(w) || (result2.data.confidence || 0) > (wordConfidence.get(w) || 0)) {
-          wordConfidence.set(w, result2.data.confidence || 0);
-        }
+      // Extract words from both structured data and raw text
+      let allWords = extractWordsFromStructuredData(result.data);
+      const textWords = extractWordsFromText(result.data.text);
+      textWords.forEach(w => {
         if (!allWords.includes(w)) {
           allWords.push(w);
         }
       });
-
-      // PASS 3: Try inverted image (helps with some color schemes)
-      console.log('🔍 Pass 3: Trying with inverted colors...');
-      const invertedPreprocessed = await invertImage(preprocessedImage);
       
-      const worker3 = await createWorker('eng', 1, {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setOcrProgress(60 + Math.round(m.progress * 30)); // 60-90%
-          }
-        }
-      });
-
-      await worker3.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789. -',
-        tessedit_pageseg_mode: 11 as any,
-        tessedit_ocr_engine_mode: 1 as any,
-        user_defined_dpi: '300',
-      });
-
-      const result3 = await worker3.recognize(invertedPreprocessed);
-      await worker3.terminate();
-      
-      // Try BOTH structured AND text extraction, combine results
-      let words3 = extractWordsFromStructuredData(result3.data);
-      const textWords3 = extractWordsFromText(result3.data.text);
-      textWords3.forEach(w => {
-        if (!words3.includes(w)) {
-          words3.push(w);
-        }
-      });
-      console.log(`✅ Pass 3 found ${words3.length} words:`, words3);
-      words3.forEach(w => {
-        if (!wordConfidence.has(w) || (result3.data.confidence || 0) > (wordConfidence.get(w) || 0)) {
-          wordConfidence.set(w, result3.data.confidence || 0);
-        }
-        if (!allWords.includes(w)) {
-          allWords.push(w);
-        }
-      });
-
+      console.log(`✅ OCR found ${allWords.length} words:`, allWords);
       setOcrProgress(100);
 
       // Deduplicate and keep unique words
