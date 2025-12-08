@@ -321,6 +321,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Tricky Words API routes
+  app.get('/api/tricky-words', validateSession, async (req: any, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const status = req.query.status as 'active' | 'mastered' | undefined;
+      
+      const trickyWords = await storage.getTrickyWords(playerId, status);
+      res.json(trickyWords);
+    } catch (error) {
+      console.error('Error fetching tricky words:', error);
+      res.status(500).json({ message: 'Failed to fetch tricky words' });
+    }
+  });
+
+  app.post('/api/tricky-words', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { word } = req.body;
+      
+      if (!word || typeof word !== 'string') {
+        return res.status(400).json({ message: 'Word is required' });
+      }
+      
+      const trickyWord = await storage.addTrickyWord(playerId, word);
+      res.json(trickyWord);
+    } catch (error) {
+      console.error('Error adding tricky word:', error);
+      res.status(500).json({ message: 'Failed to add tricky word' });
+    }
+  });
+
+  app.post('/api/tricky-words/attempt', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { word, correct } = req.body;
+      
+      if (!word || typeof word !== 'string' || typeof correct !== 'boolean') {
+        return res.status(400).json({ message: 'Word and correct status are required' });
+      }
+      
+      const trickyWord = await storage.recordTrickyWordAttempt(playerId, word, correct);
+      res.json(trickyWord);
+    } catch (error) {
+      console.error('Error recording tricky word attempt:', error);
+      res.status(500).json({ message: 'Failed to record attempt' });
+    }
+  });
+
+  app.post('/api/tricky-words/bulk', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { words } = req.body;
+      
+      if (!Array.isArray(words)) {
+        return res.status(400).json({ message: 'Words array is required' });
+      }
+      
+      // Add all tricky words
+      const results = await Promise.all(
+        words.map((word: string) => storage.addTrickyWord(playerId, word))
+      );
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Error adding tricky words in bulk:', error);
+      res.status(500).json({ message: 'Failed to add tricky words' });
+    }
+  });
+
+  // Achievement API routes
+  app.get('/api/achievements', validateSession, async (req: any, res) => {
+    try {
+      // Seed achievements if they don't exist
+      await storage.seedAchievements();
+      
+      const allAchievements = await storage.getAchievements();
+      res.json(allAchievements);
+    } catch (error) {
+      console.error('Error fetching achievements:', error);
+      res.status(500).json({ message: 'Failed to fetch achievements' });
+    }
+  });
+
+  app.get('/api/achievements/user', validateSession, async (req: any, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      
+      // Seed achievements if they don't exist
+      await storage.seedAchievements();
+      
+      const userAchievements = await storage.getUserAchievements(playerId);
+      const allAchievements = await storage.getAchievements();
+      
+      res.json({
+        earned: userAchievements,
+        all: allAchievements,
+      });
+    } catch (error) {
+      console.error('Error fetching user achievements:', error);
+      res.status(500).json({ message: 'Failed to fetch user achievements' });
+    }
+  });
+
+  app.post('/api/achievements/award', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { achievementId, metadata } = req.body;
+      
+      if (!achievementId) {
+        return res.status(400).json({ message: 'Achievement ID is required' });
+      }
+      
+      // Check if user already has this achievement
+      const hasIt = await storage.hasAchievement(playerId, achievementId);
+      if (hasIt) {
+        return res.json({ awarded: false, message: 'Achievement already earned' });
+      }
+      
+      const userAchievement = await storage.awardAchievement(playerId, achievementId, metadata);
+      res.json({ awarded: true, achievement: userAchievement });
+    } catch (error) {
+      console.error('Error awarding achievement:', error);
+      res.status(500).json({ message: 'Failed to award achievement' });
+    }
+  });
+
+  app.post('/api/achievements/check', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { achievementId } = req.body;
+      
+      if (!achievementId) {
+        return res.status(400).json({ message: 'Achievement ID is required' });
+      }
+      
+      const hasAchievement = await storage.hasAchievement(playerId, achievementId);
+      res.json({ hasAchievement });
+    } catch (error) {
+      console.error('Error checking achievement:', error);
+      res.status(500).json({ message: 'Failed to check achievement' });
+    }
+  });
+
   // Stripe routes (if Stripe is configured)
   if (stripe) {
     app.post('/api/create-payment-intent', async (req, res) => {
