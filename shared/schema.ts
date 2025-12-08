@@ -236,6 +236,20 @@ export const insertPhotoSchema = createInsertSchema(photos).omit({
   capturedAt: true,
 });
 
+export const insertTrickyWordSchema = createInsertSchema(trickyWords).omit({
+  id: true,
+  addedAt: true,
+  lastPracticed: true,
+  masteredAt: true,
+});
+
+export const insertAchievementSchema = createInsertSchema(achievements);
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  earnedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -247,6 +261,12 @@ export type InsertProgress = z.infer<typeof insertProgressSchema>;
 export type Progress = typeof progress.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type Photo = typeof photos.$inferSelect;
+export type InsertTrickyWord = z.infer<typeof insertTrickyWordSchema>;
+export type TrickyWord = typeof trickyWords.$inferSelect;
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type UserAchievement = typeof userAchievements.$inferSelect;
 
 // Treasure Map Types (frontend game state)
 export enum TreasureType {
