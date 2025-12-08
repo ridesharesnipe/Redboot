@@ -118,9 +118,11 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
         </nav>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
-          <div className="mb-4 flex justify-center">
-            <div className="relative flex items-center justify-center float-animation landscape-reduce character-idle-breathe">
-              <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto character-idle-sway">
+          <div className="mb-6 flex justify-center">
+            <div className="relative flex flex-col items-center justify-center float-animation landscape-reduce character-idle-breathe">
+              <div className="character-container relative overflow-hidden rounded-full bg-gradient-to-br from-amber-400 to-red-500 border-4 md:border-8 border-amber-400 shadow-2xl mx-auto character-idle-sway" style={{
+                boxShadow: '0 0 40px rgba(245, 158, 11, 0.5), 0 15px 40px rgba(0,0,0,0.4)'
+              }}>
                 <img 
                   src={redBootLandingHead}
                   alt="Red Boot the Pirate Captain"
@@ -130,23 +132,24 @@ export default function Landing({ onStart }: LandingProps) {
                   }}
                 />
               </div>
-              <div className="absolute -bottom-16 md:-bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-                <div className="fluid-heading-md drop-shadow-lg text-red-500" style={{ fontFamily: "'Pirata One', cursive" }}>Red Boot</div>
-                <div className="fluid-heading-sm drop-shadow-md text-sky-200" style={{ fontFamily: "'Pirata One', cursive" }}>Speller of the Seven Seas</div>
+              {/* Red Boot name and title - positioned below image */}
+              <div className="mt-4 text-center">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-2" style={{ 
+                  fontFamily: "'Pirata One', cursive",
+                  color: '#FFD700',
+                  textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 191, 0, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.8)'
+                }} data-testid="text-hero-title">Red Boot</h1>
+                <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-cyan-200" style={{ 
+                  fontFamily: "'Pirata One', cursive",
+                  textShadow: '0 0 15px rgba(34, 211, 238, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.7)'
+                }}>Speller of the Seven Seas</p>
               </div>
             </div>
           </div>
-          <h1 className="fluid-heading-xl mb-4 font-bold drop-shadow-2xl text-sky-300" data-testid="text-hero-title" style={{ fontFamily: "'Pirata One', cursive" }}>
-            Ahoy, Matey!
-          </h1>
           <div className="mb-4 flex justify-center">
-            <i className="lni lni-compass text-5xl sm:text-6xl md:text-8xl text-yellow-400 drop-shadow-lg" style={{ 
-              fontFamily: 'LineIcons', 
-              fontStyle: 'normal',
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              padding: '12px',
-              borderRadius: '50%'
-            }}>🧭</i>
+            <span className="text-5xl sm:text-6xl md:text-7xl drop-shadow-lg" style={{ 
+              filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.5))'
+            }}>🧭</span>
           </div>
           <div className="relative">
             <div className="absolute -top-8 sm:-top-12 md:-top-16 right-2 sm:right-4 -z-10 animate-pulse hidden sm:block">
