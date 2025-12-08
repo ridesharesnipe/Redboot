@@ -51,6 +51,16 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const { data: progressRecords } = useQuery({
     queryKey: ['/api/progress'],
   });
+  
+  // Fetch tricky words for treasure adventure tracking
+  const { data: trickyWords } = useQuery<any[]>({
+    queryKey: ['/api/tricky-words'],
+  });
+  
+  // Fetch user achievements
+  const { data: achievementData } = useQuery<{ earned: any[]; all: any[] }>({
+    queryKey: ['/api/achievements/user'],
+  });
 
   // Check if new week detection is needed
   const checkIfNewWeek = () => {
@@ -734,6 +744,123 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   data-testid="button-view-vault"
                 >
                   View Vault 💰
+                </Button>
+              </div>
+            </div>
+
+            {/* Tricky Treasures Card - Words that need extra practice */}
+            {trickyWords && trickyWords.length > 0 && (
+              <div className="bento-span-2 clay-card slide-up-enter stagger-4 p-6 bg-gradient-to-br from-purple-50 to-pink-100">
+                <div className="text-center h-full flex flex-col">
+                  <div className="text-4xl mb-3">⚡</div>
+                  <h2 className="text-xl md:text-2xl font-bold mb-2 text-purple-800" style={{ fontFamily: 'var(--font-pirate)' }}>
+                    Tricky Treasures
+                  </h2>
+                  <p className="text-sm text-purple-600 mb-3">
+                    {trickyWords.filter((w: any) => w.status === 'active').length} words need extra practice!
+                  </p>
+                  
+                  <div className="flex flex-wrap justify-center gap-1 my-2 max-h-20 overflow-hidden">
+                    {trickyWords.filter((w: any) => w.status === 'active').slice(0, 5).map((word: any, i: number) => (
+                      <span 
+                        key={word.id} 
+                        className="px-2 py-1 bg-purple-200 text-purple-800 rounded-full text-sm font-medium"
+                        data-testid={`tricky-word-${i}`}
+                      >
+                        {word.word}
+                      </span>
+                    ))}
+                    {trickyWords.filter((w: any) => w.status === 'active').length > 5 && (
+                      <span className="px-2 py-1 bg-purple-300 text-purple-800 rounded-full text-sm font-bold">
+                        +{trickyWords.filter((w: any) => w.status === 'active').length - 5}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {trickyWords.filter((w: any) => w.status === 'mastered').length > 0 && (
+                    <div className="mt-2 text-sm text-green-600">
+                      ✨ {trickyWords.filter((w: any) => w.status === 'mastered').length} mastered!
+                    </div>
+                  )}
+                  
+                  <Button 
+                    onClick={onViewPractice}
+                    className="clay-button clay-button-primary px-4 py-2 text-sm mt-auto micro-bounce"
+                    data-testid="button-practice-tricky"
+                  >
+                    ⚡ Practice Now
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Achievement Badges Card */}
+            <div className="bento-span-2 clay-card slide-up-enter stagger-5 p-6 bg-gradient-to-br from-indigo-50 to-blue-100">
+              <div className="text-center h-full flex flex-col">
+                <div className="text-4xl mb-3">🏅</div>
+                <h2 className="text-xl md:text-2xl font-bold mb-2 text-indigo-800" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  Pirate Badges
+                </h2>
+                
+                {achievementData?.earned && achievementData.earned.length > 0 ? (
+                  <>
+                    <p className="text-sm text-indigo-600 mb-3">
+                      {achievementData.earned.length} of {achievementData.all?.length || 0} badges earned!
+                    </p>
+                    
+                    <div className="flex flex-wrap justify-center gap-2 my-2">
+                      {achievementData.earned.slice(0, 4).map((ua: any, i: number) => (
+                        <div 
+                          key={ua.id} 
+                          className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-300 to-amber-400 flex items-center justify-center shadow-lg"
+                          title={ua.achievement?.title || 'Badge'}
+                          data-testid={`badge-${i}`}
+                        >
+                          <span className="text-2xl">{ua.achievement?.icon || '🏅'}</span>
+                        </div>
+                      ))}
+                      {achievementData.earned.length > 4 && (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center shadow-lg">
+                          <span className="text-sm font-bold text-gray-700">+{achievementData.earned.length - 4}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <p className="text-xs text-gray-500 mt-2">
+                      Latest: {achievementData.earned[0]?.achievement?.title || 'Badge'}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-indigo-600 mb-3">
+                      Complete adventures to earn badges!
+                    </p>
+                    
+                    <div className="flex flex-wrap justify-center gap-2 my-2">
+                      {achievementData?.all?.slice(0, 4).map((a: any, i: number) => (
+                        <div 
+                          key={a.id} 
+                          className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-lg opacity-50"
+                          title={`${a.title} - ${a.description}`}
+                          data-testid={`badge-locked-${i}`}
+                        >
+                          <span className="text-2xl grayscale">{a.icon || '🏅'}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <p className="text-xs text-gray-500 mt-2">
+                      {achievementData?.all?.length || 0} badges to discover!
+                    </p>
+                  </>
+                )}
+                
+                <Button 
+                  onClick={() => setLocation('/badges')}
+                  className="clay-button clay-button-primary px-4 py-2 text-sm mt-auto micro-bounce"
+                  data-testid="button-view-badges"
+                >
+                  🏅 View All Badges
                 </Button>
               </div>
             </div>
