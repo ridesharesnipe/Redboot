@@ -60,6 +60,50 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     return 25;                        // Final words → 25 treasures each
   };
 
+  // Check and award achievements based on practice results
+  const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }) => {
+    const achievementsToCheck = [];
+    
+    // First word achievement
+    if (results.correct >= 1) {
+      achievementsToCheck.push({ id: 'first_word', metadata: { word: practiceWords[0] } });
+    }
+    
+    // Perfect session achievement (no mistakes)
+    if (results.correct === results.total && results.total > 0 && trickyWords.length === 0) {
+      achievementsToCheck.push({ id: 'perfect_session', metadata: { wordsCount: results.total } });
+    }
+    
+    // Character-specific achievements
+    if (selectedCharacter === 'redboot') {
+      achievementsToCheck.push({ id: 'treasure_hunter', metadata: { character: 'redboot' } });
+    } else {
+      achievementsToCheck.push({ id: 'sea_monster_slayer', metadata: { character: 'diego' } });
+    }
+    
+    // Award achievements in background (don't block completion)
+    for (const achievement of achievementsToCheck) {
+      try {
+        const response = await apiRequest('/api/achievements/award', 'POST', {
+          achievementId: achievement.id,
+          metadata: achievement.metadata
+        });
+        const result = await response.json();
+        
+        // If a new achievement was awarded, show celebration
+        if (result.awarded) {
+          toast({
+            title: "🏅 Badge Earned!",
+            description: `You earned a new badge! Check your badge collection.`,
+          });
+          playSound('cannon_achievement');
+        }
+      } catch (error) {
+        console.error(`Failed to award achievement ${achievement.id}:`, error);
+      }
+    }
+  };
+
   // Save treasures to database and complete practice
   const saveTreasuresAndComplete = async (results: { correct: number; total: number; treasureEarned: number }) => {
     try {
@@ -68,6 +112,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         character: selectedCharacter,
         amount: results.treasureEarned
       });
+      
+      // Check and award achievements based on results
+      await checkAndAwardAchievements(results);
     } catch (error) {
       console.error('Failed to save treasures:', error);
       // Continue even if save fails - don't block completion
