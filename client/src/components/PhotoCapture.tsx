@@ -21,6 +21,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   const [isProcessing, setIsProcessing] = useState(false);
   const [showWordList, setShowWordList] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
+  const [showTreasureCelebration, setShowTreasureCelebration] = useState(false);
+  const [treasureWords, setTreasureWords] = useState<string[]>([]);
   
   // Camera state
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -33,6 +35,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   
   const { toast } = useToast();
   const { playSound } = useAudio();
+
+  // Treasure jewels for celebration animation
+  const treasureJewels = ['💎', '💚', '⭐', '👑', '💰', '🏆', '💜', '💙', '🔶', '✨'];
 
   // Cleanup camera on unmount
   useEffect(() => {
@@ -322,12 +327,22 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         
         setExtractedWords(demoWords);
         setEditableWords([...demoWords]);
-        setShowWordList(true);
         
         // CRITICAL FIX: Notify parent page of demo words (don't save to DB yet)
         onWordsExtracted(demoWords, capturedImage || '', false);
         
-        playSound('ship_bell_success');
+        // Show treasure celebration first!
+        setTreasureWords(demoWords);
+        setShowTreasureCelebration(true);
+        playSound('treasure_chest_open');
+        
+        // After 3 seconds, show the word list
+        setTimeout(() => {
+          setShowTreasureCelebration(false);
+          setShowWordList(true);
+          playSound('ship_bell_success');
+        }, 3000);
+        
         toast({
           title: "Demo Words Loaded! 📚",
           description: `Using ${demoWords.length} demo spelling words for testing.`,
@@ -344,17 +359,25 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       
       setExtractedWords(words);
       setEditableWords([...words]);
-      setShowWordList(true);
 
       // CRITICAL FIX: Notify parent page of extracted words (don't save to DB yet)
       onWordsExtracted(words, capturedImage || '', false);
 
-      // Don't save to photoStorage here - wait for user confirmation in saveWords()
+      // Show treasure celebration first!
+      setTreasureWords(words);
+      setShowTreasureCelebration(true);
+      playSound('treasure_chest_open');
       
-      playSound('ship_bell_success');
+      // After 3 seconds, show the word list
+      setTimeout(() => {
+        setShowTreasureCelebration(false);
+        setShowWordList(true);
+        playSound('ship_bell_success');
+      }, 3000);
+      
       toast({
-        title: "Image Uploaded! 📤",
-        description: `Found ${words.length} words. Saved in your browser storage.`,
+        title: "Treasure Found! 💎",
+        description: `Found ${words.length} spelling words!`,
       });
 
     } catch (error) {
@@ -777,6 +800,167 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         
         {/* Hidden canvas for capture */}
         <canvas ref={canvasRef} className="hidden" />
+      </div>
+    );
+  }
+
+  // Treasure celebration animation - jewels floating down like finding treasure!
+  if (showTreasureCelebration) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-hidden" style={{
+        background: 'linear-gradient(180deg, #1e3a5f 0%, #2d5a87 50%, #3d7ab3 100%)'
+      }}>
+        {/* Starry background */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div
+              key={`star-${i}`}
+              className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                opacity: Math.random() * 0.8 + 0.2
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Falling treasure jewels */}
+        <div className="absolute inset-0 pointer-events-none">
+          {Array.from({ length: 25 }).map((_, i) => {
+            const jewel = treasureJewels[i % treasureJewels.length];
+            const startLeft = Math.random() * 100;
+            const animDuration = 2 + Math.random() * 2;
+            const delay = Math.random() * 1.5;
+            const size = 1.5 + Math.random() * 2;
+            const rotation = Math.random() * 720;
+            
+            return (
+              <div
+                key={`jewel-${i}`}
+                className="absolute animate-bounce"
+                style={{
+                  left: `${startLeft}%`,
+                  top: `-10%`,
+                  fontSize: `${size}rem`,
+                  animation: `treasureFall ${animDuration}s ease-in forwards, treasureSpin ${animDuration * 0.5}s linear infinite`,
+                  animationDelay: `${delay}s`,
+                  filter: `drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))`,
+                  transform: `rotate(${rotation}deg)`
+                }}
+              >
+                {jewel}
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Treasure chest opening */}
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+          <div className="text-8xl animate-bounce" style={{ 
+            filter: 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.9))',
+            animation: 'chestGlow 1s ease-in-out infinite alternate'
+          }}>
+            🏴‍☠️
+          </div>
+        </div>
+        
+        {/* Center content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4 animate-bounce" style={{ 
+              filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))'
+            }}>
+              💰
+            </div>
+            <h2 className="text-3xl font-bold text-amber-300 mb-2" style={{ 
+              fontFamily: "'Pirata One', cursive",
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            }}>
+              Treasure Found!
+            </h2>
+            <p className="text-xl text-amber-200 mb-4" style={{ 
+              fontFamily: "'Fredoka One', cursive" 
+            }}>
+              {treasureWords.length} words discovered!
+            </p>
+            
+            {/* Word preview bubbles floating up */}
+            <div className="flex flex-wrap justify-center gap-2 max-w-sm mx-auto">
+              {treasureWords.slice(0, 6).map((word, i) => (
+                <div
+                  key={word}
+                  className="px-3 py-1 bg-amber-400/90 text-amber-900 rounded-full font-bold text-sm"
+                  style={{
+                    animation: `wordFloat 0.8s ease-out forwards`,
+                    animationDelay: `${1.5 + i * 0.15}s`,
+                    opacity: 0,
+                    transform: 'translateY(20px)'
+                  }}
+                >
+                  {word}
+                </div>
+              ))}
+              {treasureWords.length > 6 && (
+                <div
+                  className="px-3 py-1 bg-amber-300/80 text-amber-800 rounded-full font-bold text-sm"
+                  style={{
+                    animation: `wordFloat 0.8s ease-out forwards`,
+                    animationDelay: `${1.5 + 6 * 0.15}s`,
+                    opacity: 0,
+                    transform: 'translateY(20px)'
+                  }}
+                >
+                  +{treasureWords.length - 6} more
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Sparkle effects */}
+        <div className="absolute inset-0 pointer-events-none">
+          {Array.from({ length: 15 }).map((_, i) => (
+            <div
+              key={`sparkle-${i}`}
+              className="absolute text-2xl"
+              style={{
+                left: `${10 + Math.random() * 80}%`,
+                top: `${10 + Math.random() * 80}%`,
+                animation: `sparkle 1.5s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 1.5}s`
+              }}
+            >
+              ✨
+            </div>
+          ))}
+        </div>
+        
+        {/* CSS Animations */}
+        <style>{`
+          @keyframes treasureFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(calc(100vh + 100px)) rotate(720deg); opacity: 0.8; }
+          }
+          @keyframes treasureSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes chestGlow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1)); }
+          }
+          @keyframes wordFloat {
+            from { opacity: 0; transform: translateY(20px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+          }
+        `}</style>
       </div>
     );
   }
