@@ -703,64 +703,74 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   // Camera view - show live camera feed with snap button
   if (isCameraActive) {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="fixed inset-0 z-50 bg-white flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={cancelCamera}
+            className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            data-testid="button-cancel-camera"
+          >
+            <X className="w-5 h-5" />
+            <span className="text-sm font-medium">Cancel</span>
+          </button>
+          <span className="text-sm font-semibold text-gray-800">Take Photo</span>
+          <div className="w-16"></div>
+        </div>
+        
         {/* Live camera feed */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative bg-gray-100 m-4 rounded-2xl overflow-hidden">
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
             className="w-full h-full object-cover"
-            style={{ maxHeight: '65vh' }}
           />
           
-          {/* Camera overlay with guide */}
+          {/* Camera overlay with modern guide */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-4 border-2 border-blue-400/60 rounded-lg"></div>
+            <div className="absolute inset-4 border-2 border-blue-400/50 rounded-xl"></div>
             <div className="absolute top-6 left-0 right-0 text-center">
-              <p className="text-gray-800 text-base sm:text-lg font-semibold bg-white/90 inline-block px-4 py-2 rounded-full shadow-md">
-                📋 Position your spelling list in the frame
-              </p>
+              <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <p className="text-gray-700 text-sm font-medium">
+                  Position spelling list in frame
+                </p>
+              </div>
             </div>
           </div>
         </div>
         
-        {/* Camera controls */}
-        <div className="bg-gradient-to-t from-blue-100 to-white p-4 sm:p-6">
-          <div className="flex justify-center items-center gap-6 sm:gap-8">
-            {/* Cancel button */}
-            <Button
-              onClick={cancelCamera}
-              variant="outline"
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200"
-              data-testid="button-cancel-camera"
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </Button>
-            
-            {/* Capture button - big and prominent */}
-            <Button
-              onClick={captureSnapshot}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-500 border-4 border-blue-300 shadow-lg hover:bg-blue-600 hover:scale-105 transition-transform"
-              data-testid="button-capture-snapshot"
-            >
-              <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-            </Button>
-            
+        {/* Camera controls - clean white design */}
+        <div className="bg-white px-6 py-6 border-t border-gray-100">
+          <div className="flex justify-center items-center gap-8">
             {/* Switch to upload button */}
-            <Button
+            <button
               onClick={() => { stopCamera(); triggerFileUpload(); }}
-              variant="outline"
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200"
+              className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
               data-testid="button-switch-to-upload"
             >
-              <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
-            </Button>
+              <Upload className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            {/* Capture button - prominent blue shutter */}
+            <button
+              onClick={captureSnapshot}
+              className="w-18 h-18 p-1 rounded-full bg-blue-100 flex items-center justify-center shadow-lg hover:scale-105 transition-transform active:scale-95"
+              data-testid="button-capture-snapshot"
+            >
+              <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center">
+                <Camera className="w-7 h-7 text-white" />
+              </div>
+            </button>
+            
+            {/* Empty space for balance */}
+            <div className="w-12 h-12"></div>
           </div>
           
-          <p className="text-gray-600 text-center mt-3 sm:mt-4 text-sm">
-            Tap the blue camera button to snap your spelling list
+          <p className="text-gray-400 text-center mt-3 text-xs">
+            Tap to capture your spelling list
           </p>
         </div>
         
@@ -775,75 +785,73 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     const wordCount = editableWords.filter(w => w.trim()).length;
     
     return (
-      <div className="min-h-screen bg-background p-3 sm:p-4">
-        <Card className="glass-card max-w-2xl mx-auto glass-floating">
-          <CardContent className="p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-              🏴‍☠️ Verify Your Treasure Words 🏴‍☠️
-            </h2>
-            
-            {/* HUGE Word Count Display */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 rounded-2xl shadow-2xl border-4 border-white/30">
-              <div className="text-center">
-                <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 uppercase tracking-wide">Words Captured</p>
-                <div className="text-5xl sm:text-7xl md:text-9xl font-bold mb-2 sm:mb-3 glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-                  {wordCount}
-                </div>
-                <p className="text-xl sm:text-2xl md:text-3xl font-medium">
-                  {wordCount === 1 ? 'Word' : 'Words'} Found ✨
-                </p>
+      <div className="min-h-screen bg-gray-50 p-4">
+        <Card className="max-w-lg mx-auto bg-white shadow-xl border-0 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-green-600" />
               </div>
+              <h2 className="text-xl font-bold text-gray-800 mb-1">
+                Words Detected
+              </h2>
+              <p className="text-4xl font-bold text-blue-600">{wordCount}</p>
             </div>
             
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 rounded">
-              <p className="text-yellow-800 font-semibold text-lg">⚠️ OCR Detection Notice</p>
-              <p className="text-yellow-700 mt-2">
-                The automatic word detection may not be perfect. Please check and edit each word below to make sure it's complete and correct.
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <p className="text-amber-800 text-sm">
+                <strong>Tip:</strong> Review each word below. Tap to edit if any word looks incorrect.
               </p>
             </div>
-            
-            <p className="text-white/80 text-center mb-8 text-lg">
-              Click on any word to edit it. You can also add or remove words from your treasure list.
-            </p>
 
-            <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
+            <div className="space-y-2 mb-6 max-h-64 overflow-y-auto">
               {editableWords.map((word, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <span className="w-8 text-sm text-muted-foreground">{index + 1}.</span>
+                  <span className="w-6 text-xs text-gray-400 font-medium">{index + 1}</span>
                   <Input
                     value={word}
                     onChange={(e) => updateWord(index, e.target.value)}
-                    className="flex-1"
-                    placeholder="Enter spelling word"
+                    className="flex-1 border-gray-200 focus:border-blue-400 rounded-lg"
+                    placeholder="Enter word"
                     data-testid={`input-word-${index}`}
                   />
-                  <Button
+                  <button
                     onClick={() => removeWord(index)}
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
+                    className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
                     data-testid={`button-remove-word-${index}`}
                   >
                     <X className="w-4 h-4" />
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
 
-            <div className="flex gap-3 mb-6">
-              <Button onClick={addWord} className="glass-button flex-1 text-white" data-testid="button-add-word">
-                <Edit className="w-4 h-4 mr-2" />
-                ⚓ Add Word
-              </Button>
-            </div>
+            <Button 
+              onClick={addWord} 
+              variant="outline" 
+              className="w-full mb-4 border-dashed border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 text-gray-600"
+              data-testid="button-add-word"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Add Another Word
+            </Button>
 
-            <div className="flex gap-4 justify-between mt-8">
-              <Button onClick={cancelVerification} className="glass-button text-white px-6 py-3" data-testid="button-cancel-words">
-                ❌ Cancel
+            <div className="flex gap-3">
+              <Button 
+                onClick={cancelVerification} 
+                variant="outline" 
+                className="flex-1 border-gray-300"
+                data-testid="button-cancel-words"
+              >
+                Cancel
               </Button>
-              <Button onClick={saveWords} className="glass-button-primary text-white px-6 py-3" data-testid="button-save-words">
-                <Check className="w-5 h-5 mr-2" />
-                💎 Save Treasure ({editableWords.filter(w => w.trim()).length})
+              <Button 
+                onClick={saveWords} 
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                data-testid="button-save-words"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Save {wordCount} Words
               </Button>
             </div>
           </CardContent>
@@ -855,124 +863,33 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   // Processing screen
   if (isProcessing) {
     return (
-      <div className="min-h-screen glass-gradient-bg flex items-center justify-center p-4">
-        <Card className="glass-card max-w-2xl mx-auto glass-floating">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="max-w-md mx-auto bg-white shadow-xl border-0 rounded-2xl">
           <CardContent className="p-8 text-center">
-            <h3 className="text-3xl font-bold mb-2 text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
-              🔍 Scanning Treasure Map...
+            <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+              <Loader className="w-10 h-10 text-blue-600 animate-spin" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Extracting Words...
             </h3>
-            <p className="text-white/90 mb-8 text-xl font-semibold">
-              Please wait while we extract your spelling words
+            <p className="text-gray-500 mb-6">
+              Analyzing your spelling list
             </p>
             
-            {/* Progress Bar with Sailing Boat */}
-            <div className="relative mb-8">
-              {/* Ocean Waves Background */}
-              <div className="w-full bg-gradient-to-b from-blue-300/30 to-blue-500/40 rounded-full h-16 border-4 border-blue-300/50 overflow-hidden relative">
-                {/* Animated Waves */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
-                
-                {/* Progress Fill (Water) */}
-                <div 
-                  className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 h-full transition-all duration-500 shadow-lg relative overflow-hidden" 
-                  style={{ width: `${ocrProgress}%` }}
-                >
-                  {/* Wave animation inside progress */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-                </div>
-                
-                {/* 3D Sailing Pirate Boat - Moves with progress */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 transition-all duration-500"
-                  style={{ 
-                    left: `${Math.max(2, ocrProgress - 3)}%`,
-                    transform: 'translateY(-50%)',
-                  }}
-                >
-                  <div className="relative" style={{ 
-                    transform: 'perspective(200px) rotateY(-15deg)',
-                    animation: 'rockBoat 2s ease-in-out infinite'
-                  }}>
-                    {/* Boat Hull */}
-                    <div className="relative w-16 h-8" style={{
-                      background: 'linear-gradient(to bottom, #8B4513 0%, #654321 100%)',
-                      clipPath: 'polygon(10% 100%, 90% 100%, 100% 50%, 95% 20%, 5% 20%, 0% 50%)',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.2)',
-                      transform: 'translateZ(10px)'
-                    }}>
-                      {/* Hull Highlight */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                    </div>
-                    
-                    {/* Main Sail */}
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2" style={{
-                      width: 0,
-                      height: 0,
-                      borderLeft: '12px solid transparent',
-                      borderRight: '12px solid transparent',
-                      borderBottom: '28px solid #f5f5dc',
-                      filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))',
-                      transform: 'translateZ(5px)'
-                    }}>
-                      {/* Jolly Roger skull */}
-                      <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs">💀</div>
-                    </div>
-                    
-                    {/* Mast */}
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-1 h-12 bg-gradient-to-b from-amber-900 to-amber-700" style={{
-                      boxShadow: '1px 0 2px rgba(0,0,0,0.3)',
-                      transform: 'translateZ(8px)'
-                    }}></div>
-                    
-                    {/* Flag */}
-                    <div className="absolute -top-14 left-1/2 text-xs" style={{
-                      animation: 'waveFlag 0.5s ease-in-out infinite'
-                    }}>🏴‍☠️</div>
-                    
-                    {/* Waves splash */}
-                    <div className="absolute -bottom-1 left-0 right-0 text-center text-xs opacity-70" style={{
-                      animation: 'splash 1.5s ease-in-out infinite'
-                    }}>💦</div>
-                  </div>
-                </div>
-                
-                <style>{`
-                  @keyframes rockBoat {
-                    0%, 100% { transform: perspective(200px) rotateY(-15deg) rotateZ(-2deg); }
-                    50% { transform: perspective(200px) rotateY(-15deg) rotateZ(2deg); }
-                  }
-                  @keyframes waveFlag {
-                    0%, 100% { transform: translateX(0) rotate(0deg); }
-                    50% { transform: translateX(2px) rotate(5deg); }
-                  }
-                  @keyframes splash {
-                    0%, 100% { opacity: 0.3; transform: translateY(0) scale(0.8); }
-                    50% { opacity: 0.7; transform: translateY(-2px) scale(1); }
-                  }
-                `}</style>
-              </div>
-              
-              {/* Progress Percentage */}
-              <div className="mt-4 text-3xl font-bold text-white glass-text-glow">
-                {ocrProgress}%
-              </div>
+            {/* Modern progress bar */}
+            <div className="w-full bg-gray-100 rounded-full h-2 mb-3 overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300"
+                style={{ width: `${ocrProgress}%` }}
+              />
             </div>
+            <p className="text-sm text-gray-400">{ocrProgress}% complete</p>
             
-            {/* Status Message */}
-            <div className="bg-yellow-100/90 border-l-4 border-yellow-500 p-4 rounded-lg">
-              <p className="text-yellow-800 font-semibold text-lg">
-                ⚠️ Processing in progress...
+            <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+              <p className="text-blue-700 text-sm">
+                This may take a few seconds. Please don't close this page.
               </p>
-              <p className="text-yellow-700 mt-2">
-                Do not close this page or start practice yet. The boat is sailing to collect your words!
-              </p>
-            </div>
-            
-            {/* Loading Animation */}
-            <div className="mt-6 flex justify-center gap-2">
-              <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
           </CardContent>
         </Card>
@@ -982,112 +899,105 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
 
   // Default: Start screen or photo preview
   return (
-    <div className="min-h-screen glass-gradient-bg p-4 flex items-center justify-center">
-      <Card className="glass-card max-w-lg mx-auto glass-floating">
-        <CardContent className="p-6">
-          {capturedImage ? (
-            <div className="text-center">
-              <div className="mb-6">
-                <div className="relative bg-white rounded-xl p-4 max-w-6xl mx-auto">
-                  <img 
-                    src={capturedImage} 
-                    alt="Captured spelling list"
-                    className="w-full h-auto rounded-lg shadow-2xl"
-                    style={{
-                      maxHeight: '800px',
-                      minHeight: '500px',
-                      objectFit: 'contain'
-                    }}
-                  />
-                  <p className="text-center text-gray-500 mt-3 text-base font-medium">
-                    📸 Check that all words are clearly visible
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Button 
-                  onClick={retakePhoto}
-                  variant="outline"
-                  className="flex-1"
-                  data-testid="button-retake-photo"
-                >
-                  <i className="lni lni-scroll" style={{ fontSize: '1rem', marginRight: '0.5rem' }}></i>
-                  Choose Different Photo
-                </Button>
-                <Button 
-                  onClick={() => processImage(capturedImage)}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
-                  data-testid="button-process-image"
-                >
-                  <Check className="w-4 h-4 mr-2" />
-                  Process
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center">
-              <div className="mb-4 sm:mb-6 flex justify-center">
-                <i className="lni lni-anchor text-white glass-text-glow text-5xl sm:text-6xl md:text-8xl" style={{ 
-                  filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5))'
-                }}></i>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white glass-text-glow mb-3 sm:mb-4" data-testid="text-upload-ready" style={{ fontFamily: 'var(--font-pirate)' }}>
-                📸 Chart New Waters
-              </h3>
-              <p className="text-white/80 mb-6 sm:mb-8 text-base sm:text-lg" data-testid="text-upload-instructions">
-                Snap or upload your treasure map (spelling list) to begin!
+    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+      {capturedImage ? (
+        <div className="text-center">
+          <div className="mb-6">
+            <div className="relative bg-gray-50 rounded-xl p-4 max-w-md mx-auto">
+              <img 
+                src={capturedImage} 
+                alt="Captured spelling list"
+                className="w-full h-auto rounded-lg shadow-md"
+                style={{
+                  maxHeight: '400px',
+                  objectFit: 'contain'
+                }}
+              />
+              <p className="text-center text-gray-500 mt-3 text-sm">
+                Check that all words are clearly visible
               </p>
-              
-              <div className="flex flex-col gap-4 items-center">
-                {/* Primary option: Camera snapshot */}
-                <Button 
-                  onClick={startCamera}
-                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow w-full max-w-sm"
-                  data-testid="button-open-camera"
-                >
-                  <Camera className="w-8 h-8 mr-4" />
-                  📷 Take Snapshot
-                </Button>
-                
-                {/* Divider */}
-                <div className="flex items-center gap-4 w-full max-w-sm">
-                  <div className="flex-1 h-px bg-white/30"></div>
-                  <span className="text-white/60 text-sm">or</span>
-                  <div className="flex-1 h-px bg-white/30"></div>
-                </div>
-                
-                {/* Secondary option: File upload */}
-                <Button 
-                  onClick={triggerFileUpload}
-                  variant="outline"
-                  className="glass-button text-white font-bold w-full max-w-sm"
-                  data-testid="button-upload-file"
-                >
-                  <Upload className="w-6 h-6 mr-3" />
-                  📤 Upload Photo
-                </Button>
-                
-                {/* Camera error message */}
-                {cameraError && (
-                  <p className="text-yellow-300 text-sm mt-2" data-testid="text-camera-error">
-                    ⚠️ {cameraError}
-                  </p>
-                )}
-                
-                {/* Hidden file input for testing */}
-                <input
-                  ref={hiddenFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleHiddenFileUpload}
-                  className="hidden"
-                  data-testid="input-file-hidden"
-                />
-              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+          <div className="flex gap-3 max-w-md mx-auto">
+            <Button 
+              onClick={retakePhoto}
+              variant="outline"
+              className="flex-1 border-gray-300"
+              data-testid="button-retake-photo"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Choose Different
+            </Button>
+            <Button 
+              onClick={() => processImage(capturedImage)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              data-testid="button-process-image"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Extract Words
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+            <Camera className="w-10 h-10 text-blue-600" />
+          </div>
+          
+          <h3 className="text-xl font-bold text-gray-800 mb-2" data-testid="text-upload-ready">
+            Capture Your Spelling List
+          </h3>
+          <p className="text-gray-500 mb-6 text-sm" data-testid="text-upload-instructions">
+            Take a photo or upload an image of your homework
+          </p>
+          
+          <div className="flex flex-col gap-3 max-w-sm mx-auto">
+            <Button 
+              onClick={startCamera}
+              size="lg"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              data-testid="button-open-camera"
+            >
+              <Camera className="w-6 h-6 mr-3" />
+              Open Camera
+            </Button>
+            
+            <div className="flex items-center gap-3 my-2">
+              <div className="flex-1 h-px bg-gray-200"></div>
+              <span className="text-gray-400 text-xs uppercase tracking-wider">or</span>
+              <div className="flex-1 h-px bg-gray-200"></div>
+            </div>
+            
+            <Button 
+              onClick={triggerFileUpload}
+              variant="outline"
+              size="lg"
+              className="w-full border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 font-semibold py-6 rounded-xl transition-all"
+              data-testid="button-upload-file"
+            >
+              <Upload className="w-5 h-5 mr-3" />
+              Upload Photo
+            </Button>
+            
+            {cameraError && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+                <p className="text-amber-700 text-sm" data-testid="text-camera-error">
+                  {cameraError}
+                </p>
+              </div>
+            )}
+            
+            <input
+              ref={hiddenFileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleHiddenFileUpload}
+              className="hidden"
+              data-testid="input-file-hidden"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

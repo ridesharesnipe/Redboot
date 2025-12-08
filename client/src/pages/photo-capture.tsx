@@ -201,172 +201,150 @@ export default function PhotoCapturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between relative">
-        <Button 
-          variant="ghost" 
-          onClick={() => setLocation("/")}
-          className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2"
-          data-testid="button-back"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Harbor
-        </Button>
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-pirate text-white flex items-center gap-2 sm:gap-3" data-testid="text-page-title">
-          <i className="lni lni-scroll text-xl sm:text-2xl md:text-4xl"></i>
-          Treasure Map Creator
-        </h1>
-        <div className="w-32"></div>
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            onClick={() => setLocation("/")}
+            className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            data-testid="button-back"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-800" data-testid="text-page-title">
+            Add Spelling Words
+          </h1>
+          <div className="w-16"></div>
+        </div>
       </div>
 
-      <div className="px-4 pb-8">
-        <div className="max-w-6xl mx-auto">
-          {!capturedImage ? (
-            /* Photo Capture Screen */
+      <div className="max-w-lg mx-auto px-4 py-8">
+        {!capturedImage ? (
+          /* Photo Capture Screen */
+          <div>
             <div className="text-center mb-6">
-              {/* Red Boot in White Circle */}
-              <div className="mb-6 flex justify-center">
-                <div className="bg-white rounded-full p-6 shadow-2xl border-4 border-white/30">
-                  <RedBootCharacter size="large" animated />
-                </div>
+              <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                <BookOpen className="w-8 h-8 text-blue-600" />
               </div>
-              <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 text-center border-4 border-white/20 shadow-2xl">
-                <CardContent className="pt-0">
-                  <div className="mb-4 sm:mb-6">
-                    <i className="lni lni-flag text-4xl sm:text-5xl md:text-6xl" style={{ color: '#000' }}></i>
-                  </div>
-                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-pirate mb-3 sm:mb-4 text-white" data-testid="text-capture-title">
-                    Create Your Treasure Maps!
-                  </h2>
-                  <p className="text-blue-100 mb-4 sm:mb-6 text-lg sm:text-xl md:text-3xl leading-relaxed" data-testid="text-capture-instructions">
-                    "Ahoy matey! Upload a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
-                  </p>
-                  
-                  <Card className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-6">
-                    <CardContent className="pt-0">
-                      <PhotoCapture onCapture={handleImageCapture} onWordsExtracted={handleWordsExtracted} />
-                    </CardContent>
-                  </Card>
-
-                </CardContent>
-              </Card>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2" data-testid="text-capture-title">
+                Capture Your Spelling List
+              </h2>
+              <p className="text-gray-500" data-testid="text-capture-instructions">
+                Take a photo or upload an image of your homework
+              </p>
             </div>
-          ) : isProcessing ? (
+            
+            <PhotoCapture onCapture={handleImageCapture} onWordsExtracted={handleWordsExtracted} />
+          </div>
+        ) : isProcessing ? (
             /* Processing Screen */
-            <div className="text-center">
-              <RedBootCharacter size="large" animated className="mb-4 sm:mb-6" />
-              <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 md:p-12 text-center border-4 border-blue-200 shadow-2xl">
-                <CardContent className="pt-0">
-                  <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6">🗺️</div>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-fun mb-4 sm:mb-6 text-blue-900" data-testid="text-processing-title">
-                    Creating Your Treasure Maps...
-                  </h2>
-                  <div className="flex justify-center mb-6">
-                    <div className="animate-spin w-8 h-8 border-4 border-yellow-600 border-t-transparent rounded-full"></div>
-                  </div>
-                  <p className="text-blue-700 text-xl leading-relaxed" data-testid="text-processing-message">
-                    "Arrr! I'm using me magic compass to find all the treasure words in your photo!"
-                  </p>
-                </CardContent>
-              </Card>
+            <div className="text-center py-8">
+              <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <Loader className="w-10 h-10 text-blue-600 animate-spin" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-800 mb-2" data-testid="text-processing-title">
+                Extracting Words...
+              </h2>
+              <p className="text-gray-500 mb-6" data-testid="text-processing-message">
+                Analyzing your spelling list
+              </p>
+              <div className="bg-blue-50 rounded-xl p-4 max-w-sm mx-auto">
+                <p className="text-blue-700 text-sm">
+                  This may take a few seconds
+                </p>
+              </div>
             </div>
           ) : (
             /* Results Screen */
             <div className="space-y-6">
-              {/* Success Message */}
-              <div className="text-center">
-                <RedBootCharacter size="medium" animated className="mb-4" />
-                <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 border-4 border-blue-200 shadow-2xl">
-                  <CardContent className="pt-0">
-                    <div className="mb-3 sm:mb-4">
-                      <i className="lni lni-celebration text-green-600 drop-shadow-lg text-4xl sm:text-5xl md:text-6xl" style={{
-                        backgroundColor: 'rgba(34,197,94,0.1)',
-                        padding: '12px',
-                        borderRadius: '50%'
-                      }}></i>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-fun mb-3 sm:mb-4 text-blue-900" data-testid="text-success-title">
-                      Treasure Maps Created!
-                    </h2>
-                    <p className="text-blue-700 mb-4 sm:mb-6 text-base sm:text-lg md:text-xl" data-testid="text-success-message">
-                      "Ahoy! I found {extractedWords.length} treasure words in your photo! They're now beautiful treasure map flashcards!"
-                    </p>
-                    <div className="flex gap-3 justify-center flex-wrap">
-                      <Button 
-                        onClick={handleRetake}
-                        variant="outline"
-                        className="border-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-2xl font-bold"
-                        data-testid="button-retake"
-                      >
-                        <i className="lni lni-upload mr-2" style={{ fontSize: '1.25rem' }}></i>
-                        Upload Another Photo
-                      </Button>
-                      <Button 
-                        onClick={handleStartPractice}
-                        disabled={isSaving}
-                        className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 px-6 py-3 rounded-2xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                        data-testid="button-start-practice"
-                      >
-                        {isSaving ? (
-                          <>
-                            <Loader className="w-5 h-5 mr-2 animate-spin" />
-                            Saving Words...
-                          </>
-                        ) : (
-                          <>
-                            <i className="lni lni-play mr-2" style={{ fontSize: '1.25rem' }}></i>
-                            Start Adventure!
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* Success Card */}
+              <Card className="bg-white border-0 shadow-lg rounded-2xl">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <RefreshCw className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-2" data-testid="text-success-title">
+                    Words Extracted!
+                  </h2>
+                  <p className="text-gray-500 mb-6" data-testid="text-success-message">
+                    Found {extractedWords.length} spelling words
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      onClick={handleRetake}
+                      variant="outline"
+                      className="border-gray-300"
+                      data-testid="button-retake"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Retake
+                    </Button>
+                    <Button 
+                      onClick={handleStartPractice}
+                      disabled={isSaving}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      data-testid="button-start-practice"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" />
+                          Start Practice
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Flashcard Grid */}
-              <div className="bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-400 backdrop-blur-sm rounded-3xl p-8 border-4 border-yellow-300 shadow-2xl relative overflow-hidden">
-                {/* Decorative elements */}
-                <div className="absolute top-4 left-4 text-6xl opacity-20">🗺️</div>
-                <div className="absolute bottom-4 right-4 text-6xl opacity-20">💎</div>
-                <div className="absolute top-1/2 right-8 text-5xl opacity-10 transform -rotate-12">⚓</div>
-                
-                <FlashcardGrid
-                  words={extractedWords}
-                  onRemoveWord={removeWord}
-                  onStartPractice={handleStartPractice}
-                  showRemoveButtons={true}
-                  title="Your Pirate Treasure Maps"
-                />
-              </div>
+              {/* Words List */}
+              <Card className="bg-white border-0 shadow-lg rounded-2xl">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Your Words
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {extractedWords.map((word, index) => (
+                      <span 
+                        key={index}
+                        className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                      >
+                        {word}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Original Photo (Small) */}
               {capturedImage && (
-                <Card className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-center text-blue-800" data-testid="text-original-image">
-                      <div className="flex items-center gap-2 justify-center">
-                        <i className="lni lni-image" style={{ fontSize: '1.25rem' }}></i>
-                        Uploaded Photo
-                      </div>
+                <Card className="bg-white border-0 shadow-lg rounded-2xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-500" data-testid="text-original-image">
+                      Original Photo
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex justify-center">
-                      <img 
-                        src={capturedImage} 
-                        alt="Original spelling list photo" 
-                        className="max-h-40 rounded-lg shadow-lg opacity-75 hover:opacity-100 transition-opacity border-2 border-blue-300"
-                        data-testid="image-captured"
-                      />
-                    </div>
+                    <img 
+                      src={capturedImage} 
+                      alt="Original spelling list photo" 
+                      className="w-full max-h-32 object-contain rounded-lg bg-gray-50"
+                      data-testid="image-captured"
+                    />
                   </CardContent>
                 </Card>
               )}
             </div>
           )}
-        </div>
       </div>
     </div>
   );
