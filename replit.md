@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### December 8, 2025 - Parent Analytics Dashboard
+- **Apple-Inspired Design**: Minimalist analytics page at /analytics with clean white background, subtle shadows, and modern typography
+- **Stats Overview Cards**: Four stat cards displaying accuracy, sessions, time spent, and treasures collected with colored icons
+- **Weekly Activity Chart**: Recharts AreaChart showing 7-day practice history with gradient fill and smooth tooltips
+- **Word Mastery Ring**: SVG progress ring showing percentage of words mastered vs learning
+- **Tricky Words Section**: Lists active tricky words with mistake counts and correct streaks
+- **This Week's Words**: Displays current word list with practice count and best score
+- **Recent Sessions Timeline**: Shows last 5 practice sessions with character icons, scores, and timestamps
+- **API Endpoint**: GET /api/analytics returns aggregated stats, daily progress, word mastery, recent activity, tricky words, and current week data
+- **Dashboard Integration**: "Parent Insights" card added to ParentDashboard with "View Insights" button navigating to /analytics
+- **Database Enhancement**: Added practiceCount column to users table for tracking total practice sessions
+
 ### December 8, 2025 - 2025 Visual Enhancements
 - **Badge Sparkle Effects**: Earned badges now have continuous shimmer animations with CSS pseudo-elements, legendary badges get special star orbit effects
 - **Page Transitions**: App.tsx wrapped routes in page-enter animation class for smooth fade-in/scale transitions between pages
