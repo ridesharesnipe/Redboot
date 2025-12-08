@@ -865,6 +865,43 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               </div>
             </div>
 
+            {/* Parent Insights Card */}
+            <div className="bento-span-2 clay-card slide-up-enter stagger-6 p-6 bg-gradient-to-br from-slate-50 to-gray-100 bento-hover-float">
+              <div className="text-center h-full flex flex-col">
+                <div className="text-4xl mb-3">📊</div>
+                <h2 className="text-xl md:text-2xl font-bold mb-2 text-gray-800" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  Parent Insights
+                </h2>
+                
+                <p className="text-sm text-gray-600 mb-3">
+                  View detailed progress analytics, charts, and learning trends
+                </p>
+                
+                <div className="flex items-center justify-center gap-4 my-3 text-sm text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span>Accuracy</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                    <span>Progress</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                    <span>Activity</span>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => setLocation('/analytics')}
+                  className="clay-button px-6 py-3 text-sm mt-auto bg-gray-900 text-white hover:bg-gray-800 micro-bounce"
+                  data-testid="button-view-analytics"
+                >
+                  📊 View Insights
+                </Button>
+              </div>
+            </div>
+
             {/* Weekly Schedule Cards */}
             {stats?.totalWords ? (
               <>

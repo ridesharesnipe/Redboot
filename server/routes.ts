@@ -505,6 +505,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics API - Real-time dashboard data
+  app.get('/api/analytics', validateSession, async (req: any, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      
+      // Get user data
+      const userData = await storage.getUser(playerId);
+      if (!userData) {
+        return res.json({ error: 'User not found' });
+      }
+      
+      // Get children
+      const childrenData = await storage.getChildren(playerId);
+      const child = childrenData[0];
+      
+      // Get word lists
+      const wordListsData = child ? await storage.getWordLists(child.id) : [];
+      const currentWordList = wordListsData[0];
+      
+      // Get progress records
+      const progressData = child ? await storage.getProgress(child.id) : [];
+      
+      // Get tricky words
+      const trickyWordsData = await storage.getTrickyWords(playerId);
+      const activeTrickyWords = trickyWordsData.filter(w => w.status === 'active');
+      const masteredTrickyWords = trickyWordsData.filter(w => w.status === 'mastered');
+      
+      // Get achievements
+      const userAchievements = await storage.getUserAchievements(playerId);
+      
+      // Calculate statistics
+      const totalWords = currentWordList?.words?.length || 0;
+      const totalPracticeSessions = progressData.length;
+      
+      // Calculate accuracy from progress records
+      let totalCorrect = 0;
+      let totalAttempted = 0;
+      progressData.forEach((p: any) => {
+        const correct = p.correctWords?.length || 0;
+        const incorrect = p.incorrectWords?.length || 0;
+        totalCorrect += correct;
+        totalAttempted += correct + incorrect;
+      });
+      const overallAccuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+      
+      // Calculate total time spent (in minutes)
+      const totalTimeSpent = progressData.reduce((sum: number, p: any) => sum + (p.timeSpent || 0), 0);
+      const totalMinutes = Math.round(totalTimeSpent / 60);
+      
+      // Calculate treasures
+      const totalTreasures = (userData.treasureDiamonds || 0) + (userData.treasureCoins || 0) + 
+        (userData.treasureCrowns || 0) + (userData.treasureBags || 0) + 
+        (userData.treasureStars || 0) + (userData.treasureTrophies || 0) +
+        (userData.diegoTreasureDiamonds || 0) + (userData.diegoTreasureCoins || 0) +
+        (userData.diegoTreasureCrowns || 0) + (userData.diegoTreasureBags || 0) +
+        (userData.diegoTreasureStars || 0) + (userData.diegoTreasureTrophies || 0);
+      
+      // Get daily progress for the last 7 days
+      const now = new Date();
+      const dailyProgress: { date: string; words: number; accuracy: number }[] = [];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        
+        // Filter progress for this day
+        const dayProgress = progressData.filter((p: any) => {
+          if (!p.completedAt) return false;
+          const pDate = new Date(p.completedAt).toISOString().split('T')[0];
+          return pDate === dateStr;
+        });
+        
+        let dayCorrect = 0;
+        let dayTotal = 0;
+        dayProgress.forEach((p: any) => {
+          const correct = p.correctWords?.length || 0;
+          const incorrect = p.incorrectWords?.length || 0;
+          dayCorrect += correct;
+          dayTotal += correct + incorrect;
+        });
+        
+        dailyProgress.push({
+          date: dayName,
+          words: dayTotal,
+          accuracy: dayTotal > 0 ? Math.round((dayCorrect / dayTotal) * 100) : 0
+        });
+      }
+      
+      // Word mastery breakdown
+      const wordMastery = {
+        mastered: masteredTrickyWords.length,
+        learning: activeTrickyWords.length,
+        total: totalWords
+      };
+      
+      // Recent activity (last 5 sessions)
+      const recentActivity = progressData.slice(0, 5).map((p: any) => ({
+        id: p.id,
+        date: p.completedAt,
+        correct: p.correctWords?.length || 0,
+        incorrect: p.incorrectWords?.length || 0,
+        score: p.score || 0,
+        character: p.characterUsed || 'red-boot'
+      }));
+      
+      res.json({
+        childName: userData.childName || 'Adventurer',
+        gradeLevel: userData.gradeLevel,
+        stats: {
+          totalWords,
+          totalPracticeSessions,
+          overallAccuracy,
+          totalMinutes,
+          totalTreasures,
+          achievementsEarned: userAchievements.length,
+          trickyWordsActive: activeTrickyWords.length,
+          trickyWordsMastered: masteredTrickyWords.length
+        },
+        dailyProgress,
+        wordMastery,
+        recentActivity,
+        trickyWords: activeTrickyWords.slice(0, 5).map((w: any) => ({
+          word: w.word,
+          mistakeCount: w.mistakeCount,
+          correctStreak: w.correctStreak
+        })),
+        currentWeek: {
+          words: currentWordList?.words || [],
+          practiceCount: currentWordList?.practiceCount || 0,
+          bestScore: currentWordList?.bestScore || 0
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch analytics' });
+    }
+  });
+
   // Stripe routes (if Stripe is configured)
   if (stripe) {
     app.post('/api/create-payment-intent', async (req, res) => {

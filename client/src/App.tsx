@@ -14,6 +14,7 @@ import FridayTest from "@/components/FridayTest";
 import ParentGuide from "@/components/ParentGuide";
 import TreasureVault from "@/pages/TreasureVault";
 import BadgeGallery from "@/pages/BadgeGallery";
+import ParentAnalytics from "@/pages/ParentAnalytics";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { getPlayerId, getSessionToken } from "@/lib/playerId";
 
@@ -199,6 +200,7 @@ function App() {
           <Route path="/guide" component={GuideRoute} />
           <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
           <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
+          <Route path="/analytics" component={withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics")} />
         </Switch>
       </div>
     );

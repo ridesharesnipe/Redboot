@@ -52,6 +52,8 @@ export const users = pgTable("users", {
   diegoTreasureBags: integer("diego_treasure_bags").default(0),
   diegoTreasureStars: integer("diego_treasure_stars").default(0),
   diegoTreasureTrophies: integer("diego_treasure_trophies").default(0),
+  // Practice tracking
+  practiceCount: integer("practice_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
