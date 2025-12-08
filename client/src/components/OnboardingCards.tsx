@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-mo
 import { ChevronRight, Sparkles, Brain, Gamepad2, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import redBootThinking from "@/assets/characters/red-boot-thinking.jpg";
-import redBootPointing from "@/assets/characters/red-boot-pointing.jpg";
+import redBootPointing from "@assets/1758546464581685620984935859986_1765233970288.png";
 import redBootJumping from "@assets/1765213908924_1765214014077.jpg";
 
 interface OnboardingCardsProps {
