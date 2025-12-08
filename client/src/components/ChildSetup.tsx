@@ -74,7 +74,7 @@ export default function ChildSetup({ onComplete }: ChildSetupProps) {
                 placeholder="What's your name, matey?"
                 value={childName}
                 onChange={(e) => setChildName(e.target.value)}
-                className="text-lg border-2 border-amber-200 focus:border-amber-400"
+                className="text-lg border-2 border-amber-200 focus:border-amber-400 bg-white text-gray-900 placeholder:text-gray-400"
                 data-testid="input-child-name"
               />
             </div>
@@ -87,7 +87,7 @@ export default function ChildSetup({ onComplete }: ChildSetupProps) {
               <Select value={gradeLevel} onValueChange={setGradeLevel}>
                 <SelectTrigger 
                   id="grade-level" 
-                  className="text-lg border-2 border-blue-200 focus:border-blue-400"
+                  className="text-lg border-2 border-blue-200 focus:border-blue-400 bg-white text-gray-900"
                   data-testid="select-grade-level"
                 >
                   <SelectValue placeholder="Pick your grade" />
