@@ -5,6 +5,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import OnboardingCards from "@/components/OnboardingCards";
+import ChildSetup from "@/components/ChildSetup";
 import SplashScreen from "@/components/SplashScreen";
 import Landing from "@/pages/landing";
 import PhotoCapturePage from "@/pages/photo-capture";
@@ -74,16 +75,21 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
 
 function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showChildSetup, setShowChildSetup] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
 
   // Check if first-time visitor - show onboarding cards first
   useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     const onboardingComplete = localStorage.getItem('redboot-onboarding-complete');
     const splashShown = sessionStorage.getItem('redboot-splash-shown');
     
-    if (!onboardingComplete) {
+    if (!hasSeenOnboarding) {
       // First-time user: show onboarding cards first
       setShowOnboarding(true);
+    } else if (!onboardingComplete) {
+      // Saw onboarding cards but didn't complete child setup
+      setShowChildSetup(true);
     } else if (!splashShown) {
       // Returning user, new session: show splash screen
       setShowSplash(true);
@@ -92,10 +98,16 @@ function App() {
   }, []);
 
   const handleOnboardingComplete = () => {
-    // Mark onboarding as complete and go to splash screen
-    localStorage.setItem('redboot-onboarding-complete', 'true');
-    sessionStorage.setItem('redboot-splash-shown', 'true');
+    // Finished onboarding cards, now show child setup
+    localStorage.setItem('hasSeenOnboarding', 'true');
     setShowOnboarding(false);
+    setShowChildSetup(true);
+  };
+
+  const handleChildSetupComplete = () => {
+    // Child setup done, go to splash screen
+    sessionStorage.setItem('redboot-splash-shown', 'true');
+    setShowChildSetup(false);
     setShowSplash(true);
   };
 
@@ -117,7 +129,21 @@ function App() {
     );
   }
 
-  // Show splash screen after onboarding or for returning users
+  // Show child name/grade setup after onboarding cards
+  if (showChildSetup) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <AudioProvider>
+          <TooltipProvider>
+            <Toaster />
+            <ChildSetup onComplete={handleChildSetupComplete} />
+          </TooltipProvider>
+        </AudioProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  // Show splash screen after child setup or for returning users
   if (showSplash) {
     return (
       <QueryClientProvider client={queryClient}>

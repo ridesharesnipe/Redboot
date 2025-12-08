@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAudio } from "@/contexts/AudioContext";
 import { Anchor } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ interface SplashScreenProps {
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [audioStarted, setAudioStarted] = useState(false);
-  const { startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
+  const { startBackgroundMusic, playAudioFile, speakFeedback } = useAudio();
 
   const handleStartAdventure = () => {
     // Start audio on user interaction (browser autoplay compliance)
@@ -20,14 +20,23 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       setAudioStarted(true);
       startBackgroundMusic('pirate_adventure');
       playAudioFile(seagullSound, 0.4);
+      
+      // Get child's name for personalized greeting
+      const childName = localStorage.getItem('redboot-child-name');
+      const greeting = childName 
+        ? `Ahoy, ${childName}! Welcome aboard, matey! Let's hunt for treasure!`
+        : `Ahoy, matey! Welcome aboard! Let's hunt for treasure!`;
+      
       setTimeout(() => {
-        playCharacterVoice('red_boot_ahoy');
+        speakFeedback(greeting);
       }, 500);
     }
     
-    // Fade out and transition
-    setIsVisible(false);
-    setTimeout(onComplete, 1000);
+    // Fade out and transition after greeting starts
+    setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(onComplete, 1000);
+    }, 2500);
   };
 
   return (
