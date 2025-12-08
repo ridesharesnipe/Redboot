@@ -679,7 +679,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         </div>
 
         {/* Main Practice Card - Moved up close to progress bar */}
-    <Card className="max-w-2xl mx-auto mt-2">
+    <Card className="max-w-2xl mx-auto mt-2 bg-white border-amber-200">
       <CardContent className="p-6">
         {/* Treasure Collection Display - At very top of white card */}
         {treasureEarned > 0 && (
@@ -870,10 +870,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               <Button
                 onClick={handleSubmit}
                 disabled={!userInput.trim() || !isWordSpoken}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white font-bold shadow-lg"
+                style={{ boxShadow: '0 4px 14px rgba(251, 146, 60, 0.4)' }}
                 data-testid="button-submit-spelling"
               >
-                Submit
+                ⚓ Submit
               </Button>
               
               <Button
