@@ -119,8 +119,8 @@ export default function Landing({ onStart }: LandingProps) {
         </nav>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
           <div className="mb-4 flex justify-center">
-            <div className="relative flex items-center justify-center float-animation landscape-reduce">
-              <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto">
+            <div className="relative flex items-center justify-center float-animation landscape-reduce character-idle-breathe">
+              <div className="character-container relative overflow-hidden rounded-full bg-white border-4 md:border-8 border-white shadow-2xl mx-auto character-idle-sway">
                 <img 
                   src={redBootLandingHead}
                   alt="Red Boot the Pirate Captain"
@@ -221,8 +221,8 @@ export default function Landing({ onStart }: LandingProps) {
               }}
               data-testid="character-select-redboot"
             >
-              <div className="mb-4 flex justify-center relative">
-                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 p-2 transition-all ${
+              <div className="mb-4 flex justify-center relative character-idle-breathe">
+                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 p-2 transition-all character-idle-sway ${
                   selectedCharacter === 'redboot' ? 'animate-pulse' : ''
                 }`}>
                   <img 
@@ -256,8 +256,8 @@ export default function Landing({ onStart }: LandingProps) {
               }}
               data-testid="character-select-diego"
             >
-              <div className="mb-4 flex justify-center relative">
-                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2 transition-all ${
+              <div className="mb-4 flex justify-center relative character-idle-breathe">
+                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2 transition-all character-idle-sway ${
                   selectedCharacter === 'diego' ? 'animate-pulse' : ''
                 }`}>
                   <img 

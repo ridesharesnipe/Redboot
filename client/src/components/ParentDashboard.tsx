@@ -598,7 +598,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           <div className="bento-grid">
             
             {/* Hero Card - Week Status (spans 4 columns) */}
-            <div className="bento-span-4 clay-card slide-up-enter stagger-1 p-6 md:p-8">
+            <div className="bento-span-4 clay-card slide-up-enter stagger-1 p-6 md:p-8 bento-hover-float">
               <div className="text-center">
                 <h1 className="text-3xl md:text-5xl font-bold mb-4 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
                   ⚓ Week of {weekData?.weekStart?.toLocaleDateString() || 'Current Week'} ⚓
@@ -669,7 +669,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
             {/* Today's Progress Card (spans 2 columns) */}
             {stats?.totalWords ? (
-              <div className="bento-span-2 bento-row-2 clay-card slide-up-enter stagger-2 p-6">
+              <div className="bento-span-2 bento-row-2 clay-card slide-up-enter stagger-2 p-6 bento-hover-float bento-hover-green">
                 <div className="text-center h-full flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3 icon-bounce inline-block">⛵</div>
@@ -711,7 +711,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             ) : null}
 
             {/* Treasures Card (spans 2 columns) */}
-            <div className="bento-span-2 bento-row-2 clay-card slide-up-enter stagger-3 p-6 bg-gradient-to-br from-amber-50 to-yellow-100">
+            <div className="bento-span-2 bento-row-2 clay-card slide-up-enter stagger-3 p-6 bg-gradient-to-br from-amber-50 to-yellow-100 bento-hover-float bento-hover-gold">
               <div className="text-center h-full flex flex-col justify-between">
                 <div>
                   <div className="text-4xl mb-3 icon-bounce inline-block">💎</div>
@@ -723,7 +723,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                 <div className="flex flex-wrap justify-center gap-2 my-4">
                   {todayData.treasuresEarned > 0 ? (
                     Array.from({ length: Math.min(todayData.treasuresEarned, 8) }).map((_, i) => (
-                      <span key={i} className="text-3xl animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>
+                      <span key={i} className="text-3xl treasure-sparkle treasure-glow animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>
                         {['🪙', '💚', '❤️', '💎', '⭐', '👑', '🏆', '✨'][i % 8]}
                       </span>
                     ))
@@ -750,7 +750,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
 
             {/* Tricky Treasures Card - Words that need extra practice */}
             {trickyWords && trickyWords.length > 0 && (
-              <div className="bento-span-2 clay-card slide-up-enter stagger-4 p-6 bg-gradient-to-br from-purple-50 to-pink-100">
+              <div className="bento-span-2 clay-card slide-up-enter stagger-4 p-6 bg-gradient-to-br from-purple-50 to-pink-100 bento-hover-float bento-hover-purple">
                 <div className="text-center h-full flex flex-col">
                   <div className="text-4xl mb-3">⚡</div>
                   <h2 className="text-xl md:text-2xl font-bold mb-2 text-purple-800" style={{ fontFamily: 'var(--font-pirate)' }}>
@@ -795,7 +795,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             )}
 
             {/* Achievement Badges Card */}
-            <div className="bento-span-2 clay-card slide-up-enter stagger-5 p-6 bg-gradient-to-br from-indigo-50 to-blue-100">
+            <div className="bento-span-2 clay-card slide-up-enter stagger-5 p-6 bg-gradient-to-br from-indigo-50 to-blue-100 bento-hover-float">
               <div className="text-center h-full flex flex-col">
                 <div className="text-4xl mb-3">🏅</div>
                 <h2 className="text-xl md:text-2xl font-bold mb-2 text-indigo-800" style={{ fontFamily: 'var(--font-pirate)' }}>

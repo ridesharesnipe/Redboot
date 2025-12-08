@@ -660,11 +660,43 @@ export default function TreasureVault() {
           min-height: 200px;
           border: 2px solid rgba(212,175,55,0.5);
           transition: all 0.3s;
+          overflow: visible;
+        }
+
+        .treasure-pile::before {
+          content: '✨';
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          font-size: 20px;
+          animation: sparkle-pulse 2s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        .treasure-pile::after {
+          content: '✨';
+          position: absolute;
+          bottom: -8px;
+          left: -8px;
+          font-size: 16px;
+          animation: sparkle-pulse 2s ease-in-out infinite 1s;
+          pointer-events: none;
+        }
+
+        @keyframes sparkle-pulse {
+          0%, 100% { 
+            opacity: 0.3;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% { 
+            opacity: 1;
+            transform: scale(1.2) rotate(180deg);
+          }
         }
 
         .treasure-pile:hover {
           transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 30px rgba(255, 215, 0, 0.3);
           background: rgba(255,255,255,0.2);
         }
 
@@ -676,6 +708,7 @@ export default function TreasureVault() {
           letter-spacing: 2px;
           margin-bottom: 10px;
           text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+          position: relative;
         }
 
         /* Canvas for treasure visualization */

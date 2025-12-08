@@ -137,14 +137,14 @@ export default function BadgeGallery() {
                         key={achievement.id}
                         className={`clay-card transition-all duration-300 ${
                           isEarned 
-                            ? `bg-gradient-to-br ${rarityColors[achievement.rarity]} border-2 ${rarityBorders[achievement.rarity]} hover:scale-105` 
+                            ? `bg-gradient-to-br ${rarityColors[achievement.rarity]} border-2 ${rarityBorders[achievement.rarity]} hover:scale-105 badge-sparkle ${achievement.rarity === 'legendary' ? 'badge-legendary-sparkle' : 'badge-particles'}` 
                             : 'bg-gray-100 opacity-60 grayscale hover:opacity-80 hover:grayscale-0'
                         }`}
                         data-testid={`badge-card-${achievement.id}`}
                       >
-                        <CardContent className="p-4 text-center">
+                        <CardContent className="p-4 text-center relative overflow-visible">
                           <div className="relative">
-                            <div className={`text-5xl md:text-6xl mb-2 ${isEarned ? 'animate-bounce' : ''}`} style={{ animationDuration: '2s' }}>
+                            <div className={`text-5xl md:text-6xl mb-2 ${isEarned ? 'treasure-sparkle treasure-glow' : ''}`}>
                               {achievement.icon}
                             </div>
                             {!isEarned && (

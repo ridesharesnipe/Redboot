@@ -1355,3 +1355,422 @@ button, [role="button"], a {
 .stagger-4 { animation-delay: 0.2s; }
 .stagger-5 { animation-delay: 0.25s; }
 .stagger-6 { animation-delay: 0.3s; }
+
+/* ==========================================
+   2025 VISUAL ENHANCEMENTS
+   ========================================== */
+
+/* Badge Sparkle Effect - Continuous shimmer for earned badges */
+.badge-sparkle {
+  position: relative;
+  overflow: visible;
+}
+
+.badge-sparkle::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    45deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.8) 25%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.8) 75%,
+    transparent 80%
+  );
+  background-size: 200% 200%;
+  border-radius: inherit;
+  animation: badge-shine 3s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes badge-shine {
+  0% { background-position: 200% 200%; }
+  100% { background-position: -200% -200%; }
+}
+
+/* Badge floating sparkle particles */
+.badge-particles {
+  position: relative;
+}
+
+.badge-particles::after {
+  content: '✨';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 14px;
+  animation: sparkle-twinkle 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { 
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+/* Multi-sparkle effect for legendary badges */
+.badge-legendary-sparkle::before,
+.badge-legendary-sparkle::after {
+  content: '⭐';
+  position: absolute;
+  font-size: 12px;
+  animation: sparkle-orbit 4s linear infinite;
+  pointer-events: none;
+}
+
+.badge-legendary-sparkle::before {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.badge-legendary-sparkle::after {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: -2s;
+}
+
+@keyframes sparkle-orbit {
+  0% { 
+    opacity: 0.5;
+    transform: translateX(-50%) rotate(0deg) translateY(-5px);
+  }
+  25% { 
+    opacity: 1;
+    transform: translateX(-50%) rotate(90deg) translateY(-8px);
+  }
+  50% { 
+    opacity: 0.5;
+    transform: translateX(-50%) rotate(180deg) translateY(-5px);
+  }
+  75% { 
+    opacity: 1;
+    transform: translateX(-50%) rotate(270deg) translateY(-8px);
+  }
+  100% { 
+    opacity: 0.5;
+    transform: translateX(-50%) rotate(360deg) translateY(-5px);
+  }
+}
+
+/* Page Transition Animations */
+.page-enter {
+  animation: page-fade-in 0.4s ease-out forwards;
+}
+
+.page-exit {
+  animation: page-fade-out 0.3s ease-in forwards;
+}
+
+@keyframes page-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes page-fade-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+/* Enhanced Bento Card Hover - Float + Glow */
+.bento-hover-float {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.bento-hover-float:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 30px rgba(59, 130, 246, 0.2),
+    0 0 60px rgba(59, 130, 246, 0.1);
+}
+
+/* Specific glow colors for different card types */
+.bento-hover-gold:hover {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 30px rgba(245, 158, 11, 0.3),
+    0 0 60px rgba(245, 158, 11, 0.15);
+}
+
+.bento-hover-green:hover {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 30px rgba(34, 197, 94, 0.3),
+    0 0 60px rgba(34, 197, 94, 0.15);
+}
+
+.bento-hover-purple:hover {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 30px rgba(147, 51, 234, 0.3),
+    0 0 60px rgba(147, 51, 234, 0.15);
+}
+
+/* Character Idle Animations - Breathing effect */
+.character-idle-breathe {
+  animation: character-breathe 4s ease-in-out infinite;
+}
+
+@keyframes character-breathe {
+  0%, 100% { 
+    transform: scale(1) translateY(0);
+  }
+  50% { 
+    transform: scale(1.02) translateY(-3px);
+  }
+}
+
+/* Character subtle sway */
+.character-idle-sway {
+  animation: character-sway 5s ease-in-out infinite;
+}
+
+@keyframes character-sway {
+  0%, 100% { 
+    transform: rotate(0deg) translateY(0);
+  }
+  25% { 
+    transform: rotate(1deg) translateY(-2px);
+  }
+  75% { 
+    transform: rotate(-1deg) translateY(-2px);
+  }
+}
+
+/* Character blink effect for eyes */
+.character-blink::after {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  width: 60%;
+  height: 8px;
+  background: transparent;
+  transform: translateX(-50%);
+  animation: character-blink-anim 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes character-blink-anim {
+  0%, 45%, 55%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Treasure Sparkle Effects */
+.treasure-sparkle {
+  position: relative;
+  display: inline-block;
+}
+
+.treasure-sparkle::before,
+.treasure-sparkle::after {
+  content: '✨';
+  position: absolute;
+  font-size: 10px;
+  opacity: 0;
+  animation: treasure-spark 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.treasure-sparkle::before {
+  top: -5px;
+  left: -3px;
+  animation-delay: 0s;
+}
+
+.treasure-sparkle::after {
+  bottom: -5px;
+  right: -3px;
+  animation-delay: 1.25s;
+}
+
+@keyframes treasure-spark {
+  0%, 100% { 
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  20% { 
+    opacity: 1;
+    transform: scale(1) rotate(90deg);
+  }
+  40% {
+    opacity: 0.5;
+    transform: scale(0.8) rotate(180deg);
+  }
+  60% {
+    opacity: 0;
+    transform: scale(0.3) rotate(270deg);
+  }
+}
+
+/* Floating golden particles around treasures */
+.treasure-glow {
+  position: relative;
+}
+
+.treasure-glow::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 215, 0, 0.4) 0%,
+    rgba(255, 215, 0, 0.1) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: treasure-glow-pulse 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes treasure-glow-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+/* Treasure collection burst animation */
+.treasure-burst {
+  animation: treasure-collect 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes treasure-collect {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Achievement unlock celebration */
+.achievement-unlock {
+  animation: achievement-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes achievement-pop {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Confetti burst for celebrations */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Accessibility: Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  .badge-sparkle::before,
+  .badge-particles::after,
+  .badge-legendary-sparkle::before,
+  .badge-legendary-sparkle::after,
+  .treasure-sparkle::before,
+  .treasure-sparkle::after,
+  .treasure-glow::before {
+    animation: none;
+    opacity: 0.5;
+  }
+  
+  .page-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  
+  .bento-hover-float,
+  .bento-hover-gold,
+  .bento-hover-green,
+  .bento-hover-purple {
+    transition: none;
+  }
+  
+  .bento-hover-float:hover,
+  .bento-hover-gold:hover,
+  .bento-hover-green:hover,
+  .bento-hover-purple:hover {
+    transform: none;
+  }
+  
+  .character-idle-breathe,
+  .character-idle-sway {
+    animation: none;
+    transform: none;
+  }
+  
+  .achievement-unlock,
+  .treasure-burst,
+  .confetti-piece {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

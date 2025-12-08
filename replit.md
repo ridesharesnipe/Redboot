@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### December 8, 2025 - 2025 Visual Enhancements
+- **Badge Sparkle Effects**: Earned badges now have continuous shimmer animations with CSS pseudo-elements, legendary badges get special star orbit effects
+- **Page Transitions**: App.tsx wrapped routes in page-enter animation class for smooth fade-in/scale transitions between pages
+- **Dashboard Card Hover Effects**: Bento grid cards now float up on hover with colored glow effects (gold for treasures, green for progress, purple for tricky words)
+- **Character Idle Animations**: Red Boot and Diego characters have breathing and sway animations on landing page for lifelike presence
+- **Treasure Sparkle Effects**: Treasures on dashboard and vault display sparkle and glow animations, vault treasure piles have rotating sparkle decorations
+- **New CSS Classes**: badge-sparkle, badge-particles, badge-legendary-sparkle, page-enter, bento-hover-float, bento-hover-gold/green/purple, character-idle-breathe, character-idle-sway, treasure-sparkle, treasure-glow
+
 ### December 8, 2025 - Comprehensive Responsive Design Overhaul
 - **Game Component Responsive Heights**: SeaMonsterBattle and TreasureRoad converted from fixed 500-700px heights to responsive min-h-[50vh] md:min-h-[60vh] lg:min-h-[700px]
 - **Scaled Emojis & Characters**: Sea monsters, palm trees, boats, and characters use responsive text sizing (text-5xl sm:text-6xl md:text-8xl) to scale across devices

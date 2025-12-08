@@ -186,6 +186,24 @@ function App() {
     );
   }, "Guide");
 
+  const PageTransitionWrapper = () => {
+    const [location] = useLocation();
+    return (
+      <div key={location} className="page-enter">
+        <Switch>
+          <Route path="/" component={LandingRoute} />
+          <Route path="/photo-capture" component={withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture")} />
+          <Route path="/dashboard" component={DashboardRoute} />
+          <Route path="/practice" component={PracticeRoute} />
+          <Route path="/test" component={TestRoute} />
+          <Route path="/guide" component={GuideRoute} />
+          <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
+          <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
+        </Switch>
+      </div>
+    );
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <AudioProvider>
@@ -193,16 +211,7 @@ function App() {
           <Toaster />
           <Router>
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
-              <Switch>
-                <Route path="/" component={LandingRoute} />
-                <Route path="/photo-capture" component={withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture")} />
-                <Route path="/dashboard" component={DashboardRoute} />
-                <Route path="/practice" component={PracticeRoute} />
-                <Route path="/test" component={TestRoute} />
-                <Route path="/guide" component={GuideRoute} />
-                <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
-                <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
-              </Switch>
+              <PageTransitionWrapper />
             </div>
           </Router>
         </TooltipProvider>
