@@ -140,7 +140,7 @@ export default function Landing({ onStart }: LandingProps) {
             Ahoy, Matey!
           </h1>
           <div className="mb-4 flex justify-center">
-            <i className="lni lni-compass text-8xl text-yellow-400 drop-shadow-lg" style={{ 
+            <i className="lni lni-compass text-5xl sm:text-6xl md:text-8xl text-yellow-400 drop-shadow-lg" style={{ 
               fontFamily: 'LineIcons', 
               fontStyle: 'normal',
               backgroundColor: 'rgba(255,255,255,0.1)',
@@ -149,13 +149,12 @@ export default function Landing({ onStart }: LandingProps) {
             }}>🧭</i>
           </div>
           <div className="relative">
-            <div className="absolute -top-16 right-4 -z-10 animate-pulse">
-              <i className="lni lni-island text-green-400 drop-shadow-2xl" style={{ 
-                fontSize: '16rem',
+            <div className="absolute -top-8 sm:-top-12 md:-top-16 right-2 sm:right-4 -z-10 animate-pulse hidden sm:block">
+              <i className="lni lni-island text-green-400 drop-shadow-2xl text-6xl sm:text-8xl md:text-[12rem] lg:text-[16rem]" style={{ 
                 backgroundColor: 'rgba(34,197,94,0.15)',
-                padding: '24px',
+                padding: '12px',
                 borderRadius: '50%',
-                border: '4px solid rgba(34,197,94,0.2)'
+                border: '2px solid rgba(34,197,94,0.2)'
               }}>🏝️</i>
             </div>
             <p className="fluid-text-lg mb-6 text-white font-semibold drop-shadow-lg max-reading-width mx-auto px-4 relative z-10" data-testid="text-hero-subtitle">
@@ -222,7 +221,7 @@ export default function Landing({ onStart }: LandingProps) {
               data-testid="character-select-redboot"
             >
               <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 p-2 transition-all character-idle-sway ${
+                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 p-2 transition-all character-idle-sway ${
                   selectedCharacter === 'redboot' ? 'animate-pulse' : ''
                 }`}>
                   <img 
@@ -257,7 +256,7 @@ export default function Landing({ onStart }: LandingProps) {
               data-testid="character-select-diego"
             >
               <div className="mb-4 flex justify-center relative character-idle-breathe">
-                <div className={`w-56 h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2 transition-all character-idle-sway ${
+                <div className={`w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2 transition-all character-idle-sway ${
                   selectedCharacter === 'diego' ? 'animate-pulse' : ''
                 }`}>
                   <img 

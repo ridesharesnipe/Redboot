@@ -348,13 +348,13 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
 
             {/* Perfect Score Celebration */}
             {accuracy === 100 && (
-              <Card className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-6 text-center border-4 border-yellow-300">
+              <Card className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-4 sm:p-6 text-center border-4 border-yellow-300">
                 <CardContent className="pt-0">
-                  <div className="text-8xl mb-4">🏆</div>
-                  <h3 className="text-3xl font-pirate text-white mb-4">
+                  <div className="text-5xl sm:text-6xl md:text-8xl mb-3 sm:mb-4">🏆</div>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-pirate text-white mb-3 sm:mb-4">
                     PERFECT TREASURE HUNTER!
                   </h3>
-                  <p className="text-xl text-white">
+                  <p className="text-base sm:text-lg md:text-xl text-white">
                     You've mastered all {totalWords} spelling words! 
                     You're ready to ace that Friday test, Captain!
                   </p>

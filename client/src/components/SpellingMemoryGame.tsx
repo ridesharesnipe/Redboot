@@ -382,15 +382,15 @@ export default function SpellingMemoryGame({ words, onComplete, onExit }: Spelli
 
           {gamePhase === "feedback" && (
             /* FEEDBACK PHASE */
-            <Card className={`bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 ${
+            <Card className={`bg-white/10 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 text-center border-4 ${
               lastResult === "correct" ? "border-green-400" : "border-red-400"
             }`}>
               <CardContent className="pt-0">
-                <div className="text-8xl mb-4">
+                <div className="text-5xl sm:text-6xl md:text-8xl mb-3 sm:mb-4">
                   {lastResult === "correct" ? "🏆" : "❌"}
                 </div>
                 
-                <h2 className={`text-3xl font-pirate mb-6 ${
+                <h2 className={`text-xl sm:text-2xl md:text-3xl font-pirate mb-4 sm:mb-6 ${
                   lastResult === "correct" ? "text-green-300" : "text-red-300"
                 }`}>
                   {lastResult === "correct" ? "Arrr! Excellent!" : "Nice Try, Matey!"}

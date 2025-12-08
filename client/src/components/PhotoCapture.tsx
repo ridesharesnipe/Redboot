@@ -775,21 +775,21 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     const wordCount = editableWords.filter(w => w.trim()).length;
     
     return (
-      <div className="min-h-screen bg-background p-4">
+      <div className="min-h-screen bg-background p-3 sm:p-4">
         <Card className="glass-card max-w-2xl mx-auto glass-floating">
-          <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-center text-white glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
               🏴‍☠️ Verify Your Treasure Words 🏴‍☠️
             </h2>
             
             {/* HUGE Word Count Display */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 mb-8 rounded-2xl shadow-2xl border-4 border-white/30">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 rounded-2xl shadow-2xl border-4 border-white/30">
               <div className="text-center">
-                <p className="text-2xl font-semibold mb-3 uppercase tracking-wide">Words Captured</p>
-                <div className="text-9xl font-bold mb-3 glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
+                <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 uppercase tracking-wide">Words Captured</p>
+                <div className="text-5xl sm:text-7xl md:text-9xl font-bold mb-2 sm:mb-3 glass-text-glow" style={{ fontFamily: 'var(--font-pirate)' }}>
                   {wordCount}
                 </div>
-                <p className="text-3xl font-medium">
+                <p className="text-xl sm:text-2xl md:text-3xl font-medium">
                   {wordCount === 1 ? 'Word' : 'Words'} Found ✨
                 </p>
               </div>
@@ -1026,16 +1026,15 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
             </div>
           ) : (
             <div className="text-center">
-              <div className="mb-6 flex justify-center">
-                <i className="lni lni-anchor text-white glass-text-glow" style={{ 
-                  fontSize: '8rem',
+              <div className="mb-4 sm:mb-6 flex justify-center">
+                <i className="lni lni-anchor text-white glass-text-glow text-5xl sm:text-6xl md:text-8xl" style={{ 
                   filter: 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5))'
                 }}></i>
               </div>
-              <h3 className="text-2xl font-bold text-white glass-text-glow mb-4" data-testid="text-upload-ready" style={{ fontFamily: 'var(--font-pirate)' }}>
+              <h3 className="text-xl sm:text-2xl font-bold text-white glass-text-glow mb-3 sm:mb-4" data-testid="text-upload-ready" style={{ fontFamily: 'var(--font-pirate)' }}>
                 📸 Chart New Waters
               </h3>
-              <p className="text-white/80 mb-8 text-lg" data-testid="text-upload-instructions">
+              <p className="text-white/80 mb-6 sm:mb-8 text-base sm:text-lg" data-testid="text-upload-instructions">
                 Snap or upload your treasure map (spelling list) to begin!
               </p>
               

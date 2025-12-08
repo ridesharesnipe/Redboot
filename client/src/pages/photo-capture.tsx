@@ -213,8 +213,8 @@ export default function PhotoCapturePage() {
           <ArrowLeft className="w-4 h-4" />
           Back to Harbor
         </Button>
-        <h1 className="text-5xl font-pirate text-white flex items-center gap-3" data-testid="text-page-title">
-          <i className="lni lni-scroll" style={{ fontSize: '3rem' }}></i>
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-pirate text-white flex items-center gap-2 sm:gap-3" data-testid="text-page-title">
+          <i className="lni lni-scroll text-xl sm:text-2xl md:text-4xl"></i>
           Treasure Map Creator
         </h1>
         <div className="w-32"></div>
@@ -231,15 +231,15 @@ export default function PhotoCapturePage() {
                   <RedBootCharacter size="large" animated />
                 </div>
               </div>
-              <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center border-4 border-white/20 shadow-2xl">
+              <Card className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 text-center border-4 border-white/20 shadow-2xl">
                 <CardContent className="pt-0">
-                  <div className="mb-6">
-                    <i className="lni lni-flag" style={{ fontSize: '5rem', color: '#000' }}></i>
+                  <div className="mb-4 sm:mb-6">
+                    <i className="lni lni-flag text-4xl sm:text-5xl md:text-6xl" style={{ color: '#000' }}></i>
                   </div>
-                  <h2 className="text-6xl font-pirate mb-4 text-white" data-testid="text-capture-title">
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-pirate mb-3 sm:mb-4 text-white" data-testid="text-capture-title">
                     Create Your Treasure Maps!
                   </h2>
-                  <p className="text-blue-100 mb-6 text-3xl leading-relaxed" data-testid="text-capture-instructions">
+                  <p className="text-blue-100 mb-4 sm:mb-6 text-lg sm:text-xl md:text-3xl leading-relaxed" data-testid="text-capture-instructions">
                     "Ahoy matey! Upload a photo of your spelling homework and I'll turn those words into magical treasure map flashcards!"
                   </p>
                   
@@ -255,11 +255,11 @@ export default function PhotoCapturePage() {
           ) : isProcessing ? (
             /* Processing Screen */
             <div className="text-center">
-              <RedBootCharacter size="large" animated className="mb-6" />
-              <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-12 text-center border-4 border-blue-200 shadow-2xl">
+              <RedBootCharacter size="large" animated className="mb-4 sm:mb-6" />
+              <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 md:p-12 text-center border-4 border-blue-200 shadow-2xl">
                 <CardContent className="pt-0">
-                  <div className="text-8xl mb-6">🗺️</div>
-                  <h2 className="text-4xl font-fun mb-6 text-blue-900" data-testid="text-processing-title">
+                  <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6">🗺️</div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-fun mb-4 sm:mb-6 text-blue-900" data-testid="text-processing-title">
                     Creating Your Treasure Maps...
                   </h2>
                   <div className="flex justify-center mb-6">
@@ -277,20 +277,19 @@ export default function PhotoCapturePage() {
               {/* Success Message */}
               <div className="text-center">
                 <RedBootCharacter size="medium" animated className="mb-4" />
-                <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 border-4 border-blue-200 shadow-2xl">
+                <Card className="bg-white/90 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 border-4 border-blue-200 shadow-2xl">
                   <CardContent className="pt-0">
-                    <div className="mb-4">
-                      <i className="lni lni-celebration text-green-600 drop-shadow-lg" style={{
-                        fontSize: '4rem',
+                    <div className="mb-3 sm:mb-4">
+                      <i className="lni lni-celebration text-green-600 drop-shadow-lg text-4xl sm:text-5xl md:text-6xl" style={{
                         backgroundColor: 'rgba(34,197,94,0.1)',
                         padding: '12px',
                         borderRadius: '50%'
                       }}></i>
                     </div>
-                    <h2 className="text-3xl font-fun mb-4 text-blue-900" data-testid="text-success-title">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-fun mb-3 sm:mb-4 text-blue-900" data-testid="text-success-title">
                       Treasure Maps Created!
                     </h2>
-                    <p className="text-blue-700 mb-6 text-xl" data-testid="text-success-message">
+                    <p className="text-blue-700 mb-4 sm:mb-6 text-base sm:text-lg md:text-xl" data-testid="text-success-message">
                       "Ahoy! I found {extractedWords.length} treasure words in your photo! They're now beautiful treasure map flashcards!"
                     </p>
                     <div className="flex gap-3 justify-center flex-wrap">
