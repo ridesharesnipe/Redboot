@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
 import { photoStorage, getWeekStart } from "@/lib/photoStorage";
-import { Upload, Check, X, Edit, Loader } from 'lucide-react';
+import { Upload, Check, X, Edit, Loader, Camera } from 'lucide-react';
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
@@ -21,10 +21,100 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   const [showWordList, setShowWordList] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   
+  // Camera state
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  
   const hiddenFileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const { toast } = useToast();
   const { playSound } = useAudio();
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
+  // Start camera
+  const startCamera = async () => {
+    setCameraError(null);
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'environment', // Back camera on mobile
+          width: { ideal: 1920, min: 1280 },
+          height: { ideal: 1080, min: 720 }
+        }
+      });
+      
+      setStream(mediaStream);
+      setIsCameraActive(true);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.play();
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setCameraError('Camera access denied. You can still upload a photo instead.');
+      toast({
+        title: "Camera Access Failed",
+        description: "Please allow camera access or use the upload option instead.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Stop camera
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+      setIsCameraActive(false);
+    }
+  };
+
+  // Capture snapshot from camera
+  const captureSnapshot = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) return;
+
+    // Set canvas to match video dimensions
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw video frame to canvas
+    ctx.drawImage(video, 0, 0);
+
+    // Convert to base64 image data (high quality JPEG)
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    
+    stopCamera();
+    setCapturedImage(imageData);
+    processImage(imageData);
+    playSound('treasure_chest_open');
+    onCapture(imageData);
+  };
+
+  // Cancel camera and go back
+  const cancelCamera = () => {
+    stopCamera();
+    if (onCancel) {
+      onCancel();
+    }
+  };
 
   // Handle file upload from hidden input (for testing)
   const handleHiddenFileUpload = () => {
@@ -43,7 +133,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   };
 
-  // Preprocess image for better OCR with optimized scaling
+  // Preprocess image for better OCR - optimized for 2025 best practices
   const preprocessImageForOCR = async (imageData: string): Promise<string> => {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
@@ -51,8 +141,9 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       const img = new Image();
       
       img.onload = () => {
-        // Optimized scale - 2x is sufficient for most spelling lists
-        const scale = 2;
+        // 2025 best practice: 1000px width is optimal for web OCR
+        const maxWidth = 1000;
+        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         
@@ -609,6 +700,76 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     setShowWordList(false);
   };
 
+  // Camera view - show live camera feed with snap button
+  if (isCameraActive) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col">
+        {/* Live camera feed */}
+        <div className="flex-1 relative">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+            style={{ maxHeight: '70vh' }}
+          />
+          
+          {/* Camera overlay with guide */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-4 border-2 border-white/40 rounded-lg"></div>
+            <div className="absolute top-6 left-0 right-0 text-center">
+              <p className="text-white text-lg font-semibold bg-black/50 inline-block px-4 py-2 rounded-full">
+                📋 Position your spelling list in the frame
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Camera controls */}
+        <div className="bg-gradient-to-t from-black to-transparent p-6">
+          <div className="flex justify-center items-center gap-8">
+            {/* Cancel button */}
+            <Button
+              onClick={cancelCamera}
+              variant="outline"
+              className="w-14 h-14 rounded-full bg-white/20 border-white/50 text-white hover:bg-white/30"
+              data-testid="button-cancel-camera"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+            
+            {/* Capture button - big and prominent */}
+            <Button
+              onClick={captureSnapshot}
+              className="w-20 h-20 rounded-full bg-white border-4 border-blue-400 shadow-lg hover:bg-gray-100 hover:scale-105 transition-transform"
+              data-testid="button-capture-snapshot"
+            >
+              <Camera className="w-10 h-10 text-blue-600" />
+            </Button>
+            
+            {/* Switch to upload button */}
+            <Button
+              onClick={() => { stopCamera(); triggerFileUpload(); }}
+              variant="outline"
+              className="w-14 h-14 rounded-full bg-white/20 border-white/50 text-white hover:bg-white/30"
+              data-testid="button-switch-to-upload"
+            >
+              <Upload className="w-6 h-6" />
+            </Button>
+          </div>
+          
+          <p className="text-white/70 text-center mt-4 text-sm">
+            Tap the camera button to snap your spelling list
+          </p>
+        </div>
+        
+        {/* Hidden canvas for capture */}
+        <canvas ref={canvasRef} className="hidden" />
+      </div>
+    );
+  }
+
   // Show word verification screen if words were extracted
   if (showWordList) {
     const wordCount = editableWords.filter(w => w.trim()).length;
@@ -875,17 +1036,44 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
                 📸 Chart New Waters
               </h3>
               <p className="text-white/80 mb-8 text-lg" data-testid="text-upload-instructions">
-                Upload your treasure map (spelling list photo) to begin the adventure!
+                Snap or upload your treasure map (spelling list) to begin!
               </p>
-              <div className="flex flex-col gap-6 items-center">
+              
+              <div className="flex flex-col gap-4 items-center">
+                {/* Primary option: Camera snapshot */}
+                <Button 
+                  onClick={startCamera}
+                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow w-full max-w-sm"
+                  data-testid="button-open-camera"
+                >
+                  <Camera className="w-8 h-8 mr-4" />
+                  📷 Take Snapshot
+                </Button>
+                
+                {/* Divider */}
+                <div className="flex items-center gap-4 w-full max-w-sm">
+                  <div className="flex-1 h-px bg-white/30"></div>
+                  <span className="text-white/60 text-sm">or</span>
+                  <div className="flex-1 h-px bg-white/30"></div>
+                </div>
+                
+                {/* Secondary option: File upload */}
                 <Button 
                   onClick={triggerFileUpload}
-                  className="glass-button-primary glass-button-xl text-white font-bold glass-text-glow"
+                  variant="outline"
+                  className="glass-button text-white font-bold w-full max-w-sm"
                   data-testid="button-upload-file"
                 >
-                  <Upload className="w-8 h-8 mr-4" />
-                  📤 Upload Treasure Map
+                  <Upload className="w-6 h-6 mr-3" />
+                  📤 Upload Photo
                 </Button>
+                
+                {/* Camera error message */}
+                {cameraError && (
+                  <p className="text-yellow-300 text-sm mt-2" data-testid="text-camera-error">
+                    ⚠️ {cameraError}
+                  </p>
+                )}
                 
                 {/* Hidden file input for testing */}
                 <input
