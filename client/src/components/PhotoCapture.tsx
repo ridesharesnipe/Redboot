@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAudio } from "@/contexts/AudioContext";
 import { photoStorage, getWeekStart } from "@/lib/photoStorage";
-import { Upload, Check, X, Edit, Loader, Camera } from 'lucide-react';
+import { Upload, Check, X, Edit, Loader, Camera, Sparkles } from 'lucide-react';
+import redBootImage from "@assets/1765213908924_1765214014077.jpg";
 
 interface PhotoCaptureProps {
   onCapture: (imageData: string) => void;
@@ -897,107 +898,130 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     );
   }
 
-  // Default: Start screen or photo preview
+  // Default: Start screen or photo preview - Red Boot Pirate Theme
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-      {capturedImage ? (
-        <div className="text-center">
-          <div className="mb-6">
-            <div className="relative bg-gray-50 rounded-xl p-4 max-w-md mx-auto">
-              <img 
-                src={capturedImage} 
-                alt="Captured spelling list"
-                className="w-full h-auto rounded-lg shadow-md"
-                style={{
-                  maxHeight: '400px',
-                  objectFit: 'contain'
-                }}
-              />
-              <p className="text-center text-gray-500 mt-3 text-sm">
-                Check that all words are clearly visible
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3 max-w-md mx-auto">
-            <Button 
-              onClick={retakePhoto}
-              variant="outline"
-              className="flex-1 border-gray-300"
-              data-testid="button-retake-photo"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Choose Different
-            </Button>
-            <Button 
-              onClick={() => processImage(capturedImage)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-              data-testid="button-process-image"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Extract Words
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="text-center">
-          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
-            <Camera className="w-10 h-10 text-blue-600" />
-          </div>
-          
-          <h3 className="text-xl font-bold text-gray-800 mb-2" data-testid="text-upload-ready">
-            Capture Your Spelling List
-          </h3>
-          <p className="text-gray-500 mb-6 text-sm" data-testid="text-upload-instructions">
-            Take a photo or upload an image of your homework
-          </p>
-          
-          <div className="flex flex-col gap-3 max-w-sm mx-auto">
-            <Button 
-              onClick={startCamera}
-              size="lg"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
-              data-testid="button-open-camera"
-            >
-              <Camera className="w-6 h-6 mr-3" />
-              Open Camera
-            </Button>
-            
-            <div className="flex items-center gap-3 my-2">
-              <div className="flex-1 h-px bg-gray-200"></div>
-              <span className="text-gray-400 text-xs uppercase tracking-wider">or</span>
-              <div className="flex-1 h-px bg-gray-200"></div>
-            </div>
-            
-            <Button 
-              onClick={triggerFileUpload}
-              variant="outline"
-              size="lg"
-              className="w-full border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 font-semibold py-6 rounded-xl transition-all"
-              data-testid="button-upload-file"
-            >
-              <Upload className="w-5 h-5 mr-3" />
-              Upload Photo
-            </Button>
-            
-            {cameraError && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
-                <p className="text-amber-700 text-sm" data-testid="text-camera-error">
-                  {cameraError}
+    <div className="relative min-h-[400px] rounded-2xl overflow-hidden" style={{
+      background: 'linear-gradient(180deg, #7dd3fc 0%, #bae6fd 30%, #fef3c7 70%, #fde68a 100%)'
+    }}>
+      {/* Floating treasure jewels */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-8 left-8 text-3xl animate-bounce" style={{ animationDelay: '0s', filter: 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.6))' }}>💎</div>
+        <div className="absolute top-16 right-12 text-2xl animate-bounce" style={{ animationDelay: '0.3s', filter: 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.6))' }}>💚</div>
+        <div className="absolute top-4 right-1/4 text-2xl animate-bounce" style={{ animationDelay: '0.6s', filter: 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.6))' }}>⭐</div>
+        <div className="absolute bottom-32 left-4 text-xl animate-bounce" style={{ animationDelay: '0.9s', filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.6))' }}>💜</div>
+        <div className="absolute bottom-40 right-8 text-2xl animate-bounce" style={{ animationDelay: '1.2s', filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))' }}>💙</div>
+        
+        {/* Palm trees */}
+        <div className="absolute bottom-20 left-0 text-5xl" style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' }}>🌴</div>
+        <div className="absolute bottom-16 right-0 text-6xl" style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))' }}>🌴</div>
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10 p-6">
+        {capturedImage ? (
+          <div className="text-center">
+            <div className="mb-6">
+              <div className="relative bg-white/90 backdrop-blur-sm rounded-xl p-4 max-w-md mx-auto shadow-lg">
+                <img 
+                  src={capturedImage} 
+                  alt="Captured spelling list"
+                  className="w-full h-auto rounded-lg shadow-md"
+                  style={{
+                    maxHeight: '300px',
+                    objectFit: 'contain'
+                  }}
+                />
+                <p className="text-center text-amber-700 mt-3 text-sm font-medium">
+                  Check that all words are clearly visible, matey!
                 </p>
               </div>
-            )}
-            
-            <input
-              ref={hiddenFileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleHiddenFileUpload}
-              className="hidden"
-              data-testid="input-file-hidden"
-            />
+            </div>
+            <div className="flex gap-3 max-w-md mx-auto">
+              <Button 
+                onClick={retakePhoto}
+                className="flex-1 bg-white/90 hover:bg-white text-amber-700 border-2 border-amber-300"
+                data-testid="button-retake-photo"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Choose Different
+              </Button>
+              <Button 
+                onClick={() => processImage(capturedImage)}
+                className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg"
+                style={{ boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)' }}
+                data-testid="button-process-image"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Find Me Words!
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-center">
+            {/* Red Boot character */}
+            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-amber-400 shadow-xl bg-white">
+              <img 
+                src={redBootImage} 
+                alt="Red Boot" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <h3 className="text-2xl font-bold text-amber-800 mb-2" style={{ fontFamily: "'Pirata One', cursive" }} data-testid="text-upload-ready">
+              Ahoy, Matey!
+            </h3>
+            <p className="text-amber-700 mb-6 text-sm font-medium" data-testid="text-upload-instructions">
+              Show me yer spelling list and I'll help ye learn!
+            </p>
+            
+            <div className="flex flex-col gap-3 max-w-sm mx-auto">
+              <Button 
+                onClick={startCamera}
+                size="lg"
+                className="w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 rounded-xl transition-all"
+                style={{ boxShadow: '0 4px 14px rgba(251, 146, 60, 0.5)' }}
+                data-testid="button-open-camera"
+              >
+                <Camera className="w-6 h-6 mr-3" />
+                📸 Take a Photo
+              </Button>
+              
+              <div className="flex items-center gap-3 my-2">
+                <div className="flex-1 h-px bg-amber-300/50"></div>
+                <span className="text-amber-600 text-xs font-medium">or</span>
+                <div className="flex-1 h-px bg-amber-300/50"></div>
+              </div>
+              
+              <Button 
+                onClick={triggerFileUpload}
+                size="lg"
+                className="w-full bg-white/90 hover:bg-white text-amber-700 border-2 border-amber-300 font-bold py-6 rounded-xl transition-all"
+                data-testid="button-upload-file"
+              >
+                <Upload className="w-5 h-5 mr-3" />
+                🖼️ Upload from Gallery
+              </Button>
+              
+              {cameraError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-2">
+                  <p className="text-red-700 text-sm" data-testid="text-camera-error">
+                    {cameraError}
+                  </p>
+                </div>
+              )}
+              
+              <input
+                ref={hiddenFileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleHiddenFileUpload}
+                className="hidden"
+                data-testid="input-file-hidden"
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
