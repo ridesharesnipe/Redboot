@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 import { useLocation } from "wouter";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ParentDashboardProps {
   onTakePhoto: () => void;
@@ -17,6 +18,7 @@ interface ParentDashboardProps {
 
 export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTest, onViewGuide }: ParentDashboardProps) {
   const [, setLocation] = useLocation();
+  const { theme, toggleTheme } = useTheme();
   const [stats, setStats] = useState<{
     totalWords: number;
     newWords: number;
@@ -571,7 +573,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     <div className="min-h-screen aurora-bg p-4 md:p-6">
       <div className="aurora-content">
         {/* Header with navigation */}
-        <div className="max-w-6xl mx-auto mb-6 flex flex-wrap gap-3">
+        <div className="max-w-6xl mx-auto mb-6 flex flex-wrap gap-3 items-center">
           <Button
             onClick={() => window.location.href = '/'}
             className="clay-button clay-button-primary px-5 py-3 flex items-center gap-2 micro-bounce"
@@ -591,6 +593,22 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             <Scroll className="w-5 h-5" />
             Update Child Info
           </Button>
+          
+          <div className="ml-auto">
+            <Button
+              onClick={toggleTheme}
+              className="clay-button px-4 py-3 flex items-center gap-2 micro-bounce bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+              data-testid="button-toggle-theme"
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {theme === 'light' ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
+              <span className="hidden sm:inline">{theme === 'light' ? 'Dark' : 'Light'}</span>
+            </Button>
+          </div>
         </div>
         
         {/* Main Bento Grid Layout */}

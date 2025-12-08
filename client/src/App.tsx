@@ -16,6 +16,7 @@ import TreasureVault from "@/pages/TreasureVault";
 import BadgeGallery from "@/pages/BadgeGallery";
 import ParentAnalytics from "@/pages/ParentAnalytics";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { getPlayerId, getSessionToken } from "@/lib/playerId";
 
 // Initialize player ID and session token IMMEDIATELY before any components render
@@ -208,16 +209,18 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AudioProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
-              <PageTransitionWrapper />
-            </div>
-          </Router>
-        </TooltipProvider>
-      </AudioProvider>
+      <ThemeProvider>
+        <AudioProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router>
+              <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
+                <PageTransitionWrapper />
+              </div>
+            </Router>
+          </TooltipProvider>
+        </AudioProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
