@@ -615,8 +615,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 <span className="font-bold text-lg">Treasures Collected: {treasureEarned}</span>
               </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-3 p-4">
-              {Array.from({ length: treasureEarned }).map((_, index) => {
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 p-2 sm:p-4">
+              {Array.from({ length: Math.min(treasureEarned, 12) }).map((_, index) => {
                 // Cycle through different treasure types
                 const treasureTypes = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
                 const treasure = treasureTypes[index % treasureTypes.length];
@@ -624,7 +624,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 return (
                   <div
                     key={index}
-                    className="w-14 h-14 flex items-center justify-center text-3xl"
+                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center text-xl sm:text-2xl md:text-3xl"
                     style={{
                       animation: 'spin 8s linear infinite',
                       filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.4))',
@@ -634,6 +634,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   </div>
                 );
               })}
+              {treasureEarned > 12 && (
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center text-sm sm:text-base font-bold text-yellow-600">
+                  +{treasureEarned - 12}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -701,14 +706,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                className="opacity-0 absolute inset-0 z-10"
+                className="opacity-0 absolute inset-0 z-10 text-2xl sm:text-3xl md:text-5xl"
                 style={{
-                  fontSize: '48px',
-                  letterSpacing: '8px',
-                  padding: '20px 30px',
-                  width: '85%',
+                  letterSpacing: 'clamp(4px, 1.5vw, 8px)',
+                  padding: 'clamp(12px, 3vw, 20px) clamp(15px, 4vw, 30px)',
+                  width: '90%',
                   maxWidth: '700px',
-                  height: '90px',
+                  height: 'clamp(60px, 12vw, 90px)',
                   margin: '0 auto',
                   textAlign: 'center',
                   fontWeight: '600',
@@ -722,27 +726,26 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               
               {/* Visual display with colored letters */}
               <div 
-                className="relative mx-auto flex items-center justify-center"
+                className="relative mx-auto flex items-center justify-center text-2xl sm:text-3xl md:text-5xl"
                 style={{
-                  fontSize: '48px',
-                  letterSpacing: '8px',
-                  padding: '20px 30px',
-                  width: '85%',
+                  letterSpacing: 'clamp(4px, 1.5vw, 8px)',
+                  padding: 'clamp(12px, 3vw, 20px) clamp(15px, 4vw, 30px)',
+                  width: '90%',
                   maxWidth: '700px',
-                  height: '90px',
+                  height: 'clamp(60px, 12vw, 90px)',
                   textAlign: 'center',
                   fontWeight: '600',
                   fontFamily: '"Fredoka One", cursive',
                   textTransform: 'uppercase',
-                  border: '5px solid #FFD700',
-                  borderRadius: '20px',
+                  border: 'clamp(3px, 0.8vw, 5px) solid #FFD700',
+                  borderRadius: 'clamp(12px, 3vw, 20px)',
                   backgroundColor: '#FFFFFF',
                   boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
                   pointerEvents: 'none'
                 }}
               >
                 {userInput ? (
-                  <div className="flex" style={{ letterSpacing: '8px' }}>
+                  <div className="flex" style={{ letterSpacing: 'clamp(4px, 1.5vw, 8px)' }}>
                     {userInput.toUpperCase().split('').map((letter, index) => {
                       const blueShades = [
                         '#87CEEB', // Sky blue
@@ -763,7 +766,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                     })}
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1" style={{ letterSpacing: '2px' }}>
+                  <div className="flex items-center gap-1" style={{ letterSpacing: 'clamp(1px, 0.5vw, 2px)' }}>
                     <span style={{ 
                       background: 'linear-gradient(to right, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #9400D3)',
                       WebkitBackgroundClip: 'text',

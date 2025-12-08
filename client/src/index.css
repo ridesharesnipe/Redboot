@@ -584,6 +584,75 @@ button, [role="button"], a {
   }
 }
 
+/* Game Component Responsive Scaling */
+@media (max-width: 480px) {
+  .game-container {
+    padding: 0.5rem;
+  }
+  
+  .game-emoji-lg {
+    font-size: 3rem;
+  }
+  
+  .game-emoji-xl {
+    font-size: 4rem;
+  }
+  
+  .game-character {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .game-container {
+    padding: 1rem;
+  }
+  
+  .game-emoji-lg {
+    font-size: 4rem;
+  }
+  
+  .game-emoji-xl {
+    font-size: 5rem;
+  }
+  
+  .game-character {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .game-container {
+    padding: 1.5rem;
+  }
+  
+  .game-emoji-lg {
+    font-size: 5rem;
+  }
+  
+  .game-emoji-xl {
+    font-size: 6rem;
+  }
+  
+  .game-character {
+    width: 7rem;
+    height: 7rem;
+  }
+}
+
+/* Responsive game map height */
+.game-map-container {
+  min-height: clamp(300px, 60vh, 700px);
+}
+
+/* Responsive buttons for game actions */
+.game-action-btn {
+  padding: clamp(0.5rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem);
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
 /* Splash Screen Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

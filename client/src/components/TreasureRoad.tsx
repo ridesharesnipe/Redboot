@@ -131,11 +131,11 @@ const TreasureSpot = ({
       animate={{ scale: 1 }}
       transition={{ duration: 0.5, type: "spring" }}
     >
-      <div className="relative w-20 h-20 flex items-center justify-center">
+      <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
         
         {/* Sand mound under X mark */}
         {!node.isRevealed && !isDigging && (
-          <div className="absolute bottom-0 w-24 h-12 rounded-t-full bg-gradient-to-b from-amber-400 to-amber-600 opacity-80 shadow-xl" style={{
+          <div className="absolute bottom-0 w-16 sm:w-20 md:w-24 h-8 sm:h-10 md:h-12 rounded-t-full bg-gradient-to-b from-amber-400 to-amber-600 opacity-80 shadow-xl" style={{
             boxShadow: '0 4px 20px rgba(217, 119, 6, 0.5), inset 0 -2px 8px rgba(180, 83, 9, 0.3)'
           }} />
         )}
@@ -144,7 +144,7 @@ const TreasureSpot = ({
         {!node.isRevealed && !isDigging && (
           <motion.div
             className={`
-              relative w-16 h-16 flex items-center justify-center z-10
+              relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex items-center justify-center z-10
               ${isActive ? 'scale-125' : 'scale-100'}
             `}
             animate={isActive ? { 
@@ -153,7 +153,7 @@ const TreasureSpot = ({
             } : {}}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <div className="text-red-600 font-bold text-5xl drop-shadow-2xl transform" style={{
+            <div className="text-red-600 font-bold text-3xl sm:text-4xl md:text-5xl drop-shadow-2xl transform" style={{
               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(220, 38, 38, 0.5)'
             }}>
               ✕
@@ -341,17 +341,17 @@ const TreasureSpot = ({
 
 // Treasure shelf component (top-right collection)
 const TreasureShelf = ({ unlockedTreasures }: { unlockedTreasures: TreasureType[] }) => (
-  <div className="absolute top-4 right-4 z-20">
-    <div className="glass-card bg-gradient-to-br from-yellow-400/20 to-amber-600/20 p-3 rounded-xl min-w-[200px]">
-      <div className="text-center mb-2">
-        <div className="text-sm font-bold text-amber-800 font-pirate">Treasure Collection</div>
+  <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-20">
+    <div className="glass-card bg-gradient-to-br from-yellow-400/20 to-amber-600/20 p-2 sm:p-3 rounded-lg sm:rounded-xl min-w-[120px] sm:min-w-[160px] md:min-w-[200px]">
+      <div className="text-center mb-1 sm:mb-2">
+        <div className="text-xs sm:text-sm font-bold text-amber-800 font-pirate">Treasure Collection</div>
       </div>
-      <div className="flex flex-wrap gap-2 justify-center">
+      <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
         <AnimatePresence>
           {unlockedTreasures.map((treasure, index) => (
             <motion.div
               key={`${treasure}-${index}`}
-              className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-md"
+              className="glass-button w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm sm:text-base md:text-lg shadow-md"
               initial={{ scale: 0, x: -200, y: 200 }}
               animate={{ scale: 1, x: 0, y: 0 }}
               transition={{ 
@@ -366,8 +366,8 @@ const TreasureShelf = ({ unlockedTreasures }: { unlockedTreasures: TreasureType[
           ))}
         </AnimatePresence>
       </div>
-      <div className="text-xs text-amber-700 text-center mt-1">
-        {unlockedTreasures.length} treasures found
+      <div className="text-[10px] sm:text-xs text-amber-700 text-center mt-1">
+        {unlockedTreasures.length} found
       </div>
     </div>
   </div>
@@ -376,7 +376,7 @@ const TreasureShelf = ({ unlockedTreasures }: { unlockedTreasures: TreasureType[
 // Red Boot sprite component - BIGGER like Diego!
 const RedBootSprite = ({ position }: { position: { x: number; y: number } }) => (
   <motion.div
-    className="absolute w-32 h-32 z-10 transform -translate-x-1/2 -translate-y-1/2"
+    className="absolute w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 z-10 transform -translate-x-1/2 -translate-y-1/2"
     animate={{ left: `${position.x}%`, top: `${position.y}%` }}
     transition={{ duration: 1.5, type: "easeInOut" }}
   >
@@ -385,7 +385,7 @@ const RedBootSprite = ({ position }: { position: { x: number; y: number } }) => 
       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="relative w-full h-full">
-        <div className="w-28 h-28 rounded-full bg-white border-4 border-amber-600 shadow-2xl overflow-hidden mx-auto" style={{
+        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 rounded-full bg-white border-2 sm:border-3 md:border-4 border-amber-600 shadow-2xl overflow-hidden mx-auto" style={{
           boxShadow: '0 8px 32px rgba(217, 119, 6, 0.4), 0 0 20px rgba(251, 191, 36, 0.3)'
         }}>
           <img 
@@ -395,7 +395,7 @@ const RedBootSprite = ({ position }: { position: { x: number; y: number } }) => 
           />
         </div>
         {/* Pirate hat shadow */}
-        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black/20 rounded-full" />
+        <div className="absolute -top-1 sm:-top-2 left-1/2 transform -translate-x-1/2 w-6 sm:w-8 h-3 sm:h-4 bg-black/20 rounded-full" />
       </div>
     </motion.div>
   </motion.div>
@@ -481,9 +481,9 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
   };
 
   return (
-    <div className="relative w-full h-[500px] mx-auto max-w-5xl" data-testid="treasure-road">
+    <div className="relative w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[60vh] lg:min-h-[500px] mx-auto max-w-5xl" data-testid="treasure-road">
       {/* Main treasure map container */}
-      <div className="relative w-full h-full glass-card rounded-2xl overflow-hidden bg-gradient-to-br from-amber-200/40 via-yellow-100/30 to-orange-200/40 shadow-2xl">
+      <div className="relative w-full h-full min-h-[inherit] glass-card rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-amber-200/40 via-yellow-100/30 to-orange-200/40 shadow-2xl">
         
         {/* Beach sand background */}
         <div className="absolute inset-0 bg-gradient-to-br from-amber-300 via-yellow-200 to-orange-300 opacity-50 rounded-2xl" />
@@ -493,7 +493,7 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         
         {/* Decorative glass morphism palm trees - MUCH BIGGER like sea monsters */}
         <motion.div 
-          className="absolute top-6 left-12 text-8xl drop-shadow-2xl"
+          className="absolute top-4 sm:top-6 left-4 sm:left-12 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
           style={{
             background: 'rgba(255, 255, 255, 0.15)',
             backdropFilter: 'blur(10px)',
@@ -508,7 +508,7 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
           🌴
         </motion.div>
         <motion.div 
-          className="absolute top-16 right-16 text-8xl drop-shadow-2xl"
+          className="absolute top-8 sm:top-16 right-4 sm:right-16 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
           style={{
             background: 'rgba(255, 255, 255, 0.15)',
             backdropFilter: 'blur(10px)',
@@ -523,7 +523,7 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
           🌴
         </motion.div>
         <motion.div 
-          className="absolute bottom-12 left-16 text-8xl drop-shadow-2xl"
+          className="absolute bottom-8 sm:bottom-12 left-4 sm:left-16 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
           style={{
             background: 'rgba(255, 255, 255, 0.15)',
             backdropFilter: 'blur(10px)',
@@ -538,7 +538,7 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
           🌴
         </motion.div>
         <motion.div 
-          className="absolute bottom-8 right-8 text-8xl drop-shadow-2xl"
+          className="absolute bottom-6 sm:bottom-8 right-4 sm:right-8 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
           style={{
             background: 'rgba(255, 255, 255, 0.15)',
             backdropFilter: 'blur(10px)',
@@ -554,8 +554,8 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         </motion.div>
         
         {/* Compass rose */}
-        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 glass-card w-14 h-14 rounded-full flex items-center justify-center bg-amber-400/20 shadow-lg">
-          <div className="text-xl drop-shadow-md">🧭</div>
+        <div className="absolute top-3 sm:top-4 md:top-6 left-1/2 transform -translate-x-1/2 glass-card w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center bg-amber-400/20 shadow-lg">
+          <div className="text-base sm:text-lg md:text-xl drop-shadow-md">🧭</div>
         </div>
         
         {/* Treasure spots (X marks or piles with treasures) */}
@@ -573,9 +573,9 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         <RedBootSprite position={mapState.redBootPosition} />
         
         {/* Map title */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-          <div className="glass-card bg-amber-400/20 px-6 py-3 rounded-lg shadow-lg">
-            <div className="text-center text-amber-800 font-bold font-pirate text-xl drop-shadow-md">
+        <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2">
+          <div className="glass-card bg-amber-400/20 px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 rounded-lg shadow-lg">
+            <div className="text-center text-amber-800 font-bold font-pirate text-sm sm:text-base md:text-xl drop-shadow-md">
               Red Boot's Treasure Island
             </div>
           </div>

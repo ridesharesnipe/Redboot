@@ -130,9 +130,9 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
   };
 
   return (
-    <div className="relative w-full h-[700px] mx-auto max-w-5xl" data-testid="sea-monster-battle">
+    <div className="relative w-full min-h-[60vh] sm:min-h-[65vh] md:min-h-[70vh] lg:min-h-[700px] mx-auto max-w-5xl" data-testid="sea-monster-battle">
       {/* Main sea battle container with glass morphism and 3D perspective */}
-      <div className="relative w-full h-full rounded-3xl overflow-visible shadow-2xl"
+      <div className="relative w-full h-full min-h-[inherit] rounded-2xl sm:rounded-3xl overflow-visible shadow-2xl"
         style={{
           background: 'linear-gradient(180deg, rgba(14, 165, 233, 0.4) 0%, rgba(3, 105, 161, 0.6) 100%)',
           backdropFilter: 'blur(20px)',
@@ -149,10 +149,10 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
         </div>
 
         {/* Animated waves - 3D rolling waves */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 overflow-visible pointer-events-none z-20" style={{ transformStyle: 'preserve-3d' }}>
+        <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-28 md:h-40 overflow-visible pointer-events-none z-20" style={{ transformStyle: 'preserve-3d' }}>
           {/* Wave 1 - Front layer rolling toward viewer */}
           <motion.div
-            className="absolute bottom-0 left-0 w-[300%] h-28 rounded-t-full"
+            className="absolute bottom-0 left-0 w-[300%] h-16 sm:h-20 md:h-28 rounded-t-full"
             style={{
               background: 'linear-gradient(to top, rgba(59, 130, 246, 0.8) 0%, rgba(96, 165, 250, 0.6) 50%, rgba(191, 219, 254, 0.4) 100%)',
               boxShadow: '0 -4px 20px rgba(59, 130, 246, 0.5)',
@@ -172,7 +172,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           />
           {/* Wave 2 - Middle layer with 3D depth */}
           <motion.div
-            className="absolute bottom-2 left-0 w-[300%] h-24 rounded-t-full"
+            className="absolute bottom-2 left-0 w-[300%] h-12 sm:h-16 md:h-24 rounded-t-full"
             style={{
               background: 'linear-gradient(to top, rgba(37, 99, 235, 0.7) 0%, rgba(59, 130, 246, 0.5) 50%, rgba(147, 197, 253, 0.3) 100%)',
               boxShadow: '0 -3px 15px rgba(37, 99, 235, 0.4)',
@@ -192,7 +192,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           />
           {/* Wave 3 - Back layer in distance */}
           <motion.div
-            className="absolute bottom-4 left-0 w-[300%] h-20 rounded-t-full"
+            className="absolute bottom-4 left-0 w-[300%] h-10 sm:h-14 md:h-20 rounded-t-full"
             style={{
               background: 'linear-gradient(to top, rgba(29, 78, 216, 0.6) 0%, rgba(37, 99, 235, 0.4) 50%, rgba(96, 165, 250, 0.2) 100%)',
               boxShadow: '0 -2px 10px rgba(29, 78, 216, 0.3)',
@@ -330,10 +330,10 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                     transition={{ duration: 0.3 }}
                     className={`text-center ${monster.isBattling ? 'animate-pulse' : ''}`}
                   >
-                    <div className="text-8xl mb-2 drop-shadow-2xl filter brightness-110">
+                    <div className="text-5xl sm:text-6xl md:text-8xl mb-1 sm:mb-2 drop-shadow-2xl filter brightness-110">
                       {monsterData.emoji}
                     </div>
-                    <div className="text-xs font-bold text-white bg-red-600/80 px-2 py-1 rounded-full shadow-lg backdrop-blur-sm">
+                    <div className="text-[10px] sm:text-xs font-bold text-white bg-red-600/80 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-lg backdrop-blur-sm">
                       {monsterData.name}
                     </div>
                   </motion.div>
@@ -442,7 +442,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
           >
             {/* Pirate boat */}
             <motion.div 
-              className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-9xl"
+              className="absolute -bottom-8 sm:-bottom-12 md:-bottom-16 left-1/2 transform -translate-x-1/2 text-6xl sm:text-7xl md:text-9xl"
               style={{ transformStyle: 'preserve-3d', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
               animate={{
                 scale: [1, 1.05, 1],
@@ -466,7 +466,7 @@ export default function SeaMonsterBattle({ totalWords, masteredWords, treasureJu
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
-              className="relative w-28 h-28 rounded-full overflow-hidden shadow-2xl -bottom-8"
+              className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 rounded-full overflow-hidden shadow-2xl -bottom-4 sm:-bottom-6 md:-bottom-8"
               style={{
                 boxShadow: '0 15px 50px rgba(0,0,0,0.5)',
                 border: '3px solid rgba(255,255,255,0.3)',
