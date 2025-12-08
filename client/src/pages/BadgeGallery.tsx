@@ -70,8 +70,8 @@ export default function BadgeGallery() {
     return (
       <div className="min-h-screen aurora-bg flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl animate-pulse mb-4">🏅</div>
-          <p className="text-xl text-blue-800" style={{ fontFamily: 'var(--font-pirate)' }}>
+          <div className="text-4xl sm:text-5xl md:text-6xl animate-pulse mb-3 sm:mb-4">🏅</div>
+          <p className="text-base sm:text-lg md:text-xl text-blue-800" style={{ fontFamily: 'var(--font-pirate)' }}>
             Loading your badge collection...
           </p>
         </div>
@@ -94,11 +94,11 @@ export default function BadgeGallery() {
             </Button>
           </div>
 
-          <div className="clay-card p-6 md:p-8 mb-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
+          <div className="clay-card p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 text-center">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
               🏅 Pirate Badge Collection 🏅
             </h1>
-            <p className="text-lg text-gray-600 mb-4">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-3 sm:mb-4">
               Earn badges by completing adventures and mastering spelling words!
             </p>
             
@@ -144,7 +144,7 @@ export default function BadgeGallery() {
                       >
                         <CardContent className="p-4 text-center relative overflow-visible">
                           <div className="relative">
-                            <div className={`text-5xl md:text-6xl mb-2 ${isEarned ? 'treasure-sparkle treasure-glow' : ''}`}>
+                            <div className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 ${isEarned ? 'treasure-sparkle treasure-glow' : ''}`}>
                               {achievement.icon}
                             </div>
                             {!isEarned && (
@@ -185,9 +185,9 @@ export default function BadgeGallery() {
           })}
 
           {achievements.length === 0 && (
-            <div className="clay-card p-8 text-center">
-              <div className="text-6xl mb-4">🏴‍☠️</div>
-              <h2 className="text-2xl font-bold mb-2 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
+            <div className="clay-card p-4 sm:p-6 md:p-8 text-center">
+              <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">🏴‍☠️</div>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
                 No badges yet, matey!
               </h2>
               <p className="text-gray-600 mb-4">

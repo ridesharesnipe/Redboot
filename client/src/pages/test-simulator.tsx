@@ -164,10 +164,10 @@ export default function TestSimulator() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-6xl font-bold mb-4 text-accent" data-testid="text-final-test-score">
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 text-accent" data-testid="text-final-test-score">
                 {score}%
               </div>
-              <p className="text-lg text-muted-foreground mb-4" data-testid="text-score-message">
+              <p className="text-base sm:text-lg text-muted-foreground mb-3 sm:mb-4" data-testid="text-score-message">
                 {score >= 90 ? "Excellent work!" : score >= 70 ? "Good job!" : "Keep practicing!"}
               </p>
               <div className="flex justify-center space-x-6 text-sm text-muted-foreground">

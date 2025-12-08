@@ -23,13 +23,13 @@ export default function FlashcardGrid({
 
   if (words.length === 0) {
     return (
-      <Card className="p-8 text-center bg-gradient-to-br from-amber-50 to-yellow-100 border-4 border-amber-200">
-        <CardContent className="pt-6">
-          <div className="text-6xl mb-4">🗺️</div>
-          <h3 className="text-xl font-pirate text-amber-900 mb-2">
+      <Card className="p-4 sm:p-6 md:p-8 text-center bg-gradient-to-br from-amber-50 to-yellow-100 border-4 border-amber-200">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">🗺️</div>
+          <h3 className="text-lg sm:text-xl font-pirate text-amber-900 mb-2">
             No Treasure Maps Yet!
           </h3>
-          <p className="text-amber-700">
+          <p className="text-sm sm:text-base text-amber-700">
             Capture a photo of your spelling homework to create your first treasure map flashcards!
           </p>
         </CardContent>

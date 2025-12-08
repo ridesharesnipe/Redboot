@@ -292,20 +292,20 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
         </div>
         <Card className="max-w-4xl mx-auto">
           <CardContent className="p-8">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <Award className="w-10 h-10 text-yellow-600" />
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-100 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center">
+              <Award className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-600" />
             </div>
             
-            <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
               Test Complete!
             </h2>
             
-            <div className={`text-6xl font-bold mb-2 ${getGradeColor(percentage)}`}>
+            <div className={`text-4xl sm:text-5xl md:text-6xl font-bold mb-2 ${getGradeColor(percentage)}`}>
               {getGradeLetter(percentage)}
             </div>
             
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
               {correctAnswers} out of {testWords.length} correct ({percentage}%)
             </p>
           </div>
