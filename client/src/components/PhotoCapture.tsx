@@ -112,6 +112,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     setCapturedImage(imageData);
     processImage(imageData);
     playSound('treasure_chest_open');
+    playAudioFile(sparkleSound, 0.7); // Play sparkle sound when taking photo
     onCapture(imageData);
   };
 
@@ -134,6 +135,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         setCapturedImage(imageData);
         processImage(imageData);
         playSound('treasure_chest_open');
+        playAudioFile(sparkleSound, 0.7); // Play sparkle sound when uploading
         onCapture(imageData);
       };
       reader.readAsDataURL(file);
@@ -711,6 +713,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           setCapturedImage(imageData);
           processImage(imageData);
           playSound('treasure_chest_open');
+          playAudioFile(sparkleSound, 0.7); // Play sparkle sound when uploading
           onCapture(imageData);
         };
         reader.readAsDataURL(file);
