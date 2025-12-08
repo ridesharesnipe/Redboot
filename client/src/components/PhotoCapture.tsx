@@ -703,7 +703,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
   // Camera view - show live camera feed with snap button
   if (isCameraActive) {
     return (
-      <div className="min-h-screen bg-black flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col">
         {/* Live camera feed */}
         <div className="flex-1 relative">
           <video
@@ -712,14 +712,14 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
             playsInline
             muted
             className="w-full h-full object-cover"
-            style={{ maxHeight: '70vh' }}
+            style={{ maxHeight: '65vh' }}
           />
           
           {/* Camera overlay with guide */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-4 border-2 border-white/40 rounded-lg"></div>
+            <div className="absolute inset-4 border-2 border-blue-400/60 rounded-lg"></div>
             <div className="absolute top-6 left-0 right-0 text-center">
-              <p className="text-white text-lg font-semibold bg-black/50 inline-block px-4 py-2 rounded-full">
+              <p className="text-gray-800 text-base sm:text-lg font-semibold bg-white/90 inline-block px-4 py-2 rounded-full shadow-md">
                 📋 Position your spelling list in the frame
               </p>
             </div>
@@ -727,40 +727,40 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         </div>
         
         {/* Camera controls */}
-        <div className="bg-gradient-to-t from-black to-transparent p-6">
-          <div className="flex justify-center items-center gap-8">
+        <div className="bg-gradient-to-t from-blue-100 to-white p-4 sm:p-6">
+          <div className="flex justify-center items-center gap-6 sm:gap-8">
             {/* Cancel button */}
             <Button
               onClick={cancelCamera}
               variant="outline"
-              className="w-14 h-14 rounded-full bg-white/20 border-white/50 text-white hover:bg-white/30"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200"
               data-testid="button-cancel-camera"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             
             {/* Capture button - big and prominent */}
             <Button
               onClick={captureSnapshot}
-              className="w-20 h-20 rounded-full bg-white border-4 border-blue-400 shadow-lg hover:bg-gray-100 hover:scale-105 transition-transform"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-500 border-4 border-blue-300 shadow-lg hover:bg-blue-600 hover:scale-105 transition-transform"
               data-testid="button-capture-snapshot"
             >
-              <Camera className="w-10 h-10 text-blue-600" />
+              <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </Button>
             
             {/* Switch to upload button */}
             <Button
               onClick={() => { stopCamera(); triggerFileUpload(); }}
               variant="outline"
-              className="w-14 h-14 rounded-full bg-white/20 border-white/50 text-white hover:bg-white/30"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200"
               data-testid="button-switch-to-upload"
             >
-              <Upload className="w-6 h-6" />
+              <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
           </div>
           
-          <p className="text-white/70 text-center mt-4 text-sm">
-            Tap the camera button to snap your spelling list
+          <p className="text-gray-600 text-center mt-3 sm:mt-4 text-sm">
+            Tap the blue camera button to snap your spelling list
           </p>
         </div>
         

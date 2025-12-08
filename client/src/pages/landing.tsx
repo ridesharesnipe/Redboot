@@ -283,7 +283,7 @@ export default function Landing({ onStart }: LandingProps) {
       {/* Features Section */}
       <section className="py-8 px-4 bg-gradient-to-b from-white to-green-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-fun text-center text-foreground mb-4" data-testid="text-features-title">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-fun text-center text-green-600 mb-4" data-testid="text-features-title">
             Amazing Pirate Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
