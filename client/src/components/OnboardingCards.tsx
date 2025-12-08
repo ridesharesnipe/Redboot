@@ -68,6 +68,11 @@ export default function OnboardingCards({ onComplete }: OnboardingCardsProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  // Reset x position when card index changes
+  useEffect(() => {
+    x.set(0);
+  }, [currentIndex, x]);
+
   const handleNext = () => {
     if (currentIndex < cards.length - 1) {
       setDirection(1);

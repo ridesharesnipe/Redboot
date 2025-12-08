@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAudio } from "@/contexts/AudioContext";
-import { Flag } from "lucide-react";
+import { Anchor } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import redBootSplash from "@assets/17585900152718502939350575537720_1758590021649.png";
 import seagullSound from "@assets/seagull-sound-effect-272695_1759647609171.mp3";
 
@@ -9,55 +10,25 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
-  const [timeLeft, setTimeLeft] = useState(10);
   const [isVisible, setIsVisible] = useState(true);
   const [audioStarted, setAudioStarted] = useState(false);
   const { startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
 
-  // Initialize audio and start countdown when user clicks
-  const handleStart = () => {
-    if (audioStarted) return;
-    setAudioStarted(true);
+  const handleStartAdventure = () => {
+    // Start audio on user interaction (browser autoplay compliance)
+    if (!audioStarted) {
+      setAudioStarted(true);
+      startBackgroundMusic('pirate_adventure');
+      playAudioFile(seagullSound, 0.4);
+      setTimeout(() => {
+        playCharacterVoice('red_boot_ahoy');
+      }, 500);
+    }
     
-    // Start pirate adventure music
-    startBackgroundMusic('pirate_adventure');
-    
-    // Play seagull sound for pirate harbor atmosphere
-    playAudioFile(seagullSound, 0.4);
-    
-    // Red Boot welcome after a short delay
-    setTimeout(() => {
-      playCharacterVoice('red_boot_ahoy');
-    }, 1500);
-    
-    // Play another seagull sound mid-way through countdown
-    setTimeout(() => {
-      playAudioFile(seagullSound, 0.3);
-    }, 5000);
+    // Fade out and transition
+    setIsVisible(false);
+    setTimeout(onComplete, 1000);
   };
-
-  useEffect(() => {
-    if (!audioStarted) return;
-
-    // Countdown timer
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          // Smooth fade out effect before completing
-          setIsVisible(false);
-          // Longer delay for smooth transition (allows voice to finish)
-          setTimeout(onComplete, 1000);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [audioStarted, onComplete]);
 
   return (
     <div 
@@ -161,40 +132,20 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
         </div>
 
-        {/* Pirate-themed loading text - bigger */}
-        {audioStarted ? (
-          <div className="mb-4 sm:mb-6">
-            <div className="text-xl sm:text-2xl md:text-3xl text-white font-bold drop-shadow-xl font-sans">
-              <div className="flex items-center justify-center gap-3">
-                <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
-                <span className="text-center">Preparing the ship for adventure...</span>
-                <Flag className="w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="mb-4 sm:mb-6">
-            <button
-              onClick={handleStart}
-              className="bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-4 px-8 rounded-full text-2xl sm:text-3xl shadow-2xl transform hover:scale-105 transition-all duration-200 border-4 border-green-300 animate-pulse"
-              style={{ fontFamily: "'Pirata One', cursive" }}
-              data-testid="button-start-splash"
-            >
-              🏴‍☠️ Tap to Start! 🏴‍☠️
-            </button>
-          </div>
-        )}
-
-        {/* Countdown with treasure chest style */}
-        {audioStarted && (
-          <div className="flex justify-center items-center">
-            <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-24 h-24 flex items-center justify-center border-4 border-yellow-600 shadow-xl transform animate-bounce">
-              <span className="text-4xl font-bold text-white drop-shadow-lg">
-                {timeLeft}
-              </span>
-            </div>
-          </div>
-        )}
+        {/* Start Adventure Button */}
+        <div className="mb-4 sm:mb-6">
+          <Button
+            onClick={handleStartAdventure}
+            size="lg"
+            className="bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-6 px-10 rounded-full text-2xl sm:text-3xl shadow-2xl transform hover:scale-105 transition-all duration-200 border-4 border-green-300"
+            style={{ fontFamily: "'Pirata One', cursive" }}
+            data-testid="button-start-adventure"
+          >
+            <Anchor className="w-6 h-6 sm:w-8 sm:h-8 mr-3" />
+            Start Adventure!
+            <Anchor className="w-6 h-6 sm:w-8 sm:h-8 ml-3" />
+          </Button>
+        </div>
 
         {/* Magical sparkles */}
         <div className="absolute inset-0 pointer-events-none">

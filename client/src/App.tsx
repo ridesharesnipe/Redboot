@@ -4,8 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import OnboardingCards from "@/components/OnboardingCards";
 import SplashScreen from "@/components/SplashScreen";
-import Onboarding from "@/components/Onboarding";
 import Landing from "@/pages/landing";
 import PhotoCapturePage from "@/pages/photo-capture";
 import ParentDashboard from "@/components/ParentDashboard";
@@ -73,40 +73,51 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
 };
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
 
-  // Show splash screen only on first load
+  // Check if first-time visitor - show onboarding cards first
   useEffect(() => {
+    const onboardingComplete = localStorage.getItem('redboot-onboarding-complete');
     const splashShown = sessionStorage.getItem('redboot-splash-shown');
-    if (!splashShown) {
+    
+    if (!onboardingComplete) {
+      // First-time user: show onboarding cards first
+      setShowOnboarding(true);
+    } else if (!splashShown) {
+      // Returning user, new session: show splash screen
       setShowSplash(true);
       sessionStorage.setItem('redboot-splash-shown', 'true');
-    } else {
-      setShowSplash(false);
     }
   }, []);
 
-  // Check onboarding status after splash completes
-  useEffect(() => {
-    if (!showSplash) {
-      // Check if onboarding has been completed
-      const onboardingComplete = localStorage.getItem('redboot-onboarding-complete');
-      if (!onboardingComplete) {
-        setShowOnboarding(true);
-      }
-    }
-  }, [showSplash]);
+  const handleOnboardingComplete = () => {
+    // Mark onboarding as complete and go to splash screen
+    localStorage.setItem('redboot-onboarding-complete', 'true');
+    sessionStorage.setItem('redboot-splash-shown', 'true');
+    setShowOnboarding(false);
+    setShowSplash(true);
+  };
 
   const handleSplashComplete = () => {
     setShowSplash(false);
   };
 
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-  };
+  // Show onboarding cards for first-time visitors
+  if (showOnboarding) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <AudioProvider>
+          <TooltipProvider>
+            <Toaster />
+            <OnboardingCards onComplete={handleOnboardingComplete} />
+          </TooltipProvider>
+        </AudioProvider>
+      </QueryClientProvider>
+    );
+  }
 
-  // Show splash screen for first-time visitors
+  // Show splash screen after onboarding or for returning users
   if (showSplash) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -114,20 +125,6 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <SplashScreen onComplete={handleSplashComplete} />
-          </TooltipProvider>
-        </AudioProvider>
-      </QueryClientProvider>
-    );
-  }
-
-  // Show onboarding after splash if needed
-  if (showOnboarding) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <AudioProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Onboarding onComplete={handleOnboardingComplete} />
           </TooltipProvider>
         </AudioProvider>
       </QueryClientProvider>
