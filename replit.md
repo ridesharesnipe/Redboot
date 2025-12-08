@@ -30,7 +30,13 @@ Preferred communication style: Simple, everyday language.
 - **Treasure Sparkle Effects**: Treasures on dashboard and vault display sparkle and glow animations, vault treasure piles have rotating sparkle decorations
 - **New CSS Classes**: badge-sparkle, badge-particles, badge-legendary-sparkle, page-enter, bento-hover-float, bento-hover-gold/green/purple, character-idle-breathe, character-idle-sway, treasure-sparkle, treasure-glow
 
-### December 8, 2025 - Comprehensive Responsive Design Overhaul
+### December 8, 2025 - Comprehensive Responsive Design Overhaul (Extended)
+- **Landing Page**: Island emoji (16rem → 6rem base), compass icon (4rem → text-4xl responsive), character cards (w-56 → w-40 base)
+- **Parent Dashboard**: Red Boot image (w-96 → w-48 base), bento grid cards with responsive padding
+- **PhotoCapture Component**: Word count display, anchor icon, and card content with sm:/md: breakpoints
+- **Photo Capture Page**: Title, icons, celebration elements all responsive with mobile-first sizing
+- **FridayTestSimulator**: Trophy emoji (text-8xl → text-5xl base), celebration text responsive
+- **SpellingMemoryGame**: Feedback phase emoji and text headings responsive
 - **Game Component Responsive Heights**: SeaMonsterBattle and TreasureRoad converted from fixed 500-700px heights to responsive min-h-[50vh] md:min-h-[60vh] lg:min-h-[700px]
 - **Scaled Emojis & Characters**: Sea monsters, palm trees, boats, and characters use responsive text sizing (text-5xl sm:text-6xl md:text-8xl) to scale across devices
 - **Responsive Spelling Input**: SimplePractice input area uses clamp() for fluid font-size (24px to 48px), letter-spacing, and border width
