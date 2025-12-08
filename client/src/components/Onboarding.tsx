@@ -115,7 +115,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   >
                     Loading the Ship...
                   </h1>
-                  <div className="text-7xl mb-6 animate-bounce">⛵</div>
+                  <div 
+                    className="text-7xl sm:text-8xl mb-6 animate-bounce inline-block"
+                    style={{ 
+                      fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif',
+                      lineHeight: 1,
+                      display: 'inline-block',
+                      minWidth: '80px',
+                      minHeight: '80px'
+                    }}
+                    role="img" 
+                    aria-label="Sailing boat"
+                  >
+                    ⛵
+                  </div>
                 </div>
 
                 <div className="flex flex-col items-center gap-4">
