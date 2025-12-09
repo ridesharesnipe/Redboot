@@ -571,6 +571,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive badge check - awards ALL relevant badges after practice
+  app.post('/api/achievements/check-all', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { isPerfect, wordsCorrect, treasureTotal } = req.body;
+      
+      // All badge definitions with thresholds
+      const allBadges: { [key: string]: { title: string; icon: string; rarity: string; threshold?: number } } = {
+        // Perfect run badges (awarded sequentially)
+        'perfect_run_1': { title: 'Perfect Voyage', icon: '⭐', rarity: 'common' },
+        'perfect_run_2': { title: 'Gold Compass', icon: '🧭', rarity: 'common' },
+        'perfect_run_3': { title: 'Diamond Helm', icon: '💎', rarity: 'rare' },
+        'perfect_run_4': { title: 'Starry Sextant', icon: '🌟', rarity: 'rare' },
+        'perfect_run_5': { title: 'Treasure Master', icon: '👑', rarity: 'epic' },
+        'perfect_run_6': { title: 'Legendary Captain', icon: '🏴‍☠️', rarity: 'legendary' },
+        // Word master badges
+        'first_word': { title: 'First Mate', icon: '⚓', rarity: 'common', threshold: 1 },
+        'word_master_10': { title: 'Word Hunter', icon: '🎯', rarity: 'common', threshold: 10 },
+        'word_master_50': { title: 'Word Wizard', icon: '🧙', rarity: 'rare', threshold: 50 },
+        'word_master_100': { title: 'Spelling Captain', icon: '👑', rarity: 'epic', threshold: 100 },
+        // Treasure badges
+        'treasure_50': { title: 'Treasure Finder', icon: '💎', rarity: 'common', threshold: 50 },
+        'treasure_200': { title: 'Treasure Hunter', icon: '💰', rarity: 'rare', threshold: 200 },
+        'treasure_500': { title: 'Treasure King', icon: '👑', rarity: 'epic', threshold: 500 },
+      };
+      
+      const user = await storage.getUser(playerId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Collect ALL newly earned badges, but only show ONE in celebration
+      const allNewBadges: { id: string; title: string; icon: string; rarity: string }[] = [];
+      
+      // Get historical data PLUS current session for accurate totals
+      const progressRecords = await storage.getProgressByUser(playerId);
+      const historicalWordsCorrect = progressRecords.reduce((sum: number, p: any) => sum + (p.correctWords?.length || 0), 0);
+      // Include current session's words in the total
+      const totalWordsCorrect = historicalWordsCorrect + (wordsCorrect || 0);
+      const totalTreasures = treasureTotal || 0;
+      
+      // Helper to award a badge and track it
+      const tryAwardBadge = async (achievementId: string) => {
+        const hasIt = await storage.hasAchievement(playerId, achievementId);
+        if (!hasIt && allBadges[achievementId]) {
+          await storage.awardAchievement(playerId, achievementId, { 
+            totalWordsCorrect, 
+            totalTreasures,
+            awardedAt: new Date().toISOString()
+          });
+          allNewBadges.push({ id: achievementId, ...allBadges[achievementId] });
+          return true;
+        }
+        return false;
+      };
+      
+      // 1. Check perfect run badges (if this was a perfect session)
+      if (isPerfect) {
+        const currentCount = user.perfectRunCount || 0;
+        const newCount = currentCount + 1;
+        const badgeNumber = Math.min(newCount, 6);
+        const achievementId = `perfect_run_${badgeNumber}`;
+        
+        await tryAwardBadge(achievementId);
+        // Always increment perfect run count
+        await storage.updateUser(playerId, { perfectRunCount: newCount });
+      }
+      
+      // 2. Check word master badges (using total INCLUDING current session)
+      if (totalWordsCorrect >= 1) await tryAwardBadge('first_word');
+      if (totalWordsCorrect >= 10) await tryAwardBadge('word_master_10');
+      if (totalWordsCorrect >= 50) await tryAwardBadge('word_master_50');
+      if (totalWordsCorrect >= 100) await tryAwardBadge('word_master_100');
+      
+      // 3. Check treasure badges
+      if (totalTreasures >= 50) await tryAwardBadge('treasure_50');
+      if (totalTreasures >= 200) await tryAwardBadge('treasure_200');
+      if (totalTreasures >= 500) await tryAwardBadge('treasure_500');
+      
+      // Prioritize showing highest rarity badge in celebration
+      const rarityOrder = ['legendary', 'epic', 'rare', 'common'];
+      let badgeToShow: { id: string; title: string; icon: string; rarity: string } | null = null;
+      
+      for (const rarity of rarityOrder) {
+        const matchingBadge = allNewBadges.find(b => b.rarity === rarity);
+        if (matchingBadge) {
+          badgeToShow = matchingBadge;
+          break;
+        }
+      }
+      
+      res.json({
+        awarded: badgeToShow !== null,
+        badge: badgeToShow,
+        allNewBadges: allNewBadges.length > 0 ? allNewBadges : undefined
+      });
+    } catch (error) {
+      console.error('Error checking all achievements:', error);
+      res.status(500).json({ message: 'Failed to check achievements' });
+    }
+  });
+
   // Analytics API - Real-time dashboard data
   app.get('/api/analytics', validateSession, async (req: any, res) => {
     try {

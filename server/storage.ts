@@ -47,6 +47,7 @@ export interface IStorage {
   
   // Progress operations
   getProgress(childId: string): Promise<Progress[]>;
+  getProgressByUser(userId: string): Promise<Progress[]>;
   createProgress(progressData: InsertProgress): Promise<Progress>;
   getWeeklyProgress(childId: string, weekNumber: number): Promise<Progress[]>;
   
@@ -321,6 +322,22 @@ export class DatabaseStorage implements IStorage {
       .from(progress)
       .where(eq(progress.childId, childId))
       .orderBy(desc(progress.completedAt));
+  }
+
+  async getProgressByUser(userId: string): Promise<Progress[]> {
+    // Get all children for this user, then get all their progress
+    const userChildren = await this.getChildren(userId);
+    if (userChildren.length === 0) return [];
+    
+    const childIds = userChildren.map(c => c.id);
+    const allProgress: Progress[] = [];
+    
+    for (const childId of childIds) {
+      const childProgress = await this.getProgress(childId);
+      allProgress.push(...childProgress);
+    }
+    
+    return allProgress;
   }
 
   async createProgress(progressData: InsertProgress): Promise<Progress> {

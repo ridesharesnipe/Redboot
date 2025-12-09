@@ -90,25 +90,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     }));
   }
 
-  // Check and award next perfect run badge in sequence - ONLY on perfect score
-  const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }): Promise<{ id: string; title: string; icon: string; rarity: string } | null> => {
-    // Only award badge on TRUE PERFECT score - no mistakes EVER during the session
-    // Use ref instead of state to avoid stale closure issues
+  // Check and award ALL relevant badges after practice (perfect run, word master, treasure)
+  const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }, totalTreasures: number): Promise<{ id: string; title: string; icon: string; rarity: string } | null> => {
     const hadAnyMistake = hadMistakeRef.current;
     const isPerfectScore = results.total > 0 && !hadAnyMistake;
     
-    if (!isPerfectScore) {
-      return null; // No badge for imperfect sessions
-    }
-    
     try {
-      // Call the new progressive badge endpoint
-      const response = await apiRequest('/api/achievements/perfect-run', 'POST', {
-        wordsTotal: results.total
+      // Call comprehensive badge check endpoint - checks ALL badge types
+      const response = await apiRequest('/api/achievements/check-all', 'POST', {
+        isPerfect: isPerfectScore,
+        wordsCorrect: results.correct,
+        treasureTotal: totalTreasures
       });
       const result = await response.json();
       
-      // If a new badge was awarded, use the badge info from the server
+      // If any new badge was awarded, show celebration
       if (result.awarded && result.badge) {
         const badge = {
           id: result.badge.id,
@@ -119,14 +115,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setEarnedBadge(badge);
         return badge;
       }
-      
-      // User has all 6 badges - still perfect but no new badge to award
-      if (result.allBadgesEarned) {
-        console.log('All badges earned! Perfect run count:', result.perfectRunCount);
-      }
     } catch (error) {
-      console.error('Failed to award perfect run achievement:', error);
-      // Ensure no stale badge celebration on error
+      console.error('Failed to check achievements:', error);
       setEarnedBadge(null);
     }
     
@@ -145,8 +135,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       });
       const data = await response.json();
       
-      // Check for perfect session badge (client-side triggers) - ONLY on perfect score
-      const badge = await checkAndAwardAchievements(results);
+      // Get total treasures from the API response for badge checking
+      const totalTreasures = data.totalTreasures || data.newTotal || 0;
+      
+      // Check for ALL badges (perfect run, word master, treasure badges)
+      const badge = await checkAndAwardAchievements(results, totalTreasures);
       badgeWasEarned = badge !== null;
       
       // SAVE PROGRESS FOR ANALYTICS - only if we have a valid wordListId
@@ -680,6 +673,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       setShowBadgeOverlay(true);
       playAudioFile(sparkleSound, 0.8);
       
+      // Red Boot announces the badge with enthusiasm!
+      const badgeAnnouncement = getBadgeAnnouncement(earnedBadge.title, earnedBadge.rarity, childName);
+      setTimeout(() => {
+        speakFeedback(badgeAnnouncement);
+      }, 1000); // Wait 1 second for sparkle sound to play first
+      
       // After 19 seconds, start fade out (20 seconds total celebration)
       const fadeTimer = setTimeout(() => {
         setOverlayFadingOut(true);
@@ -696,7 +695,43 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         clearTimeout(hideTimer);
       };
     }
-  }, [isComplete, earnedBadge, playAudioFile]);
+  }, [isComplete, earnedBadge, playAudioFile, speakFeedback, childName]);
+  
+  // Generate Red Boot's badge announcement based on badge and rarity
+  const getBadgeAnnouncement = (badgeTitle: string, rarity: string, name?: string): string => {
+    const namePrefix = name ? `${name}, ` : '';
+    
+    const legendaryPhrases = [
+      `${namePrefix}Shiver me timbers! Ye've earned the legendary ${badgeTitle} badge! What an incredible achievement!`,
+      `${namePrefix}Blow me down! The ${badgeTitle} badge is yours! Ye be a true legend of the seven seas!`,
+      `${namePrefix}By Neptune's trident! Ye've won the legendary ${badgeTitle}! The greatest pirates would be jealous!`,
+    ];
+    
+    const epicPhrases = [
+      `${namePrefix}Arrr! Ye've earned the epic ${badgeTitle} badge! What a magnificent pirate ye be!`,
+      `${namePrefix}Hoist the colors! The ${badgeTitle} badge is yours! An epic treasure indeed!`,
+      `${namePrefix}Well done, matey! Ye've claimed the epic ${badgeTitle}! Yer voyage is truly remarkable!`,
+    ];
+    
+    const rarePhrases = [
+      `${namePrefix}Avast! Ye've found the rare ${badgeTitle} badge! A fine treasure for any pirate!`,
+      `${namePrefix}Yo ho ho! The ${badgeTitle} badge is yours! A rare gem on yer journey!`,
+      `${namePrefix}Heave ho! Ye've earned the rare ${badgeTitle}! Yer collection grows mightier!`,
+    ];
+    
+    const commonPhrases = [
+      `${namePrefix}Ahoy! Ye've earned the ${badgeTitle} badge! A fine start to yer adventure!`,
+      `${namePrefix}Well done, me hearty! The ${badgeTitle} badge is yours! Keep sailing strong!`,
+      `${namePrefix}Arrr! Ye've claimed the ${badgeTitle}! Every treasure counts on this voyage!`,
+    ];
+    
+    const phrases = rarity === 'legendary' ? legendaryPhrases
+      : rarity === 'epic' ? epicPhrases
+      : rarity === 'rare' ? rarePhrases
+      : commonPhrases;
+    
+    return phrases[Math.floor(Math.random() * phrases.length)];
+  };
 
   if (isComplete) {
     // Determine which words were mastered vs need practice
@@ -731,21 +766,82 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             
             {/* Badge Content - Centered */}
             <div className="badge-celebration-content text-center px-4 z-10">
-              {/* Large Badge Icon */}
-              <div className="badge-celebration-icon mx-auto mb-6 badge-sparkle">
-                <span className="text-7xl sm:text-8xl">{earnedBadge.icon}</span>
+              {/* HUGE Badge Icon with Rarity-Based Styling */}
+              <div 
+                className={`w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full mx-auto mb-8 flex items-center justify-center border-4 badge-sparkle ${
+                  earnedBadge.rarity === 'legendary' ? 'badge-legendary-sparkle' : 'badge-particles'
+                }`}
+                style={{
+                  background: earnedBadge.rarity === 'legendary' 
+                    ? 'linear-gradient(135deg, #FFD700 0%, #FFA500 30%, #FF6B00 60%, #FFD700 100%)'
+                    : earnedBadge.rarity === 'epic'
+                    ? 'linear-gradient(135deg, #9333EA 0%, #A855F7 50%, #C084FC 100%)'
+                    : earnedBadge.rarity === 'rare'
+                    ? 'linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%)'
+                    : 'linear-gradient(135deg, #6B7280 0%, #9CA3AF 50%, #D1D5DB 100%)',
+                  borderColor: earnedBadge.rarity === 'legendary' ? '#FFD700' 
+                    : earnedBadge.rarity === 'epic' ? '#A855F7'
+                    : earnedBadge.rarity === 'rare' ? '#3B82F6'
+                    : '#9CA3AF',
+                  boxShadow: earnedBadge.rarity === 'legendary'
+                    ? '0 0 60px rgba(255, 215, 0, 0.9), 0 0 120px rgba(255, 165, 0, 0.6), 0 0 180px rgba(255, 107, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.3)'
+                    : earnedBadge.rarity === 'epic'
+                    ? '0 0 50px rgba(168, 85, 247, 0.8), 0 0 100px rgba(147, 51, 234, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.2)'
+                    : earnedBadge.rarity === 'rare'
+                    ? '0 0 40px rgba(59, 130, 246, 0.8), 0 0 80px rgba(37, 99, 235, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.2)'
+                    : '0 0 30px rgba(156, 163, 175, 0.6), 0 0 60px rgba(107, 114, 128, 0.4)',
+                  animation: 'badge-glow-pulse 2s ease-in-out infinite',
+                }}
+              >
+                <span className="text-8xl sm:text-9xl md:text-[10rem] drop-shadow-lg">{earnedBadge.icon}</span>
               </div>
               
-              {/* Badge Title */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-300 mb-4 drop-shadow-lg" style={{ fontFamily: 'var(--font-pirate)' }}>
-                🏅 Badge Earned! 🏅
+              {/* Badge Earned Header */}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-300 mb-4 drop-shadow-lg animate-pulse" style={{ fontFamily: 'var(--font-pirate)' }}>
+                🏅 NEW BADGE EARNED! 🏅
               </h1>
               
-              <div className="bg-gradient-to-r from-yellow-400/20 to-amber-400/20 backdrop-blur-sm border-2 border-yellow-400 rounded-2xl p-6 max-w-md mx-auto">
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
+              {/* Badge Info Card with Rarity Color */}
+              <div 
+                className="backdrop-blur-sm border-2 rounded-2xl p-6 sm:p-8 max-w-lg mx-auto"
+                style={{
+                  background: earnedBadge.rarity === 'legendary' 
+                    ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 165, 0, 0.2) 100%)'
+                    : earnedBadge.rarity === 'epic'
+                    ? 'linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(168, 85, 247, 0.2) 100%)'
+                    : earnedBadge.rarity === 'rare'
+                    ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(59, 130, 246, 0.2) 100%)'
+                    : 'linear-gradient(135deg, rgba(107, 114, 128, 0.3) 0%, rgba(156, 163, 175, 0.2) 100%)',
+                  borderColor: earnedBadge.rarity === 'legendary' ? '#FFD700' 
+                    : earnedBadge.rarity === 'epic' ? '#A855F7'
+                    : earnedBadge.rarity === 'rare' ? '#3B82F6'
+                    : '#9CA3AF',
+                }}
+              >
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 drop-shadow-lg" style={{ fontFamily: 'var(--font-pirate)' }}>
                   {earnedBadge.title}
                 </h2>
-                <p className="text-xl text-yellow-200">Ye spelled every word perfectly!</p>
+                
+                {/* Rarity Label */}
+                <div 
+                  className="inline-block px-4 py-2 rounded-full text-lg sm:text-xl font-bold mb-3"
+                  style={{
+                    background: earnedBadge.rarity === 'legendary' ? '#FFD700'
+                      : earnedBadge.rarity === 'epic' ? '#A855F7'
+                      : earnedBadge.rarity === 'rare' ? '#3B82F6'
+                      : '#9CA3AF',
+                    color: earnedBadge.rarity === 'legendary' ? '#000' : '#FFF',
+                  }}
+                >
+                  {earnedBadge.rarity.toUpperCase()}
+                </div>
+                
+                <p className="text-xl sm:text-2xl text-yellow-200">
+                  {earnedBadge.rarity === 'legendary' ? 'A legendary treasure of the seven seas!' 
+                    : earnedBadge.rarity === 'epic' ? 'An epic achievement, worthy of a true captain!'
+                    : earnedBadge.rarity === 'rare' ? 'A rare find on your pirate journey!'
+                    : 'Ye earned this on yer adventure!'}
+                </p>
               </div>
             </div>
           </div>
