@@ -45,6 +45,13 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const [storageSize, setStorageSize] = useState<string>('');
   const [replacingPhotoId, setReplacingPhotoId] = useState<string | null>(null);
   
+  // Saved tricky words from last session for next-day practice
+  const [savedTrickyWords, setSavedTrickyWords] = useState<{
+    words: string[];
+    savedAt: string;
+    character: string;
+  } | null>(null);
+  
   // Fetch word lists and progress from database
   const { data: wordLists } = useQuery({
     queryKey: ['/api/word-lists'],
@@ -243,10 +250,48 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
       checkWeekStatus();
       loadPhotos();
       loadStorageSize();
+      loadSavedTrickyWords();
     } catch (error) {
       console.error('Error loading stats:', error);
     }
   }, []);
+  
+  // Load saved tricky words from last session
+  const loadSavedTrickyWords = () => {
+    try {
+      const saved = localStorage.getItem('trickyWordsForPractice');
+      if (saved) {
+        const data = JSON.parse(saved);
+        // Only show if saved within last 7 days
+        const savedDate = new Date(data.savedAt);
+        const daysSince = Math.floor((Date.now() - savedDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSince < 7 && data.words && data.words.length > 0) {
+          setSavedTrickyWords(data);
+        } else {
+          localStorage.removeItem('trickyWordsForPractice');
+        }
+      }
+    } catch (e) {
+      console.error('Error loading saved tricky words:', e);
+    }
+  };
+  
+  // Start practice with saved tricky words
+  const startTrickyWordsPractice = () => {
+    if (savedTrickyWords) {
+      // Save these words as the current practice words
+      localStorage.setItem('currentSpellingWords', JSON.stringify({
+        words: savedTrickyWords.words,
+        savedDate: new Date().toISOString(),
+        source: 'tricky-words-practice'
+      }));
+      // Clear the saved tricky words since we're practicing them now
+      localStorage.removeItem('trickyWordsForPractice');
+      setSavedTrickyWords(null);
+      // Navigate to practice
+      onViewPractice();
+    }
+  };
 
   const loadPhotos = async () => {
     try {

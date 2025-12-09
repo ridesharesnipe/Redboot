@@ -145,6 +145,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           score: Math.round((results.correct / results.total) * 100)
         });
       }
+      
+      // SAVE TRICKY WORDS FOR NEXT-DAY PRACTICE
+      if (incorrectWordsArray.length > 0) {
+        const trickyWordsData = {
+          words: incorrectWordsArray,
+          savedAt: new Date().toISOString(),
+          character: selectedCharacter
+        };
+        localStorage.setItem('trickyWordsForPractice', JSON.stringify(trickyWordsData));
+      } else {
+        // Clear tricky words if perfect score
+        localStorage.removeItem('trickyWordsForPractice');
+      }
     } catch (error) {
       console.error('Failed to save treasures:', error);
       // Continue even if save fails - don't block completion
@@ -460,10 +473,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
       // For non-treasure words, user clicks "Next Word" button manually
     } else {
-      // ADD this new tracking for wrong answers:
+      // Calculate new attempt count FIRST (fixes async state timing bug)
+      const newAttemptCount = (wordAttempts[currentWord] || 0) + 1;
+      
+      // Update state with calculated value
       setWordAttempts(prev => ({
         ...prev,
-        [currentWord]: (prev[currentWord] || 0) + 1
+        [currentWord]: newAttemptCount
       }));
       
       // Track incorrect word for analytics (only during main round)
@@ -471,9 +487,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setIncorrectWordsArray(prev => [...prev, currentWord]);
       }
       
-      // If wrong twice, mark as tricky and persist to database
-      // Only track during main round, not during retry (prevents array growth during bonus)
-      if (!showBonusRound && (wordAttempts[currentWord] || 0) >= 1) {
+      // Add to tricky words on FIRST wrong attempt (not second)
+      // This ensures retry round always has words to practice
+      if (!showBonusRound && newAttemptCount === 1) {
         if (!trickyWords.includes(currentWord)) {
           setTrickyWords(prev => [...prev, currentWord]);
           // Persist tricky word to database
@@ -597,43 +613,116 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   if (isComplete) {
+    // Determine which words were mastered vs need practice
+    const masteredWords = correctWordsArray.filter(w => !incorrectWordsArray.includes(w));
+    const needsPracticeWords = incorrectWordsArray;
+    const isPerfectScore = needsPracticeWords.length === 0;
+    
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
         <Card className="max-w-2xl mx-auto">
           <CardContent className="p-6 text-center">
+            {/* Celebration Header */}
             <div className="w-24 h-24 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
               <Coins className="w-12 h-12 text-yellow-800" />
             </div>
             
-            <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
+            <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
               Adventure Complete!
             </h2>
             
-            <p className="text-lg text-muted-foreground mb-6">
-              Ye did magnificently, me hearty! 
+            <p className="text-lg text-muted-foreground mb-4">
+              {isPerfectScore 
+                ? "Shiver me timbers! Ye got them ALL right!" 
+                : "Ye did great, me hearty! Let's see how ye did!"}
             </p>
             
+            {/* Stats Summary */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <div className="flex justify-center items-center gap-8 text-lg">
                 <div className="text-center">
-                  <div className="font-bold text-green-600">{sessionResults?.correct || 0}</div>
+                  <div className="font-bold text-green-600 text-2xl">{sessionResults?.correct || 0}</div>
                   <div className="text-sm text-muted-foreground">Correct</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-blue-600">{practiceWords.length}</div>
+                  <div className="font-bold text-blue-600 text-2xl">{practiceWords.length}</div>
                   <div className="text-sm text-muted-foreground">Total</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-yellow-600">{treasureEarned}</div>
+                  <div className="font-bold text-yellow-600 text-2xl">{treasureEarned}</div>
                   <div className="text-sm text-muted-foreground">Treasure</div>
                 </div>
               </div>
             </div>
+            
+            {/* Words Mastered Section */}
+            {masteredWords.length > 0 && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 text-left">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">⭐</span>
+                  <h3 className="font-bold text-green-700 text-lg">Words Ye Mastered!</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {masteredWords.map((word, index) => (
+                    <span 
+                      key={index}
+                      className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {word} ✓
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Words to Practice Section */}
+            {needsPracticeWords.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-left">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🏴‍☠️</span>
+                  <h3 className="font-bold text-amber-700 text-lg">Tricky Words to Practice!</h3>
+                </div>
+                <p className="text-sm text-amber-600 mb-3">
+                  These sneaky words tried to escape, but ye'll catch them next time!
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {needsPracticeWords.map((word, index) => (
+                    <span 
+                      key={index}
+                      className="px-3 py-1 rounded-full text-sm font-bold"
+                      style={{ 
+                        backgroundColor: '#FFF3E0',
+                        color: '#E65100',
+                        border: '2px solid #FF9800'
+                      }}
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Encouragement Message */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-blue-700 font-medium">
+                {isPerfectScore 
+                  ? "🎉 Perfect score! Ye be a true spelling champion!" 
+                  : `💪 Great effort! Practice these ${needsPracticeWords.length} tricky word${needsPracticeWords.length > 1 ? 's' : ''} and ye'll master them in no time!`}
+              </p>
+            </div>
+            
+            {/* Action Button */}
+            <Button 
+              onClick={onCancel}
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-8 py-3 text-lg rounded-xl shadow-lg"
+              data-testid="button-finish-adventure"
+            >
+              🏠 Back to Ship
+            </Button>
           </CardContent>
         </Card>
-
-        {/* Treasure road now shows during practice at milestones, not at completion */}
-      </>
+      </div>
     );
   }
 
