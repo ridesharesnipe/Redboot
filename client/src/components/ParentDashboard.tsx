@@ -437,7 +437,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   // Show new week prompt if needed
   if (showNewWeekPrompt) {
     return (
-      <div className="text-center px-4">
+      <div className="min-h-screen bg-white text-center px-4 py-8">
         <Card className="max-w-2xl mx-auto bg-gradient-to-br from-amber-100 to-yellow-100 border-4 border-amber-300">
           <CardContent className="p-8">
             <div className="text-6xl mb-4">🗓️</div>
@@ -542,15 +542,13 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           </CardContent>
         </Card>
         
-        {/* Red Boot Character Image - Outside the yellow box with white background */}
+        {/* Red Boot Character Image - Outside the yellow box */}
         <div className="flex justify-center mt-6">
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <img 
-              src={redBootImage} 
-              alt="Red Boot the Pirate"
-              className="w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain drop-shadow-xl"
-            />
-          </div>
+          <img 
+            src={redBootImage} 
+            alt="Red Boot the Pirate"
+            className="w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain drop-shadow-xl"
+          />
         </div>
       </div>
     );
