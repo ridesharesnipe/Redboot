@@ -10,6 +10,7 @@ import SeaMonsterBattle from '@/components/SeaMonsterBattle';
 import { Coins, SkipForward, CheckCircle, XCircle, X } from 'lucide-react';
 import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
 import { apiRequest } from '@/lib/queryClient';
+import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -57,7 +58,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
-  const { playSound, playCharacterVoice, speakFeedback } = useAudio();
+  const { playSound, playCharacterVoice, speakFeedback, playAudioFile } = useAudio();
 
   // Escalating treasure reward system
   const getTreasureAmount = (correctCount: number): number => {
@@ -276,8 +277,33 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     if (savedWords) {
       try {
         const data = JSON.parse(savedWords);
-        const words = data.words || [];
+        let words = data.words || [];
         const listId = data.wordListId || null;
+        
+        // AUTO-INCLUDE saved tricky words from last session at the START
+        const savedTrickyData = localStorage.getItem('trickyWordsForPractice');
+        if (savedTrickyData) {
+          try {
+            const trickyData = JSON.parse(savedTrickyData);
+            const savedDate = new Date(trickyData.savedAt);
+            const daysSince = Math.floor((Date.now() - savedDate.getTime()) / (1000 * 60 * 60 * 24));
+            
+            // Include tricky words if saved within last 7 days
+            if (daysSince < 7 && trickyData.words && trickyData.words.length > 0) {
+              // Prepend tricky words to the beginning (they practice these first!)
+              const trickyWordsToAdd = trickyData.words.filter((w: string) => !words.includes(w));
+              if (trickyWordsToAdd.length > 0) {
+                words = [...trickyWordsToAdd, ...words];
+                console.log('🔄 Added saved tricky words to practice:', trickyWordsToAdd);
+              }
+            }
+            // Clear saved tricky words - they're now in this session
+            localStorage.removeItem('trickyWordsForPractice');
+          } catch (e) {
+            console.error('Failed to parse saved tricky words:', e);
+          }
+        }
+        
         console.log('🎮 Game loaded words:', words, 'wordListId:', listId);
         
         if (words.length > 0) {
@@ -537,7 +563,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         };
         setSessionResults(results);
         
-        playSound('cannon_achievement');
+        playAudioFile(sparkleSound, 0.8); // Magical sparkle for completion
         playCharacterVoice('red_boot_adventure_complete');
         setTimeout(() => {
           saveTreasuresAndComplete(results);
@@ -556,7 +582,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         // If no tricky words, complete immediately
         if (trickyWords.length === 0) {
           setIsComplete(true);
-          playSound('cannon_achievement');
+          playAudioFile(sparkleSound, 0.8); // Magical sparkle for completion
           playCharacterVoice('red_boot_adventure_complete');
           setTimeout(() => {
             saveTreasuresAndComplete(results);
