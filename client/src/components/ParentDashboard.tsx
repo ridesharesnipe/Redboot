@@ -542,13 +542,15 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
           </CardContent>
         </Card>
         
-        {/* Red Boot Character Image - Outside the yellow box */}
+        {/* Red Boot Character Image - Outside the yellow box with white background */}
         <div className="flex justify-center mt-6">
-          <img 
-            src={redBootImage} 
-            alt="Red Boot the Pirate"
-            className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-contain drop-shadow-xl"
-          />
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <img 
+              src={redBootImage} 
+              alt="Red Boot the Pirate"
+              className="w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain drop-shadow-xl"
+            />
+          </div>
         </div>
       </div>
     );
