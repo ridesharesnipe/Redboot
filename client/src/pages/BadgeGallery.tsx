@@ -138,7 +138,7 @@ export default function BadgeGallery() {
                         className={`clay-card transition-all duration-300 ${
                           isEarned 
                             ? `bg-gradient-to-br ${rarityColors[achievement.rarity]} border-2 ${rarityBorders[achievement.rarity]} hover:scale-105 badge-sparkle ${achievement.rarity === 'legendary' ? 'badge-legendary-sparkle' : 'badge-particles'}` 
-                            : 'bg-gray-100 opacity-70 hover:opacity-90'
+                            : 'bg-gray-100 opacity-60 grayscale'
                         }`}
                         data-testid={`badge-card-${achievement.id}`}
                       >
