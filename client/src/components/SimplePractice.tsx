@@ -134,6 +134,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Save treasures to database and complete practice
   const saveTreasuresAndComplete = async (results: { correct: number; total: number; treasureEarned: number }) => {
+    let badgeWasEarned = false;
+    
     try {
       // Save treasures to database - server handles achievement checking
       const response = await apiRequest('/api/treasures/add', 'POST', {
@@ -143,7 +145,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       const data = await response.json();
       
       // Check for perfect session badge (client-side triggers) - ONLY on perfect score
-      await checkAndAwardAchievements(results);
+      const badge = await checkAndAwardAchievements(results);
+      badgeWasEarned = badge !== null;
       
       // SAVE PROGRESS FOR ANALYTICS - only if we have a valid wordListId
       if (wordListId) {
@@ -174,7 +177,16 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       console.error('Failed to save treasures:', error);
       // Continue even if save fails - don't block completion
     }
-    onComplete(results);
+    
+    // If badge was earned, delay onComplete to let celebration display (6 seconds total)
+    // Otherwise complete immediately
+    if (badgeWasEarned) {
+      setTimeout(() => {
+        onComplete(results);
+      }, 6000);
+    } else {
+      onComplete(results);
+    }
   };
 
   // Red Boot's milestone celebration phrases
