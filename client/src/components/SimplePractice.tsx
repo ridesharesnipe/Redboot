@@ -510,8 +510,15 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             saveTreasuresAndComplete(results);
           }, 2000);
         } else {
-          // Show bonus round option - will be handled by modal
-          playCharacterVoice('red_boot_bonus');
+          // AUTOMATIC retry round - no opt-out (research-aligned: desirable difficulties)
+          setBonusRoundWords(trickyWords);
+          setShowBonusRound(true);
+          setCurrentWordIndex(0);
+          setPracticeComplete(false);
+          setUserInput('');
+          setShowFeedback(false);
+          setIsWordSpoken(false);
+          playCharacterVoice('red_boot_retry');
         }
       }
     } else {
@@ -585,60 +592,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     );
   }
 
-  // ADD Step 4: End-of-session bonus screen
-  if (practiceComplete && trickyWords.length > 0 && !showBonusRound && !isComplete) {
-    return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white/95 rounded-3xl p-4 sm:p-6 md:p-8 max-w-lg w-full shadow-2xl">
-          <div className="text-center">
-            <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">⚡</div>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-yellow-600 mb-3 sm:mb-4" style={{ fontFamily: 'var(--font-pirate)' }}>
-              Captain! {trickyWords.length} treasures were buried extra deep!
-            </h3>
-            <p className="text-base sm:text-lg mb-4 sm:mb-6">
-              Practice them again for bonus gold coins?
-            </p>
-            
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => {
-                  setBonusRoundWords(trickyWords);
-                  setShowBonusRound(true);
-                  setCurrentWordIndex(0);
-                  setPracticeComplete(false);
-                  setUserInput('');
-                  setShowFeedback(false);
-                  setIsWordSpoken(false);
-                  // Play pirate voice
-                  playCharacterVoice('red_boot_bonus');
-                }}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-colors"
-                data-testid="button-bonus-round"
-              >
-                ⚡ Quick Practice ({trickyWords.length} words)
-              </button>
-              
-              <button
-                onClick={() => {
-                  // Just close and finish
-                  setIsComplete(true);
-                  if (sessionResults) {
-                    setTimeout(() => {
-                      saveTreasuresAndComplete(sessionResults);
-                    }, 1000);
-                  }
-                }}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-colors"
-                data-testid="button-skip-bonus"
-              >
-                Maybe Later
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Retry round now starts automatically in nextWord() - no modal needed
 
   if (practiceWords.length === 0) {
     return (
