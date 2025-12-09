@@ -72,6 +72,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   // State to track newly earned badge for prominent display
   const [earnedBadge, setEarnedBadge] = useState<{ id: string; title: string; icon: string; rarity: string } | null>(null);
   
+  // Get child's name from localStorage for personalized announcements
+  const [childName, setChildName] = useState<string | undefined>(undefined);
+  
   // State for full-screen badge celebration overlay
   const [showBadgeOverlay, setShowBadgeOverlay] = useState(false);
   const [overlayFadingOut, setOverlayFadingOut] = useState(false);
@@ -280,6 +283,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const character = localStorage.getItem('selectedCharacter') as 'redboot' | 'diego';
     if (character) {
       setSelectedCharacter(character);
+    }
+    // Load child's name for personalized announcements
+    const savedName = localStorage.getItem('childName');
+    if (savedName) {
+      setChildName(savedName);
     }
   }, []);
 
