@@ -739,7 +739,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             {!isCorrect && (
               <div className="mb-4">
                 <p className="text-muted-foreground mb-2">The correct spelling is:</p>
-                <p className="text-3xl font-bold" style={{ fontFamily: 'var(--font-fun)' }}>
+                <p 
+                  className="text-3xl font-bold"
+                  style={{ 
+                    fontFamily: 'var(--font-fun)',
+                    color: '#FF3131',
+                    textShadow: '0 0 10px rgba(255, 49, 49, 0.6), 0 0 20px rgba(255, 49, 49, 0.4), 0 0 30px rgba(255, 49, 49, 0.2)'
+                  }}
+                >
                   {currentWord}
                 </p>
               </div>
