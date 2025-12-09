@@ -296,6 +296,23 @@ button, [role="button"], a {
   100% { background-position: 0% 50%; }
 }
 
+@keyframes fall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
 .float-animation {
   animation: float 3s ease-in-out infinite;
 }

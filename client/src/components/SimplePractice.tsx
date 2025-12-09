@@ -38,6 +38,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [bonusRoundWords, setBonusRoundWords] = useState<string[]>([]);
   const [practiceComplete, setPracticeComplete] = useState(false);
   const retryStartedRef = useRef(false); // Ref to prevent multiple retry triggers
+  const hadMistakeRef = useRef(false); // Track if ANY mistake was ever made during session (for badge eligibility)
   
   // Track wordListId and correct/incorrect words for analytics
   const [wordListId, setWordListId] = useState<string | null>(null);
@@ -68,48 +69,45 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     return 25;                        // Final words → 25 treasures each
   };
 
-  // Check and award achievements based on practice results
-  const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }) => {
-    const achievementsToCheck = [];
+  // State to track newly earned badge for prominent display
+  const [earnedBadge, setEarnedBadge] = useState<{ id: string; title: string; icon: string; rarity: string } | null>(null);
+
+  // Check and award achievements based on practice results - ONLY on perfect score
+  const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }): Promise<{ id: string; title: string; icon: string; rarity: string } | null> => {
+    // Only award badge on TRUE PERFECT score - no mistakes EVER during the session
+    // Use ref instead of state to avoid stale closure issues
+    const hadAnyMistake = hadMistakeRef.current;
+    const isPerfectScore = results.total > 0 && !hadAnyMistake;
     
-    // First word achievement
-    if (results.correct >= 1) {
-      achievementsToCheck.push({ id: 'first_word', metadata: { word: practiceWords[0] } });
+    if (!isPerfectScore) {
+      return null; // No badge for imperfect sessions
     }
     
-    // Perfect session achievement (no mistakes)
-    if (results.correct === results.total && results.total > 0 && trickyWords.length === 0) {
-      achievementsToCheck.push({ id: 'perfect_session', metadata: { wordsCount: results.total } });
-    }
-    
-    // Character-specific achievements
-    if (selectedCharacter === 'redboot') {
-      achievementsToCheck.push({ id: 'treasure_hunter', metadata: { character: 'redboot' } });
-    } else {
-      achievementsToCheck.push({ id: 'sea_monster_slayer', metadata: { character: 'diego' } });
-    }
-    
-    // Award achievements in background (don't block completion)
-    for (const achievement of achievementsToCheck) {
-      try {
-        const response = await apiRequest('/api/achievements/award', 'POST', {
-          achievementId: achievement.id,
-          metadata: achievement.metadata
-        });
-        const result = await response.json();
-        
-        // If a new achievement was awarded, show celebration
-        if (result.awarded) {
-          toast({
-            title: "🏅 Badge Earned!",
-            description: `You earned a new badge! Check your badge collection.`,
-          });
-          playSound('cannon_achievement');
-        }
-      } catch (error) {
-        console.error(`Failed to award achievement ${achievement.id}:`, error);
+    try {
+      const response = await apiRequest('/api/achievements/award', 'POST', {
+        achievementId: 'perfect_session',
+        metadata: { wordsCount: results.total }
+      });
+      const result = await response.json();
+      
+      // If a new achievement was awarded, return badge info for prominent display
+      if (result.awarded) {
+        const badge = {
+          id: 'perfect_session',
+          title: 'Perfect Voyage',
+          icon: '⭐',
+          rarity: 'common'
+        };
+        setEarnedBadge(badge);
+        return badge;
       }
+    } catch (error) {
+      console.error('Failed to award perfect session achievement:', error);
+      // Ensure no stale badge celebration on error
+      setEarnedBadge(null);
     }
+    
+    return null;
   };
 
   // Save treasures to database and complete practice
@@ -122,16 +120,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       });
       const data = await response.json();
       
-      // Show celebration for any newly awarded achievements from server
-      if (data.newlyAwarded && data.newlyAwarded.length > 0) {
-        toast({
-          title: "🏅 Badges Earned!",
-          description: `You earned ${data.newlyAwarded.length} new badge${data.newlyAwarded.length > 1 ? 's' : ''}! Check your badge collection.`,
-        });
-        playSound('cannon_achievement');
-      }
-      
-      // Also check for perfect session and first word achievements (client-side triggers)
+      // Check for perfect session badge (client-side triggers) - ONLY on perfect score
       await checkAndAwardAchievements(results);
       
       // SAVE PROGRESS FOR ANALYTICS - only if we have a valid wordListId
@@ -307,6 +296,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         console.log('🎮 Game loaded words:', words, 'wordListId:', listId);
         
         if (words.length > 0) {
+          // Reset session state for fresh practice
+          hadMistakeRef.current = false;
+          retryStartedRef.current = false;
+          setEarnedBadge(null); // Clear any previous badge celebration
           setPracticeWords(words);
           setWordListId(listId);
           playCharacterVoice('red_boot_ahoy');
@@ -513,6 +506,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setIncorrectWordsArray(prev => [...prev, currentWord]);
       }
       
+      // Mark that a mistake was made (persists through session for badge eligibility)
+      hadMistakeRef.current = true;
+      
       // Add to tricky words on FIRST wrong attempt (not second)
       // This ensures retry round always has words to practice
       if (!showBonusRound && newAttemptCount === 1) {
@@ -616,6 +612,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const skipWord = () => {
     const currentWord = getCurrentWord();
     
+    // Mark that a mistake was made (skipping counts as not perfect)
+    hadMistakeRef.current = true;
+    
     // Add skipped word to tricky words queue for bonus round
     if (!trickyWords.includes(currentWord)) {
       setTrickyWords(prev => [...prev, currentWord]);
@@ -638,30 +637,108 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     speakCurrentWord();
   };
 
+  // Play sparkle sound when badge celebration is shown
+  useEffect(() => {
+    if (isComplete && !hadMistakeRef.current && earnedBadge) {
+      playAudioFile(sparkleSound, 0.8);
+    }
+  }, [isComplete, earnedBadge, playAudioFile]);
+
   if (isComplete) {
     // Determine which words were mastered vs need practice
     const masteredWords = correctWordsArray.filter(w => !incorrectWordsArray.includes(w));
     const needsPracticeWords = incorrectWordsArray;
-    const isPerfectScore = needsPracticeWords.length === 0;
+    // Use the immutable ref to determine true perfect score (no mistakes EVER)
+    const isPerfectScore = !hadMistakeRef.current;
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">
-        <Card className="max-w-2xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4 relative overflow-hidden">
+        {/* Shimmering Jewels Animation - Only for perfect score with badge */}
+        {isPerfectScore && earnedBadge && (
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Falling jewels/treasures */}
+            {Array.from({ length: 20 }).map((_, i) => {
+              const treasures = ['💎', '✨', '⭐', '🌟', '💫', '🪙', '👑'];
+              const treasure = treasures[i % treasures.length];
+              const delay = Math.random() * 3;
+              const duration = 3 + Math.random() * 2;
+              const left = Math.random() * 100;
+              const size = 1.5 + Math.random() * 1.5;
+              
+              return (
+                <div
+                  key={i}
+                  className="absolute animate-bounce"
+                  style={{
+                    left: `${left}%`,
+                    top: '-50px',
+                    fontSize: `${size}rem`,
+                    animation: `fall ${duration}s ease-in ${delay}s infinite`,
+                    opacity: 0.9,
+                  }}
+                >
+                  {treasure}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        
+        <Card className="max-w-2xl mx-auto relative z-10">
           <CardContent className="p-6 text-center">
-            {/* Celebration Header */}
-            <div className="w-24 h-24 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <Coins className="w-12 h-12 text-yellow-800" />
-            </div>
-            
-            <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
-              Adventure Complete!
-            </h2>
-            
-            <p className="text-lg text-muted-foreground mb-4">
-              {isPerfectScore 
-                ? "Shiver me timbers! Ye got them ALL right!" 
-                : "Ye did great, me hearty! Let's see how ye did!"}
-            </p>
+            {/* Badge Celebration - Prominent display for perfect score */}
+            {isPerfectScore && earnedBadge ? (
+              <div className="mb-6">
+                {/* Large Badge Display with glow */}
+                <div className="relative inline-block">
+                  <div 
+                    className="w-32 h-32 rounded-full mx-auto mb-4 flex items-center justify-center badge-sparkle badge-particles"
+                    style={{
+                      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)',
+                      boxShadow: '0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 165, 0, 0.4)',
+                      animation: 'pulse 2s ease-in-out infinite',
+                    }}
+                  >
+                    <span className="text-6xl treasure-sparkle">{earnedBadge.icon}</span>
+                  </div>
+                  {/* Sparkle ring around badge */}
+                  <div 
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      border: '3px solid rgba(255, 215, 0, 0.5)',
+                      animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+                    }}
+                  />
+                </div>
+                
+                <h2 className="text-3xl font-bold mb-2 text-yellow-600" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  🏅 Badge Earned! 🏅
+                </h2>
+                <div className="bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-400 rounded-xl p-4 mb-4">
+                  <h3 className="text-2xl font-bold text-amber-700" style={{ fontFamily: 'var(--font-pirate)' }}>
+                    {earnedBadge.title}
+                  </h3>
+                  <p className="text-amber-600 mt-1">Ye spelled every word perfectly!</p>
+                </div>
+              </div>
+            ) : (
+              /* Regular completion header for non-perfect scores */
+              <>
+                <div className="w-24 h-24 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Coins className="w-12 h-12 text-yellow-800" />
+                </div>
+                
+                <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  Adventure Complete!
+                </h2>
+                
+                <p className="text-lg text-muted-foreground mb-4">
+                  {isPerfectScore 
+                    ? "Shiver me timbers! Ye got them ALL right!" 
+                    : "Ye did great, me hearty! Let's see how ye did!"}
+                </p>
+              </>
+            )}
             
             {/* Stats Summary */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
