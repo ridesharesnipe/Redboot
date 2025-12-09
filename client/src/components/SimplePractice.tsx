@@ -71,6 +71,23 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // State to track newly earned badge for prominent display
   const [earnedBadge, setEarnedBadge] = useState<{ id: string; title: string; icon: string; rarity: string } | null>(null);
+  
+  // State for full-screen badge celebration overlay
+  const [showBadgeOverlay, setShowBadgeOverlay] = useState(false);
+  const [overlayFadingOut, setOverlayFadingOut] = useState(false);
+  
+  // Cache jewel positions to prevent jitter during fade-out
+  const celebrationJewelsRef = useRef<Array<{ treasure: string; delay: number; duration: number; left: number; size: number }>>([]);
+  if (celebrationJewelsRef.current.length === 0) {
+    const treasures = ['💎', '✨', '⭐', '🌟', '💫', '🪙', '👑', '💰', '🏆'];
+    celebrationJewelsRef.current = Array.from({ length: 30 }).map((_, i) => ({
+      treasure: treasures[i % treasures.length],
+      delay: Math.random() * 2,
+      duration: 2.5 + Math.random() * 2,
+      left: Math.random() * 100,
+      size: 2 + Math.random() * 2,
+    }));
+  }
 
   // Check and award next perfect run badge in sequence - ONLY on perfect score
   const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }): Promise<{ id: string; title: string; icon: string; rarity: string } | null> => {
@@ -642,10 +659,28 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     speakCurrentWord();
   };
 
-  // Play sparkle sound when badge celebration is shown
+  // Show full-screen badge overlay and play sparkle sound when badge is earned
   useEffect(() => {
     if (isComplete && !hadMistakeRef.current && earnedBadge) {
+      // Show full-screen overlay
+      setShowBadgeOverlay(true);
       playAudioFile(sparkleSound, 0.8);
+      
+      // After 4 seconds, start fade out
+      const fadeTimer = setTimeout(() => {
+        setOverlayFadingOut(true);
+      }, 4000);
+      
+      // After 5 seconds (fade complete), hide overlay
+      const hideTimer = setTimeout(() => {
+        setShowBadgeOverlay(false);
+        setOverlayFadingOut(false);
+      }, 5000);
+      
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(hideTimer);
+      };
     }
   }, [isComplete, earnedBadge, playAudioFile]);
 
@@ -658,8 +693,52 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4 relative overflow-hidden">
-        {/* Shimmering Jewels Animation - Only for perfect score with badge */}
-        {isPerfectScore && earnedBadge && (
+        {/* FULL-SCREEN BADGE CELEBRATION OVERLAY */}
+        {showBadgeOverlay && earnedBadge && (
+          <div className={`badge-celebration-overlay ${overlayFadingOut ? 'fade-out' : ''}`}>
+            {/* Shimmering Jewels Animation - Full screen (using cached positions to prevent jitter) */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {celebrationJewelsRef.current.map((jewel, i) => (
+                <div
+                  key={i}
+                  className="absolute"
+                  style={{
+                    left: `${jewel.left}%`,
+                    top: '-60px',
+                    fontSize: `${jewel.size}rem`,
+                    animation: `fall ${jewel.duration}s ease-in ${jewel.delay}s infinite`,
+                    opacity: 0.95,
+                  }}
+                >
+                  {jewel.treasure}
+                </div>
+              ))}
+            </div>
+            
+            {/* Badge Content - Centered */}
+            <div className="badge-celebration-content text-center px-4 z-10">
+              {/* Large Badge Icon */}
+              <div className="badge-celebration-icon mx-auto mb-6 badge-sparkle">
+                <span className="text-7xl sm:text-8xl">{earnedBadge.icon}</span>
+              </div>
+              
+              {/* Badge Title */}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-300 mb-4 drop-shadow-lg" style={{ fontFamily: 'var(--font-pirate)' }}>
+                🏅 Badge Earned! 🏅
+              </h1>
+              
+              <div className="bg-gradient-to-r from-yellow-400/20 to-amber-400/20 backdrop-blur-sm border-2 border-yellow-400 rounded-2xl p-6 max-w-md mx-auto">
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-pirate)' }}>
+                  {earnedBadge.title}
+                </h2>
+                <p className="text-xl text-yellow-200">Ye spelled every word perfectly!</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Original Shimmering Jewels Animation - Only for perfect score with badge (inside completion card) */}
+        {isPerfectScore && earnedBadge && !showBadgeOverlay && (
           <div className="absolute inset-0 pointer-events-none">
             {/* Falling jewels/treasures */}
             {Array.from({ length: 20 }).map((_, i) => {
