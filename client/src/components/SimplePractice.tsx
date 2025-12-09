@@ -77,15 +77,16 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [overlayFadingOut, setOverlayFadingOut] = useState(false);
   
   // Cache jewel positions to prevent jitter during fade-out
+  // Jewels fall for about 5 seconds total (staggered start over 0-1s, fall duration 3-5s)
   const celebrationJewelsRef = useRef<Array<{ treasure: string; delay: number; duration: number; left: number; size: number }>>([]);
   if (celebrationJewelsRef.current.length === 0) {
     const treasures = ['💎', '✨', '⭐', '🌟', '💫', '🪙', '👑', '💰', '🏆'];
-    celebrationJewelsRef.current = Array.from({ length: 30 }).map((_, i) => ({
+    celebrationJewelsRef.current = Array.from({ length: 40 }).map((_, i) => ({
       treasure: treasures[i % treasures.length],
-      delay: Math.random() * 0.8, // Start falling quickly (0-0.8s delay)
-      duration: 3 + Math.random() * 2, // Fall for 3-5 seconds
+      delay: Math.random() * 1, // Stagger start over 1 second
+      duration: 3 + Math.random() * 2, // Fall for 3-5 seconds (total ~5s of jewel animation)
       left: Math.random() * 100,
-      size: 2 + Math.random() * 2,
+      size: 2.5 + Math.random() * 2.5, // Slightly bigger jewels
     }));
   }
 
@@ -178,13 +179,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // Continue even if save fails - don't block completion
     }
     
-    // If badge was earned, delay onComplete to let celebration display (12 seconds total)
-    // This gives time for the 10-second overlay + 1-second fade + 1-second buffer
+    // If badge was earned, delay onComplete to let celebration display (21 seconds total)
+    // This gives time for the 20-second overlay + 1-second buffer
     // Otherwise complete immediately
     if (badgeWasEarned) {
       setTimeout(() => {
         onComplete(results);
-      }, 12000);
+      }, 21000);
     } else {
       onComplete(results);
     }
@@ -674,21 +675,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Show full-screen badge overlay and play sparkle sound when badge is earned
   useEffect(() => {
-    if (isComplete && !hadMistakeRef.current && earnedBadge) {
-      // Show full-screen overlay
+    if (isComplete && earnedBadge) {
+      // Show full-screen overlay for ANY badge earned (not just perfect runs)
       setShowBadgeOverlay(true);
       playAudioFile(sparkleSound, 0.8);
       
-      // After 10 seconds, start fade out (giving time to see badge and jewels)
+      // After 19 seconds, start fade out (20 seconds total celebration)
       const fadeTimer = setTimeout(() => {
         setOverlayFadingOut(true);
-      }, 10000);
+      }, 19000);
       
-      // After 11 seconds (fade complete), hide overlay
+      // After 20 seconds (fade complete), hide overlay
       const hideTimer = setTimeout(() => {
         setShowBadgeOverlay(false);
         setOverlayFadingOut(false);
-      }, 11000);
+      }, 20000);
       
       return () => {
         clearTimeout(fadeTimer);
