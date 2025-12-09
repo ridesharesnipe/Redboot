@@ -30,6 +30,7 @@ export interface IStorage {
   getOrCreateUser(id: string, sessionToken: string): Promise<User>;
   validateSession(id: string, sessionToken: string): Promise<boolean>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUser(userId: string, updates: Partial<User>): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User>;
   
@@ -167,6 +168,18 @@ export class DatabaseStorage implements IStorage {
           updatedAt: new Date(),
         },
       })
+      .returning();
+    return user;
+  }
+
+  async updateUser(userId: string, updates: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
       .returning();
     return user;
   }
@@ -505,7 +518,15 @@ export class DatabaseStorage implements IStorage {
       { id: 'word_master_10', title: 'Word Hunter', description: 'Master 10 spelling words', icon: '🎯', category: 'spelling', threshold: 10, rarity: 'common' },
       { id: 'word_master_50', title: 'Word Wizard', description: 'Master 50 spelling words', icon: '🧙', category: 'spelling', threshold: 50, rarity: 'rare' },
       { id: 'word_master_100', title: 'Spelling Captain', description: 'Master 100 spelling words', icon: '👑', category: 'spelling', threshold: 100, rarity: 'epic' },
-      { id: 'perfect_session', title: 'Perfect Voyage', description: 'Complete a practice session with no mistakes', icon: '⭐', category: 'spelling', threshold: 1, rarity: 'common' },
+      
+      // Progressive perfect run badges (awarded in sequence)
+      { id: 'perfect_run_1', title: 'Perfect Voyage', description: '1st perfect practice session!', icon: '⭐', category: 'spelling', threshold: 1, rarity: 'common' },
+      { id: 'perfect_run_2', title: 'Gold Compass', description: '2nd perfect practice session!', icon: '🧭', category: 'spelling', threshold: 2, rarity: 'common' },
+      { id: 'perfect_run_3', title: 'Diamond Helm', description: '3rd perfect practice session!', icon: '💎', category: 'spelling', threshold: 3, rarity: 'rare' },
+      { id: 'perfect_run_4', title: 'Starry Sextant', description: '4th perfect practice session!', icon: '🌟', category: 'spelling', threshold: 4, rarity: 'rare' },
+      { id: 'perfect_run_5', title: 'Treasure Master', description: '5th perfect practice session!', icon: '👑', category: 'spelling', threshold: 5, rarity: 'epic' },
+      { id: 'perfect_run_6', title: 'Legendary Captain', description: '6th perfect practice session!', icon: '🏴‍☠️', category: 'spelling', threshold: 6, rarity: 'legendary' },
+      
       { id: 'perfect_week', title: 'Legendary Week', description: 'Get 100% on your Friday test', icon: '🏆', category: 'spelling', threshold: 1, rarity: 'legendary' },
       
       // Streak achievements

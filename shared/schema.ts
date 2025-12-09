@@ -54,6 +54,7 @@ export const users = pgTable("users", {
   diegoTreasureTrophies: integer("diego_treasure_trophies").default(0),
   // Practice tracking
   practiceCount: integer("practice_count").default(0),
+  perfectRunCount: integer("perfect_run_count").default(0), // Track perfect sessions for badge progression
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -72,7 +72,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   // State to track newly earned badge for prominent display
   const [earnedBadge, setEarnedBadge] = useState<{ id: string; title: string; icon: string; rarity: string } | null>(null);
 
-  // Check and award achievements based on practice results - ONLY on perfect score
+  // Check and award next perfect run badge in sequence - ONLY on perfect score
   const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }): Promise<{ id: string; title: string; icon: string; rarity: string } | null> => {
     // Only award badge on TRUE PERFECT score - no mistakes EVER during the session
     // Use ref instead of state to avoid stale closure issues
@@ -84,25 +84,30 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     }
     
     try {
-      const response = await apiRequest('/api/achievements/award', 'POST', {
-        achievementId: 'perfect_session',
-        metadata: { wordsCount: results.total }
+      // Call the new progressive badge endpoint
+      const response = await apiRequest('/api/achievements/perfect-run', 'POST', {
+        wordsTotal: results.total
       });
       const result = await response.json();
       
-      // If a new achievement was awarded, return badge info for prominent display
-      if (result.awarded) {
+      // If a new badge was awarded, use the badge info from the server
+      if (result.awarded && result.badge) {
         const badge = {
-          id: 'perfect_session',
-          title: 'Perfect Voyage',
-          icon: '⭐',
-          rarity: 'common'
+          id: result.badge.id,
+          title: result.badge.title,
+          icon: result.badge.icon,
+          rarity: result.badge.rarity
         };
         setEarnedBadge(badge);
         return badge;
       }
+      
+      // User has all 6 badges - still perfect but no new badge to award
+      if (result.allBadgesEarned) {
+        console.log('All badges earned! Perfect run count:', result.perfectRunCount);
+      }
     } catch (error) {
-      console.error('Failed to award perfect session achievement:', error);
+      console.error('Failed to award perfect run achievement:', error);
       // Ensure no stale badge celebration on error
       setEarnedBadge(null);
     }

@@ -488,6 +488,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Award next perfect run badge in sequence
+  app.post('/api/achievements/perfect-run', validateSession, async (req, res) => {
+    try {
+      const playerId = req.headers['x-player-id'] as string;
+      const { wordsTotal } = req.body;
+      
+      // Get user's current perfect run count
+      const user = await storage.getUser(playerId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const currentCount = user.perfectRunCount || 0;
+      const newCount = currentCount + 1;
+      
+      // Progressive badges: perfect_run_1 through perfect_run_6
+      const badgeNumber = Math.min(newCount, 6);
+      const achievementId = `perfect_run_${badgeNumber}`;
+      
+      // Badge metadata for display
+      const badgeInfo: { [key: string]: { title: string; icon: string; rarity: string } } = {
+        'perfect_run_1': { title: 'Perfect Voyage', icon: '⭐', rarity: 'common' },
+        'perfect_run_2': { title: 'Gold Compass', icon: '🧭', rarity: 'common' },
+        'perfect_run_3': { title: 'Diamond Helm', icon: '💎', rarity: 'rare' },
+        'perfect_run_4': { title: 'Starry Sextant', icon: '🌟', rarity: 'rare' },
+        'perfect_run_5': { title: 'Treasure Master', icon: '👑', rarity: 'epic' },
+        'perfect_run_6': { title: 'Legendary Captain', icon: '🏴‍☠️', rarity: 'legendary' },
+      };
+      
+      // Check if user already has this specific badge
+      const hasIt = await storage.hasAchievement(playerId, achievementId);
+      
+      if (hasIt) {
+        // User already has all 6 badges, still a perfect run but no new badge
+        // Increment the count to track total perfect runs
+        await storage.updateUser(playerId, { perfectRunCount: newCount });
+        return res.json({ 
+          awarded: false, 
+          message: 'All badges earned! Still a perfect run!',
+          perfectRunCount: newCount,
+          allBadgesEarned: true
+        });
+      }
+      
+      // Award the new badge
+      await storage.awardAchievement(playerId, achievementId, { wordsTotal, perfectRunNumber: newCount });
+      
+      // Increment perfect run count
+      await storage.updateUser(playerId, { perfectRunCount: newCount });
+      
+      const badge = badgeInfo[achievementId];
+      
+      res.json({ 
+        awarded: true, 
+        badge: {
+          id: achievementId,
+          ...badge
+        },
+        perfectRunCount: newCount
+      });
+    } catch (error) {
+      console.error('Error awarding perfect run achievement:', error);
+      res.status(500).json({ message: 'Failed to award perfect run achievement' });
+    }
+  });
+
   app.post('/api/achievements/check', validateSession, async (req, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
