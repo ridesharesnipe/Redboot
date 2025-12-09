@@ -130,7 +130,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     stopCamera();
     setCapturedImage(imageData);
     processImage(imageData);
-    playSound('treasure_chest_open');
+    // Removed loud treasure chest sound - sparkle plays during celebration instead
     onCapture(imageData);
   };
 
@@ -152,7 +152,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         const imageData = e.target?.result as string;
         setCapturedImage(imageData);
         processImage(imageData);
-        playSound('treasure_chest_open');
+        // Removed loud treasure chest sound - sparkle plays during celebration instead
         onCapture(imageData);
       };
       reader.readAsDataURL(file);
@@ -353,8 +353,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         // Show treasure celebration first!
         setTreasureWords(demoWords);
         setShowTreasureCelebration(true);
-        playSound('treasure_chest_open');
-        playAudioFile(sparkleSound, 0.7);
+        // Only play gentle sparkle sound for jewel celebration (no loud chest sound)
+        playAudioFile(sparkleSound, 0.5);
         
         // After 3 seconds, show the word list
         setTimeout(() => {
@@ -386,8 +386,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
       // Show treasure celebration first!
       setTreasureWords(words);
       setShowTreasureCelebration(true);
-      playSound('treasure_chest_open');
-      playAudioFile(sparkleSound, 0.7);
+      // Only play gentle sparkle sound for jewel celebration (no loud chest sound)
+      playAudioFile(sparkleSound, 0.5);
       
       // After 3 seconds, show the word list
       setTimeout(() => {
@@ -754,7 +754,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
           console.log('File read successfully, starting OCR processing');
           setCapturedImage(imageData);
           processImage(imageData);
-          playSound('treasure_chest_open');
+          // Removed loud sound - gentle sparkle plays during celebration instead
           onCapture(imageData);
         };
         reader.readAsDataURL(file);
