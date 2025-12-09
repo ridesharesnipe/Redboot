@@ -1012,119 +1012,168 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     );
   }
 
-  // Show word verification screen if words were extracted
+  // Show word verification screen if words were extracted - Sunset ocean theme
   if (showWordList) {
     const wordCount = editableWords.filter(w => w.trim()).length;
     
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <Card className="max-w-lg mx-auto bg-white shadow-xl border-0 rounded-2xl">
-          <CardContent className="p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
-                <Check className="w-8 h-8 text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800 mb-1">
-                Words Detected
-              </h2>
-              <p className="text-4xl font-bold text-blue-600">{wordCount}</p>
-            </div>
-            
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-              <p className="text-amber-800 text-sm">
-                <strong>Tip:</strong> Review each word below. Tap to edit if any word looks incorrect.
-              </p>
-            </div>
-
-            <div className="space-y-2 mb-6 max-h-64 overflow-y-auto">
-              {editableWords.map((word, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span className="w-6 text-xs text-gray-400 font-medium">{index + 1}</span>
-                  <Input
-                    value={word}
-                    onChange={(e) => updateWord(index, e.target.value)}
-                    className="flex-1 border-gray-200 focus:border-blue-400 rounded-lg"
-                    placeholder="Enter word"
-                    data-testid={`input-word-${index}`}
-                  />
-                  <button
-                    onClick={() => removeWord(index)}
-                    className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
-                    data-testid={`button-remove-word-${index}`}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+      <div className="relative min-h-[600px] rounded-2xl overflow-hidden" style={{
+        background: 'linear-gradient(180deg, #f97316 0%, #fb923c 15%, #fdba74 30%, #fef3c7 50%, #a5f3fc 75%, #22d3ee 100%)'
+      }}>
+        {/* Floating shimmering jewels */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-4 left-6 text-3xl animate-bounce" style={{ animationDelay: '0s', animationDuration: '2s', filter: 'drop-shadow(0 0 12px rgba(239, 68, 68, 0.8))' }}>💎</div>
+          <div className="absolute top-8 right-8 text-2xl animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '2.3s', filter: 'drop-shadow(0 0 12px rgba(34, 197, 94, 0.8))' }}>💚</div>
+          <div className="absolute top-3 left-1/3 text-2xl animate-bounce" style={{ animationDelay: '0.7s', animationDuration: '1.9s', filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))' }}>⭐</div>
+          <div className="absolute top-12 right-1/4 text-xl animate-bounce" style={{ animationDelay: '1s', animationDuration: '2.5s', filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.8))' }}>👑</div>
+          <div className="absolute bottom-24 left-4 text-2xl animate-bounce" style={{ animationDelay: '0.3s', animationDuration: '2.1s', filter: 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.8))' }}>💙</div>
+          <div className="absolute bottom-16 right-6 text-xl animate-bounce" style={{ animationDelay: '0.8s', animationDuration: '2.4s', filter: 'drop-shadow(0 0 12px rgba(236, 72, 153, 0.8))' }}>🏆</div>
+          <div className="absolute bottom-32 left-1/4 text-2xl animate-bounce" style={{ animationDelay: '1.2s', animationDuration: '2s', filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))' }}>✨</div>
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10 p-4">
+          <Card className="max-w-lg mx-auto bg-white/95 backdrop-blur-sm shadow-2xl border-0 rounded-2xl">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-lg" style={{ boxShadow: '0 0 20px rgba(34, 197, 94, 0.5)' }}>
+                  <Check className="w-8 h-8 text-white" />
                 </div>
-              ))}
-            </div>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent mb-1">
+                  🎉 Treasure Words Found!
+                </h2>
+                <p className="text-4xl font-bold text-cyan-600">{wordCount}</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 mb-6">
+                <p className="text-amber-800 text-sm">
+                  🔍 <strong>Ahoy!</strong> Review yer words below. Tap to fix any that look wrong, matey!
+                </p>
+              </div>
 
-            <Button 
-              onClick={addWord} 
-              variant="outline" 
-              className="w-full mb-4 border-dashed border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 text-gray-600"
-              data-testid="button-add-word"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Add Another Word
-            </Button>
+              <div className="space-y-2 mb-6 max-h-64 overflow-y-auto">
+                {editableWords.map((word, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="w-6 text-xs text-cyan-500 font-bold">{index + 1}</span>
+                    <Input
+                      value={word}
+                      onChange={(e) => updateWord(index, e.target.value)}
+                      className="flex-1 border-cyan-200 focus:border-cyan-400 rounded-lg bg-white"
+                      placeholder="Enter word"
+                      data-testid={`input-word-${index}`}
+                    />
+                    <button
+                      onClick={() => removeWord(index)}
+                      className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
+                      data-testid={`button-remove-word-${index}`}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
 
-            <div className="flex gap-3">
               <Button 
-                onClick={cancelVerification} 
+                onClick={addWord} 
                 variant="outline" 
-                className="flex-1 border-gray-300"
-                data-testid="button-cancel-words"
+                className="w-full mb-4 border-dashed border-2 border-cyan-300 hover:border-cyan-400 hover:bg-cyan-50 text-cyan-600"
+                data-testid="button-add-word"
               >
-                Cancel
+                <Edit className="w-4 h-4 mr-2" />
+                Add Another Word
               </Button>
-              <Button 
-                onClick={saveWords} 
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                data-testid="button-save-words"
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Save {wordCount} Words
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
+              <div className="flex gap-3">
+                <Button 
+                  onClick={cancelVerification} 
+                  variant="outline" 
+                  className="flex-1 border-gray-300 hover:bg-gray-50"
+                  data-testid="button-cancel-words"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={saveWords} 
+                  className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg"
+                  style={{ boxShadow: '0 4px 14px rgba(34, 211, 238, 0.4)' }}
+                  data-testid="button-save-words"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Save {wordCount} Words
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  // Processing screen
+  // Processing screen - Beautiful underwater ocean theme with shimmering jewels
   if (isProcessing) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="max-w-md mx-auto bg-white shadow-xl border-0 rounded-2xl">
-          <CardContent className="p-8 text-center">
-            <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
-              <Loader className="w-10 h-10 text-blue-600 animate-spin" />
-            </div>
-            
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
-              Extracting Words...
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Analyzing your spelling list
-            </p>
-            
-            {/* Modern progress bar */}
-            <div className="w-full bg-gray-100 rounded-full h-2 mb-3 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300"
-                style={{ width: `${ocrProgress}%` }}
-              />
-            </div>
-            <p className="text-sm text-gray-400">{ocrProgress}% complete</p>
-            
-            <div className="mt-6 p-4 bg-blue-50 rounded-xl">
-              <p className="text-blue-700 text-sm">
-                This may take a few seconds. Please don't close this page.
+      <div className="relative min-h-[500px] rounded-2xl overflow-hidden" style={{
+        background: 'linear-gradient(180deg, #0ea5e9 0%, #38bdf8 25%, #7dd3fc 50%, #a5f3fc 75%, #cffafe 100%)'
+      }}>
+        {/* Floating shimmering jewels */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Top row jewels */}
+          <div className="absolute top-6 left-6 text-3xl animate-bounce" style={{ animationDelay: '0s', animationDuration: '2s', filter: 'drop-shadow(0 0 12px rgba(239, 68, 68, 0.8))' }}>💎</div>
+          <div className="absolute top-12 right-10 text-2xl animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '2.5s', filter: 'drop-shadow(0 0 12px rgba(34, 197, 94, 0.8))' }}>💚</div>
+          <div className="absolute top-4 left-1/3 text-2xl animate-bounce" style={{ animationDelay: '0.8s', animationDuration: '1.8s', filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))' }}>⭐</div>
+          <div className="absolute top-20 right-1/4 text-2xl animate-bounce" style={{ animationDelay: '1.2s', animationDuration: '2.2s', filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.8))' }}>💜</div>
+          
+          {/* Middle row jewels */}
+          <div className="absolute top-1/3 left-4 text-2xl animate-bounce" style={{ animationDelay: '0.3s', animationDuration: '2.3s', filter: 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.8))' }}>💙</div>
+          <div className="absolute top-1/3 right-6 text-xl animate-bounce" style={{ animationDelay: '1s', animationDuration: '2s', filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))' }}>👑</div>
+          
+          {/* Bottom row jewels */}
+          <div className="absolute bottom-32 left-8 text-2xl animate-bounce" style={{ animationDelay: '0.6s', animationDuration: '2.1s', filter: 'drop-shadow(0 0 12px rgba(236, 72, 153, 0.8))' }}>🏆</div>
+          <div className="absolute bottom-24 right-12 text-xl animate-bounce" style={{ animationDelay: '0.9s', animationDuration: '1.9s', filter: 'drop-shadow(0 0 12px rgba(34, 197, 94, 0.8))' }}>💰</div>
+          <div className="absolute bottom-40 left-1/4 text-2xl animate-bounce" style={{ animationDelay: '1.4s', animationDuration: '2.4s', filter: 'drop-shadow(0 0 12px rgba(239, 68, 68, 0.8))' }}>✨</div>
+          <div className="absolute bottom-16 right-1/3 text-xl animate-bounce" style={{ animationDelay: '0.2s', animationDuration: '2.6s', filter: 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.8))' }}>💎</div>
+          
+          {/* Bubble effects */}
+          <div className="absolute bottom-0 left-1/4 w-3 h-3 bg-white/40 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute bottom-10 left-1/2 w-2 h-2 bg-white/30 rounded-full animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }} />
+          <div className="absolute bottom-5 right-1/4 w-4 h-4 bg-white/20 rounded-full animate-ping" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }} />
+        </div>
+        
+        {/* Content card */}
+        <div className="relative z-10 flex items-center justify-center min-h-[500px] p-6">
+          <Card className="max-w-md mx-auto bg-white/95 backdrop-blur-sm shadow-2xl border-0 rounded-2xl">
+            <CardContent className="p-8 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg" style={{ boxShadow: '0 0 30px rgba(34, 211, 238, 0.5)' }}>
+                <Loader className="w-10 h-10 text-white animate-spin" />
+              </div>
+              
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                Extracting Words...
+              </h3>
+              <p className="text-gray-500 mb-6">
+                🔍 Searching for treasure words!
               </p>
-            </div>
-          </CardContent>
-        </Card>
+              
+              {/* Modern progress bar with glow */}
+              <div className="w-full bg-gray-100 rounded-full h-3 mb-3 overflow-hidden shadow-inner">
+                <div 
+                  className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-blue-600 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${ocrProgress}%`,
+                    boxShadow: '0 0 10px rgba(34, 211, 238, 0.6)'
+                  }}
+                />
+              </div>
+              <p className="text-sm text-cyan-600 font-medium">{ocrProgress}% complete</p>
+              
+              <div className="mt-6 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl border border-cyan-200">
+                <p className="text-cyan-700 text-sm">
+                  ⏳ Hang tight, matey! Finding yer spelling words...
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
