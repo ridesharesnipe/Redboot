@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,6 +36,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [showBonusRound, setShowBonusRound] = useState(false);
   const [bonusRoundWords, setBonusRoundWords] = useState<string[]>([]);
   const [practiceComplete, setPracticeComplete] = useState(false);
+  const retryStartedRef = useRef(false); // Ref to prevent multiple retry triggers
+  
+  // Track wordListId and correct/incorrect words for analytics
+  const [wordListId, setWordListId] = useState<string | null>(null);
+  const [correctWordsArray, setCorrectWordsArray] = useState<string[]>([]);
+  const [incorrectWordsArray, setIncorrectWordsArray] = useState<string[]>([]);
+  const [sessionStartTime] = useState<number>(Date.now());
   
   // Calculate milestones dynamically based on actual word count
   const getTreasureMilestones = () => {
@@ -125,6 +132,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       
       // Also check for perfect session and first word achievements (client-side triggers)
       await checkAndAwardAchievements(results);
+      
+      // SAVE PROGRESS FOR ANALYTICS - only if we have a valid wordListId
+      if (wordListId) {
+        const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
+        await apiRequest('/api/progress', 'POST', {
+          wordListId: wordListId,
+          characterUsed: selectedCharacter === 'redboot' ? 'red-boot' : 'diego',
+          correctWords: correctWordsArray,
+          incorrectWords: incorrectWordsArray,
+          timeSpent: sessionDuration,
+          score: Math.round((results.correct / results.total) * 100)
+        });
+      }
     } catch (error) {
       console.error('Failed to save treasures:', error);
       // Continue even if save fails - don't block completion
@@ -147,15 +167,18 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   ];
 
   // ADD bonus round logic helper functions
+  // Use bonusRoundWords as the frozen snapshot during retry round
   const getCurrentWord = () => {
     if (showBonusRound && bonusRoundWords.length > 0) {
-      return bonusRoundWords[currentWordIndex];
+      return bonusRoundWords[currentWordIndex] || bonusRoundWords[0];
     }
     return practiceWords[currentWordIndex];
   };
   
   const getTotalWords = () => {
-    if (showBonusRound) return bonusRoundWords.length;
+    if (showBonusRound && bonusRoundWords.length > 0) {
+      return bonusRoundWords.length;
+    }
     return practiceWords.length;
   };
 
@@ -241,10 +264,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       try {
         const data = JSON.parse(savedWords);
         const words = data.words || [];
-        console.log('🎮 Game loaded words:', words);
+        const listId = data.wordListId || null;
+        console.log('🎮 Game loaded words:', words, 'wordListId:', listId);
         
         if (words.length > 0) {
           setPracticeWords(words);
+          setWordListId(listId);
           playCharacterVoice('red_boot_ahoy');
           return;
         }
@@ -404,6 +429,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       setTreasureEarned(prev => prev + treasureAmount);
       playSound('spell_correct');
       
+      // Track correct word for analytics (only during main round)
+      if (!showBonusRound && !correctWordsArray.includes(currentWord)) {
+        setCorrectWordsArray(prev => [...prev, currentWord]);
+      }
+      
       // Record correct attempt for tricky word tracking (helps master tricky words)
       apiRequest('/api/tricky-words/attempt', 'POST', { word: currentWord, correct: true }).catch(err => {
         console.error('Failed to record correct attempt:', err);
@@ -435,6 +465,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         ...prev,
         [currentWord]: (prev[currentWord] || 0) + 1
       }));
+      
+      // Track incorrect word for analytics (only during main round)
+      if (!showBonusRound && !incorrectWordsArray.includes(currentWord)) {
+        setIncorrectWordsArray(prev => [...prev, currentWord]);
+      }
       
       // If wrong twice, mark as tricky and persist to database
       // Only track during main round, not during retry (prevents array growth during bonus)
@@ -512,9 +547,16 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           }, 2000);
         } else {
           // AUTOMATIC retry round - no opt-out (research-aligned: desirable difficulties)
-          // Clone tricky words into bonus round and clear trickyWords to prevent infinite loop
-          setBonusRoundWords([...trickyWords]);
-          setTrickyWords([]); // Reset so retry round works from frozen snapshot
+          // Use ref to prevent multiple triggers (ref updates synchronously, no race condition)
+          if (retryStartedRef.current) return;
+          retryStartedRef.current = true;
+          
+          // Freeze tricky words synchronously into local variable
+          const wordsToRetry = [...trickyWords];
+          
+          // Update all state in a single batch - React will batch these
+          setBonusRoundWords(wordsToRetry);
+          setTrickyWords([]);
           setShowBonusRound(true);
           setCurrentWordIndex(0);
           setPracticeComplete(false);
@@ -813,22 +855,22 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               </div>
             </div>
             
-            {/* Action buttons */}
-            <div className="flex gap-3 justify-center">
+            {/* Action buttons - 2025 modern styling with proper mobile layout */}
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
               <Button
                 onClick={repeatWord}
                 variant="outline"
                 disabled={!isWordSpoken}
+                className="rounded-xl min-h-[44px] px-4 py-2.5 text-sm sm:text-base border-2 border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 transition-colors duration-200 motion-safe:hover:scale-[1.02] shadow-sm"
                 data-testid="button-repeat-word"
               >
-                🔊 Repeat Word
+                🔊 Repeat
               </Button>
               
               <Button
                 onClick={handleSubmit}
                 disabled={!userInput.trim() || !isWordSpoken}
-                className="bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white font-bold shadow-lg"
-                style={{ boxShadow: '0 4px 14px rgba(251, 146, 60, 0.4)' }}
+                className="rounded-xl min-h-[44px] px-5 sm:px-6 py-2.5 text-sm sm:text-base bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white font-bold shadow-lg transition-colors duration-200 motion-safe:hover:scale-[1.02] disabled:opacity-50"
                 data-testid="button-submit-spelling"
               >
                 ⚓ Submit
@@ -837,27 +879,27 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
               <Button
                 onClick={skipWord}
                 variant="outline"
-                className="text-yellow-600 hover:text-yellow-700"
+                className="rounded-xl min-h-[44px] px-4 py-2.5 text-sm sm:text-base border-2 border-amber-300 bg-amber-50 text-amber-700 hover:border-amber-400 hover:bg-amber-100 transition-colors duration-200 motion-safe:hover:scale-[1.02] shadow-sm"
                 data-testid="button-skip-word"
               >
                 <SkipForward className="w-4 h-4 mr-1" />
                 Skip
               </Button>
             </div>
+            
+            {/* Cancel button centered below with proper spacing */}
+            <div className="flex justify-center mt-5">
+              <Button 
+                onClick={onCancel} 
+                variant="outline"
+                className="rounded-xl min-h-[40px] px-5 py-2 text-sm border border-gray-300 text-gray-600 hover:text-gray-800 hover:bg-gray-100 hover:border-gray-400 transition-colors duration-200"
+                data-testid="button-cancel-practice"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         )}
-        
-        {/* Action buttons at bottom */}
-        <div className="flex gap-3 justify-between mt-6">
-          <Button 
-            onClick={onCancel} 
-            variant="outline"
-            data-testid="button-cancel-practice"
-          >
-            Cancel
-          </Button>
-          <div className="w-20">{/* Spacer for alignment */}</div>
-        </div>
       </CardContent>
     </Card>
     
