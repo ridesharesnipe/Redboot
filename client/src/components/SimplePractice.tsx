@@ -437,7 +437,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }));
       
       // If wrong twice, mark as tricky and persist to database
-      if ((wordAttempts[currentWord] || 0) >= 1) {
+      // Only track during main round, not during retry (prevents array growth during bonus)
+      if (!showBonusRound && (wordAttempts[currentWord] || 0) >= 1) {
         if (!trickyWords.includes(currentWord)) {
           setTrickyWords(prev => [...prev, currentWord]);
           // Persist tricky word to database
@@ -511,7 +512,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           }, 2000);
         } else {
           // AUTOMATIC retry round - no opt-out (research-aligned: desirable difficulties)
-          setBonusRoundWords(trickyWords);
+          // Clone tricky words into bonus round and clear trickyWords to prevent infinite loop
+          setBonusRoundWords([...trickyWords]);
+          setTrickyWords([]); // Reset so retry round works from frozen snapshot
           setShowBonusRound(true);
           setCurrentWordIndex(0);
           setPracticeComplete(false);
