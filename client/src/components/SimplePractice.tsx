@@ -82,8 +82,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const treasures = ['💎', '✨', '⭐', '🌟', '💫', '🪙', '👑', '💰', '🏆'];
     celebrationJewelsRef.current = Array.from({ length: 30 }).map((_, i) => ({
       treasure: treasures[i % treasures.length],
-      delay: Math.random() * 2,
-      duration: 2.5 + Math.random() * 2,
+      delay: Math.random() * 0.8, // Start falling quickly (0-0.8s delay)
+      duration: 3 + Math.random() * 2, // Fall for 3-5 seconds
       left: Math.random() * 100,
       size: 2 + Math.random() * 2,
     }));
@@ -178,12 +178,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // Continue even if save fails - don't block completion
     }
     
-    // If badge was earned, delay onComplete to let celebration display (6 seconds total)
+    // If badge was earned, delay onComplete to let celebration display (12 seconds total)
+    // This gives time for the 10-second overlay + 1-second fade + 1-second buffer
     // Otherwise complete immediately
     if (badgeWasEarned) {
       setTimeout(() => {
         onComplete(results);
-      }, 6000);
+      }, 12000);
     } else {
       onComplete(results);
     }
@@ -678,16 +679,16 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       setShowBadgeOverlay(true);
       playAudioFile(sparkleSound, 0.8);
       
-      // After 4 seconds, start fade out
+      // After 10 seconds, start fade out (giving time to see badge and jewels)
       const fadeTimer = setTimeout(() => {
         setOverlayFadingOut(true);
-      }, 4000);
+      }, 10000);
       
-      // After 5 seconds (fade complete), hide overlay
+      // After 11 seconds (fade complete), hide overlay
       const hideTimer = setTimeout(() => {
         setShowBadgeOverlay(false);
         setOverlayFadingOut(false);
-      }, 5000);
+      }, 11000);
       
       return () => {
         clearTimeout(fadeTimer);
