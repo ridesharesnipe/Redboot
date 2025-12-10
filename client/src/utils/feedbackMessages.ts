@@ -13,15 +13,18 @@ export const feedbackMessages = {
       "Excellent! Keep going!"
     ],
     wrongFirstAttempt: [
-      "Oops! Let's try another word!",
+      "You're so brave for trying! Every pirate falls down before finding treasure!",
+      "That was a tough one! Your brain is getting stronger every time you try!",
+      "Real pirates never give up! We'll conquer this word together!",
+      "You're learning so much! Let's find another treasure!",
+      "That word is no match for a brave captain like you!",
+      "Wow, you tried so hard! That's what heroes do!",
       "That's tricky! Moving on!",
       "We'll come back to that one!",
       "Let's try a different word!",
       "That's okay! Next word!",
       "We'll practice that later!",
-      "Moving to another word!",
       "Let's keep going!",
-      "Try another one!",
       "Next word, captain!"
     ],
     wrongRetry: [
@@ -51,7 +54,12 @@ export const feedbackMessages = {
       "Awesome! You're a spelling champion!"
     ],
     wrongFirstAttempt: [
-      "Not quite! We'll practice that one again soon!",
+      "You're so brave for trying! Every pirate falls down before finding treasure!",
+      "That was a tough one! Your brain is getting stronger every time you try!",
+      "Real pirates never give up! We'll conquer this word together!",
+      "You're learning so much! Let's find another treasure!",
+      "That word is no match for a brave captain like you!",
+      "Wow, you tried so hard! That's what heroes do!",
       "That's a tricky word! Moving to the next one!",
       "Almost! We'll come back to it!",
       "That one's sneaky! Let's try the next word!",
@@ -59,8 +67,7 @@ export const feedbackMessages = {
       "That's tough! Moving ahead!",
       "We'll work on that one more! Next word!",
       "Tricky letters! We'll come back!",
-      "Nice effort! Let's try another!",
-      "That's hard! We'll practice it again!"
+      "Nice effort! Let's try another!"
     ],
     wrongRetry: [
       "Let's try this tricky word again, matey!",
@@ -89,15 +96,17 @@ export const feedbackMessages = {
       "Super! You're a spelling star!"
     ],
     wrongFirstAttempt: [
-      "Not quite! That's a tricky word. Let's try the next one!",
-      "Oops! We'll practice that one again later!",
+      "You're so brave for trying! Every pirate falls down before finding treasure!",
+      "That was a tough one! Your brain is getting stronger every time you try!",
+      "Real pirates never give up! We'll conquer this word together!",
+      "You're learning so much! Let's find another treasure!",
+      "That word is no match for a brave captain like you!",
+      "Wow, you tried so hard! That's what heroes do!",
       "That one's challenging! Moving to the next word!",
       "Almost! Let's keep going forward!",
       "That's a tough one! We'll come back to it!",
       "Good try! On to the next adventure!",
       "Tricky word! Let's try another one!",
-      "Not this time! We'll work on that one more!",
-      "That's hard! Let's see the next word!",
       "Nice effort! Moving ahead!"
     ],
     wrongRetry: [
@@ -127,16 +136,16 @@ export const feedbackMessages = {
       "Perfect! You're on a roll!"
     ],
     wrongFirstAttempt: [
+      "Mistakes are how champions learn! Let's keep building your skills!",
+      "Every spelling master was once a learner. You're on your way!",
+      "That word won't beat you! We'll come back stronger!",
+      "Your determination is what makes you great. Keep pushing!",
+      "Challenges make us stronger. You've got this!",
+      "Great effort! Learning happens when we try hard things!",
       "Not quite right. We'll practice this again!",
-      "That's incorrect. Moving to the next word!",
       "Not this time. We'll retry it later!",
       "That needs work. Let's continue!",
-      "Incorrect. We'll come back to it!",
-      "Not right. Moving forward!",
-      "That's wrong. We'll try again!",
-      "Incorrect. Next word!",
-      "Not quite. We'll review this!",
-      "Wrong. We'll practice it more!"
+      "Not quite. We'll review this!"
     ],
     wrongRetry: [
       "Let's retry this word.",
@@ -165,16 +174,16 @@ export const feedbackMessages = {
       "Correct! You're doing well!"
     ],
     wrongFirstAttempt: [
-      "Incorrect. We'll retry this later.",
-      "Not right. Moving to the next word.",
-      "Wrong. We'll practice this again.",
-      "Incorrect. Next word.",
+      "Mistakes are how champions learn! Let's keep building your skills!",
+      "Every spelling master was once a learner. You're on your way!",
+      "That word won't beat you! We'll come back stronger!",
+      "Your determination is what makes you great. Keep pushing!",
+      "Challenges make us stronger. You've got this!",
+      "Great effort! Learning happens when we try hard things!",
+      "Not right. We'll practice this again.",
       "Not correct. We'll come back to it.",
-      "Wrong answer. Continuing.",
-      "That's incorrect. Moving on.",
       "Not right. We'll review this.",
-      "Incorrect. Let's continue.",
-      "Wrong. We'll try again later."
+      "We'll try again later. Keep going!"
     ],
     wrongRetry: [
       "Let's retry this word.",
@@ -203,16 +212,16 @@ export const feedbackMessages = {
       "Correct! You're doing great!"
     ],
     wrongFirstAttempt: [
-      "Incorrect. Moving to the next word.",
+      "Mistakes are how champions learn! Let's keep building your skills!",
+      "Every spelling master was once a learner. You're on your way!",
+      "That word won't beat you! We'll come back stronger!",
+      "Your determination is what makes you great. Keep pushing!",
+      "Challenges make us stronger. You've got this!",
+      "Great effort! Learning happens when we try hard things!",
       "Not right. We'll review this later.",
-      "That's wrong. Next word.",
-      "Incorrect. Keep going.",
-      "Not correct. Next!",
-      "Wrong. Let's continue.",
-      "That's incorrect. Moving on.",
-      "Not right. We'll try again later.",
-      "Wrong answer. Next!",
-      "Incorrect. Continue."
+      "Keep going. We'll try again later.",
+      "Let's continue. You're getting stronger!",
+      "Moving on. You'll master this!"
     ],
     wrongRetry: [
       "Retry this word.",
