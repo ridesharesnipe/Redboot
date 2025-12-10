@@ -3,6 +3,13 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// Health check endpoint - responds immediately without any middleware or database
+// This must be BEFORE all other middleware for fast deployment health checks
+app.get('/healthz', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
