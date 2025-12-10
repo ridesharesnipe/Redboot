@@ -144,6 +144,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // Check for ALL badges (perfect run, word master, treasure badges)
       const badge = await checkAndAwardAchievements(results, totalTreasures);
       badgeWasEarned = badge !== null;
+      console.log('🏆 Badge check result:', { badge: badge?.title, badgeWasEarned, delayingNavigation: badgeWasEarned ? '21 seconds' : 'immediate' });
       
       // SAVE PROGRESS FOR ANALYTICS - only if we have a valid wordListId
       if (wordListId) {
@@ -684,7 +685,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Show full-screen badge overlay and play sparkle sound when badge is earned
   useEffect(() => {
+    console.log('🏅 Badge useEffect triggered:', { isComplete, earnedBadge: earnedBadge?.title, showBadgeOverlay });
     if (isComplete && earnedBadge) {
+      console.log('🎉 Showing badge celebration for 20 seconds:', earnedBadge.title);
       // Show full-screen overlay for ANY badge earned (not just perfect runs)
       setShowBadgeOverlay(true);
       playAudioFile(sparkleSound, 0.8);
