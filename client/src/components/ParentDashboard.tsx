@@ -464,72 +464,41 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   if (saved) {
                     try {
                       const { words, savedDate } = JSON.parse(saved);
-                      const newStats = {
-                        totalWords: words?.length || 0,
-                        newWords: 0,
-                        learningWords: 0, 
-                        masteredWords: 0,
-                        troubleWords: 0,
-                        daysThisWeek: [false, false, false, false, false],
-                        readyForTest: false,
-                        treasureCount: 0
-                      };
-                      const newWeekData = {
-                        words: words || [],
-                        practiceData: {},
-                        weekStart: new Date(savedDate || Date.now()),
-                        practiceHistory: []
-                      };
                       
-                      // Set both states, then dismiss prompt
-                      setStats(newStats);
-                      setWeekData(newWeekData);
-                      setShowNewWeekPrompt(false);
+                      // If words exist, load them and go to dashboard
+                      if (words && words.length > 0) {
+                        const newStats = {
+                          totalWords: words.length,
+                          newWords: words.length,
+                          learningWords: 0, 
+                          masteredWords: 0,
+                          troubleWords: 0,
+                          daysThisWeek: [false, false, false, false, false],
+                          readyForTest: false,
+                          treasureCount: 0
+                        };
+                        const newWeekData = {
+                          words: words,
+                          practiceData: {},
+                          weekStart: new Date(savedDate || Date.now()),
+                          practiceHistory: []
+                        };
+                        
+                        // Set both states, then dismiss prompt
+                        setStats(newStats);
+                        setWeekData(newWeekData);
+                        setShowNewWeekPrompt(false);
+                      } else {
+                        // No words in saved data - go to upload page instead
+                        onTakePhoto();
+                      }
                     } catch (e) {
-                      // Set safe defaults if parse fails
-                      const defaultStats = {
-                        totalWords: 0,
-                        newWords: 0,
-                        learningWords: 0, 
-                        masteredWords: 0,
-                        troubleWords: 0,
-                        daysThisWeek: [false, false, false, false, false],
-                        readyForTest: false,
-                        treasureCount: 0
-                      };
-                      const defaultWeekData = {
-                        words: [],
-                        practiceData: {},
-                        weekStart: new Date(),
-                        practiceHistory: []
-                      };
-                      
-                      setStats(defaultStats);
-                      setWeekData(defaultWeekData);
-                      setShowNewWeekPrompt(false);
+                      // Parse failed - go to upload page
+                      onTakePhoto();
                     }
                   } else {
-                    // No saved data - set empty defaults and dismiss prompt
-                    const defaultStats = {
-                      totalWords: 0,
-                      newWords: 0,
-                      learningWords: 0, 
-                      masteredWords: 0,
-                      troubleWords: 0,
-                      daysThisWeek: [false, false, false, false, false],
-                      readyForTest: false,
-                      treasureCount: 0
-                    };
-                    const defaultWeekData = {
-                      words: [],
-                      practiceData: {},
-                      weekStart: new Date(),
-                      practiceHistory: []
-                    };
-                    
-                    setStats(defaultStats);
-                    setWeekData(defaultWeekData);
-                    setShowNewWeekPrompt(false);
+                    // No saved data - go to upload page
+                    onTakePhoto();
                   }
                 }}
                 variant="outline"
@@ -624,38 +593,38 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                 
                 {stats?.totalWords ? (
                   <div className="mb-6">
-                    <div className="text-2xl md:text-3xl mb-2 text-green-700 font-bold">✅ {stats.totalWords} words uploaded!</div>
-                    <p className="text-gray-600 text-lg">Ready for spelling practice!</p>
+                    <div className="text-xl sm:text-2xl md:text-3xl mb-2 text-green-700 font-bold">✅ {stats.totalWords} words uploaded!</div>
+                    <p className="text-gray-600 text-base sm:text-lg">Ready for spelling practice!</p>
                   </div>
                 ) : (
                   <div className="mb-6">
-                    <div className="text-2xl md:text-3xl mb-2 text-amber-600 font-bold">📸 Time for new words!</div>
-                    <p className="text-gray-600 text-lg">Upload this week's spelling list to start your adventure!</p>
+                    <div className="text-xl sm:text-2xl md:text-3xl mb-2 text-amber-600 font-bold">📸 Time for new words!</div>
+                    <p className="text-gray-600 text-base sm:text-lg px-2">Upload this week's spelling list to start your adventure!</p>
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-4 justify-center">
+                <div className="flex flex-wrap gap-3 sm:gap-4 justify-center px-2">
                   {stats?.totalWords ? (
                     <>
                       <Button 
                         onClick={onViewPractice}
-                        className="clay-button px-8 py-4 text-xl sparkle-hover pulse-glow-success"
+                        className="clay-button px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-xl sparkle-hover pulse-glow-success"
                         data-testid="button-practice-now"
                       >
                         🚀 Practice Now!
                       </Button>
                       <Button 
                         onClick={() => setLocation('/vault')}
-                        className="clay-button clay-button-accent px-8 py-4 text-xl sparkle-hover pulse-glow-gold"
+                        className="clay-button clay-button-accent px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-xl sparkle-hover pulse-glow-gold"
                         data-testid="button-treasure-vault"
                       >
-                        <Gem className="w-6 h-6 inline mr-2" />
+                        <Gem className="w-5 h-5 sm:w-6 sm:h-6 inline mr-1 sm:mr-2" />
                         Treasure Vault
                       </Button>
                       {stats?.readyForTest && new Date().getDay() === 5 && (
                         <Button 
                           onClick={onStartTest}
-                          className="clay-button px-8 py-4 text-xl sparkle-hover pulse-glow bg-gradient-to-r from-purple-500 to-pink-500"
+                          className="clay-button px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-xl sparkle-hover pulse-glow bg-gradient-to-r from-purple-500 to-pink-500"
                           data-testid="button-take-test"
                         >
                           👑 Take Test!
@@ -666,17 +635,17 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                     <>
                       <Button 
                         onClick={onTakePhoto}
-                        className="clay-button clay-button-primary px-8 py-4 text-xl sparkle-hover pulse-glow"
+                        className="clay-button clay-button-primary px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-xl sparkle-hover pulse-glow"
                         data-testid="button-upload-words"
                       >
-                        📸 Upload This Week's Words
+                        📸 Upload Words
                       </Button>
                       <Button 
                         onClick={() => setLocation('/vault')}
-                        className="clay-button clay-button-accent px-8 py-4 text-xl sparkle-hover"
+                        className="clay-button clay-button-accent px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-xl sparkle-hover"
                         data-testid="button-treasure-vault"
                       >
-                        <Gem className="w-6 h-6 inline mr-2" />
+                        <Gem className="w-5 h-5 sm:w-6 sm:h-6 inline mr-1 sm:mr-2" />
                         Treasure Vault
                       </Button>
                     </>
