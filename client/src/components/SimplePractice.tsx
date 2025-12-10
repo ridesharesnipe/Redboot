@@ -176,11 +176,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // Continue even if save fails - don't block completion
     }
     
-    // Stop any speech still playing before navigation
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
-    
     // If badge was earned, delay onComplete to let celebration display (21 seconds total)
     // This gives time for the 20-second overlay + 1-second buffer
     // Otherwise complete immediately
@@ -381,9 +376,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       
       // Use speech synthesis to speak the word clearly
       if ('speechSynthesis' in window) {
-        // Clear any queued speech to prevent words piling up
-        speechSynthesis.cancel();
-        
         const utterance = new SpeechSynthesisUtterance(word);
         utterance.rate = 0.8; // Slower for clarity
         utterance.volume = 0.9;
