@@ -237,7 +237,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     }
   };
 
-  // Load stats and photos on component mount
+  // Load stats and photos on component mount and when wordLists loads
   useEffect(() => {
     try {
       checkWeekStatus();
@@ -246,7 +246,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     } catch (error) {
       console.error('Error loading stats:', error);
     }
-  }, []);
+  }, [wordLists]);
 
   const loadPhotos = async () => {
     try {
