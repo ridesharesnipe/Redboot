@@ -100,7 +100,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     
     try {
       // Call comprehensive badge check endpoint - checks ALL badge types
-      const response = await apiRequest('/api/achievements/check-all', 'POST', {
+      const response = await apiRequest('POST', '/api/achievements/check-all', {
         isPerfect: isPerfectScore,
         wordsCorrect: results.correct,
         treasureTotal: totalTreasures
@@ -132,7 +132,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     
     try {
       // Save treasures to database - server handles achievement checking
-      const response = await apiRequest('/api/treasures/add', 'POST', {
+      const response = await apiRequest('POST', '/api/treasures/add', {
         character: selectedCharacter,
         amount: results.treasureEarned
       });
@@ -148,7 +148,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       // SAVE PROGRESS FOR ANALYTICS - only if we have a valid wordListId
       if (wordListId) {
         const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
-        await apiRequest('/api/progress', 'POST', {
+        await apiRequest('POST', '/api/progress', {
           wordListId: wordListId,
           characterUsed: selectedCharacter === 'redboot' ? 'red-boot' : 'diego',
           correctWords: correctWordsArray,
@@ -512,7 +512,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
       
       // Record correct attempt for tricky word tracking (helps master tricky words)
-      apiRequest('/api/tricky-words/attempt', 'POST', { word: currentWord, correct: true }).catch(err => {
+      apiRequest('POST', '/api/tricky-words/attempt', { word: currentWord, correct: true }).catch(err => {
         console.error('Failed to record correct attempt:', err);
       });
       
@@ -560,14 +560,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         if (!trickyWords.includes(currentWord)) {
           setTrickyWords(prev => [...prev, currentWord]);
           // Persist tricky word to database
-          apiRequest('/api/tricky-words', 'POST', { word: currentWord }).catch(err => {
+          apiRequest('POST', '/api/tricky-words', { word: currentWord }).catch(err => {
             console.error('Failed to save tricky word:', err);
           });
         }
       }
       
       // Record attempt for tricky word tracking
-      apiRequest('/api/tricky-words/attempt', 'POST', { word: currentWord, correct: false }).catch(err => {
+      apiRequest('POST', '/api/tricky-words/attempt', { word: currentWord, correct: false }).catch(err => {
         console.error('Failed to record tricky word attempt:', err);
       });
       
@@ -664,7 +664,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     if (!trickyWords.includes(currentWord)) {
       setTrickyWords(prev => [...prev, currentWord]);
       // Persist skipped word as tricky to database
-      apiRequest('/api/tricky-words', 'POST', { word: currentWord }).catch(err => {
+      apiRequest('POST', '/api/tricky-words', { word: currentWord }).catch(err => {
         console.error('Failed to save skipped word as tricky:', err);
       });
     }
