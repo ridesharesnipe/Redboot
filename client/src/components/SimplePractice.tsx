@@ -3,11 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
-import { Volume2, SkipForward, CheckCircle, XCircle, X, HelpCircle, Package, Compass, Lock } from 'lucide-react';
+import { Volume2, SkipForward, CheckCircle, XCircle, X, HelpCircle } from 'lucide-react';
 import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
 import { apiRequest } from '@/lib/queryClient';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
-import redBootImage from '@assets/17586438224363330781733458024019_1758643831046.png';
+import TreasureRoad from './TreasureRoad';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -1018,101 +1018,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             </div>
           </section>
 
-          {/* RIGHT PANEL - ISLAND MAP */}
-          <section className="flex-1 relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white bg-cyan-400 group isolate min-h-[300px] lg:min-h-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-teal-500 transition-transform duration-[20s] ease-linear group-hover:scale-110"></div>
-            <div className="absolute inset-0 opacity-30 animate-pulse" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" }}></div>
-            
-            {/* Island */}
-            <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[70%] bg-emerald-400 rounded-[100%_40%_60%_20%/60%_40%_80%_40%] shadow-[inset_0_20px_40px_rgba(0,0,0,0.1)] transform rotate-[-10deg]"></div>
-            
-            {/* MY LOOT BOX */}
-            <div className="absolute top-4 md:top-8 right-4 md:right-8 z-20">
-              <div className="bg-white/90 backdrop-blur-xl py-3 px-5 rounded-2xl shadow-xl border-4 border-yellow-400 flex flex-col items-center gap-1 animate-float transform rotate-2">
-                <span className="text-xs font-black uppercase text-slate-500 tracking-wider">My Loot</span>
-                <div className="flex items-center gap-4">
-                  <div className="relative group/chest">
-                    <Package className="w-10 h-10 text-yellow-500 group-hover/chest:scale-125 transition-transform cursor-pointer" />
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">
-                      {treasureEarned}
-                    </span>
-                  </div>
-                  <div className="h-8 w-1 bg-slate-200 rounded-full"></div>
-                  <Compass className="w-10 h-10 text-blue-400 hover:rotate-180 transition-transform duration-700 cursor-help" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Treasure Markers */}
-            {practiceWords.slice(0, 3).map((_, index) => {
-              const positions = [
-                { x: 33, y: 25 },
-                { x: 75, y: 67 },
-                { x: 60, y: 33 }
-              ];
-              const isUnlocked = index < correctCount;
-              const pos = positions[index];
-              
-              return (
-                <div 
-                  key={index}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer group/marker"
-                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                >
-                  <div className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
-                    {isUnlocked ? (
-                      <>
-                        <div className="absolute inset-0 bg-yellow-400 rounded-full blur-xl opacity-60 animate-pulse"></div>
-                        <span className="text-5xl md:text-6xl drop-shadow-lg transform group-hover/marker:scale-125 transition-all duration-300">⭐</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="absolute inset-0 bg-yellow-400 rounded-full blur-xl opacity-40 animate-pulse" style={{ animationDelay: `${index * 0.5}s` }}></div>
-                        <Lock className={`w-10 h-10 md:w-12 md:h-12 text-yellow-600 drop-shadow-lg transform group-hover/marker:scale-125 transition-transform duration-300 ${index > correctCount ? 'opacity-50 grayscale' : ''}`} />
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* Red Boot Character */}
-            <div className="absolute bottom-4 md:bottom-8 left-4 md:left-8 z-30 flex items-end gap-4">
-              <div className="relative group/dog cursor-pointer">
-                {/* Speech Bubble */}
-                <div className="absolute -top-20 md:-top-24 left-12 md:left-16 bg-white p-3 md:p-4 rounded-3xl rounded-bl-none shadow-xl w-44 md:w-56 animate-float transform origin-bottom-left transition-transform hover:scale-110 z-20 border-2 border-slate-100">
-                  <p className="text-xs md:text-sm font-black text-slate-700">
-                    {currentTreasure 
-                      ? `🎉 Ye found ${currentTreasure}!`
-                      : '"Arrr! Find the treasure by spelling correctly, matey!"'
-                    }
-                  </p>
-                </div>
-                
-                {/* Character Avatar */}
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-8 border-white shadow-[0_10px_30px_rgba(0,0,0,0.4)] overflow-hidden bg-sky-300 relative transform transition-transform duration-300 hover:scale-105 hover:rotate-3 ring-4 ring-offset-2 ring-blue-400">
-                  <img 
-                    alt="Red Boot the Pirate Dog" 
-                    className="w-full h-full object-cover transform scale-110 translate-y-2 contrast-125 saturate-150" 
-                    src={redBootImage}
-                  />
-                  <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-white/30 to-transparent pointer-events-none skew-x-12"></div>
-                </div>
-                
-                {/* Level Badge */}
-                <div className="absolute -bottom-2 -right-2 bg-red-500 text-white text-xs md:text-sm font-black px-3 py-1 rounded-full border-4 border-white shadow-lg transform rotate-[-5deg]">
-                  Lvl {Math.floor(correctCount / 2) + 1}
-                </div>
-              </div>
-            </div>
-            
-            {/* Compass */}
-            <div className="absolute bottom-4 md:bottom-8 right-4 md:right-8 opacity-80 hover:opacity-100 transition-opacity" style={{ animation: 'spin 20s linear infinite' }}>
-              <div className="relative w-16 h-16 md:w-24 md:h-24 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/50 flex items-center justify-center shadow-lg">
-                <Compass className="w-10 h-10 md:w-16 md:h-16 text-white drop-shadow-lg transform rotate-45" />
-                <div className="absolute top-0 text-white text-[8px] md:text-[10px] font-bold mt-1">N</div>
-              </div>
-            </div>
+          {/* RIGHT PANEL - TREASURE MAP */}
+          <section className="flex-1 min-h-[300px] lg:min-h-0">
+            <TreasureRoad 
+              totalWords={getTotalWords()} 
+              masteredWords={correctCount} 
+              treasureJustUnlocked={currentTreasure || undefined}
+            />
           </section>
         </div>
       </main>
