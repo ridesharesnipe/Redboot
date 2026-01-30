@@ -1,0 +1,419 @@
+Got it! Here's the updated prompt with **2026 Liquid Glass design specifications** for the badges:
+
+---
+
+## 🎯 RED BOOT'S SPELLING ADVENTURE - TARGETED FIXES ONLY
+
+**CRITICAL: Do NOT modify any existing UI/UX, layouts, colors, flows, or functionality beyond the specific tasks listed below. These are surgical fixes only.**
+
+---
+
+### **TASK 1: BADGE VISUAL ENHANCEMENT - 2026 LIQUID GLASS DESIGN**
+
+**Current Problem:** Badges have plain white backgrounds and lack visual detail.
+
+**Design Direction:** Transform all badges using the **2026 Liquid Glass** aesthetic - a premium, fluid glassmorphism style with depth, luminosity, and organic motion feel.
+
+---
+
+**1.1 LIQUID GLASS DESIGN SPECIFICATIONS**
+
+**Core Visual Properties for Each Badge:**
+
+**Glass Foundation:**
+- [ ] Frosted glass/translucent background (NOT solid white)
+- [ ] Multi-layer glass effect with depth (foreground glass + background glass)
+- [ ] Subtle transparency (backdrop-blur: 20-40px equivalent)
+- [ ] Soft inner glow creating "lit from within" effect
+- [ ] Organic, slightly irregular rounded corners (border-radius: 24-32px with subtle variation)
+
+**Liquid Gradient Colors:**
+- [ ] Flowing gradient backgrounds that feel fluid and alive
+- [ ] Iridescent color shifts (colors that subtly change based on position)
+- [ ] Suggested palette per badge type:
+  - 🥇 Achievement badges: Gold → Amber → Warm Orange liquid flow
+  - 🗺️ Treasure/Map badges: Teal → Aquamarine → Deep Sea Blue
+  - 🔥 Streak badges: Coral → Magenta → Purple fire gradient
+  - ⭐ Mastery badges: Pearl White → Soft Pink → Lavender shimmer
+  - 🏴‍☠️ Pirate/Adventure badges: Deep Navy → Royal Purple → Midnight with gold accents
+- [ ] Gradients should feel like light passing through colored glass/water
+
+**Depth & Dimension:**
+- [ ] Layered shadow system:
+  - Soft outer shadow (spread, low opacity)
+  - Crisp small shadow for lift
+  - Inner shadow for glass depth
+- [ ] Subtle 3D perspective (badges feel like physical glass coins/medallions)
+- [ ] Light reflection/highlight along top edge (simulates overhead light)
+- [ ] Optional: Fresnel-style edge glow (brighter at edges like real glass)
+
+**Liquid Motion Feel (Static but Implies Motion):**
+- [ ] Gradient colors positioned to suggest flowing liquid captured in glass
+- [ ] Organic blob shapes in background layer (not rigid geometric)
+- [ ] Soft caustic light patterns (like light through water)
+
+**Border Treatment:**
+- [ ] Thin luminous border (1-2px) with gradient or soft glow
+- [ ] Border color slightly lighter than badge background
+- [ ] Optional: Subtle animated shimmer on border (CSS animation)
+
+**Badge Icon/Symbol:**
+- [ ] Centered achievement icon with slight drop shadow
+- [ ] Icon should have subtle glass/glossy treatment
+- [ ] Icon color contrasts beautifully with liquid background
+- [ ] Pirate-themed but elevated/premium (not cartoonish)
+
+---
+
+**1.2 LOCKED vs UNLOCKED BADGE STATES**
+
+**UNLOCKED Badge (Earned):**
+- [ ] Full vibrant liquid glass effect
+- [ ] Rich, saturated gradient colors
+- [ ] Bright inner glow (badge feels "activated")
+- [ ] Subtle shimmer/sparkle animation (optional)
+- [ ] Icon fully visible and colored
+- [ ] Feels premium, collectible, rewarding
+
+**LOCKED Badge (Not Yet Earned):**
+- [ ] Desaturated/grayscale liquid glass
+- [ ] Muted, foggy appearance (like frosted glass you can't see through)
+- [ ] Reduced glow and luminosity
+- [ ] Icon visible but dimmed/silhouette
+- [ ] Subtle lock icon overlay OR padlock integrated into design
+- [ ] Feels mysterious, aspirational, "not yet revealed"
+
+---
+
+**1.3 BADGE DETAIL MODAL - LIQUID GLASS DESIGN**
+
+When a badge is tapped, open a **premium liquid glass detail view**:
+
+**Modal Container:**
+- [ ] Large liquid glass card/panel (centered on screen)
+- [ ] Frosted glass background with depth
+- [ ] Soft animated gradient background behind the modal
+- [ ] Elegant entrance animation (scale up + fade in, or slide up with spring)
+- [ ] Backdrop dims/blurs the content behind
+
+**Modal Contents:**
+- [ ] **Large Badge Graphic** - Hero size, centered at top, full liquid glass beauty
+- [ ] **Badge Name** - Premium typography, pirate-themed but elegant
+  - Subtle text shadow or glow for depth
+- [ ] **Description** - Kid-friendly explanation of how to earn
+  - Clean, readable font on glass background
+- [ ] **Status Display:**
+  - If LOCKED:
+    - [ ] Progress bar with liquid glass styling
+    - [ ] "2 of 5 treasures found" - clear progress text
+    - [ ] Progress bar fills with gradient liquid effect
+  - If UNLOCKED:
+    - [ ] "✨ Ye earned this treasure!" celebration text
+    - [ ] Date earned: "January 15, 2025" with elegant formatting
+    - [ ] Optional: Confetti or sparkle animation on first view
+- [ ] **Flavor Text** - Fun pirate quote or lore about the badge
+  - Styled as italic or special typography
+- [ ] **Close Button:**
+  - [ ] Glass-styled X button or "Back to Treasure Chest" pill button
+  - [ ] Clear tap target (minimum 44x44px)
+  - [ ] Hover/press state with glow effect
+
+**Modal Behavior:**
+- [ ] Smooth open animation (300-400ms, spring easing)
+- [ ] Smooth close animation
+- [ ] Tapping outside modal closes it
+- [ ] Close button works perfectly
+- [ ] Works for EVERY badge - test each one
+- [ ] Scroll if content exceeds viewport (rare, but handle it)
+
+---
+
+**1.4 BADGE-BY-BADGE CHECKLIST**
+
+Update EACH badge with liquid glass treatment:
+
+| Badge Name | Glass BG | Gradient | Glow | Locked State | Unlocked State | Detail Modal |
+|------------|----------|----------|------|--------------|----------------|--------------|
+| First Mate | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Treasure Hunter | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Spelling Captain | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Map Master | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Golden Doubloon | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Seven Seas Scholar | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| [Continue for ALL badges in the app...] | | | | | | |
+
+---
+
+**1.5 TECHNICAL IMPLEMENTATION NOTES**
+
+**CSS Properties to Utilize:**
+```css
+/* Example Liquid Glass Foundation */
+background: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.15) 0%,
+  rgba(255, 255, 255, 0.05) 100%
+);
+backdrop-filter: blur(24px);
+-webkit-backdrop-filter: blur(24px);
+border: 1px solid rgba(255, 255, 255, 0.2);
+box-shadow:
+  0 8px 32px rgba(0, 0, 0, 0.12),
+  0 2px 8px rgba(0, 0, 0, 0.08),
+  inset 0 1px 1px rgba(255, 255, 255, 0.3);
+border-radius: 24px;
+```
+
+**Gradient Colors (Liquid Feel):**
+```css
+/* Gold Achievement Example */
+background: linear-gradient(
+  160deg,
+  rgba(255, 215, 0, 0.4) 0%,
+  rgba(255, 165, 0, 0.3) 50%,
+  rgba(255, 140, 0, 0.4) 100%
+);
+
+/* Ocean Treasure Example */
+background: linear-gradient(
+  160deg,
+  rgba(0, 210, 211, 0.4) 0%,
+  rgba(0, 150, 199, 0.3) 50%,
+  rgba(0, 105, 148, 0.4) 100%
+);
+```
+
+- [ ] Ensure backdrop-filter has fallback for unsupported browsers
+- [ ] Optimize for performance (avoid excessive blur on low-end devices)
+- [ ] Test on both iOS and Android rendering
+
+---
+
+### **TASK 2: PARENT ANALYTICS PAGE - EXTREME DETAIL & ACCURACY**
+
+**Requirements:** The analytics must be comprehensive, mathematically accurate, and genuinely useful for parents to track their child's spelling progress.
+
+**2.1 Core Metrics Dashboard (All Must Be Accurate)**
+
+- [ ] **Total Words Practiced** - exact count, all-time cumulative
+- [ ] **Total Words Mastered** - words spelled correctly X consecutive times (define threshold)
+- [ ] **Overall Accuracy Rate** - (total correct ÷ total attempts) × 100, displayed as percentage
+- [ ] **Current Streak** - consecutive calendar days with at least one practice session
+- [ ] **Longest Streak Ever** - all-time record for consecutive days
+- [ ] **Total Practice Time** - cumulative time in minutes/hours (formatted nicely: "4h 32m")
+- [ ] **Average Session Duration** - total time ÷ total sessions
+- [ ] **Total Practice Sessions** - count of completed sessions
+
+**2.2 Progress Visualization (Charts & Graphs)**
+
+- [ ] **Time Period Toggle** - Daily / Weekly / Monthly / All-Time views
+- [ ] **Words Practiced Over Time** - bar chart or line graph
+  - X-axis: dates/weeks/months
+  - Y-axis: word count
+  - Accurately plots real data
+- [ ] **Accuracy Trend Graph** - line chart showing improvement over time
+  - Shows percentage accuracy per session or per day
+  - Trend line visible
+- [ ] **Practice Streak Calendar** - visual calendar/heatmap
+  - Green/filled for days practiced
+  - Empty for days missed
+  - Current streak highlighted
+- [ ] **All charts handle edge cases:**
+  - [ ] Empty state (no data yet) - friendly message, not broken chart
+  - [ ] Single data point - displays correctly
+  - [ ] Large data sets - performs well, no lag
+
+**2.3 Word-Level Analytics (Detailed Breakdown)**
+
+- [ ] **Complete Word List Table** showing every word ever practiced:
+
+| Word | Times Attempted | Times Correct | Times Incorrect | Accuracy % | Status |
+|------|-----------------|---------------|-----------------|------------|--------|
+| [word] | [#] | [#] | [#] | [%] | Learning/Practicing/Mastered |
+
+- [ ] **Accuracy calculation per word is correct:** (correct ÷ attempted) × 100
+- [ ] **Status logic is correct:**
+  - Learning: < 50% accuracy OR < 3 attempts
+  - Practicing: 50-79% accuracy
+  - Mastered: 80%+ accuracy AND 3+ correct attempts
+- [ ] **Struggling Words Section** - automatically highlights words with <50% accuracy
+- [ ] **Mastered Words Section** - celebrates words with high accuracy
+- [ ] **Sortable columns:** alphabetical, by accuracy (low to high / high to low), by attempts, by most recent
+- [ ] **Searchable/filterable** (optional but nice)
+
+**2.4 Badge/Achievement Progress**
+
+- [ ] **Badges Earned Counter** - "X of Y Badges Unlocked"
+- [ ] **Visual badge grid** showing earned vs locked
+- [ ] **Earned badges show unlock date**
+- [ ] **Next Badge Progress** - "Next up: [Badge Name] - 3 of 5 complete"
+- [ ] **Recent Achievements** - last 3-5 badges earned with dates
+
+**2.5 Session History Log**
+
+- [ ] **Scrollable list of all practice sessions:**
+
+| Date & Time | Duration | Words Practiced | Accuracy | Points Earned |
+|-------------|----------|-----------------|----------|---------------|
+| Jan 15, 3:42 PM | 8 min | 12 words | 83% | 240 |
+
+- [ ] **Tap session to expand** - shows word-by-word breakdown:
+  - Each word attempted
+  - Correct ✓ or Incorrect ✗
+  - Number of attempts per word
+- [ ] Sessions sorted newest first
+- [ ] Pagination or infinite scroll for long history
+
+**2.6 ACCURACY VERIFICATION - MANUAL TESTING**
+
+Perform these calculations manually and verify they match the UI:
+
+- [ ] **Total Correct Calculation:**
+  - Count all correct answers in database/storage
+  - Verify matches "Total Correct" display
+  
+- [ ] **Accuracy Percentage:**
+  - Manually calculate: (correct ÷ total attempts) × 100
+  - Verify matches displayed percentage
+  - Check decimal handling (round to 1 decimal or whole number)
+  
+- [ ] **Streak Calculation:**
+  - Count consecutive days with practice in database
+  - Verify matches "Current Streak"
+  - Test across midnight boundary
+  - Test across timezone changes
+  
+- [ ] **Time Calculation:**
+  - Sum all session durations in database
+  - Verify matches "Total Practice Time"
+  
+- [ ] **Per-Word Accuracy:**
+  - Pick 5 random words, manually calculate their accuracy
+  - Verify each matches displayed value
+
+**2.7 Edge Case Handling**
+
+- [ ] **Zero sessions:** Shows friendly empty state, not errors or "NaN%"
+- [ ] **One session:** All metrics calculate correctly
+- [ ] **100% accuracy:** Displays as "100%" not "100.00%" or overflow
+- [ ] **0% accuracy:** Displays correctly, doesn't break
+- [ ] **Very long practice history:** Performs well, loads efficiently
+- [ ] **Data persists after app restart**
+- [ ] **Data updates immediately after new session completes**
+- [ ] **No hardcoded or fake data anywhere** - all real usage data
+
+---
+
+### **TASK 3: DIEGO'S ADVENTURE - AUDIO COMPLETION VERIFICATION**
+
+**Current Problem:** Audio may be cutting off mid-word during Diego's Adventure mode.
+
+**Requirement:** Every single audio clip must play from start to finish without interruption.
+
+---
+
+**3.1 Audio File Audit**
+
+- [ ] List EVERY audio file used in Diego's Adventure
+- [ ] Verify each file:
+  - [ ] File exists at path
+  - [ ] File loads without error
+  - [ ] File plays completely (start to finish)
+  - [ ] No clipping at beginning
+  - [ ] No cutoff at end
+  - [ ] Audio duration matches expected word length
+
+**3.2 Audio Playback Logic Check**
+
+- [ ] Audio plays FULLY before any state transition
+- [ ] Code waits for `onended` / `ended` event or equivalent
+- [ ] No setTimeout cutting audio short
+- [ ] Audio queue properly managed (no overlapping sounds)
+- [ ] If user taps during audio:
+  - Option A: Audio completes then action processes
+  - Option B: Audio gracefully stops and new action proceeds
+  - (Either is fine, but must be intentional, not broken)
+
+**3.3 Scenario Testing**
+
+Test these specific scenarios:
+
+- [ ] **First word of session** - audio plays completely
+- [ ] **Words in the middle** - audio plays completely
+- [ ] **Last word of session** - audio plays completely
+- [ ] **Rapid tapping/progression** - audio doesn't cut off or overlap chaotically
+- [ ] **Long words (3+ syllables)** - full pronunciation plays
+- [ ] **Short words (1 syllable)** - not cut off prematurely
+- [ ] **Replay/repeat button** (if exists) - plays fully each time
+- [ ] **Correct answer feedback** - doesn't interrupt word audio
+- [ ] **Incorrect answer feedback** - doesn't interrupt word audio
+
+**3.4 Device & Performance Testing**
+
+- [ ] Works on slow/older devices (audio still completes)
+- [ ] Works on low memory conditions
+- [ ] Works with device on silent mode (visual feedback instead, or appropriate handling)
+- [ ] Works with headphones connected
+- [ ] Works with Bluetooth audio (slight latency okay, but completes)
+
+**3.5 Word-by-Word Audio Playthrough**
+
+Play through Diego's Adventure completely and verify EVERY word:
+
+| Word | Audio Plays Fully | Issue (if any) |
+|------|-------------------|----------------|
+| [word 1] | ☐ Yes / ☐ No | |
+| [word 2] | ☐ Yes / ☐ No | |
+| [word 3] | ☐ Yes / ☐ No | |
+| [Continue for ALL words in Diego's Adventure...] | | |
+
+---
+
+### **SCOPE BOUNDARIES - STRICT**
+
+❌ **DO NOT MODIFY:**
+- App navigation structure
+- Screen layouts (other than badge detail modal)
+- Color scheme of non-badge elements
+- Typography outside of badge components
+- Game mechanics / spelling logic
+- Treasure hunt flow
+- OCR functionality
+- Point/scoring systems
+- Any existing button placements
+- Any existing animations outside badge components
+
+✅ **ONLY MODIFY:**
+- Badge graphics → Liquid Glass 2026 design
+- Badge tap interaction → Detail modal
+- Badge detail modal → New component with full info
+- Parent analytics page → Accuracy and completeness of data
+- Diego's Adventure → Audio playback completion only
+
+---
+
+### **DELIVERABLES & OUTPUT FORMAT**
+
+**For each change made:**
+```
+✅ COMPLETED: [specific item]
+🎨 DESIGN UPDATE: [component] - [what changed visually]
+🔧 CODE FIX: [file:line] - [what was wrong → what was fixed]
+📊 ANALYTICS FIX: [metric] - [was showing X, now correctly shows Y]
+🔊 AUDIO FIX: [word/file] - [issue resolved]
+⚠️ NEEDS DECISION: [issue that requires input]
+```
+
+**Final Summary Required:**
+1. **Badges Updated:** List all badges with new liquid glass design
+2. **Badge Detail Modal:** Confirm working for all badges
+3. **Analytics Metrics:** List every metric with confirmation of accuracy
+4. **Diego's Audio:** Confirm all words play completely with test results
+
+---
+
+**BEGIN THESE THREE TASKS NOW. BE METICULOUS. THE LIQUID GLASS BADGES MUST BE STUNNING. THE ANALYTICS MUST BE MATHEMATICALLY PERFECT. THE AUDIO MUST BE FLAWLESS. CHANGE NOTHING ELSE.**
+
+---
+
+This should give you beautiful 2026 liquid glass badges, rock-solid analytics, and perfectly completing audio! Want me to add anything else?
