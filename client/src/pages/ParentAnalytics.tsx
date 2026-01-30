@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Moon, Sun, TrendingUp, Clock, Zap, Star, Rocket, AlertCircle, ChevronDown, ChevronUp, Check, X as XIcon } from 'lucide-react';
+import { ArrowLeft, Moon, Sun, TrendingUp, Clock, Zap, Star, Rocket, AlertCircle, ChevronDown, ChevronUp, Check, X as XIcon, HelpCircle } from 'lucide-react';
 
 interface WordDetail {
   word: string;
@@ -56,6 +56,7 @@ export default function ParentAnalytics() {
   const [, setLocation] = useLocation();
   const [isDark, setIsDark] = useState(false);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
   
   const { data: analytics, isLoading, error } = useQuery<AnalyticsData>({
     queryKey: ['/api/analytics'],
@@ -153,6 +154,15 @@ export default function ParentAnalytics() {
           
           <div className="flex items-center gap-4">
             <button 
+              onClick={() => setShowHelpModal(true)}
+              className="relative p-2.5 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 hover:from-cyan-400/30 hover:to-blue-500/30 border border-cyan-400/30 backdrop-blur-sm transition-all group"
+              data-testid="help-button"
+            >
+              <HelpCircle className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+              <div className="absolute inset-0 rounded-full bg-cyan-400/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+            
+            <button 
               onClick={toggleDarkMode}
               className={`p-2 rounded-full ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'} transition-colors`}
             >
@@ -164,10 +174,6 @@ export default function ParentAnalytics() {
             </button>
             
             <div className={`flex items-center gap-3 pl-4 border-l ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
-              <div className="text-right hidden sm:block">
-                <p className={`text-xs font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Adventurer</p>
-                <p className="text-sm font-bold">{analytics.childName}'s Journey</p>
-              </div>
               <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
                 {analytics.childName?.charAt(0) || 'A'}
               </div>
@@ -571,6 +577,141 @@ export default function ParentAnalytics() {
       >
         <Rocket className="w-6 h-6" />
       </button>
+
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          onClick={() => setShowHelpModal(false)}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          
+          <div 
+            className={`relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl ${
+              isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className={`sticky top-0 px-6 py-5 border-b backdrop-blur-xl ${
+              isDark ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-100'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                    <HelpCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    How Analytics Work
+                  </h2>
+                </div>
+                <button 
+                  onClick={() => setShowHelpModal(false)}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'
+                  } transition-colors`}
+                >
+                  <XIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="px-6 py-6 space-y-6">
+              {/* Accuracy */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-red-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🎯</span>
+                  <h3 className="font-bold">Accuracy</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  The percentage of words spelled correctly across all practice sessions. Higher accuracy means your child is mastering their spelling words!
+                </p>
+              </div>
+
+              {/* Sessions */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-blue-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">⚡</span>
+                  <h3 className="font-bold">Sessions</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Total number of practice sessions completed. Each time your child practices their spelling words counts as one session. Regular practice builds strong spelling habits!
+                </p>
+              </div>
+
+              {/* Time Spent */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-indigo-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">⏱️</span>
+                  <h3 className="font-bold">Time Spent</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Total time spent practicing spelling. Research shows that consistent, short practice sessions (10-15 minutes) are more effective than long, infrequent ones.
+                </p>
+              </div>
+
+              {/* Treasures */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-yellow-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">⭐</span>
+                  <h3 className="font-bold">Treasures</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Rewards earned by spelling words correctly. The more words practiced, the more treasures collected! These rewards motivate continued learning.
+                </p>
+              </div>
+
+              {/* Weekly Activity */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📊</span>
+                  <h3 className="font-bold">Weekly Activity</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Shows daily practice over the past 7 days. Taller bars mean more words practiced that day. Today's bar is highlighted in purple. Hover over bars to see word count and accuracy.
+                </p>
+              </div>
+
+              {/* Word Mastery */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-emerald-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📚</span>
+                  <h3 className="font-bold">Word Mastery</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  <strong>Ready:</strong> Words spelled correctly 3+ times in a row — ready for the Friday test!<br/>
+                  <strong>Learning:</strong> Words still being practiced. These need more repetition to stick in memory.
+                </p>
+              </div>
+
+              {/* Tricky Words */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-orange-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🔥</span>
+                  <h3 className="font-bold">Tricky Words</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Words that have been misspelled. The app automatically adds extra practice for these words. The "streak" badge shows how many times in a row they've gotten it right since missing it.
+                </p>
+              </div>
+
+              {/* Science Section */}
+              <div className={`p-4 rounded-2xl border-2 border-dashed ${
+                isDark ? 'border-cyan-800 bg-cyan-900/20' : 'border-cyan-200 bg-cyan-50'
+              }`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🧠</span>
+                  <h3 className="font-bold text-cyan-600">The Science</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  This app uses research-backed techniques including <strong>spaced repetition</strong> (Dr. Robert Bjork) and the <strong>testing effect</strong> (Roediger & Karpicke). Words are repeated at optimal intervals to move them from short-term to long-term memory.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
