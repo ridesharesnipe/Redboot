@@ -838,7 +838,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
       <main className="relative z-10 flex flex-col h-full w-full max-w-7xl mx-auto p-4 md:p-6 gap-4 md:gap-6">
         {/* HEADER BAR */}
-        <header className="w-full flex justify-between items-center bg-white/75 backdrop-blur-xl rounded-[2rem] p-4 shadow-lg border-4 border-white/40 relative overflow-hidden">
+        <header className="clay-header w-full relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-400 via-yellow-400 to-cyan-400"></div>
           
           <div className="flex items-center gap-6 w-full">
@@ -853,13 +853,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   {showBonusRound && <span className="ml-2 text-yellow-500">⚡ Bonus</span>}
                 </span>
               </div>
-              <div className="h-5 w-full bg-white/60 rounded-full overflow-hidden p-1 shadow-inner">
+              <div className="clay-progress-container">
                 <div 
-                  className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.6)] relative overflow-hidden transition-all duration-500"
+                  className="clay-progress-fill"
                   style={{ width: `${progress}%` }}
-                >
-                  <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
-                </div>
+                />
               </div>
             </div>
             
@@ -934,8 +932,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   {/* COLORFUL INPUT */}
                   <div className="relative z-10 w-full mb-6">
                     <div className="clay-input-container">
-                      <div className="relative bg-white rounded-[14px] p-2 flex justify-center items-center h-28 overflow-hidden">
-                      <Input
+                      <div className="relative bg-white rounded-[14px] flex justify-center items-center h-28 overflow-hidden">
+                        <Input
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
