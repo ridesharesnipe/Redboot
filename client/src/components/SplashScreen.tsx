@@ -24,8 +24,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       // Get child's name for personalized greeting
       const childName = localStorage.getItem('redboot-child-name');
       const greeting = childName 
-        ? `Ahoy, ${childName}! Welcome aboard, matey! Let's hunt for treasure!`
-        : `Ahoy, matey! Welcome aboard! Let's hunt for treasure!`;
+        ? `Ahoy Captain ${childName}! Your pirate crew is ready! Time to hunt for spelling treasure!`
+        : `Ahoy brave pirate! Your crew is ready! Time to hunt for spelling treasure!`;
       
       setTimeout(() => {
         speakFeedback(greeting);
