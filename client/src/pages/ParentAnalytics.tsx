@@ -186,11 +186,11 @@ export default function ParentAnalytics() {
         {/* Title Section */}
         <section className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            How Analytics Work
+            Parent Analytics
           </h1>
           <div className={`flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             <span className="text-sm">📊</span>
-            <span className="text-sm font-medium">Understanding your child's spelling progress</span>
+            <span className="text-sm font-medium">{analytics.childName}'s spelling progress · Updated just now</span>
           </div>
         </section>
 
