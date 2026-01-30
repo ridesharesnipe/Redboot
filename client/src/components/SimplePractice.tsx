@@ -865,12 +865,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             
             <button 
               onClick={onCancel}
-              className="ml-4 p-3 pr-5 rounded-full bg-white/80 hover:bg-white transition-all text-slate-600 flex items-center gap-3 group shadow-lg hover:shadow-xl border-2 border-transparent hover:border-red-400"
+              className="btn-stop ml-4"
             >
-              <div className="bg-red-100 p-2 rounded-full group-hover:bg-red-200 transition-colors">
-                <X className="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform" />
-              </div>
-              <span className="text-base font-extrabold hidden md:block group-hover:text-red-500 transition-colors">Stop Playing</span>
+              <X className="w-5 h-5" />
+              <span className="hidden md:block">Stop Playing</span>
             </button>
           </div>
         </header>
@@ -907,23 +905,23 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                     </div>
                   )}
                   
-                  <Button 
+                  <button 
                     onClick={nextWord} 
                     disabled={isAutoAdvancing}
-                    className="w-full py-5 rounded-2xl bg-gradient-to-b from-blue-500 to-blue-600 text-white font-black text-xl shadow-lg hover:from-blue-600 hover:to-blue-700"
+                    className="btn-next-word flex items-center justify-center gap-2"
                   >
                     {isAutoAdvancing ? '✨ Celebrating...' : (currentWordIndex >= getTotalWords() - 1 ? '🎉 Finish' : '➡️ Next Word')}
-                  </Button>
+                  </button>
                 </div>
               ) : (
                 /* INPUT SCREEN */
                 <>
-                  <button className="relative z-10 mb-4 h-14 w-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform border-4 border-white/30">
-                    <HelpCircle className="w-8 h-8" />
+                  <button className="clay-help-icon relative z-10">
+                    <HelpCircle className="w-7 h-7" />
                   </button>
                   
-                  <h2 className="relative z-10 text-indigo-500 font-black text-base uppercase tracking-widest mb-2 bg-indigo-100 px-4 py-1 rounded-full">
-                    Listen &amp; Spell
+                  <h2 className="clay-listen-badge relative z-10">
+                    LISTEN & SPELL
                   </h2>
                   
                   <p className="relative z-10 text-slate-700 text-xl mb-6 font-bold leading-relaxed">
@@ -934,9 +932,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   </p>
                   
                   {/* COLORFUL INPUT */}
-                  <div className="relative z-10 w-full mb-6 transform hover:scale-105 transition-transform duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 rounded-[2rem] blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-500 animate-pulse"></div>
-                    <div className="relative bg-white rounded-[2rem] border-4 border-indigo-200 p-2 shadow-inner flex justify-center items-center h-28 overflow-hidden">
+                  <div className="relative z-10 w-full mb-6">
+                    <div className="clay-input-container">
+                      <div className="relative bg-white rounded-[14px] p-2 flex justify-center items-center h-28 overflow-hidden">
                       <Input
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
@@ -982,6 +980,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                         )}
                       </div>
                     </div>
+                    </div>
                   </div>
                   
                   {/* ACTION BUTTONS */}
@@ -989,17 +988,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                     <button 
                       onClick={repeatWord}
                       disabled={!isWordSpoken}
-                      className="flex-1 min-w-[120px] py-4 px-4 rounded-2xl bg-white text-slate-700 font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2 border-2 border-slate-100 disabled:opacity-50 disabled:cursor-not-allowed group/btn"
+                      className="btn-hear-it min-w-[120px]"
                     >
-                      <Volume2 className="w-7 h-7 text-blue-500 group-hover/btn:scale-110 transition-transform" />
-                      <span className="text-lg">Hear It</span>
+                      <Volume2 className="w-6 h-6" />
+                      <span>Hear It</span>
                     </button>
                     <button 
                       onClick={skipWord}
-                      className="flex-1 min-w-[120px] py-4 px-4 rounded-2xl bg-white text-slate-700 font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2 border-2 border-slate-100 group/btn"
+                      className="btn-skip min-w-[120px]"
                     >
-                      <SkipForward className="w-7 h-7 text-amber-500 group-hover/btn:rotate-180 transition-transform duration-500" />
-                      <span className="text-lg">Skip</span>
+                      <SkipForward className="w-6 h-6" />
+                      <span>Skip</span>
                     </button>
                   </div>
                   
@@ -1007,10 +1006,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   <button 
                     onClick={handleSubmit}
                     disabled={!userInput.trim() || !isWordSpoken}
-                    className="relative z-10 w-full py-5 rounded-2xl bg-gradient-to-b from-amber-400 to-orange-500 text-white font-black text-2xl shadow-[0_6px_0_rgb(180,83,9)] hover:shadow-[0_4px_0_rgb(180,83,9)] hover:translate-y-[2px] active:translate-y-[6px] active:shadow-none transition-all flex items-center justify-center gap-3 border-t-2 border-yellow-300 relative overflow-hidden group/submit disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-check-spelling relative z-10 flex items-center justify-center gap-3"
                   >
-                    <span className="absolute inset-0 bg-white/20 translate-y-full group-hover/submit:translate-y-0 transition-transform duration-300 rounded-2xl"></span>
-                    <CheckCircle className="w-8 h-8 animate-bounce" />
+                    <CheckCircle className="w-7 h-7" />
                     CHECK SPELLING
                   </button>
                 </>
