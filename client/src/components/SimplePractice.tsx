@@ -845,7 +845,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             <div className="flex-1 flex flex-col gap-2">
               <div className="flex justify-between items-center text-sm font-black uppercase tracking-wider text-slate-600">
                 <div className="flex items-center gap-2">
-                  <span className="text-emerald-500 animate-wiggle">🐾</span>
+                  <span className="text-2xl animate-wiggle" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>⛵</span>
                   <span>Adventure Progress</span>
                 </div>
                 <span className="bg-white/50 px-3 py-1 rounded-full text-indigo-600">
@@ -923,7 +923,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   </h2>
                   
                   <p className="relative z-10 text-slate-700 text-xl mb-6 font-bold leading-relaxed">
-                    Captain Red Boot barks: <br/>
+                    Captain Red Boot says: <br/>
                     <span className="text-2xl text-amber-500 drop-shadow-sm">
                       {isWordSpoken ? '"Type the magic word!"' : '"Listen carefully..."'}
                     </span>
