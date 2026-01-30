@@ -342,7 +342,7 @@ const TreasureSpot = ({
 // Treasure shelf component (top-right collection)
 const TreasureShelf = ({ unlockedTreasures }: { unlockedTreasures: TreasureType[] }) => (
   <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-20">
-    <div className="glass-card bg-gradient-to-br from-yellow-400/20 to-amber-600/20 p-2 sm:p-3 rounded-lg sm:rounded-xl min-w-[120px] sm:min-w-[160px] md:min-w-[200px]">
+    <div className="puffy-treasure-collection min-w-[120px] sm:min-w-[160px] md:min-w-[200px]">
       <div className="text-center mb-1 sm:mb-2">
         <div className="text-xs sm:text-sm font-bold text-amber-800 font-pirate">Treasure Collection</div>
       </div>
@@ -351,7 +351,7 @@ const TreasureShelf = ({ unlockedTreasures }: { unlockedTreasures: TreasureType[
           {unlockedTreasures.map((treasure, index) => (
             <motion.div
               key={`${treasure}-${index}`}
-              className="glass-button w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm sm:text-base md:text-lg shadow-md"
+              className="puffy-element puffy-yellow w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm sm:text-base md:text-lg"
               initial={{ scale: 0, x: -200, y: 200 }}
               animate={{ scale: 1, x: 0, y: 0 }}
               transition={{ 
@@ -491,71 +491,39 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         {/* Sandy beach border effect */}
         <div className="absolute inset-0 border-8 border-amber-400/40 rounded-2xl" />
         
-        {/* Decorative glass morphism palm trees - MUCH BIGGER like sea monsters */}
+        {/* Decorative puffy palm trees - floating islands */}
         <motion.div 
-          className="absolute top-4 sm:top-6 left-4 sm:left-12 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
-          style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.25)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-            borderRadius: '24px',
-            padding: '12px'
-          }}
+          className="absolute top-4 sm:top-6 left-4 sm:left-12 puffy-island p-3 sm:p-4"
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          🌴
+          <span className="text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl">🌴</span>
         </motion.div>
         <motion.div 
-          className="absolute top-8 sm:top-16 right-4 sm:right-16 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
-          style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.25)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-            borderRadius: '24px',
-            padding: '12px'
-          }}
+          className="absolute top-8 sm:top-16 right-4 sm:right-16 puffy-island p-3 sm:p-4"
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
         >
-          🌴
+          <span className="text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl">🌴</span>
         </motion.div>
         <motion.div 
-          className="absolute bottom-8 sm:bottom-12 left-4 sm:left-16 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
-          style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.25)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-            borderRadius: '24px',
-            padding: '12px'
-          }}
+          className="absolute bottom-8 sm:bottom-12 left-4 sm:left-16 puffy-island p-3 sm:p-4"
           animate={{ y: [0, -12, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         >
-          🌴
+          <span className="text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl">🌴</span>
         </motion.div>
         <motion.div 
-          className="absolute bottom-6 sm:bottom-8 right-4 sm:right-8 text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl"
-          style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.25)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-            borderRadius: '24px',
-            padding: '12px'
-          }}
+          className="absolute bottom-6 sm:bottom-8 right-4 sm:right-8 puffy-island p-3 sm:p-4"
           animate={{ y: [0, -6, 0] }}
           transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
         >
-          🌴
+          <span className="text-4xl sm:text-6xl md:text-8xl drop-shadow-2xl">🌴</span>
         </motion.div>
         
-        {/* Compass rose */}
-        <div className="absolute top-3 sm:top-4 md:top-6 left-1/2 transform -translate-x-1/2 glass-card w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center bg-amber-400/20 shadow-lg">
-          <div className="text-base sm:text-lg md:text-xl drop-shadow-md">🧭</div>
+        {/* Compass rose - puffy style */}
+        <div className="absolute top-3 sm:top-4 md:top-6 left-1/2 transform -translate-x-1/2 puffy-element puffy-yellow w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center">
+          <div className="text-base sm:text-lg md:text-xl drop-shadow-md relative z-10">🧭</div>
         </div>
         
         {/* Treasure spots (X marks or piles with treasures) */}
@@ -572,10 +540,10 @@ export default function TreasureRoad({ totalWords, masteredWords, treasureJustUn
         {/* Red Boot character */}
         <RedBootSprite position={mapState.redBootPosition} />
         
-        {/* Map title */}
+        {/* Map title - puffy style */}
         <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2">
-          <div className="glass-card bg-amber-400/20 px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 rounded-lg shadow-lg">
-            <div className="text-center text-amber-800 font-bold font-pirate text-sm sm:text-base md:text-xl drop-shadow-md">
+          <div className="puffy-element puffy-yellow px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 rounded-xl">
+            <div className="text-center text-amber-800 font-bold font-pirate text-sm sm:text-base md:text-xl drop-shadow-md relative z-10">
               Red Boot's Treasure Island
             </div>
           </div>
