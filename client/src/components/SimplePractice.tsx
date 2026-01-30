@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -369,76 +369,153 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     }
   }, [currentWordIndex, practiceWords, bonusRoundWords, showBonusRound, showFeedback]);
 
-  const speakCurrentWord = () => {
+  const speakCurrentWord = useCallback(() => {
     const totalWords = getTotalWords();
     if (totalWords > 0 && currentWordIndex < totalWords) {
       const word = getCurrentWord();
       
       // Use speech synthesis to speak the word clearly
       if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.rate = 0.8; // Slower for clarity
-        utterance.volume = 0.9;
-        
-        // Fallback timeout in case speech synthesis fails silently
-        const fallbackTimer = setTimeout(() => {
-          console.log('Speech synthesis fallback timeout, enabling input');
-          setIsWordSpoken(true);
-        }, 3000);
-        
-        // Set up event handlers
-        utterance.onend = () => {
-          clearTimeout(fallbackTimer);
-          setIsWordSpoken(true);
+        const speakWithVoice = () => {
+          const utterance = new SpeechSynthesisUtterance(word);
+          utterance.rate = 0.8; // Slower for clarity
+          utterance.volume = 1.0; // Full volume
+          utterance.pitch = 1.0;
+          
+          // Fallback timeout in case speech synthesis fails silently
+          const fallbackTimer = setTimeout(() => {
+            console.log('Speech synthesis fallback timeout, enabling input');
+            setIsWordSpoken(true);
+          }, 4000); // Slightly longer timeout for reliability
+          
+          // Set up event handlers
+          utterance.onend = () => {
+            console.log('Speech completed for word:', word);
+            clearTimeout(fallbackTimer);
+            setIsWordSpoken(true);
+          };
+          utterance.onerror = (event) => {
+            console.log('Speech synthesis error:', event.error, 'enabling input anyway');
+            clearTimeout(fallbackTimer);
+            setIsWordSpoken(true);
+          };
+          
+          // Try to get a good voice
+          const voices = speechSynthesis.getVoices();
+          const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+          const goodVoice = englishVoices.find(voice => 
+            voice.name.includes('Samantha') || 
+            voice.name.includes('Karen') ||
+            voice.name.includes('Daniel') ||
+            voice.name.includes('Alex') ||
+            (!voice.name.includes('Google') && voice.localService)
+          ) || englishVoices[0] || voices[0];
+          
+          if (goodVoice) {
+            utterance.voice = goodVoice;
+            console.log('Using voice:', goodVoice.name);
+          }
+          
+          try {
+            speechSynthesis.speak(utterance);
+            console.log('Speaking word:', word);
+          } catch (error) {
+            console.error('Speech synthesis failed:', error);
+            clearTimeout(fallbackTimer);
+            setIsWordSpoken(true);
+          }
         };
-        utterance.onerror = () => {
-          console.log('Speech synthesis error, enabling input anyway');
-          clearTimeout(fallbackTimer);
-          setIsWordSpoken(true);
-        };
         
-        // Try to get a good voice
+        // Check if voices are loaded
         const voices = speechSynthesis.getVoices();
-        const goodVoice = voices.find(voice => 
-          voice.lang.startsWith('en') && !voice.name.includes('Google')
-        ) || voices[0];
-        
-        if (goodVoice) utterance.voice = goodVoice;
-        
-        try {
-          speechSynthesis.speak(utterance);
-        } catch (error) {
-          console.error('Speech synthesis failed:', error);
-          clearTimeout(fallbackTimer);
-          setIsWordSpoken(true);
+        if (voices.length > 0) {
+          speakWithVoice();
+        } else {
+          // Wait for voices to load with cleanup to prevent duplicate calls
+          console.log('Waiting for voices to load...');
+          let hasSpoken = false;
+          const handleVoicesLoaded = () => {
+            if (!hasSpoken) {
+              hasSpoken = true;
+              console.log('Voices loaded, now speaking');
+              speechSynthesis.onvoiceschanged = null; // Clean up handler
+              speakWithVoice();
+            }
+          };
+          speechSynthesis.onvoiceschanged = handleVoicesLoaded;
+          // Fallback if onvoiceschanged never fires
+          setTimeout(() => {
+            if (!hasSpoken) {
+              hasSpoken = true;
+              speechSynthesis.onvoiceschanged = null; // Clean up handler
+              console.log('Voice loading timeout, trying anyway');
+              speakWithVoice();
+            }
+          }, 500);
         }
       } else {
+        console.log('Speech synthesis not available');
         setIsWordSpoken(true);
       }
     }
-  };
+  }, [currentWordIndex, practiceWords, bonusRoundWords, showBonusRound, isWordSpoken]);
 
   // Speak a specific word (used to repeat after submission)
-  const speakWordAgain = (word: string) => {
+  const speakWordAgain = useCallback((word: string) => {
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.rate = 0.8;
-      utterance.volume = 0.9;
+      const speakWithVoice = () => {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.rate = 0.8;
+        utterance.volume = 1.0;
+        utterance.pitch = 1.0;
+        
+        const voices = speechSynthesis.getVoices();
+        const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+        const goodVoice = englishVoices.find(voice => 
+          voice.name.includes('Samantha') || 
+          voice.name.includes('Karen') ||
+          voice.name.includes('Daniel') ||
+          voice.name.includes('Alex') ||
+          (!voice.name.includes('Google') && voice.localService)
+        ) || englishVoices[0] || voices[0];
+        
+        if (goodVoice) utterance.voice = goodVoice;
+        
+        utterance.onend = () => {
+          console.log('Repeat speech completed for word:', word);
+        };
+        
+        try {
+          speechSynthesis.speak(utterance);
+          console.log('Repeating word:', word);
+        } catch (error) {
+          console.error('Speech synthesis failed:', error);
+        }
+      };
       
+      // Check if voices are loaded
       const voices = speechSynthesis.getVoices();
-      const goodVoice = voices.find(voice => 
-        voice.lang.startsWith('en') && !voice.name.includes('Google')
-      ) || voices[0];
-      
-      if (goodVoice) utterance.voice = goodVoice;
-      
-      try {
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.error('Speech synthesis failed:', error);
+      if (voices.length > 0) {
+        speakWithVoice();
+      } else {
+        let hasSpoken = false;
+        speechSynthesis.onvoiceschanged = () => {
+          if (!hasSpoken) {
+            hasSpoken = true;
+            speechSynthesis.onvoiceschanged = null;
+            speakWithVoice();
+          }
+        };
+        setTimeout(() => {
+          if (!hasSpoken) {
+            hasSpoken = true;
+            speechSynthesis.onvoiceschanged = null;
+            speakWithVoice();
+          }
+        }, 300);
       }
     }
-  };
+  }, []);
 
   const handleSubmit = () => {
     if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;

@@ -1,7 +1,7 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Star, Award, Zap, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, X } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 interface Achievement {
@@ -21,18 +21,18 @@ interface UserAchievement {
   achievement: Achievement;
 }
 
-const rarityColors = {
-  common: 'from-gray-300 to-gray-400',
-  rare: 'from-blue-400 to-blue-600',
-  epic: 'from-purple-400 to-purple-600',
-  legendary: 'from-yellow-400 to-amber-500',
+const categoryLabels = {
+  spelling: '📚 Spelling',
+  streak: '🔥 Streak',
+  treasure: '💎 Treasure',
+  special: '⭐ Special',
 };
 
-const rarityBorders = {
-  common: 'border-gray-400',
-  rare: 'border-blue-500',
-  epic: 'border-purple-500',
-  legendary: 'border-yellow-500',
+const categoryGradients = {
+  spelling: 'liquid-glass-gold',
+  streak: 'liquid-glass-fire',
+  treasure: 'liquid-glass-ocean',
+  special: 'liquid-glass-pearl',
 };
 
 const rarityLabels = {
@@ -42,15 +42,36 @@ const rarityLabels = {
   legendary: 'Legendary',
 };
 
-const categoryLabels = {
-  spelling: '📚 Spelling',
-  streak: '🔥 Streak',
-  treasure: '💎 Treasure',
-  special: '⭐ Special',
+const pirateLore: Record<string, string> = {
+  first_word: "Every great captain starts with a single step aboard the ship!",
+  spelling_apprentice: "Ye be learnin' the ways of the seven syllables!",
+  word_warrior: "Battle-tested and ready for any spelling storm!",
+  spelling_master: "The seas bow before yer mighty vocabulary!",
+  vocabulary_captain: "Ye command words like a true pirate lord!",
+  word_wizard: "Magic flows through yer quill, matey!",
+  spelling_legend: "Tales of yer spelling prowess echo across all oceans!",
+  first_streak: "The winds of consistency fill yer sails!",
+  week_warrior: "Seven suns have blessed yer journey!",
+  fortnight_fighter: "Two weeks strong - the crew salutes ye!",
+  monthly_master: "A whole moon cycle of dedication!",
+  streak_legend: "Yer commitment rivals the eternal tides!",
+  first_treasure: "The first of many riches to come!",
+  treasure_hunter: "Ye have the nose for gold!",
+  treasure_master: "The treasure maps reveal their secrets to ye!",
+  treasure_legend: "All the gold in the Caribbean is yers!",
+  perfect_score: "Not a single letter out of place - perfection!",
+  speed_demon: "Quick as lightning, sharp as a cutlass!",
+  comeback_kid: "Knocked down but never out, matey!",
+  default: "A true pirate's treasure, hard-earned and well-deserved!",
 };
 
 export default function BadgeGallery() {
   const [, setLocation] = useLocation();
+  const [selectedBadge, setSelectedBadge] = useState<{
+    achievement: Achievement;
+    isEarned: boolean;
+    earnedAt?: string;
+  } | null>(null);
   
   const { data: achievementData, isLoading } = useQuery<{ earned: UserAchievement[]; all: Achievement[] }>({
     queryKey: ['/api/achievements/user'],
@@ -65,6 +86,18 @@ export default function BadgeGallery() {
     treasure: achievements.filter(a => a.category === 'treasure'),
     special: achievements.filter(a => a.category === 'special'),
   };
+
+  const handleBadgeClick = (achievement: Achievement) => {
+    const isEarned = earnedIds.has(achievement.id);
+    const earnedData = achievementData?.earned?.find(ua => ua.achievementId === achievement.id);
+    setSelectedBadge({
+      achievement,
+      isEarned,
+      earnedAt: earnedData?.earnedAt,
+    });
+  };
+
+  const closeModal = () => setSelectedBadge(null);
 
   if (isLoading) {
     return (
@@ -94,7 +127,7 @@ export default function BadgeGallery() {
             </Button>
           </div>
 
-          <div className="clay-card p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 text-center">
+          <div className="liquid-glass-panel p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 text-center">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
               🏅 Pirate Badge Collection 🏅
             </h1>
@@ -131,41 +164,49 @@ export default function BadgeGallery() {
                   {categoryAchievements.map((achievement) => {
                     const isEarned = earnedIds.has(achievement.id);
                     const earnedData = achievementData?.earned?.find(ua => ua.achievementId === achievement.id);
+                    const gradientClass = categoryGradients[category as keyof typeof categoryGradients];
                     
                     return (
-                      <Card 
+                      <div 
                         key={achievement.id}
-                        className={`clay-card transition-all duration-300 ${
+                        onClick={() => handleBadgeClick(achievement)}
+                        className={`liquid-glass-badge cursor-pointer transition-all duration-300 hover:scale-105 ${
                           isEarned 
-                            ? `bg-gradient-to-br ${rarityColors[achievement.rarity]} border-2 ${rarityBorders[achievement.rarity]} hover:scale-105 badge-sparkle ${achievement.rarity === 'legendary' ? 'badge-legendary-sparkle' : 'badge-particles'}` 
-                            : 'bg-gray-100 opacity-60 grayscale'
-                        }`}
+                            ? `${gradientClass} liquid-glass-badge-earned` 
+                            : 'liquid-glass-badge-locked'
+                        } ${achievement.rarity === 'legendary' && isEarned ? 'liquid-glass-legendary' : ''}`}
                         data-testid={`badge-card-${achievement.id}`}
                       >
-                        <CardContent className="p-4 text-center relative overflow-visible">
+                        <div className="p-4 text-center relative">
                           <div className="relative">
-                            <div className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 ${isEarned ? 'treasure-sparkle treasure-glow' : ''}`}>
+                            <div className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 ${
+                              isEarned ? 'badge-icon-glow' : 'opacity-40 grayscale'
+                            }`}>
                               {achievement.icon}
                             </div>
                             {!isEarned && (
-                              <div className="absolute top-0 right-0 text-gray-500">
-                                <Lock className="w-4 h-4" />
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                <Lock className="w-6 h-6 text-gray-400 opacity-60" />
                               </div>
                             )}
                           </div>
                           
-                          <h3 className={`font-bold text-sm md:text-base mb-1 ${isEarned ? 'text-white' : 'text-gray-700'}`}>
+                          <h3 className={`font-bold text-sm md:text-base mb-1 ${
+                            isEarned ? 'text-white text-shadow-glow' : 'text-gray-500'
+                          }`}>
                             {achievement.title}
                           </h3>
                           
-                          <p className={`text-xs md:text-sm ${isEarned ? 'text-white/80' : 'text-gray-500'}`}>
+                          <p className={`text-xs md:text-sm ${
+                            isEarned ? 'text-white/80' : 'text-gray-400'
+                          }`}>
                             {achievement.description}
                           </p>
                           
                           <div className={`mt-2 text-xs px-2 py-1 rounded-full inline-block ${
                             isEarned 
-                              ? 'bg-white/30 text-white' 
-                              : 'bg-gray-200 text-gray-600'
+                              ? 'bg-white/20 text-white backdrop-blur-sm border border-white/30' 
+                              : 'bg-gray-200/50 text-gray-500'
                           }`}>
                             {rarityLabels[achievement.rarity]}
                           </div>
@@ -175,8 +216,8 @@ export default function BadgeGallery() {
                               ✨ Earned {new Date(earnedData.earnedAt).toLocaleDateString()}
                             </div>
                           )}
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
@@ -185,7 +226,7 @@ export default function BadgeGallery() {
           })}
 
           {achievements.length === 0 && (
-            <div className="clay-card p-4 sm:p-6 md:p-8 text-center">
+            <div className="liquid-glass-panel p-4 sm:p-6 md:p-8 text-center">
               <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">🏴‍☠️</div>
               <h2 className="text-xl sm:text-2xl font-bold mb-2 text-blue-900" style={{ fontFamily: 'var(--font-pirate)' }}>
                 No badges yet, matey!
@@ -204,6 +245,105 @@ export default function BadgeGallery() {
           )}
         </div>
       </div>
+
+      {selectedBadge && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-modal-backdrop"
+          onClick={closeModal}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          
+          <div 
+            className="relative liquid-glass-modal animate-modal-enter max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10 border border-white/30"
+              data-testid="modal-close-button"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className={`p-6 sm:p-8 rounded-3xl ${
+              selectedBadge.isEarned 
+                ? categoryGradients[selectedBadge.achievement.category]
+                : 'liquid-glass-badge-locked'
+            }`}>
+              <div className="text-center">
+                <div className={`text-6xl sm:text-7xl md:text-8xl mb-4 ${
+                  selectedBadge.isEarned ? 'badge-icon-glow animate-float' : 'opacity-40 grayscale'
+                }`}>
+                  {selectedBadge.achievement.icon}
+                </div>
+                
+                <h2 className={`text-2xl sm:text-3xl font-bold mb-2 ${
+                  selectedBadge.isEarned ? 'text-white text-shadow-glow' : 'text-gray-600'
+                }`} style={{ fontFamily: 'var(--font-pirate)' }}>
+                  {selectedBadge.achievement.title}
+                </h2>
+                
+                <p className={`text-base sm:text-lg mb-4 ${
+                  selectedBadge.isEarned ? 'text-white/90' : 'text-gray-500'
+                }`}>
+                  {selectedBadge.achievement.description}
+                </p>
+                
+                <div className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-4 ${
+                  selectedBadge.isEarned 
+                    ? 'bg-white/20 text-white border border-white/30 backdrop-blur-sm'
+                    : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {rarityLabels[selectedBadge.achievement.rarity]}
+                </div>
+                
+                {selectedBadge.isEarned ? (
+                  <div className="space-y-3">
+                    <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30">
+                      <div className="text-xl text-white mb-1">✨ Ye earned this treasure! ✨</div>
+                      <div className="text-white/80 text-sm">
+                        {new Date(selectedBadge.earnedAt!).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </div>
+                    </div>
+                    
+                    <div className="text-white/70 text-sm italic px-4">
+                      "{pirateLore[selectedBadge.achievement.id] || pirateLore.default}"
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="bg-gray-100/80 backdrop-blur-md rounded-2xl p-4">
+                      <div className="text-gray-600 mb-2">🔒 Badge Locked</div>
+                      <div className="text-gray-500 text-sm">
+                        Complete the requirement to unlock this treasure!
+                      </div>
+                    </div>
+                    
+                    <div className="text-gray-400 text-sm italic px-4">
+                      "Keep sailin' forward, matey - this treasure awaits!"
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="mt-4 text-center">
+              <Button
+                onClick={closeModal}
+                className="liquid-glass-button px-6 py-3"
+                data-testid="modal-back-button"
+              >
+                Back to Treasure Chest
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

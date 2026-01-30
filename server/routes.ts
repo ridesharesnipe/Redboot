@@ -673,7 +673,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics API - Real-time dashboard data
+  // Analytics API - Real-time dashboard data with comprehensive word-level breakdown
   app.get('/api/analytics', validateSession, async (req: any, res) => {
     try {
       const playerId = req.headers['x-player-id'] as string;
@@ -704,8 +704,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userAchievements = await storage.getUserAchievements(playerId);
       
       // Calculate statistics
-      const totalWords = currentWordList?.words?.length || 0;
+      const totalWordsInList = currentWordList?.words?.length || 0;
       const totalPracticeSessions = progressData.length;
+      
+      // Build word-level analytics from all progress records
+      const wordStats: Record<string, { attempts: number; correct: number; incorrect: number; lastPracticed: string }> = {};
+      
+      progressData.forEach((p: any) => {
+        const correctWords = p.correctWords || [];
+        const incorrectWords = p.incorrectWords || [];
+        const practiceDate = p.completedAt || new Date().toISOString();
+        
+        correctWords.forEach((word: string) => {
+          const w = word.toLowerCase();
+          if (!wordStats[w]) {
+            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, lastPracticed: practiceDate };
+          }
+          wordStats[w].attempts++;
+          wordStats[w].correct++;
+          wordStats[w].lastPracticed = practiceDate;
+        });
+        
+        incorrectWords.forEach((word: string) => {
+          const w = word.toLowerCase();
+          if (!wordStats[w]) {
+            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, lastPracticed: practiceDate };
+          }
+          wordStats[w].attempts++;
+          wordStats[w].incorrect++;
+          wordStats[w].lastPracticed = practiceDate;
+        });
+      });
+      
+      // Convert to array with accuracy calculations
+      const wordBreakdown = Object.entries(wordStats).map(([word, stats]) => {
+        const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0;
+        let status: 'mastered' | 'practicing' | 'learning' = 'learning';
+        if (accuracy >= 80 && stats.correct >= 3) {
+          status = 'mastered';
+        } else if (accuracy >= 50) {
+          status = 'practicing';
+        }
+        return {
+          word,
+          attempts: stats.attempts,
+          correct: stats.correct,
+          incorrect: stats.incorrect,
+          accuracy,
+          status,
+          lastPracticed: stats.lastPracticed
+        };
+      }).sort((a, b) => a.accuracy - b.accuracy);
       
       // Calculate accuracy from progress records
       let totalCorrect = 0;
@@ -721,6 +770,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate total time spent (in minutes)
       const totalTimeSpent = progressData.reduce((sum: number, p: any) => sum + (p.timeSpent || 0), 0);
       const totalMinutes = Math.round(totalTimeSpent / 60);
+      const avgSessionMinutes = totalPracticeSessions > 0 ? Math.round((totalTimeSpent / 60) / totalPracticeSessions) : 0;
+      
+      // Calculate streak (consecutive days with practice)
+      const uniqueDays = new Set<string>();
+      progressData.forEach((p: any) => {
+        if (p.completedAt) {
+          uniqueDays.add(new Date(p.completedAt).toISOString().split('T')[0]);
+        }
+      });
+      const sortedDays = Array.from(uniqueDays).sort().reverse();
+      
+      let currentStreak = 0;
+      let longestStreak = 0;
+      let tempStreak = 0;
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      
+      if (sortedDays.length > 0) {
+        const firstDay = sortedDays[0];
+        if (firstDay === today || firstDay === yesterday) {
+          currentStreak = 1;
+          for (let i = 1; i < sortedDays.length; i++) {
+            const prevDate = new Date(sortedDays[i - 1]);
+            const currDate = new Date(sortedDays[i]);
+            const diff = (prevDate.getTime() - currDate.getTime()) / 86400000;
+            if (Math.round(diff) === 1) {
+              currentStreak++;
+            } else {
+              break;
+            }
+          }
+        }
+        
+        // Calculate longest streak
+        tempStreak = 1;
+        for (let i = 1; i < sortedDays.length; i++) {
+          const prevDate = new Date(sortedDays[i - 1]);
+          const currDate = new Date(sortedDays[i]);
+          const diff = (prevDate.getTime() - currDate.getTime()) / 86400000;
+          if (Math.round(diff) === 1) {
+            tempStreak++;
+          } else {
+            longestStreak = Math.max(longestStreak, tempStreak);
+            tempStreak = 1;
+          }
+        }
+        longestStreak = Math.max(longestStreak, tempStreak, currentStreak);
+      }
       
       // Calculate treasures
       const totalTreasures = (userData.treasureDiamonds || 0) + (userData.treasureCoins || 0) + 
@@ -763,14 +860,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Word mastery breakdown
+      // Word mastery breakdown - from actual word stats
+      const masteredCount = wordBreakdown.filter(w => w.status === 'mastered').length;
+      const learningCount = wordBreakdown.filter(w => w.status === 'learning').length;
+      const practicingCount = wordBreakdown.filter(w => w.status === 'practicing').length;
+      
       const wordMastery = {
-        mastered: masteredTrickyWords.length,
-        learning: activeTrickyWords.length,
-        total: totalWords
+        mastered: masteredCount,
+        learning: learningCount + practicingCount,
+        total: wordBreakdown.length
       };
       
-      // Recent activity (last 5 sessions)
+      // Session history with word-by-word breakdown (last 10 sessions)
+      const sessionHistory = progressData.slice(0, 10).map((p: any) => ({
+        id: p.id,
+        date: p.completedAt,
+        correctWords: p.correctWords || [],
+        incorrectWords: p.incorrectWords || [],
+        score: p.score || 0,
+        character: p.characterUsed || 'red-boot',
+        timeSpent: p.timeSpent || 0,
+        wordListId: p.wordListId
+      }));
+      
+      // Recent activity (last 5 sessions) - simplified view
       const recentActivity = progressData.slice(0, 5).map((p: any) => ({
         id: p.id,
         date: p.completedAt,
@@ -780,21 +893,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         character: p.characterUsed || 'red-boot'
       }));
       
+      // Struggling words (accuracy < 50%)
+      const strugglingWords = wordBreakdown.filter(w => w.accuracy < 50 && w.attempts >= 2);
+      
+      // Star performers (accuracy >= 90%)
+      const starWords = wordBreakdown.filter(w => w.accuracy >= 90 && w.attempts >= 2);
+      
       res.json({
         childName: userData.childName || 'Adventurer',
         gradeLevel: userData.gradeLevel,
         stats: {
-          totalWords,
+          totalWordsInList,
+          totalWordsPracticed: totalAttempted,
           totalPracticeSessions,
           overallAccuracy,
           totalMinutes,
+          avgSessionMinutes,
+          currentStreak,
+          longestStreak,
           totalTreasures,
           achievementsEarned: userAchievements.length,
+          totalAchievements: 24,
           trickyWordsActive: activeTrickyWords.length,
           trickyWordsMastered: masteredTrickyWords.length
         },
         dailyProgress,
         wordMastery,
+        wordBreakdown,
+        strugglingWords: strugglingWords.slice(0, 5),
+        starWords: starWords.slice(0, 5),
+        sessionHistory,
         recentActivity,
         trickyWords: activeTrickyWords.slice(0, 5).map((w: any) => ({
           word: w.word,
