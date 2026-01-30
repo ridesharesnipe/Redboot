@@ -1,0 +1,1077 @@
+---
+
+## 🎯 PARENT ANALYTICS ENHANCEMENT - PRECISE IMPLEMENTATION
+
+**CRITICAL: Do NOT modify overall layout structure, navigation, or styling. Only enhance data clarity, labels, and add missing insights. Ensure ALL metrics are calculated from real data - NO hardcoded values.**
+
+---
+
+### **STEP 0: LOCATE FILES FIRST**
+
+```
+FIND AND REPORT THESE FILES:
+
+1. Analytics/Dashboard page component:
+   - Analytics.jsx / Analytics.tsx
+   - ParentDashboard.jsx
+   - Progress.jsx
+   - AdventurerProgress.jsx
+
+2. Analytics data/state management:
+   - analyticsStore.js
+   - useAnalytics.js
+   - progressContext.js
+   - Or Redux/Zustand store
+
+3. API endpoints or data fetching:
+   - api/analytics.js
+   - services/progress.js
+   - hooks/useProgress.js
+
+4. Session/practice data storage:
+   - sessions.js
+   - practiceHistory.js
+   - localStorage keys used
+
+LIST ALL FILE PATHS BEFORE MODIFYING ANYTHING.
+```
+
+---
+
+### **TASK 1: FIX TERMINOLOGY FOR CLARITY**
+
+**Find and replace these labels EXACTLY:**
+
+| Current Label | Change To | Location/Component |
+|---------------|-----------|-------------------|
+| `Ready` | `Mastered` | Word Mastery section |
+| `Learning` | `Still Practicing` | Word Mastery section |
+| `Total Pool` | `Total Words` | Word Mastery section |
+| `Treasures` | `Points Earned` | Top metrics card |
+| `8 ACTIVE` | `8 to Practice` | Tricky Words header |
+| `Tricky Words` | `Challenge Words` | Section header |
+| `View All Challenges` | `See All Challenge Words` | Link text |
+| `Weekly Activity` | `Practice This Week` | Section header |
+| `STREAK` badges | `IN A ROW` | Tricky Words items |
+
+**Example code change:**
+
+```jsx
+// BEFORE
+<span className="metric-label">Ready</span>
+
+// AFTER
+<span className="metric-label">Mastered</span>
+```
+
+```jsx
+// BEFORE
+<div className="badge">3 STREAK</div>
+
+// AFTER
+<div className="badge">3 in a row ✓</div>
+```
+
+---
+
+### **TASK 2: ADD TREASURES/POINTS SUBTITLE**
+
+**Find the Treasures metric card and add explanatory subtitle:**
+
+```jsx
+// BEFORE
+<div className="metric-card">
+  <div className="metric-icon">⭐</div>
+  <div className="metric-value">1,240</div>
+  <div className="metric-label">Treasures</div>
+  <div className="metric-sub">New badge unlocked</div>
+</div>
+
+// AFTER
+<div className="metric-card">
+  <div className="metric-icon">⭐</div>
+  <div className="metric-value">{analytics.totalPoints.toLocaleString()}</div>
+  <div className="metric-label">Points Earned</div>
+  <div className="metric-sub-explain">From spelling practice</div>
+  <div className="metric-sub highlight">New badge unlocked</div>
+</div>
+```
+
+---
+
+### **TASK 3: FIX WEEKLY ACTIVITY CHART - SHOW REAL DATA**
+
+**Current Problem:** Chart appears empty with no visible bars.
+
+**Required Implementation:**
+
+```jsx
+// WeeklyActivityChart.jsx
+
+import React from 'react';
+
+const WeeklyActivityChart = ({ sessions }) => {
+  // Get last 7 days
+  const getLast7Days = () => {
+    const days = [];
+    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      days.push({
+        date: date.toISOString().split('T')[0],
+        dayName: dayNames[date.getDay()],
+        isToday: i === 0,
+      });
+    }
+    return days;
+  };
+
+  // Calculate minutes practiced per day from REAL session data
+  const getMinutesPerDay = (targetDate) => {
+    const daySessions = sessions.filter(session => {
+      const sessionDate = new Date(session.timestamp).toISOString().split('T')[0];
+      return sessionDate === targetDate;
+    });
+    
+    const totalSeconds = daySessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+    return Math.round(totalSeconds / 60);
+  };
+
+  const days = getLast7Days();
+  const maxMinutes = Math.max(...days.map(d => getMinutesPerDay(d.date)), 1);
+
+  return (
+    <div className="weekly-activity-container">
+      <div className="weekly-activity-header">
+        <div>
+          <h3>Practice This Week</h3>
+          <p className="subtitle">Daily minutes practiced</p>
+        </div>
+        <div className="legend">
+          <span className="legend-dot practice"></span>
+          <span>Practice</span>
+          <span className="legend-period">Last 7 Days</span>
+        </div>
+      </div>
+
+      <div className="chart-container">
+        {days.map((day) => {
+          const minutes = getMinutesPerDay(day.date);
+          const heightPercent = maxMinutes > 0 ? (minutes / maxMinutes) * 100 : 0;
+          
+          return (
+            <div key={day.date} className="chart-bar-container">
+              <div className="chart-bar-wrapper">
+                {minutes > 0 ? (
+                  <div 
+                    className={`chart-bar ${day.isToday ? 'today' : ''}`}
+                    style={{ height: `${Math.max(heightPercent, 8)}%` }}
+                  >
+                    <span className="bar-tooltip">{minutes}m</span>
+                  </div>
+                ) : (
+                  <div className="chart-bar empty">
+                    <span className="bar-tooltip">-</span>
+                  </div>
+                )}
+              </div>
+              <span className={`day-label ${day.isToday ? 'today' : ''}`}>
+                {day.dayName}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Show message if no activity at all */}
+      {days.every(d => getMinutesPerDay(d.date) === 0) && (
+        <div className="no-activity-message">
+          No practice sessions this week yet. Time for an adventure! 🏴‍☠️
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default WeeklyActivityChart;
+```
+
+**Required CSS:**
+
+```css
+.weekly-activity-container {
+  padding: 20px;
+}
+
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 150px;
+  padding: 20px 0;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.chart-bar-wrapper {
+  height: 120px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.chart-bar {
+  width: 40%;
+  max-width: 40px;
+  min-height: 8px;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  transition: height 0.3s ease;
+}
+
+.chart-bar.today {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.chart-bar.empty {
+  width: 40%;
+  max-width: 40px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+}
+
+.bar-tooltip {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.day-label {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+.day-label.today {
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.no-activity-message {
+  text-align: center;
+  padding: 20px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+```
+
+---
+
+### **TASK 4: ADD "NEEDS EXTRA HELP" CALLOUT**
+
+**Add this component above or within the Challenge Words section:**
+
+```jsx
+// NeedsHelpCallout.jsx
+
+import React from 'react';
+
+const NeedsHelpCallout = ({ words }) => {
+  // Filter words that are struggling: accuracy < 50% OR 2+ misses this week
+  const strugglingWords = words.filter(word => {
+    const accuracy = word.timesAttempted > 0 
+      ? (word.timesCorrect / word.timesAttempted) * 100 
+      : 0;
+    return accuracy < 50 || word.recentMisses >= 2;
+  });
+
+  if (strugglingWords.length === 0) return null;
+
+  return (
+    <div className="needs-help-callout">
+      <div className="callout-header">
+        <span className="callout-icon">⚠️</span>
+        <span className="callout-title">Needs Extra Help ({strugglingWords.length} words)</span>
+      </div>
+      
+      <ul className="struggling-words-list">
+        {strugglingWords.slice(0, 3).map(word => (
+          <li key={word.id}>
+            <span className="word-text">"{word.text}"</span>
+            <span className="word-issue">
+              {word.recentMisses >= 2 
+                ? `missed ${word.recentMisses} times this week`
+                : `only ${word.correctStreak || 0} correct in a row`
+              }
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="callout-tip">
+        💡 <strong>Tip:</strong> Practice these words together at home!
+      </div>
+    </div>
+  );
+};
+
+export default NeedsHelpCallout;
+```
+
+**Required CSS:**
+
+```css
+.needs-help-callout {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.callout-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.callout-icon {
+  font-size: 20px;
+}
+
+.callout-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.struggling-words-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px 0;
+}
+
+.struggling-words-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(146, 64, 14, 0.15);
+}
+
+.struggling-words-list li:last-child {
+  border-bottom: none;
+}
+
+.word-text {
+  font-weight: 600;
+  color: #78350f;
+}
+
+.word-issue {
+  font-size: 13px;
+  color: #a16207;
+}
+
+.callout-tip {
+  font-size: 13px;
+  color: #92400e;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+```
+
+---
+
+### **TASK 5: ADD PROGRESS COMPARISON (This Week vs Last Week)**
+
+**Add below the top metrics or within accuracy card:**
+
+```jsx
+// ProgressComparison.jsx
+
+import React from 'react';
+
+const ProgressComparison = ({ sessions, words }) => {
+  const getWeekData = (weeksAgo) => {
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay() - (weeksAgo * 7));
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+
+    const weekSessions = sessions.filter(s => {
+      const sessionDate = new Date(s.timestamp);
+      return sessionDate >= weekStart && sessionDate < weekEnd;
+    });
+
+    const totalAttempts = weekSessions.reduce((sum, s) => 
+      sum + (s.wordsAttempted?.length || 0), 0);
+    const totalCorrect = weekSessions.reduce((sum, s) => 
+      sum + (s.wordsAttempted?.filter(w => w.correct).length || 0), 0);
+    
+    const accuracy = totalAttempts > 0 
+      ? Math.round((totalCorrect / totalAttempts) * 100) 
+      : 0;
+
+    return {
+      accuracy,
+      sessions: weekSessions.length,
+      totalMinutes: Math.round(weekSessions.reduce((sum, s) => 
+        sum + (s.durationSeconds || 0), 0) / 60),
+    };
+  };
+
+  const thisWeek = getWeekData(0);
+  const lastWeek = getWeekData(1);
+
+  const accuracyDiff = thisWeek.accuracy - lastWeek.accuracy;
+  const sessionsDiff = thisWeek.sessions - lastWeek.sessions;
+
+  return (
+    <div className="progress-comparison">
+      <h4 className="comparison-title">📈 This Week vs Last Week</h4>
+      
+      <div className="comparison-grid">
+        <div className="comparison-item">
+          <span className="comparison-label">Accuracy</span>
+          <span className="comparison-values">
+            <span className="current">{thisWeek.accuracy}%</span>
+            <span className={`diff ${accuracyDiff >= 0 ? 'positive' : 'negative'}`}>
+              {accuracyDiff >= 0 ? '↑' : '↓'} {Math.abs(accuracyDiff)}%
+            </span>
+          </span>
+        </div>
+
+        <div className="comparison-item">
+          <span className="comparison-label">Sessions</span>
+          <span className="comparison-values">
+            <span className="current">{thisWeek.sessions}</span>
+            <span className={`diff ${sessionsDiff >= 0 ? 'positive' : 'negative'}`}>
+              {sessionsDiff >= 0 ? '↑' : '↓'} {Math.abs(sessionsDiff)}
+            </span>
+          </span>
+        </div>
+
+        <div className="comparison-item">
+          <span className="comparison-label">Practice Time</span>
+          <span className="comparison-values">
+            <span className="current">{thisWeek.totalMinutes}m</span>
+            <span className="vs">vs {lastWeek.totalMinutes}m</span>
+          </span>
+        </div>
+      </div>
+
+      {accuracyDiff > 0 && (
+        <div className="encouragement positive">
+          🎉 Great improvement! Keep up the amazing work!
+        </div>
+      )}
+      {accuracyDiff < -10 && (
+        <div className="encouragement needs-attention">
+          💪 Let's get back on track this week!
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProgressComparison;
+```
+
+**Required CSS:**
+
+```css
+.progress-comparison {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.comparison-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 14px 0;
+}
+
+.comparison-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.comparison-item {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comparison-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.comparison-values {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.comparison-values .current {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.comparison-values .diff {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.comparison-values .diff.positive {
+  color: #10b981;
+}
+
+.comparison-values .diff.negative {
+  color: #ef4444;
+}
+
+.comparison-values .vs {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.encouragement {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.encouragement.positive {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.encouragement.needs-attention {
+  background: #fef3c7;
+  color: #92400e;
+}
+```
+
+---
+
+### **TASK 6: ADD SESSION HISTORY LOG**
+
+**Add expandable recent sessions section:**
+
+```jsx
+// SessionHistory.jsx
+
+import React, { useState } from 'react';
+
+const SessionHistory = ({ sessions }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  // Sort sessions by most recent first
+  const sortedSessions = [...sessions]
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, expanded ? 10 : 3);
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit' 
+    });
+  };
+
+  const calculateAccuracy = (session) => {
+    if (!session.wordsAttempted || session.wordsAttempted.length === 0) return 0;
+    const correct = session.wordsAttempted.filter(w => w.correct).length;
+    return Math.round((correct / session.wordsAttempted.length) * 100);
+  };
+
+  if (sessions.length === 0) {
+    return (
+      <div className="session-history">
+        <h3>📅 Recent Sessions</h3>
+        <p className="no-sessions">No practice sessions yet. Start an adventure!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="session-history">
+      <h3>📅 Recent Sessions</h3>
+      
+      <div className="sessions-list">
+        {sortedSessions.map((session, index) => {
+          const accuracy = calculateAccuracy(session);
+          const minutes = Math.round((session.durationSeconds || 0) / 60);
+          const wordCount = session.wordsAttempted?.length || 0;
+
+          return (
+            <div key={session.id || index} className="session-item">
+              <div className="session-date">
+                <span className="date">{formatDate(session.timestamp)}</span>
+                <span className="time">{formatTime(session.timestamp)}</span>
+              </div>
+              
+              <div className="session-stats">
+                <span className="stat">
+                  <strong>{minutes}</strong> min
+                </span>
+                <span className="stat">
+                  <strong>{wordCount}</strong> words
+                </span>
+                <span className={`stat accuracy ${accuracy >= 80 ? 'good' : accuracy >= 60 ? 'okay' : 'low'}`}>
+                  <strong>{accuracy}%</strong>
+                </span>
+              </div>
+
+              <div className="session-indicator">
+                {accuracy >= 80 ? '✓' : accuracy >= 60 ? '•' : '○'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {sessions.length > 3 && (
+        <button 
+          className="expand-btn"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'Show Less' : `Show More (${sessions.length - 3} more)`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default SessionHistory;
+```
+
+**Required CSS:**
+
+```css
+.session-history {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.session-history h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
+}
+
+.session-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-date .date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.session-date .time {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.session-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.session-stats .stat {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.session-stats .stat strong {
+  color: #1f2937;
+}
+
+.session-stats .stat.accuracy.good strong {
+  color: #10b981;
+}
+
+.session-stats .stat.accuracy.okay strong {
+  color: #f59e0b;
+}
+
+.session-stats .stat.accuracy.low strong {
+  color: #ef4444;
+}
+
+.session-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.expand-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  background: transparent;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.no-sessions {
+  text-align: center;
+  padding: 20px;
+  color: #9ca3af;
+}
+```
+
+---
+
+### **TASK 7: MAKE WEEKLY GOAL EXPLICIT**
+
+**Update the Sessions metric card to show goal clearly:**
+
+```jsx
+// BEFORE
+<div className="metric-card">
+  <div className="metric-value">14</div>
+  <div className="metric-label">Sessions</div>
+  <div className="metric-sub success">Weekly goal met</div>
+</div>
+
+// AFTER
+<div className="metric-card">
+  <div className="metric-value">{analytics.totalSessions}</div>
+  <div className="metric-label">Sessions</div>
+  <div className="metric-goal">
+    <span className="goal-progress">
+      {analytics.totalSessions} / {analytics.weeklyGoal || 5}
+    </span>
+    {analytics.totalSessions >= (analytics.weeklyGoal || 5) && (
+      <span className="goal-met">✓ Goal met!</span>
+    )}
+  </div>
+</div>
+```
+
+**CSS addition:**
+
+```css
+.metric-goal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.goal-progress {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.goal-met {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 600;
+}
+```
+
+---
+
+### **TASK 8: DATA ACCURACY VERIFICATION**
+
+**Ensure ALL metrics use these EXACT calculations:**
+
+```javascript
+// analyticsCalculations.js
+// COPY THIS EXACTLY - These formulas MUST be used
+
+export const calculateAllAnalytics = (sessions, words) => {
+  
+  // ===== TOP METRICS =====
+  
+  // 1. ACCURACY - Total correct / Total attempted × 100
+  const totalAttempted = sessions.reduce((sum, s) => 
+    sum + (s.wordsAttempted?.length || 0), 0);
+  const totalCorrect = sessions.reduce((sum, s) => 
+    sum + (s.wordsAttempted?.filter(w => w.correct).length || 0), 0);
+  const accuracy = totalAttempted > 0 
+    ? Math.round((totalCorrect / totalAttempted) * 100) 
+    : 0;
+
+  // 2. SESSIONS - Simple count
+  const totalSessions = sessions.length;
+
+  // 3. TIME SPENT - Sum of all session durations
+  const totalSeconds = sessions.reduce((sum, s) => 
+    sum + (s.durationSeconds || 0), 0);
+  const totalMinutes = Math.round(totalSeconds / 60);
+  
+  // 4. AVG SESSION - Total time / Total sessions
+  const avgSessionMinutes = totalSessions > 0 
+    ? Math.round((totalSeconds / 60) / totalSessions) 
+    : 0;
+
+  // 5. POINTS/TREASURES - Sum of all points earned
+  const totalPoints = sessions.reduce((sum, s) => 
+    sum + (s.pointsEarned || 0), 0);
+
+  // ===== WORD MASTERY =====
+
+  // 6. MASTERED - Words with 80%+ accuracy AND 3+ correct
+  const masteredWords = words.filter(w => {
+    if (w.timesAttempted < 3) return false;
+    const acc = (w.timesCorrect / w.timesAttempted) * 100;
+    return acc >= 80 && w.timesCorrect >= 3;
+  });
+
+  // 7. STILL PRACTICING - All other words
+  const learningWords = words.filter(w => {
+    if (w.timesAttempted < 3) return true;
+    const acc = (w.timesCorrect / w.timesAttempted) * 100;
+    return acc < 80 || w.timesCorrect < 3;
+  });
+
+  // 8. MASTERY PERCENTAGE
+  const masteryPercent = words.length > 0 
+    ? Math.round((masteredWords.length / words.length) * 100) 
+    : 0;
+
+  // ===== ACCURACY CHANGE =====
+  
+  // 9. Calculate last week's accuracy for comparison
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  
+  const thisWeekSessions = sessions.filter(s => 
+    new Date(s.timestamp) >= oneWeekAgo);
+  const lastWeekSessions = sessions.filter(s => {
+    const date = new Date(s.timestamp);
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    return date >= twoWeeksAgo && date < oneWeekAgo;
+  });
+
+  const thisWeekAttempted = thisWeekSessions.reduce((sum, s) => 
+    sum + (s.wordsAttempted?.length || 0), 0);
+  const thisWeekCorrect = thisWeekSessions.reduce((sum, s) => 
+    sum + (s.wordsAttempted?.filter(w => w.correct).length || 0), 0);
+  const thisWeekAccuracy = thisWeekAttempted > 0 
+    ? Math.round((thisWeekCorrect / thisWeekAttempted) * 100) 
+    : 0;
+
+  const lastWeekAttempted = lastWeekSessions.reduce((sum, s) => 
+    sum + (s.wordsAttempted?.length || 0), 0);
+  const lastWeekCorrect = lastWeekSessions.reduce((sum, s) => 
+    sum + (s.wordsAttempted?.filter(w => w.correct).length || 0), 0);
+  const lastWeekAccuracy = lastWeekAttempted > 0 
+    ? Math.round((lastWeekCorrect / lastWeekAttempted) * 100) 
+    : 0;
+
+  const accuracyChange = thisWeekAccuracy - lastWeekAccuracy;
+
+  // ===== STRUGGLING WORDS =====
+  
+  // 10. Words with <50% accuracy OR 2+ recent misses
+  const strugglingWords = words.filter(w => {
+    const acc = w.timesAttempted > 0 
+      ? (w.timesCorrect / w.timesAttempted) * 100 
+      : 0;
+    return acc < 50 || (w.recentMisses || 0) >= 2;
+  });
+
+  return {
+    // Top metrics
+    accuracy,
+    accuracyChange,
+    totalSessions,
+    totalMinutes,
+    avgSessionMinutes,
+    totalPoints,
+    
+    // Word mastery
+    masteredCount: masteredWords.length,
+    learningCount: learningWords.length,
+    totalWords: words.length,
+    masteryPercent,
+    
+    // Struggling
+    strugglingWords,
+    
+    // Raw data for charts
+    thisWeekSessions,
+    lastWeekSessions,
+  };
+};
+```
+
+---
+
+### **TASK 9: VERIFICATION CHECKLIST**
+
+**After implementation, manually verify these calculations:**
+
+```
+TEST 1: ACCURACY
+- Count all correct answers in your data: ____
+- Count all attempted answers: ____
+- Calculate: (correct / attempted) × 100 = _____%
+- Does UI show this EXACT number? ☐ YES ☐ NO
+
+TEST 2: SESSIONS COUNT
+- Count all session records: ____
+- Does UI show this EXACT number? ☐ YES ☐ NO
+
+TEST 3: TIME SPENT
+- Sum all durationSeconds values: ____ seconds
+- Convert to minutes: ____ ÷ 60 = ____ minutes
+- Does UI show this EXACT number? ☐ YES ☐ NO
+
+TEST 4: MASTERED COUNT
+- Count words with 80%+ accuracy AND 3+ correct: ____
+- Does Word Mastery "Mastered" show this? ☐ YES ☐ NO
+
+TEST 5: WEEKLY CHART
+- Check each day of the week
+- Does bar height match actual minutes practiced? ☐ YES ☐ NO
+- Are empty days shown as empty (not hidden)? ☐ YES ☐ NO
+
+TEST 6: STRUGGLING WORDS
+- Count words with <50% accuracy: ____
+- Does "Needs Extra Help" show these words? ☐ YES ☐ NO
+
+TEST 7: EDGE CASES
+- 0 sessions: Shows "0" not "NaN" ☐ YES ☐ NO
+- 100% accuracy: Shows "100%" correctly ☐ YES ☐ NO
+- Empty chart: Shows message, not blank ☐ YES ☐ NO
+```
+
+---
+
+### **DO NOT CHANGE**
+
+❌ Overall page layout
+❌ Card positions/sizes
+❌ Color scheme
+❌ Navigation
+❌ Typography (except labels)
+❌ Anything outside analytics page
+
+---
+
+### **EXPECTED OUTPUT**
+
+```
+📝 LABELS UPDATED:
+- Ready → Mastered ✓
+- Learning → Still Practicing ✓
+- Total Pool → Total Words ✓
+- Treasures → Points Earned ✓
+- STREAK → in a row ✓
+- 8 ACTIVE → 8 to Practice ✓
+
+📊 NEW COMPONENTS ADDED:
+- Weekly Activity Chart (with real data bars) ✓
+- Needs Extra Help callout ✓
+- Progress Comparison (this week vs last) ✓
+- Session History log ✓
+- Explicit weekly goal display ✓
+
+✅ DATA VERIFICATION:
+- Accuracy: [X]% matches manual calculation ✓
+- Sessions: [X] matches record count ✓
+- Time: [X]m matches sum of durations ✓
+- Mastered: [X] matches filter criteria ✓
+- Chart bars match daily practice ✓
+
+📁 FILES MODIFIED:
+- [list all files changed]
+```
+
+---
+
+**BEGIN IMPLEMENTATION. FOLLOW EXACTLY. VERIFY ALL CALCULATIONS.**
+
+---
+
+This should give you accurate, clear analytics that parents will instantly understand. Want me to add or adjust anything?

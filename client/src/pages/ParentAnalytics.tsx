@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Moon, Sun, TrendingUp, Clock, Zap, Star, Rocket, AlertCircle, ChevronDown, ChevronUp, Check, X as XIcon, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Moon, Sun, TrendingUp, TrendingDown, Clock, Zap, Star, Rocket, AlertCircle, ChevronDown, ChevronUp, Check, X as XIcon, HelpCircle } from 'lucide-react';
 
 interface WordDetail {
   word: string;
@@ -116,6 +116,56 @@ export default function ParentAnalytics() {
     ? Math.round((wordMastery.mastered / wordMastery.total) * 100) 
     : 0;
 
+  // Calculate week-over-week comparison from real data
+  const getWeekStats = (weeksAgo: number) => {
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay() - (weeksAgo * 7));
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+
+    // Filter daily progress for this week
+    const weekProgress = dailyProgress.filter(day => {
+      const dayDate = new Date(day.date);
+      return dayDate >= weekStart && dayDate < weekEnd;
+    });
+
+    // Filter sessions for this week
+    const weekSessions = sessionHistory.filter(session => {
+      const sessionDate = new Date(session.date);
+      return sessionDate >= weekStart && sessionDate < weekEnd;
+    });
+
+    const totalWords = weekProgress.reduce((sum, day) => sum + day.words, 0);
+    
+    // Calculate weighted accuracy: total correct / total attempted
+    // Use session data for accurate calculation
+    const totalCorrect = weekSessions.reduce((sum, s) => sum + s.correctWords.length, 0);
+    const totalAttempted = weekSessions.reduce((sum, s) => sum + s.correctWords.length + s.incorrectWords.length, 0);
+    const weightedAccuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+    
+    const totalMinutes = weekSessions.reduce((sum, s) => sum + Math.round((s.timeSpent || 0) / 60), 0);
+
+    return {
+      sessions: weekSessions.length,
+      accuracy: weightedAccuracy,
+      words: totalWords,
+      minutes: totalMinutes
+    };
+  };
+
+  const thisWeekStats = getWeekStats(0);
+  const lastWeekStats = getWeekStats(1);
+  const accuracyDiff = thisWeekStats.accuracy - lastWeekStats.accuracy;
+  const sessionsDiff = thisWeekStats.sessions - lastWeekStats.sessions;
+
+  // Get struggling words from API data (words with <50% accuracy)
+  const strugglingWords = analytics.strugglingWords || [];
+  const allNeedsHelpWords = strugglingWords.filter(word => word.accuracy < 50);
+  const needsHelpWords = allNeedsHelpWords.slice(0, 3);
+
   const formatTime = (minutes: number) => {
     if (minutes < 60) return `${minutes}m`;
     const hrs = Math.floor(minutes / 60);
@@ -202,8 +252,8 @@ export default function ParentAnalytics() {
             iconColor="text-red-500"
             value={`${stats.overallAccuracy}%`}
             label="Accuracy"
-            trend={stats.overallAccuracy >= 80 ? '+4.2%' : null}
-            trendUp={true}
+            trend={accuracyDiff !== 0 && lastWeekStats.accuracy > 0 ? `${accuracyDiff >= 0 ? '+' : ''}${accuracyDiff}% vs last week` : undefined}
+            trendUp={accuracyDiff > 0 ? true : accuracyDiff < 0 ? false : null}
             isDark={isDark}
           />
           <StatCard
@@ -212,8 +262,9 @@ export default function ParentAnalytics() {
             iconColor="text-blue-500"
             value={stats.totalPracticeSessions.toString()}
             label="Sessions"
-            trend="Weekly goal met"
-            trendUp={true}
+            trend={thisWeekStats.sessions >= 5 ? 'Weekly goal met' : undefined}
+            trendUp={thisWeekStats.sessions >= 5 ? true : null}
+            goalProgress={{ current: thisWeekStats.sessions, goal: 5 }}
             isDark={isDark}
           />
           <StatCard
@@ -231,7 +282,8 @@ export default function ParentAnalytics() {
             iconBg={isDark ? 'bg-yellow-900/20' : 'bg-yellow-50'}
             iconColor="text-yellow-500"
             value={stats.totalTreasures.toLocaleString()}
-            label="Treasures"
+            label="Points Earned"
+            subExplain="From spelling practice"
             trend={stats.achievementsEarned > 0 ? 'New badge unlocked' : null}
             trendUp={null}
             badge={true}
@@ -239,7 +291,116 @@ export default function ParentAnalytics() {
           />
         </section>
 
-        {/* Weekly Activity Bar Chart */}
+        {/* Needs Extra Help Callout - uses strugglingWords from API (words with <50% accuracy) */}
+        {allNeedsHelpWords.length > 0 && (
+          <section className={`p-5 rounded-2xl border ${
+            isDark 
+              ? 'bg-amber-900/20 border-amber-700/50' 
+              : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200'
+          }`}>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-xl">⚠️</span>
+              <h3 className={`font-bold ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
+                Needs Extra Help ({allNeedsHelpWords.length} word{allNeedsHelpWords.length !== 1 ? 's' : ''})
+              </h3>
+            </div>
+            <ul className="space-y-2 mb-4">
+              {needsHelpWords.map((word, i) => (
+                <li key={i} className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDark ? 'text-amber-200' : 'text-amber-900'}`}>
+                    "{word.word}"
+                  </span>
+                  <span className={`text-sm ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                    {word.accuracy}% accuracy ({word.correct}/{word.attempts} correct)
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className={`text-sm p-3 rounded-xl ${isDark ? 'bg-amber-900/30' : 'bg-white/60'}`}>
+              <span className={isDark ? 'text-amber-300' : 'text-amber-700'}>
+                💡 <strong>Tip:</strong> Practice these words together at home!
+              </span>
+            </div>
+          </section>
+        )}
+
+        {/* Progress Comparison - This Week vs Last Week (calculated from real session data) */}
+        <section className={`p-6 rounded-2xl border ${
+          isDark 
+            ? 'bg-slate-800/30 border-slate-700/50' 
+            : 'bg-slate-50 border-slate-200'
+        }`}>
+          <h3 className={`font-bold mb-4 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+            📈 This Week vs Last Week
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className={`text-xs font-medium mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Accuracy</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+                  {thisWeekStats.accuracy}%
+                </span>
+                {accuracyDiff !== 0 && lastWeekStats.accuracy > 0 && (
+                  <span className={`text-xs font-semibold ${accuracyDiff >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {accuracyDiff >= 0 ? '↑' : '↓'} {Math.abs(accuracyDiff)}%
+                  </span>
+                )}
+              </div>
+              {lastWeekStats.accuracy > 0 && (
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                  vs {lastWeekStats.accuracy}% last week
+                </p>
+              )}
+            </div>
+            <div>
+              <p className={`text-xs font-medium mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Sessions</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+                  {thisWeekStats.sessions}
+                </span>
+                {sessionsDiff !== 0 && lastWeekStats.sessions > 0 && (
+                  <span className={`text-xs font-semibold ${sessionsDiff >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {sessionsDiff >= 0 ? '↑' : '↓'} {Math.abs(sessionsDiff)}
+                  </span>
+                )}
+              </div>
+              {lastWeekStats.sessions > 0 && (
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                  vs {lastWeekStats.sessions} last week
+                </p>
+              )}
+            </div>
+            <div>
+              <p className={`text-xs font-medium mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Practice Time</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+                  {thisWeekStats.minutes}m
+                </span>
+              </div>
+              {lastWeekStats.minutes > 0 && (
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                  vs {lastWeekStats.minutes}m last week
+                </p>
+              )}
+            </div>
+          </div>
+          {accuracyDiff > 0 && (
+            <div className={`mt-4 p-3 rounded-xl ${isDark ? 'bg-emerald-900/20' : 'bg-emerald-50'}`}>
+              <span className="text-sm text-emerald-600 font-medium">
+                🎉 Great improvement! Keep up the amazing work!
+              </span>
+            </div>
+          )}
+          {accuracyDiff < -10 && lastWeekStats.accuracy > 0 && (
+            <div className={`mt-4 p-3 rounded-xl ${isDark ? 'bg-amber-900/20' : 'bg-amber-50'}`}>
+              <span className="text-sm text-amber-600 font-medium">
+                💪 Let's get back on track this week!
+              </span>
+            </div>
+          )}
+        </section>
+
+        {/* Practice This Week Chart */}
         <section className={`p-8 rounded-3xl shadow-sm border ${
           isDark 
             ? 'bg-slate-800/50 border-slate-700/50' 
@@ -247,8 +408,8 @@ export default function ParentAnalytics() {
         }`}>
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Weekly Activity</h2>
-              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Daily progress tracking</p>
+              <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Practice This Week</h2>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Daily words practiced</p>
             </div>
             <div className="flex items-center gap-4 text-xs font-semibold">
               <div className="flex items-center gap-2">
@@ -346,21 +507,21 @@ export default function ParentAnalytics() {
                 <div className={`flex items-center justify-between p-3 rounded-xl ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
                   <div className="flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="text-sm font-semibold">Ready</span>
+                    <span className="text-sm font-semibold">Mastered</span>
                   </div>
                   <span className="text-sm font-bold">{wordMastery.mastered}</span>
                 </div>
                 <div className={`flex items-center justify-between p-3 rounded-xl ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
                   <div className="flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span className="text-sm font-semibold">Learning</span>
+                    <span className="text-sm font-semibold">Still Practicing</span>
                   </div>
                   <span className="text-sm font-bold">{wordMastery.learning}</span>
                 </div>
                 <div className={`flex items-center justify-between p-3 rounded-xl border ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
                   <div className="flex items-center gap-3">
                     <span className={`w-2 h-2 rounded-full ${isDark ? 'bg-slate-500' : 'bg-slate-300'}`}></span>
-                    <span className="text-sm font-semibold">Total Pool</span>
+                    <span className="text-sm font-semibold">Total Words</span>
                   </div>
                   <span className="text-sm font-bold">{wordMastery.total}</span>
                 </div>
@@ -368,18 +529,18 @@ export default function ParentAnalytics() {
             </div>
           </section>
 
-          {/* Tricky Words */}
+          {/* Challenge Words */}
           <section className={`p-8 rounded-3xl shadow-sm border ${
             isDark 
               ? 'bg-slate-800/50 border-slate-700/50' 
               : 'bg-white border-slate-100'
           }`}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Tricky Words</h2>
+              <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Challenge Words</h2>
               <span className={`text-[10px] font-bold px-2 py-1 rounded-md tracking-wider uppercase ${
                 isDark ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-600'
               }`}>
-                {stats.trickyWordsActive} Active
+                {stats.trickyWordsActive} to Practice
               </span>
             </div>
             
@@ -397,14 +558,14 @@ export default function ParentAnalytics() {
                             ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800/50' 
                             : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                         }`}>
-                          {word.correctStreak} STREAK
+                          {word.correctStreak} in a row ✓
                         </span>
                       )}
                       {word.correctStreak === 1 && (
                         <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
                           isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-50 text-slate-500'
                         }`}>
-                          1 STREAK
+                          1 in a row
                         </span>
                       )}
                       <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
@@ -428,7 +589,7 @@ export default function ParentAnalytics() {
               <button className={`mt-6 w-full py-2 text-sm font-bold rounded-xl transition-all ${
                 isDark ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-indigo-600 hover:bg-indigo-50'
               }`}>
-                View All Challenges
+                See All Challenge Words
               </button>
             )}
           </section>
@@ -651,22 +812,22 @@ export default function ParentAnalytics() {
                 </p>
               </div>
 
-              {/* Treasures */}
+              {/* Points Earned */}
               <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-yellow-50'}`}>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl">⭐</span>
-                  <h3 className="font-bold">Treasures</h3>
+                  <h3 className="font-bold">Points Earned</h3>
                 </div>
                 <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  Rewards earned by spelling words correctly. The more words practiced, the more treasures collected! These rewards motivate continued learning.
+                  Points earned from spelling practice. The more words practiced correctly, the more points collected! These rewards motivate continued learning.
                 </p>
               </div>
 
-              {/* Weekly Activity */}
+              {/* Practice This Week */}
               <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl">📊</span>
-                  <h3 className="font-bold">Weekly Activity</h3>
+                  <h3 className="font-bold">Practice This Week</h3>
                 </div>
                 <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                   Shows daily practice over the past 7 days. Taller bars mean more words practiced that day. Today's bar is highlighted in purple. Hover over bars to see word count and accuracy.
@@ -680,19 +841,19 @@ export default function ParentAnalytics() {
                   <h3 className="font-bold">Word Mastery</h3>
                 </div>
                 <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  <strong>Ready:</strong> Words spelled correctly 3+ times in a row — ready for the Friday test!<br/>
-                  <strong>Learning:</strong> Words still being practiced. These need more repetition to stick in memory.
+                  <strong>Mastered:</strong> Words spelled correctly 3+ times in a row — ready for the Friday test!<br/>
+                  <strong>Still Practicing:</strong> Words still being practiced. These need more repetition to stick in memory.
                 </p>
               </div>
 
-              {/* Tricky Words */}
+              {/* Challenge Words */}
               <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-orange-50'}`}>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl">🔥</span>
-                  <h3 className="font-bold">Tricky Words</h3>
+                  <h3 className="font-bold">Challenge Words</h3>
                 </div>
                 <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  Words that have been misspelled. The app automatically adds extra practice for these words. The "streak" badge shows how many times in a row they've gotten it right since missing it.
+                  Words that have been misspelled. The app automatically adds extra practice for these words. The "in a row" badge shows how many times in a row they've gotten it right since missing it.
                 </p>
               </div>
 
@@ -723,13 +884,17 @@ interface StatCardProps {
   iconColor: string;
   value: string;
   label: string;
-  trend: string | null;
-  trendUp: boolean | null;
+  trend?: string | null;
+  trendUp?: boolean | null;
   badge?: boolean;
   isDark: boolean;
+  subExplain?: string;
+  goalProgress?: { current: number; goal: number };
 }
 
-function StatCard({ icon, iconBg, iconColor, value, label, trend, trendUp, badge, isDark }: StatCardProps) {
+function StatCard({ icon, iconBg, iconColor, value, label, trend, trendUp, badge, isDark, subExplain, goalProgress }: StatCardProps) {
+  const goalMet = goalProgress ? goalProgress.current >= goalProgress.goal : false;
+  
   return (
     <div className={`p-6 rounded-2xl shadow-sm border group transition-all duration-300 ${
       isDark 
@@ -742,15 +907,33 @@ function StatCard({ icon, iconBg, iconColor, value, label, trend, trendUp, badge
       <p className="text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{value}</p>
       <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</p>
       
-      {trend && (
+      {subExplain && (
+        <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{subExplain}</p>
+      )}
+      
+      {goalProgress && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className={`text-xs font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            {goalProgress.current} / {goalProgress.goal}
+          </span>
+          {goalMet && (
+            <span className="text-xs font-semibold text-emerald-500">✓ Goal met!</span>
+          )}
+        </div>
+      )}
+      
+      {trend && !goalProgress && (
         <div className={`mt-4 flex items-center gap-1 text-xs font-semibold ${
           trendUp === true 
             ? 'text-emerald-500' 
-            : badge 
-              ? 'text-amber-500' 
-              : isDark ? 'text-slate-500' : 'text-slate-400'
+            : trendUp === false
+              ? 'text-red-500'
+              : badge 
+                ? 'text-amber-500' 
+                : isDark ? 'text-slate-500' : 'text-slate-400'
         }`}>
           {trendUp === true && <TrendingUp className="w-3 h-3" />}
+          {trendUp === false && <TrendingDown className="w-3 h-3" />}
           {badge && <Star className="w-3 h-3" />}
           {trendUp === null && !badge && <Clock className="w-3 h-3" />}
           <span>{trend}</span>
