@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
-import { Volume2, SkipForward, CheckCircle, XCircle, X, HelpCircle } from 'lucide-react';
+import { Headphones, ArrowRightCircle, Sparkles, CheckCircle, XCircle, X, HelpCircle } from 'lucide-react';
 import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
 import { apiRequest } from '@/lib/queryClient';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
@@ -988,14 +988,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                       disabled={!isWordSpoken}
                       className="btn-hear-it min-w-[120px]"
                     >
-                      <Volume2 className="w-6 h-6" />
+                      <Headphones className="w-6 h-6" />
                       <span>Hear It</span>
                     </button>
                     <button 
                       onClick={skipWord}
                       className="btn-skip min-w-[120px]"
                     >
-                      <SkipForward className="w-6 h-6" />
+                      <ArrowRightCircle className="w-6 h-6" />
                       <span>Skip</span>
                     </button>
                   </div>
@@ -1006,7 +1006,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                     disabled={!userInput.trim() || !isWordSpoken}
                     className="btn-check-spelling relative z-10 flex items-center justify-center gap-3"
                   >
-                    <CheckCircle className="w-7 h-7" />
+                    <Sparkles className="w-7 h-7" />
                     CHECK SPELLING
                   </button>
                 </>
