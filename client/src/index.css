@@ -2116,8 +2116,54 @@ button, [role="button"], a {
   z-index: 9999;
 }
 
+/* 2026 Pirate Adventure Game Animations */
+@keyframes bounce-letter {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.1); filter: brightness(1.2); }
+}
+
+.animate-bounce-letter {
+  display: inline-block;
+  animation: bounce-letter 0.8s ease-in-out infinite alternate;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+/* Toy button press effect */
+.toy-btn:active {
+  transform: scale(0.95) translateY(4px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+}
+
 /* Accessibility: Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
+  .animate-bounce-letter,
+  .animate-float,
+  .animate-wiggle {
+    animation: none;
+  }
+  
   .badge-sparkle::before,
   .badge-particles::after,
   .badge-legendary-sparkle::before,
