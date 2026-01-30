@@ -1,0 +1,647 @@
+NOW I see exactly what you're going for! That **Jungle Paradise** UI is PERFECT - those puffy squircle buttons with the vibrant colors and glossy reflections. That's the exact style!
+
+Looking at your code, you already have the core CSS. Here's what might be missing or needs tweaking for Red Boot:
+
+---
+
+## 🔍 WHAT YOUR CODE HAS (GOOD):
+
+```css
+/* You have the core puffy effect: */
+.puffy-element {
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 0, 0, 0.2),      /* Bottom depth */
+    inset 0 6px 12px rgba(255, 255, 255, 0.45), /* Top highlight */
+    0 12px 24px -8px rgba(0, 0, 0, 0.4);        /* Outer shadow */
+}
+
+/* You have the glossy reflection: */
+.puffy-element::before {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), transparent);
+  border-radius: 100% 70% 50% 40%;  /* Organic blob shape */
+  transform: rotate(-10deg);        /* Slight angle */
+}
+```
+
+---
+
+## 🎯 WHAT TO GIVE REPLIT
+
+Here's the exact prompt with YOUR code to apply this style to Red Boot:
+
+---
+
+```
+I have this puffy claymorphism CSS that works perfectly in another project (Jungle Paradise).
+
+Apply this EXACT same visual style to Red Boot's Spelling Adventure game.
+
+HERE IS THE WORKING CSS - USE THIS EXACTLY:
+
+/* ==========================================
+   BASE PUFFY ELEMENT - Apply to ALL interactive elements
+   ========================================== */
+
+.puffy-element {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 0, 0, 0.2), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.45),
+    0 12px 24px -8px rgba(0, 0, 0, 0.4);
+}
+
+/* Glossy light reflection */
+.puffy-element::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 7%;
+  width: 60%;
+  height: 25%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-10deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Squircle shape */
+.puffy-squircle { 
+  border-radius: 35%; 
+}
+
+/* Hover state */
+.puffy-element:hover {
+  transform: scale(1.05) translateY(-4px);
+  box-shadow: 
+    inset 0 -8px 16px rgba(0, 0, 0, 0.15), 
+    inset 0 8px 16px rgba(255, 255, 255, 0.55),
+    0 20px 40px -10px rgba(0, 0, 0, 0.45);
+}
+
+/* Active/pressed state */
+.puffy-element:active {
+  transform: scale(0.97);
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 0, 0, 0.25), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.35),
+    0 6px 12px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* Selected state (glowing) */
+.puffy-element.selected {
+  transform: scale(1.1);
+  box-shadow: 
+    inset 0 0 30px rgba(255, 255, 255, 0.95),
+    inset 0 -12px 25px rgba(0, 0, 0, 0.25), 
+    inset 0 12px 25px rgba(255, 255, 255, 0.75),
+    0 25px 50px -15px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ==========================================
+   VIBRANT COLOR CLASSES
+   ========================================== */
+
+.puffy-orange {
+  background: linear-gradient(145deg, #fb923c 0%, #f97316 50%, #ea580c 100%);
+}
+
+.puffy-yellow {
+  background: linear-gradient(145deg, #fde047 0%, #facc15 50%, #eab308 100%);
+}
+
+.puffy-green {
+  background: linear-gradient(145deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+}
+
+.puffy-blue {
+  background: linear-gradient(145deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+}
+
+.puffy-purple {
+  background: linear-gradient(145deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+}
+
+.puffy-pink {
+  background: linear-gradient(145deg, #f472b6 0%, #ec4899 50%, #db2777 100%);
+}
+
+.puffy-red {
+  background: linear-gradient(145deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
+}
+
+.puffy-teal {
+  background: linear-gradient(145deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+}
+
+.puffy-dark {
+  background: linear-gradient(145deg, #475569 0%, #334155 50%, #1e293b 100%);
+}
+
+
+/* ==========================================
+   APPLY TO RED BOOT GAME ELEMENTS
+   ========================================== */
+
+/* CHECK SPELLING button */
+.btn-check-spelling {
+  /* Add puffy class */
+  background: linear-gradient(145deg, #fde047 0%, #facc15 50%, #eab308 100%);
+  color: #713f12;
+  font-weight: 800;
+  font-size: 18px;
+  padding: 18px 32px;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 0, 0, 0.2), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.45),
+    0 12px 24px -8px rgba(180, 130, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-check-spelling::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 7%;
+  width: 60%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btn-check-spelling:hover {
+  transform: scale(1.05) translateY(-4px);
+  box-shadow: 
+    inset 0 -8px 16px rgba(0, 0, 0, 0.15), 
+    inset 0 8px 16px rgba(255, 255, 255, 0.55),
+    0 20px 40px -10px rgba(180, 130, 0, 0.6);
+}
+
+
+/* HEAR IT and SKIP buttons */
+.btn-hear-it,
+.btn-skip {
+  background: linear-gradient(145deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+  color: #78350f;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 24px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -5px 10px rgba(0, 0, 0, 0.15), 
+    inset 0 5px 10px rgba(255, 255, 255, 0.5),
+    0 10px 20px -6px rgba(180, 130, 50, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-hear-it::before,
+.btn-skip::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 7%;
+  width: 55%;
+  height: 28%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btn-hear-it:hover,
+.btn-skip:hover {
+  transform: scale(1.05) translateY(-3px);
+}
+
+
+/* STOP PLAYING button */
+.btn-stop {
+  background: linear-gradient(145deg, #fecaca 0%, #fca5a5 50%, #f87171 100%);
+  color: #7f1d1d;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 0, 0, 0.15), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.45),
+    0 8px 16px -6px rgba(220, 50, 50, 0.35);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-stop::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 10%;
+  width: 50%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* HELP ICON (?) */
+.help-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(145deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  box-shadow: 
+    inset 0 -5px 10px rgba(0, 0, 50, 0.3), 
+    inset 0 5px 10px rgba(255, 255, 255, 0.4),
+    0 10px 20px -6px rgba(59, 130, 246, 0.5);
+}
+
+.help-icon::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 15%;
+  width: 50%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+  border-radius: 50%;
+  transform: rotate(-10deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* LISTEN & SPELL badge */
+.listen-badge {
+  background: linear-gradient(145deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 10px 22px;
+  border-radius: 25px;
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 50, 0, 0.25), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    0 8px 16px -6px rgba(22, 163, 74, 0.45);
+}
+
+.listen-badge::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 10%;
+  width: 55%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* SPELLING CARD (main left panel) */
+.spelling-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+  border-radius: 32px;
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -8px 16px rgba(0, 0, 0, 0.06), 
+    inset 0 8px 16px rgba(255, 255, 255, 0.9),
+    0 16px 32px -10px rgba(0, 0, 0, 0.15);
+}
+
+
+/* TREASURE COLLECTION box */
+.treasure-collection {
+  background: linear-gradient(145deg, #ffffff 0%, #fefefe 50%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 14px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 0, 0, 0.05), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.8),
+    0 8px 16px -6px rgba(0, 0, 0, 0.12);
+}
+
+.treasure-collection::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 8%;
+  width: 50%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* ==========================================
+   MAP ELEMENTS - PUFFY STYLE
+   ========================================== */
+
+/* ISLANDS */
+.puffy-island {
+  background: linear-gradient(145deg, #fef3c7 0%, #fde68a 50%, #fbbf24 100%);
+  border-radius: 50% 45% 55% 48% / 45% 50% 48% 52%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -8px 16px rgba(180, 120, 40, 0.3), 
+    inset 0 8px 16px rgba(255, 255, 220, 0.6),
+    0 12px 24px -8px rgba(180, 130, 50, 0.4);
+}
+
+.puffy-island::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 50%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* DIRT MOUNDS */
+.puffy-dirt-mound {
+  background: linear-gradient(145deg, #d97706 0%, #b45309 50%, #92400e 100%);
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -6px 12px rgba(80, 40, 10, 0.4), 
+    inset 0 6px 12px rgba(255, 180, 100, 0.4),
+    0 10px 20px -6px rgba(120, 60, 20, 0.45);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.puffy-dirt-mound::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 50%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.puffy-dirt-mound:hover {
+  transform: scale(1.08) translateY(-4px);
+}
+
+
+/* PALM TREE - TRUNK */
+.puffy-palm-trunk {
+  background: linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%);
+  border-radius: 6px;
+  position: relative;
+  box-shadow: 
+    inset -3px 0 6px rgba(0, 0, 0, 0.3), 
+    inset 3px 0 6px rgba(255, 200, 150, 0.3),
+    0 4px 8px -2px rgba(0, 0, 0, 0.3);
+}
+
+
+/* PALM TREE - LEAVES */
+.puffy-palm-leaf {
+  background: linear-gradient(145deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+  border-radius: 0 80% 0 80%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 80, 40, 0.3), 
+    inset 0 4px 8px rgba(200, 255, 200, 0.4),
+    0 6px 12px -4px rgba(22, 163, 74, 0.4);
+}
+
+.puffy-palm-leaf::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* TREASURE CHEST */
+.puffy-chest {
+  position: relative;
+}
+
+.puffy-chest-body {
+  background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  border-radius: 8px 8px 12px 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -5px 10px rgba(150, 80, 0, 0.4), 
+    inset 0 5px 10px rgba(255, 220, 150, 0.5),
+    0 8px 16px -4px rgba(180, 100, 20, 0.5);
+}
+
+.puffy-chest-body::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 10%;
+  width: 50%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45), transparent);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.puffy-chest-lid {
+  background: linear-gradient(145deg, #fcd34d 0%, #fbbf24 50%, #f59e0b 100%);
+  border-radius: 12px 12px 4px 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -3px 6px rgba(180, 120, 40, 0.3), 
+    inset 0 4px 8px rgba(255, 240, 180, 0.6),
+    0 4px 8px -2px rgba(180, 100, 20, 0.4);
+}
+
+.puffy-chest-lid::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 12%;
+  width: 55%;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* CORRECT MARKER - Gold Star */
+.puffy-marker-correct {
+  background: linear-gradient(145deg, #fde047 0%, #facc15 50%, #eab308 100%);
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(180, 140, 0, 0.3), 
+    inset 0 4px 8px rgba(255, 255, 200, 0.5),
+    0 8px 16px -4px rgba(234, 179, 8, 0.5);
+}
+
+.puffy-marker-correct::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 18%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* INCORRECT MARKER - Red Circle */
+.puffy-marker-incorrect {
+  background: linear-gradient(145deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(150, 20, 20, 0.35), 
+    inset 0 4px 8px rgba(255, 150, 150, 0.4),
+    0 8px 16px -4px rgba(220, 38, 38, 0.45);
+}
+
+.puffy-marker-incorrect::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 18%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* LOCKED MARKER - Gray */
+.puffy-marker-locked {
+  background: linear-gradient(145deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%);
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(50, 50, 60, 0.3), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    0 6px 12px -4px rgba(107, 114, 128, 0.4);
+}
+
+.puffy-marker-locked::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 18%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* MAP CONTAINER - Puffy water */
+.puffy-map-container {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -10px 20px rgba(0, 50, 100, 0.2), 
+    inset 0 10px 20px rgba(255, 255, 255, 0.15),
+    0 16px 32px -10px rgba(0, 100, 150, 0.3);
+}
+
+
+Apply this CSS to ALL elements in the game.
+Add the puffy class names to the React components.
+Make sure the ::before pseudo-element glossy highlight shows on every element.
+
+DO NOT change any game logic.
+```
+
+---
+
+## 🔑 KEY THINGS TO CHECK
+
+If it's not looking right, make sure:
+
+1. **`position: relative`** is on every element (needed for ::before to work)
+2. **`overflow: hidden`** contains the glossy reflection
+3. **The gradient direction** - `145deg` gives the diagonal puffy look
+4. **The shadow order matters:**
+   - First: `inset 0 -6px 12px` (bottom depth - DARK)
+   - Second: `inset 0 6px 12px` (top highlight - LIGHT)
+   - Third: `0 12px 24px` (outer shadow - LIFT)
+
+---
+
+Want me to help troubleshoot if it's still not matching?
