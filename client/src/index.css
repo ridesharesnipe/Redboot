@@ -2674,6 +2674,403 @@ button, [role="button"], a {
 }
 
 /* ==========================================
+   LANDING PAGE - PUFFY STYLE
+   ========================================== */
+
+/* Landing page title badge */
+.puffy-title-badge {
+  display: inline-block;
+  background: linear-gradient(145deg, #fde047 0%, #facc15 50%, #f59e0b 100%);
+  padding: 16px 32px;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -6px 12px rgba(120, 80, 0, 0.3), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.5),
+    0 12px 30px -8px rgba(180, 130, 0, 0.5);
+}
+
+.puffy-title-badge::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 8%;
+  width: 55%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Start Adventure button - Emerald Green */
+.btn-puffy-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(145deg, #34d399 0%, #10b981 50%, #059669 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px 28px;
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -5px 10px rgba(0, 60, 40, 0.3), 
+    inset 0 5px 10px rgba(255, 255, 255, 0.4),
+    0 12px 24px -6px rgba(16, 185, 129, 0.5);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-puffy-start::before {
+  content: "";
+  position: absolute;
+  top: 6%;
+  left: 8%;
+  width: 50%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btn-puffy-start:hover {
+  transform: scale(1.06) translateY(-4px);
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 60, 40, 0.25), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.5),
+    0 18px 36px -8px rgba(16, 185, 129, 0.6);
+}
+
+.btn-puffy-start:active {
+  transform: scale(0.97);
+}
+
+/* Treasure Vault button - Amber/Gold */
+.btn-puffy-vault {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px 28px;
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -5px 10px rgba(120, 60, 0, 0.3), 
+    inset 0 5px 10px rgba(255, 255, 255, 0.4),
+    0 12px 24px -6px rgba(245, 158, 11, 0.5);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-puffy-vault::before {
+  content: "";
+  position: absolute;
+  top: 6%;
+  left: 8%;
+  width: 50%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btn-puffy-vault:hover {
+  transform: scale(1.06) translateY(-4px);
+  box-shadow: 
+    inset 0 -6px 12px rgba(120, 60, 0, 0.25), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.5),
+    0 18px 36px -8px rgba(245, 158, 11, 0.6);
+}
+
+.btn-puffy-vault:active {
+  transform: scale(0.97);
+}
+
+/* Watch Demo button - Cyan/Teal */
+.btn-puffy-demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(145deg, #22d3ee 0%, #06b6d4 50%, #0891b2 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px 28px;
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -5px 10px rgba(0, 60, 80, 0.3), 
+    inset 0 5px 10px rgba(255, 255, 255, 0.4),
+    0 12px 24px -6px rgba(6, 182, 212, 0.5);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-puffy-demo::before {
+  content: "";
+  position: absolute;
+  top: 6%;
+  left: 8%;
+  width: 50%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btn-puffy-demo:hover {
+  transform: scale(1.06) translateY(-4px);
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 60, 80, 0.25), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.5),
+    0 18px 36px -8px rgba(6, 182, 212, 0.6);
+}
+
+.btn-puffy-demo:active {
+  transform: scale(0.97);
+}
+
+/* Character selection cards - Puffy */
+.puffy-character-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fefefe 50%, #f8fafc 100%);
+  border-radius: 28px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 0, 0, 0.06), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.9),
+    0 12px 28px -8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.puffy-character-card::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 6%;
+  width: 50%;
+  height: 25%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.puffy-character-card:hover {
+  transform: scale(1.04) translateY(-6px);
+  box-shadow: 
+    inset 0 -8px 16px rgba(0, 0, 0, 0.05), 
+    inset 0 8px 16px rgba(255, 255, 255, 0.95),
+    0 20px 40px -10px rgba(0, 0, 0, 0.2);
+}
+
+.puffy-character-card.selected-redboot {
+  background: linear-gradient(145deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+  box-shadow: 
+    inset 0 -6px 12px rgba(180, 100, 0, 0.1), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.8),
+    0 12px 28px -8px rgba(245, 158, 11, 0.35),
+    0 0 0 4px rgba(251, 191, 36, 0.5);
+}
+
+.puffy-character-card.selected-diego {
+  background: linear-gradient(145deg, #ecfeff 0%, #cffafe 50%, #a5f3fc 100%);
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 100, 120, 0.1), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.8),
+    0 12px 28px -8px rgba(6, 182, 212, 0.35),
+    0 0 0 4px rgba(34, 211, 238, 0.5);
+}
+
+/* Character avatar container - Puffy */
+.puffy-avatar {
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 0, 0, 0.15), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    0 8px 16px -4px rgba(0, 0, 0, 0.2);
+}
+
+.puffy-avatar::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 8%;
+  width: 45%;
+  height: 25%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Feature cards - Puffy */
+.puffy-feature-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fefefe 50%, #f8fafc 100%);
+  border-radius: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -5px 10px rgba(0, 0, 0, 0.05), 
+    inset 0 5px 10px rgba(255, 255, 255, 0.9),
+    0 10px 24px -6px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.puffy-feature-card::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 8%;
+  width: 50%;
+  height: 25%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+  border-radius: 100% 70% 50% 40%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.puffy-feature-card:hover {
+  transform: scale(1.04) translateY(-5px);
+  box-shadow: 
+    inset 0 -6px 12px rgba(0, 0, 0, 0.04), 
+    inset 0 6px 12px rgba(255, 255, 255, 0.95),
+    0 16px 32px -8px rgba(0, 0, 0, 0.18);
+}
+
+/* Feature icon containers - Puffy squircle */
+.puffy-icon-emerald {
+  background: linear-gradient(145deg, #34d399 0%, #10b981 50%, #059669 100%);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(0, 60, 40, 0.25), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    0 6px 12px -4px rgba(16, 185, 129, 0.4);
+}
+
+.puffy-icon-emerald::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 12%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.puffy-icon-purple {
+  background: linear-gradient(145deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(50, 0, 100, 0.25), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    0 6px 12px -4px rgba(139, 92, 246, 0.4);
+}
+
+.puffy-icon-purple::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 12%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.puffy-icon-amber {
+  background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -4px 8px rgba(120, 60, 0, 0.25), 
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    0 6px 12px -4px rgba(245, 158, 11, 0.4);
+}
+
+.puffy-icon-amber::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 12%;
+  width: 45%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Puffy tag/badge */
+.puffy-tag {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15), 
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    0 4px 8px -2px rgba(0, 0, 0, 0.15);
+}
+
+.puffy-tag-green {
+  background: linear-gradient(145deg, #86efac 0%, #4ade80 50%, #22c55e 100%);
+  color: #14532d;
+}
+
+.puffy-tag-green::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 40%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ==========================================
    MAP ELEMENTS - PUFFY STYLE
    ========================================== */
 

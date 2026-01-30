@@ -106,15 +106,17 @@ export default function Landing({ onStart }: LandingProps) {
       <section className="ocean-hero text-white py-8 px-4 relative min-h-[100svh] overflow-x-hidden safe-area-bottom">
         {/* Ocean elements */}
         
-        {/* Floating Navigation */}
+        {/* Floating Navigation - Puffy Title */}
         <nav className="absolute top-4 left-4 right-4 z-20 safe-area-x">
           <div className="max-w-7xl mx-auto flex items-center justify-center">
-            <h1 className="fluid-heading-lg font-black text-center" style={{ 
-              fontFamily: "'Pirata One', cursive", 
-              fontWeight: '900',
-              color: '#FFD700',
-              textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 191, 0, 0.6), 0 0 60px rgba(166, 124, 0, 0.4), 2px 2px 4px rgba(0, 0, 0, 0.5)'
-            }}>Red Boot's Adventure</h1>
+            <div className="puffy-title-badge">
+              <h1 className="fluid-heading-lg font-black text-center relative z-10" style={{ 
+                fontFamily: "'Pirata One', cursive", 
+                fontWeight: '900',
+                color: '#7c2d12',
+                textShadow: '0 2px 4px rgba(255, 255, 255, 0.3)'
+              }}>Red Boot's Adventure</h1>
+            </div>
           </div>
         </nav>
         <div className="max-w-7xl mx-auto text-center relative z-10 pt-8">
@@ -161,18 +163,15 @@ export default function Landing({ onStart }: LandingProps) {
               Join Red Boot on a treasure hunt where spelling practice becomes the greatest adventure!
             </p>
           </div>
-          {/* Modern 2025 Pill Buttons */}
-          <div className="flex flex-wrap justify-center gap-3 px-4 safe-area-x">
+          {/* Puffy Action Buttons */}
+          <div className="flex flex-wrap justify-center gap-4 px-4 safe-area-x">
             <button 
               onClick={handleStartAdventure}
-              className="px-6 py-3 rounded-full font-semibold text-sm text-white bg-emerald-500 hover:bg-emerald-600 transition-all duration-150 ease-out hover:scale-[1.02] active:scale-[0.98]"
-              style={{ boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)' }}
+              className="btn-puffy-start"
               data-testid="button-start-adventure"
             >
-              <span className="flex items-center gap-2">
-                <Compass className="w-4 h-4" />
-                Start Adventure
-              </span>
+              <Compass className="w-5 h-5 relative z-10" />
+              <span className="relative z-10">Start Adventure</span>
             </button>
             
             <button 
@@ -181,31 +180,26 @@ export default function Landing({ onStart }: LandingProps) {
                 playSound('treasure_chest_open');
                 setLocation('/vault');
               }}
-              className="px-6 py-3 rounded-full font-semibold text-sm text-white bg-amber-500 hover:bg-amber-600 transition-all duration-150 ease-out hover:scale-[1.02] active:scale-[0.98]"
-              style={{ boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)' }}
+              className="btn-puffy-vault"
               data-testid="button-treasure-vault"
             >
-              <span className="flex items-center gap-2">
-                <Gem className="w-4 h-4" />
-                Treasure Vault
-              </span>
+              <Gem className="w-5 h-5 relative z-10" />
+              <span className="relative z-10">Treasure Vault</span>
             </button>
             
             <button 
               onClick={handleDemo}
-              className="px-6 py-3 rounded-full font-semibold text-sm text-white/90 bg-white/10 hover:bg-white/20 border border-white/30 transition-all duration-150 ease-out hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm"
+              className="btn-puffy-demo"
               data-testid="button-watch-demo"
             >
-              <span className="flex items-center gap-2">
-                <Play className="w-4 h-4" />
-                Watch Demo
-              </span>
+              <Play className="w-5 h-5 relative z-10" />
+              <span className="relative z-10">Watch Demo</span>
             </button>
           </div>
         </div>
       </section>
 
-      {/* Character Selection - Light Ocean Theme */}
+      {/* Character Selection - Puffy Cards */}
       <section className="py-16 px-4 bg-gradient-to-b from-sky-100 via-cyan-50 to-sky-100">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
@@ -215,16 +209,11 @@ export default function Landing({ onStart }: LandingProps) {
             <p className="text-sky-600 text-sm">Select a character to begin your spelling adventure</p>
           </div>
           
-          {/* Side-by-side character grid */}
+          {/* Side-by-side character grid - Puffy */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {/* Red Boot Card */}
+            {/* Red Boot Card - Puffy */}
             <div 
-              className={`group cursor-pointer rounded-2xl p-5 transition-all duration-150 ease-out hover:scale-[1.02] hover:shadow-lg ${
-                selectedCharacter === 'redboot' 
-                  ? 'bg-amber-50 ring-2 ring-amber-400 shadow-lg' 
-                  : 'bg-white/80 hover:bg-white'
-              }`}
-              style={{ border: '1px solid rgba(14, 165, 233, 0.15)' }}
+              className={`puffy-character-card ${selectedCharacter === 'redboot' ? 'selected-redboot' : ''}`}
               onClick={() => {
                 playSound('anchor_button_click');
                 playCharacterVoice('red_boot_ahoy');
@@ -234,8 +223,8 @@ export default function Landing({ onStart }: LandingProps) {
               }}
               data-testid="character-select-redboot"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm">
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="puffy-avatar w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gradient-to-br from-amber-200 to-orange-300">
                   <img 
                     src={redBootCrew} 
                     alt="Red Boot" 
@@ -245,7 +234,7 @@ export default function Landing({ onStart }: LandingProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-bold text-lg text-slate-800">Red Boot</h3>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Free</span>
+                    <span className="puffy-tag puffy-tag-green">Free</span>
                   </div>
                   <p className="text-amber-600 text-sm font-medium mb-1">⚓ Treasure Hunt</p>
                   <p className="text-slate-500 text-xs">Dig up buried treasures on mysterious islands</p>
@@ -253,14 +242,9 @@ export default function Landing({ onStart }: LandingProps) {
               </div>
             </div>
             
-            {/* Diego Card */}
+            {/* Diego Card - Puffy */}
             <div 
-              className={`group cursor-pointer rounded-2xl p-5 transition-all duration-150 ease-out hover:scale-[1.02] hover:shadow-lg ${
-                selectedCharacter === 'diego' 
-                  ? 'bg-cyan-50 ring-2 ring-cyan-400 shadow-lg' 
-                  : 'bg-white/80 hover:bg-white'
-              }`}
-              style={{ border: '1px solid rgba(14, 165, 233, 0.15)' }}
+              className={`puffy-character-card ${selectedCharacter === 'diego' ? 'selected-diego' : ''}`}
               onClick={() => {
                 playSound('anchor_button_click');
                 playAudioFile(diegoBarkSound, 1, true);
@@ -270,8 +254,8 @@ export default function Landing({ onStart }: LandingProps) {
               }}
               data-testid="character-select-diego"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-cyan-100 to-blue-100 shadow-sm">
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="puffy-avatar w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gradient-to-br from-cyan-200 to-blue-300">
                   <img 
                     src={diegoImage} 
                     alt="Diego the Pup Pup" 
@@ -281,7 +265,7 @@ export default function Landing({ onStart }: LandingProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-bold text-lg text-slate-800">Diego</h3>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Free</span>
+                    <span className="puffy-tag puffy-tag-green">Free</span>
                   </div>
                   <p className="text-cyan-600 text-sm font-medium mb-1">🌊 Sea Monster Battle</p>
                   <p className="text-slate-500 text-xs">Battle sea monsters and claim their treasures</p>
@@ -292,7 +276,7 @@ export default function Landing({ onStart }: LandingProps) {
         </div>
       </section>
 
-      {/* Features Section - Light Ocean Theme */}
+      {/* Features Section - Puffy Cards */}
       <section className="py-16 px-4 bg-gradient-to-b from-sky-50 to-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
@@ -302,42 +286,42 @@ export default function Landing({ onStart }: LandingProps) {
             <p className="text-sky-600 text-sm">Three simple steps to spelling success</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Snap & Upload */}
-            <div className="rounded-xl p-5 bg-white border border-sky-100 text-center transition-all duration-150 hover:shadow-md hover:border-sky-200">
-              <div className="w-12 h-12 rounded-lg bg-emerald-100 mx-auto mb-4 flex items-center justify-center">
-                <Compass className="w-6 h-6 text-emerald-600" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {/* Snap & Upload - Puffy */}
+            <div className="puffy-feature-card">
+              <div className="puffy-icon-emerald w-14 h-14 mx-auto mb-4 flex items-center justify-center">
+                <Compass className="w-7 h-7 text-white relative z-10" />
               </div>
-              <h3 className="font-semibold text-base text-slate-800 mb-2" data-testid="text-feature-photo-title">
+              <h3 className="font-semibold text-base text-slate-800 mb-2 relative z-10" data-testid="text-feature-photo-title">
                 Snap & Upload
               </h3>
-              <p className="text-slate-500 text-xs leading-relaxed" data-testid="text-feature-photo-desc">
+              <p className="text-slate-500 text-xs leading-relaxed relative z-10" data-testid="text-feature-photo-desc">
                 Take a photo of your spelling list and words appear instantly
               </p>
             </div>
 
-            {/* Play & Learn */}
-            <div className="rounded-xl p-5 bg-white border border-sky-100 text-center transition-all duration-150 hover:shadow-md hover:border-sky-200">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 mx-auto mb-4 flex items-center justify-center">
-                <Star className="w-6 h-6 text-purple-600" />
+            {/* Play & Learn - Puffy */}
+            <div className="puffy-feature-card">
+              <div className="puffy-icon-purple w-14 h-14 mx-auto mb-4 flex items-center justify-center">
+                <Star className="w-7 h-7 text-white relative z-10" />
               </div>
-              <h3 className="font-semibold text-base text-slate-800 mb-2" data-testid="text-feature-game-title">
+              <h3 className="font-semibold text-base text-slate-800 mb-2 relative z-10" data-testid="text-feature-game-title">
                 Play & Learn
               </h3>
-              <p className="text-slate-500 text-xs leading-relaxed" data-testid="text-feature-game-desc">
+              <p className="text-slate-500 text-xs leading-relaxed relative z-10" data-testid="text-feature-game-desc">
                 Battle monsters and hunt treasure while mastering spelling
               </p>
             </div>
 
-            {/* Track Progress */}
-            <div className="rounded-xl p-5 bg-white border border-sky-100 text-center transition-all duration-150 hover:shadow-md hover:border-sky-200">
-              <div className="w-12 h-12 rounded-lg bg-amber-100 mx-auto mb-4 flex items-center justify-center">
-                <Crown className="w-6 h-6 text-amber-600" />
+            {/* Track Progress - Puffy */}
+            <div className="puffy-feature-card">
+              <div className="puffy-icon-amber w-14 h-14 mx-auto mb-4 flex items-center justify-center">
+                <Crown className="w-7 h-7 text-white relative z-10" />
               </div>
-              <h3 className="font-semibold text-base text-slate-800 mb-2" data-testid="text-feature-progress-title">
+              <h3 className="font-semibold text-base text-slate-800 mb-2 relative z-10" data-testid="text-feature-progress-title">
                 Track Progress
               </h3>
-              <p className="text-slate-500 text-xs leading-relaxed" data-testid="text-feature-progress-desc">
+              <p className="text-slate-500 text-xs leading-relaxed relative z-10" data-testid="text-feature-progress-desc">
                 Watch your treasure grow as you master each word
               </p>
             </div>
