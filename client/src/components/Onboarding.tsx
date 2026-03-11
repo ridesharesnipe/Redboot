@@ -25,12 +25,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     const warmUpDatabase = async () => {
       try {
         // Call /api/auth/user to wake up database and establish session
-        await fetch('/api/auth/user', {
-          headers: {
-            'X-Player-Id': localStorage.getItem('redboot-player-id') || '',
-            'X-Session-Token': localStorage.getItem('redboot-session-token') || '',
-          },
-        });
+        await fetch('/api/status');
         setIsWarmingUp(false);
         // Auto-advance to screen 1 once database is ready
         setScreen(1);

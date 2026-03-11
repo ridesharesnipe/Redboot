@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### March 2026 - Email/Password Authentication
+- **Replaced anonymous auth**: Removed localStorage-based anonymous player ID system with proper email/password authentication
+- **Auth endpoints**: Added `/api/auth/signup`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/forgot-password`, `/api/auth/reset-password`
+- **JWT sessions**: Using `jsonwebtoken` for session tokens (30-day expiry), stored in localStorage and sent as Bearer tokens
+- **Password hashing**: Using `bcryptjs` for secure password hashing
+- **Auth screens**: Login, Signup, ForgotPassword, ResetPassword pages using shadcn components
+- **Password reset**: Supports SendGrid email delivery (when SENDGRID_API_KEY is configured), falls back to console logging
+- **Data migration**: On login/signup, if old `redboot-player-id` exists in localStorage, automatically migrates children, tricky words, and achievements to the new account
+- **Removed files**: `server/replitAuth.ts`, `client/src/lib/playerId.ts`
+- **Database changes**: Added `password_hash`, `reset_token`, `reset_token_expiry` columns to users table; removed `session_token` column
+- **Environment**: JWT_SECRET env var added for token signing
+
 ### December 8, 2025 - Parent Analytics Dashboard
 - **Apple-Inspired Design**: Minimalist analytics page at /analytics with clean white background, subtle shadows, and modern typography
 - **Stats Overview Cards**: Four stat cards displaying accuracy, sessions, time spent, and treasures collected with colored icons

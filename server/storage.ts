@@ -7,7 +7,6 @@ import {
   achievements,
   userAchievements,
   type User,
-  type UpsertUser,
   type Child,
   type InsertChild,
   type WordList,
@@ -25,14 +24,17 @@ import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
 
 export interface IStorage {
-  // User operations (anonymous players with session security)
+  // User operations (email/password auth)
   getUser(id: string): Promise<User | undefined>;
-  getOrCreateUser(id: string, sessionToken: string): Promise<User>;
-  validateSession(id: string, sessionToken: string): Promise<boolean>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(email: string, passwordHash: string, childName?: string): Promise<User>;
   updateUser(userId: string, updates: Partial<User>): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User>;
+  setResetToken(userId: string, token: string, expiry: Date): Promise<void>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
+  clearResetToken(userId: string): Promise<void>;
+  migrateAnonymousData(oldPlayerId: string, newUserId: string): Promise<void>;
   
   // Children operations
   getChildren(parentId: string): Promise<Child[]>;
@@ -68,7 +70,6 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    // Retry logic for transient database connection issues
     let retries = 3;
     let lastError;
     
@@ -78,99 +79,85 @@ export class DatabaseStorage implements IStorage {
         return user;
       } catch (error: any) {
         lastError = error;
-        console.error(`Database connection attempt failed (${4 - retries}/3):`, error?.message);
         retries--;
         if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
     }
-    
-    console.error('All database connection attempts failed:', lastError);
     throw lastError;
   }
 
-  async getOrCreateUser(id: string, sessionToken: string): Promise<User> {
-    // Retry logic for transient database connection issues - Neon can take 30+ seconds to wake from sleep
-    let retries = 5;
-    let lastError;
-    
-    while (retries > 0) {
-      try {
-        // Try to get existing user (without throwing on connection errors)
-        const [user] = await db.select().from(users).where(eq(users.id, id));
-        
-        if (user) {
-          console.log('✅ User found:', user.id.substring(0, 8) + '...');
-          return user;
-        }
-        
-        // User doesn't exist, create new one
-        console.log('📝 Creating new anonymous user...');
-        const [newUser] = await db
-          .insert(users)
-          .values({
-            id,
-            sessionToken,
-            onboardingComplete: false,
-          })
-          .returning();
-        console.log('✅ User created successfully');
-        return newUser;
-      } catch (error: any) {
-        lastError = error;
-        console.error(`❌ Database error in getOrCreateUser (attempt ${6 - retries}/5):`, error);
-        console.error(`❌ Error details:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
-        retries--;
-        if (retries > 0) {
-          // Exponential backoff: 5s, 8s, 12s, 20s - allows up to 45 seconds total for database wake-up
-          const waitTime = 5000 + (5 - retries) * 4000;
-          console.log(`⏳ Waiting ${waitTime}ms before retry (database may be waking from sleep)...`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
-        }
-      }
-    }
-    
-    console.error('❌ All retry attempts failed in getOrCreateUser');
-    throw new Error(`Failed to create user after 5 attempts: ${lastError?.message || String(lastError)}`);
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
+    return user;
   }
 
-  async validateSession(id: string, sessionToken: string): Promise<boolean> {
-    try {
-      const user = await this.getUser(id);
-      if (!user) return false;
-      
-      // If user has no session token yet (old data), set it
-      if (!user.sessionToken) {
-        await db
-          .update(users)
-          .set({ sessionToken, updatedAt: new Date() })
-          .where(eq(users.id, id));
-        return true;
-      }
-      
-      // Validate session token matches
-      return user.sessionToken === sessionToken;
-    } catch (error) {
-      console.error('Database error in validateSession:', error);
-      // On database error, return false to trigger user creation
-      return false;
-    }
-  }
-
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async createUser(email: string, passwordHash: string, childName?: string): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
+      .values({
+        email: email.toLowerCase(),
+        passwordHash,
+        childName: childName || null,
+        onboardingComplete: false,
       })
       .returning();
     return user;
+  }
+
+  async setResetToken(userId: string, token: string, expiry: Date): Promise<void> {
+    await db
+      .update(users)
+      .set({ resetToken: token, resetTokenExpiry: expiry, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.resetToken, token));
+    return user;
+  }
+
+  async clearResetToken(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ resetToken: null, resetTokenExpiry: null, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async migrateAnonymousData(oldPlayerId: string, newUserId: string): Promise<void> {
+    const oldUser = await this.getUser(oldPlayerId);
+    if (!oldUser) return;
+
+    await db.update(children).set({ parentId: newUserId }).where(eq(children.parentId, oldPlayerId));
+    await db.update(trickyWords).set({ userId: newUserId }).where(eq(trickyWords.userId, oldPlayerId));
+    await db.update(userAchievements).set({ userId: newUserId }).where(eq(userAchievements.userId, oldPlayerId));
+
+    const fieldsToMigrate: Partial<User> = {};
+    if (oldUser.childName) fieldsToMigrate.childName = oldUser.childName;
+    if (oldUser.gradeLevel) fieldsToMigrate.gradeLevel = oldUser.gradeLevel;
+    if (oldUser.onboardingComplete) fieldsToMigrate.onboardingComplete = oldUser.onboardingComplete;
+    if (oldUser.treasureDiamonds) fieldsToMigrate.treasureDiamonds = oldUser.treasureDiamonds;
+    if (oldUser.treasureCoins) fieldsToMigrate.treasureCoins = oldUser.treasureCoins;
+    if (oldUser.treasureCrowns) fieldsToMigrate.treasureCrowns = oldUser.treasureCrowns;
+    if (oldUser.treasureBags) fieldsToMigrate.treasureBags = oldUser.treasureBags;
+    if (oldUser.treasureStars) fieldsToMigrate.treasureStars = oldUser.treasureStars;
+    if (oldUser.treasureTrophies) fieldsToMigrate.treasureTrophies = oldUser.treasureTrophies;
+    if (oldUser.diegoTreasureDiamonds) fieldsToMigrate.diegoTreasureDiamonds = oldUser.diegoTreasureDiamonds;
+    if (oldUser.diegoTreasureCoins) fieldsToMigrate.diegoTreasureCoins = oldUser.diegoTreasureCoins;
+    if (oldUser.diegoTreasureCrowns) fieldsToMigrate.diegoTreasureCrowns = oldUser.diegoTreasureCrowns;
+    if (oldUser.diegoTreasureBags) fieldsToMigrate.diegoTreasureBags = oldUser.diegoTreasureBags;
+    if (oldUser.diegoTreasureStars) fieldsToMigrate.diegoTreasureStars = oldUser.diegoTreasureStars;
+    if (oldUser.diegoTreasureTrophies) fieldsToMigrate.diegoTreasureTrophies = oldUser.diegoTreasureTrophies;
+    if (oldUser.practiceCount) fieldsToMigrate.practiceCount = oldUser.practiceCount;
+    if (oldUser.perfectRunCount) fieldsToMigrate.perfectRunCount = oldUser.perfectRunCount;
+    if (oldUser.isPremium) fieldsToMigrate.isPremium = oldUser.isPremium;
+    if (oldUser.stripeCustomerId) fieldsToMigrate.stripeCustomerId = oldUser.stripeCustomerId;
+    if (oldUser.stripeSubscriptionId) fieldsToMigrate.stripeSubscriptionId = oldUser.stripeSubscriptionId;
+
+    if (Object.keys(fieldsToMigrate).length > 0) {
+      await this.updateUser(newUserId, fieldsToMigrate);
+    }
   }
 
   async updateUser(userId: string, updates: Partial<User>): Promise<User> {

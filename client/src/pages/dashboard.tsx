@@ -80,6 +80,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("redboot-auth-token");
     window.location.href = "/";
   };
 

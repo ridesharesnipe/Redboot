@@ -24,11 +24,13 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table (now for anonymous players - no auth required)
+// User storage table (email/password auth)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  sessionToken: varchar("session_token"), // Secret token for anonymous session security
   email: varchar("email").unique(),
+  passwordHash: varchar("password_hash"),
+  resetToken: varchar("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -210,6 +212,27 @@ export const progressRelations = relations(progress, ({ one }) => ({
     references: [wordLists.id],
   }),
 }));
+
+// Auth schemas
+export const signupSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  childName: z.string().optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset token is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({

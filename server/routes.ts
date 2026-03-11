@@ -1,9 +1,17 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { storage } from "./storage";
-import { insertChildSchema, insertWordListSchema, insertProgressSchema } from "@shared/schema";
+import { insertChildSchema, insertWordListSchema, insertProgressSchema, signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@shared/schema";
 import { z } from "zod";
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable must be set");
+}
+const JWT_SECRET: string = process.env.JWT_SECRET;
 
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
@@ -12,36 +20,23 @@ if (process.env.STRIPE_SECRET_KEY) {
   });
 }
 
-// Middleware to validate anonymous session
-async function validateSession(req: any, res: any, next: any) {
+function signToken(userId: string): string {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "30d" });
+}
+
+async function requireAuth(req: any, res: any, next: any) {
   try {
-    const playerId = req.headers['x-player-id'] as string;
-    const sessionToken = req.headers['x-session-token'] as string;
-
-    if (!playerId || !sessionToken) {
-      console.error('❌ Missing credentials - playerId:', playerId, 'sessionToken:', !!sessionToken);
-      return res.status(401).json({ message: 'Unauthorized: Missing credentials' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    console.log('🔐 Validating session for player:', playerId.substring(0, 8) + '...');
-
-    // Validate session or create new user
-    const isValid = await storage.validateSession(playerId, sessionToken);
-    if (!isValid) {
-      console.log('✨ Creating new user for player:', playerId.substring(0, 8) + '...');
-      await storage.getOrCreateUser(playerId, sessionToken);
-    }
-
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    req.userId = decoded.userId;
     next();
-  } catch (error: any) {
-    console.error('❌ Session validation error:', error);
-    console.error('❌ Error stack:', error?.stack);
-    console.error('❌ Error message:', error?.message);
-    return res.status(500).json({ 
-      message: 'Session validation failed', 
-      error: error?.message || String(error),
-      stack: error?.stack
-    });
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 }
 
@@ -51,12 +46,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
   });
 
-  // Auth user endpoint - now returns player data from anonymous ID
-  app.get('/api/auth/user', validateSession, async (req: any, res) => {
+  // Auth endpoints
+  app.post('/api/auth/signup', async (req, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const { email, password, childName } = signupSchema.parse(req.body);
+      
+      const existing = await storage.getUserByEmail(email);
+      if (existing) {
+        return res.status(400).json({ message: "An account with this email already exists" });
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await storage.createUser(email, passwordHash, childName);
+      const token = signToken(user.id);
+      
+      res.json({ token, user: { id: user.id, email: user.email, childName: user.childName } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Signup error:", error);
+      res.status(500).json({ message: "Failed to create account" });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = loginSchema.parse(req.body);
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      const valid = await bcrypt.compare(password, user.passwordHash);
+      if (!valid) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      const token = signToken(user.id);
+      res.json({ token, user: { id: user.id, email: user.email, childName: user.childName } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to log in" });
+    }
+  });
+
+  app.post('/api/auth/logout', (_req, res) => {
+    res.json({ success: true });
+  });
+
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = forgotPasswordSchema.parse(req.body);
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.json({ message: "If an account exists with that email, a reset link has been sent." });
+      }
+      
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const expiry = new Date(Date.now() + 60 * 60 * 1000);
+      await storage.setResetToken(user.id, resetToken, expiry);
+      
+      if (process.env.SENDGRID_API_KEY) {
+        try {
+          const sgMail = await import("@sendgrid/mail");
+          sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
+          
+          const host = req.headers.host || req.hostname;
+          const protocol = req.protocol;
+          const resetUrl = `${protocol}://${host}/reset-password?token=${resetToken}`;
+          
+          await sgMail.default.send({
+            to: email,
+            from: process.env.SENDGRID_FROM_EMAIL || "noreply@redboot.app",
+            subject: "Reset Your Password - Red Boot's Spelling Adventure",
+            html: `<p>You requested a password reset. Click the link below to set a new password:</p><p><a href="${resetUrl}">Reset Password</a></p><p>This link expires in 1 hour.</p><p>If you didn't request this, you can safely ignore this email.</p>`,
+          });
+        } catch (emailError) {
+          console.error("Failed to send reset email:", emailError);
+        }
+      } else {
+        console.log(`Password reset requested for ${email} (SendGrid not configured, email not sent)`);
+      }
+      
+      res.json({ message: "If an account exists with that email, a reset link has been sent." });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Failed to process request" });
+    }
+  });
+
+  app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+      const { token, password } = resetPasswordSchema.parse(req.body);
+      
+      const user = await storage.getUserByResetToken(token);
+      if (!user || !user.resetTokenExpiry || new Date() > user.resetTokenExpiry) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 10);
+      await storage.updateUser(user.id, { passwordHash });
+      await storage.clearResetToken(user.id);
+      
+      const jwtToken = signToken(user.id);
+      res.json({ token: jwtToken, user: { id: user.id, email: user.email, childName: user.childName } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
+  app.post('/api/auth/migrate', requireAuth, async (req: any, res) => {
+    try {
+      const { oldPlayerId } = req.body;
+      if (!oldPlayerId) {
+        return res.status(400).json({ message: "Old player ID is required" });
+      }
+      
+      await storage.migrateAnonymousData(oldPlayerId, req.userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Migration error:", error);
+      res.status(500).json({ message: "Failed to migrate data" });
+    }
+  });
+
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
       const user = await storage.getUser(playerId);
-      res.json(user);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ id: user.id, email: user.email, childName: user.childName, onboardingComplete: user.onboardingComplete });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -64,9 +198,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Onboarding endpoint (uses anonymous player ID with session validation)
-  app.post('/api/onboarding', validateSession, async (req, res) => {
+  app.post('/api/onboarding', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
 
       const { childName, gradeLevel, skip } = req.body;
       
@@ -90,9 +224,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Photos now stored in browser IndexedDB - no server routes needed!
 
   // Word Lists API routes (uses anonymous player ID with session validation)
-  app.get('/api/word-lists', validateSession, async (req: any, res) => {
+  app.get('/api/word-lists', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
 
       // For now, use the user's childName as the default child
       // Later can expand to support multiple children
@@ -123,9 +257,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/word-lists', validateSession, async (req, res) => {
+  app.post('/api/word-lists', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       console.log('📝 Creating word list for player:', playerId.substring(0, 8) + '...', 'Words:', req.body.words?.length);
 
       // Validate request body (without childId - we'll add it below)
@@ -179,9 +313,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/word-lists/:id', validateSession, async (req, res) => {
+  app.get('/api/word-lists/:id', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
 
       const wordList = await storage.getWordList(req.params.id);
       if (!wordList) {
@@ -202,9 +336,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Progress API routes (uses anonymous player ID with session validation)
-  app.get('/api/progress', validateSession, async (req: any, res) => {
+  app.get('/api/progress', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
 
       // Get child
       const children = await storage.getChildren(playerId);
@@ -221,9 +355,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/progress', validateSession, async (req, res) => {
+  app.post('/api/progress', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
 
       // Validate request body
       const validatedData = insertProgressSchema.parse(req.body);
@@ -253,9 +387,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Treasure Vault API routes (uses anonymous player ID with session validation)
-  app.get('/api/treasures', validateSession, async (req: any, res) => {
+  app.get('/api/treasures', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const userData = await storage.getUser(playerId);
       
       // If user doesn't exist yet, return empty treasure vault (all zeros)
@@ -304,9 +438,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/treasures/add', validateSession, async (req, res) => {
+  app.post('/api/treasures/add', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
 
       const { character, amount } = req.body;
       if (!character || !amount || amount <= 0) {
@@ -363,9 +497,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Tricky Words API routes
-  app.get('/api/tricky-words', validateSession, async (req: any, res) => {
+  app.get('/api/tricky-words', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const status = req.query.status as 'active' | 'mastered' | undefined;
       
       const trickyWords = await storage.getTrickyWords(playerId, status);
@@ -376,9 +510,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/tricky-words', validateSession, async (req, res) => {
+  app.post('/api/tricky-words', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { word } = req.body;
       
       if (!word || typeof word !== 'string') {
@@ -393,9 +527,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/tricky-words/attempt', validateSession, async (req, res) => {
+  app.post('/api/tricky-words/attempt', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { word, correct } = req.body;
       
       if (!word || typeof word !== 'string' || typeof correct !== 'boolean') {
@@ -410,9 +544,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/tricky-words/bulk', validateSession, async (req, res) => {
+  app.post('/api/tricky-words/bulk', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { words } = req.body;
       
       if (!Array.isArray(words)) {
@@ -432,7 +566,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Achievement API routes
-  app.get('/api/achievements', validateSession, async (req: any, res) => {
+  app.get('/api/achievements', requireAuth, async (req: any, res) => {
     try {
       // Seed achievements if they don't exist
       await storage.seedAchievements();
@@ -445,9 +579,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/achievements/user', validateSession, async (req: any, res) => {
+  app.get('/api/achievements/user', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       
       // Seed achievements if they don't exist
       await storage.seedAchievements();
@@ -465,9 +599,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/achievements/award', validateSession, async (req, res) => {
+  app.post('/api/achievements/award', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { achievementId, metadata } = req.body;
       
       if (!achievementId) {
@@ -489,9 +623,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Award next perfect run badge in sequence
-  app.post('/api/achievements/perfect-run', validateSession, async (req, res) => {
+  app.post('/api/achievements/perfect-run', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { wordsTotal } = req.body;
       
       // Get user's current perfect run count
@@ -554,9 +688,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/achievements/check', validateSession, async (req, res) => {
+  app.post('/api/achievements/check', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { achievementId } = req.body;
       
       if (!achievementId) {
@@ -572,9 +706,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Comprehensive badge check - awards ALL relevant badges after practice
-  app.post('/api/achievements/check-all', validateSession, async (req, res) => {
+  app.post('/api/achievements/check-all', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       const { isPerfect, wordsCorrect, treasureTotal } = req.body;
       
       // All badge definitions with thresholds
@@ -674,9 +808,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics API - Real-time dashboard data with comprehensive word-level breakdown
-  app.get('/api/analytics', validateSession, async (req: any, res) => {
+  app.get('/api/analytics', requireAuth, async (req: any, res) => {
     try {
-      const playerId = req.headers['x-player-id'] as string;
+      const playerId = req.userId;
       
       // Get user data
       const userData = await storage.getUser(playerId);

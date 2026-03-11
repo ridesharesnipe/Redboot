@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon, LogOut } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 import { useLocation } from "wouter";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -14,9 +14,10 @@ interface ParentDashboardProps {
   onViewPractice: () => void;
   onStartTest: () => void;
   onViewGuide: () => void;
+  onLogout?: () => void;
 }
 
-export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTest, onViewGuide }: ParentDashboardProps) {
+export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTest, onViewGuide, onLogout }: ParentDashboardProps) {
   const [, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [stats, setStats] = useState<{
@@ -563,7 +564,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
             Update Child Info
           </Button>
           
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <Button
               onClick={toggleTheme}
               className="clay-button px-4 py-3 flex items-center gap-2 micro-bounce bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -577,6 +578,18 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
               )}
               <span className="hidden sm:inline">{theme === 'light' ? 'Dark' : 'Light'}</span>
             </Button>
+            {onLogout && (
+              <Button
+                onClick={onLogout}
+                variant="outline"
+                className="clay-button px-4 py-3 flex items-center gap-2 micro-bounce"
+                data-testid="button-logout"
+                title="Log out"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="hidden sm:inline">Log Out</span>
+              </Button>
+            )}
           </div>
         </div>
         
