@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { spellingStorage } from '@/lib/localStorage';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { CheckCircle, XCircle, Award, Clock, FileText, X } from 'lucide-react';
 
 interface TestResult {
@@ -140,38 +141,36 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
       timeTaken
     };
     
-    setTestResults(prev => [...prev, result]);
+    const updatedResults = [...testResults, result];
+    setTestResults(updatedResults);
     setUserInput('');
     setIsWordSpoken(false);
     
-    // Subtle feedback during test (no character voices to avoid distraction)
     if (isCorrect) {
       playSound('spell_correct', 0.3);
     } else {
       playSound('spell_incorrect', 0.3);
     }
     
-    // Move to next word or finish test
     if (currentWordIndex >= testWords.length - 1) {
-      finishTest();
+      finishTest(updatedResults);
     } else {
       setCurrentWordIndex(prev => prev + 1);
     }
   };
 
-  const finishTest = () => {
+  const finishTest = (finalResults?: TestResult[]) => {
+    const allResults = finalResults || testResults;
     setIsTestComplete(true);
     setFocusMode(false);
     
     const totalTimeSpent = testStartTime ? 
       Math.round((Date.now() - testStartTime.getTime()) / 1000) : 0;
     
-    // Calculate final score
-    const correctAnswers = testResults.filter(r => r.isCorrect).length;
+    const correctAnswers = allResults.filter(r => r.isCorrect).length;
     const totalQuestions = testWords.length;
     const percentage = Math.round((correctAnswers / totalQuestions) * 100);
     
-    // Show results after brief delay
     setTimeout(() => {
       setShowResults(true);
       playCharacterVoice('red_boot_adventure_complete');
@@ -183,13 +182,62 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
       }
     }, 1000);
     
-    // Call completion callback
+    const correctWords = allResults.filter(r => r.isCorrect).map(r => r.word);
+    const incorrectWords = allResults.filter(r => !r.isCorrect).map(r => r.word);
+
+    (async () => {
+      try {
+        let wordListId: string | null = null;
+        const savedWords = localStorage.getItem('currentSpellingWords');
+        if (savedWords) {
+          try {
+            const parsed = JSON.parse(savedWords);
+            wordListId = parsed.wordListId || null;
+          } catch (e) {}
+        }
+
+        if (!wordListId) {
+          try {
+            const res = await fetch('/api/word-lists', { credentials: 'include' });
+            if (res.ok) {
+              const lists = await res.json();
+              if (Array.isArray(lists) && lists.length > 0) {
+                wordListId = lists[0].id;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (wordListId) {
+          await apiRequest('POST', '/api/progress', {
+            wordListId,
+            characterUsed: 'red-boot',
+            correctWords,
+            incorrectWords,
+            timeSpent: totalTimeSpent,
+            score: percentage
+          });
+        }
+
+        if (incorrectWords.length > 0) {
+          await apiRequest('POST', '/api/tricky-words/bulk', { words: incorrectWords });
+        }
+
+        queryClient.invalidateQueries({ queryKey: ['/api/progress'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/analytics'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/tricky-words'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/achievements/user'] });
+      } catch (error) {
+        console.error('Failed to save test progress:', error);
+      }
+    })();
+
     setTimeout(() => {
       onComplete({
         score: correctAnswers,
         total: totalQuestions,
         percentage,
-        results: testResults,
+        results: allResults,
         timeSpent: totalTimeSpent
       });
     }, 3000);

@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { Headphones, ArrowRightCircle, Sparkles, CheckCircle, XCircle, X, HelpCircle } from 'lucide-react';
 import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 
@@ -151,6 +151,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       } else {
         localStorage.removeItem('trickyWordsForPractice');
       }
+
+      queryClient.invalidateQueries({ queryKey: ['/api/progress'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/word-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tricky-words'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/achievements/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/treasures'] });
     } catch (error) {
       console.error('Failed to save treasures:', error);
     }
@@ -297,7 +304,18 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           retryStartedRef.current = false;
           setEarnedBadge(null);
           setPracticeWords(words);
-          setWordListId(listId);
+          if (listId) {
+            setWordListId(listId);
+          } else {
+            fetch('/api/word-lists', { credentials: 'include' })
+              .then(res => res.ok ? res.json() : [])
+              .then(lists => {
+                if (Array.isArray(lists) && lists.length > 0) {
+                  setWordListId(lists[0].id);
+                }
+              })
+              .catch(() => {});
+          }
           playCharacterVoice('red_boot_ahoy');
           return;
         }

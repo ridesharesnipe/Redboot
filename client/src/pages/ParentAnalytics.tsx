@@ -187,7 +187,7 @@ export default function ParentAnalytics() {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'} transition-colors duration-300`}>
       {/* Glass Header */}
-      <header className={`sticky top-0 z-30 w-full px-6 py-4 border-b backdrop-blur-xl ${
+      <header className={`sticky top-0 z-30 w-full px-4 sm:px-6 py-3 sm:py-4 border-b backdrop-blur-xl ${
         isDark 
           ? 'bg-slate-800/50 border-slate-700/50' 
           : 'bg-white/70 border-slate-200'
@@ -232,7 +232,7 @@ export default function ParentAnalytics() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-10 space-y-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
         {/* Title Section */}
         <section className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -333,7 +333,7 @@ export default function ParentAnalytics() {
           <h3 className={`font-bold mb-4 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
             📈 This Week vs Last Week
           </h3>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className={`text-xs font-medium mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Accuracy</p>
               <div className="flex items-baseline gap-2">
@@ -425,7 +425,7 @@ export default function ParentAnalytics() {
             </div>
           </div>
           
-          <div className={`h-64 flex items-end justify-between gap-4 px-4 border-b ${
+          <div className={`h-64 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 border-b overflow-x-auto ${
             isDark ? 'border-slate-700' : 'border-slate-100'
           }`}>
             {dailyProgress.map((day, i) => {
@@ -434,7 +434,7 @@ export default function ParentAnalytics() {
               const isToday = dayAbbr === today;
               
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                <div key={i} className="flex-1 min-w-[2rem] flex flex-col items-center gap-2 group">
                   <div 
                     className={`w-full rounded-t-lg transition-all duration-300 cursor-pointer ${
                       isToday 

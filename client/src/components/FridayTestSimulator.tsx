@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import RedBootCharacter from "./RedBootCharacter";
 import { Volume2, Trophy, Target, RotateCcw, Home } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface TestResult {
   word: string;
@@ -75,12 +76,64 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
         speakWord(shuffledWords[currentWordIndex + 1]);
       }, 500);
     } else {
-      // Test complete
+      const allResults = [...testResults, result];
       setTestPhase("results");
       setTimeCompleted(new Date());
       if (onComplete) {
-        onComplete([...testResults, result]);
+        onComplete(allResults);
       }
+
+      const correctWords = allResults.filter(r => r.correct).map(r => r.word);
+      const incorrectWords = allResults.filter(r => !r.correct).map(r => r.word);
+      const totalTimeSpent = timeStarted ? Math.round((Date.now() - timeStarted.getTime()) / 1000) : 0;
+      const percentage = allResults.length > 0 ? Math.round((correctWords.length / allResults.length) * 100) : 0;
+
+      (async () => {
+        try {
+          let wordListId: string | null = null;
+          const savedWords = localStorage.getItem('currentSpellingWords');
+          if (savedWords) {
+            try {
+              const parsed = JSON.parse(savedWords);
+              wordListId = parsed.wordListId || null;
+            } catch (e) {}
+          }
+
+          if (!wordListId) {
+            try {
+              const res = await fetch('/api/word-lists', { credentials: 'include' });
+              if (res.ok) {
+                const lists = await res.json();
+                if (Array.isArray(lists) && lists.length > 0) {
+                  wordListId = lists[0].id;
+                }
+              }
+            } catch (e) {}
+          }
+
+          if (wordListId) {
+            await apiRequest('POST', '/api/progress', {
+              wordListId,
+              characterUsed: 'red-boot',
+              correctWords,
+              incorrectWords,
+              timeSpent: totalTimeSpent,
+              score: percentage
+            });
+          }
+
+          if (incorrectWords.length > 0) {
+            await apiRequest('POST', '/api/tricky-words/bulk', { words: incorrectWords });
+          }
+
+          queryClient.invalidateQueries({ queryKey: ['/api/progress'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/analytics'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/tricky-words'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/achievements/user'] });
+        } catch (error) {
+          console.error('Failed to save test simulator progress:', error);
+        }
+      })();
     }
   };
 

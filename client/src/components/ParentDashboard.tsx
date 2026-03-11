@@ -65,76 +65,70 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     queryKey: ['/api/achievements/user'],
   });
 
-  // Check if new week detection is needed
   const checkIfNewWeek = () => {
+    let savedDate: string | undefined;
+
     const saved = localStorage.getItem('currentSpellingWords');
-    if (!saved) return true;
-    
-    try {
-      const { savedDate } = JSON.parse(saved);
-      if (!savedDate) return true;
-      
-      const lastDate = new Date(savedDate);
-      const now = new Date();
-      const daysSince = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      return daysSince >= 7; // New week if 7+ days
-    } catch (e) {
-      return true;
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        savedDate = data.savedDate;
+      } catch (e) {}
     }
+
+    if (!savedDate && wordLists && Array.isArray(wordLists) && wordLists.length > 0) {
+      savedDate = wordLists[0].createdDate;
+    }
+
+    if (!savedDate) return true;
+    
+    const lastDate = new Date(savedDate);
+    const now = new Date();
+    const daysSince = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return daysSince >= 7;
   };
 
-  // Calculate today's actual practice data
   const getTodaysPracticeData = () => {
-    const practiceProgress = localStorage.getItem('practiceProgress');
-    if (!practiceProgress) return { wordsToday: 0, correctToday: 0, treasuresEarned: 0 };
-    
-    try {
-      const progressData = JSON.parse(practiceProgress);
-      const practiceHistory = progressData._practiceHistory || [];
-      
-      // Get today's date (start of day)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      
-      // Filter sessions to today only
-      const todaysSessions = practiceHistory.filter((session: any) => {
-        if (!session.date) return false;
-        const sessionDate = new Date(session.date);
-        return sessionDate >= today && sessionDate < tomorrow;
-      });
-      
-      let wordsToday = 0;
-      let correctToday = 0;
-      let treasuresEarned = 0;
-      
-      // Count today's practice
-      todaysSessions.forEach((session: any) => {
-        if (session.wordsPracticed) {
-          wordsToday += session.wordsPracticed.length;
-          session.wordsPracticed.forEach((result: any) => {
-            if (result.correct) {
-              correctToday++;
-              treasuresEarned++; // 1 treasure per correct word today
-            }
-          });
-        }
-      });
-      
-      return { wordsToday, correctToday, treasuresEarned };
-    } catch (e) {
-      console.error('Failed to calculate today practice data:', e);
+    if (!progressRecords || !Array.isArray(progressRecords)) {
       return { wordsToday: 0, correctToday: 0, treasuresEarned: 0 };
     }
+
+    const activeChildId = wordLists && Array.isArray(wordLists) && wordLists.length > 0
+      ? wordLists[0].childId
+      : null;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todaysSessions = progressRecords.filter((p: any) => {
+      if (!p.completedAt) return false;
+      if (activeChildId && p.childId !== activeChildId) return false;
+      const sessionDate = new Date(p.completedAt);
+      return sessionDate >= today && sessionDate < tomorrow;
+    });
+
+    let wordsToday = 0;
+    let correctToday = 0;
+    let treasuresEarned = 0;
+
+    todaysSessions.forEach((session: any) => {
+      const correct = session.correctWords?.length || 0;
+      const incorrect = session.incorrectWords?.length || 0;
+      wordsToday += correct + incorrect;
+      correctToday += correct;
+      treasuresEarned += correct;
+    });
+
+    return { wordsToday, correctToday, treasuresEarned };
   };
 
   const checkWeekStatus = () => {
     if (checkIfNewWeek()) {
       setShowNewWeekPrompt(true);
     } else {
-      // Try database first for word lists
       let words: string[] | undefined;
       let savedDate: string | undefined;
       
@@ -143,91 +137,99 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
         words = mostRecentList.words;
         savedDate = mostRecentList.createdDate || new Date().toISOString();
       } else {
-        // Fallback to localStorage
         const saved = localStorage.getItem('currentSpellingWords');
         if (saved) {
           try {
             const data = JSON.parse(saved);
             words = data.words;
             savedDate = data.savedDate;
-          } catch (e) {
-            // Ignore parse errors
-          }
+          } catch (e) {}
         }
       }
       
       if (words && words.length > 0) {
-        // Calculate real progress from practice sessions
-        const practiceProgress = localStorage.getItem('practiceProgress');
         let realStats = {
           totalWords: words.length,
           newWords: 0,
           learningWords: 0, 
           masteredWords: 0,
           troubleWords: 0,
-          daysThisWeek: [false, false, false, false, false],
+          daysThisWeek: [false, false, false, false, false] as boolean[],
           readyForTest: false,
           treasureCount: 0
         };
         
-        if (practiceProgress) {
-          try {
-            const progressData = JSON.parse(practiceProgress);
-              
-              // Calculate word status based on practice data
-              words.forEach((word: string) => {
-                const wordProgress = progressData[word.toLowerCase()];
-                if (wordProgress) {
-                  const { correctCount = 0, totalAttempts = 0 } = wordProgress;
-                  const accuracy = totalAttempts > 0 ? correctCount / totalAttempts : 0;
-                  
-                  if (totalAttempts === 0) {
-                    realStats.newWords++;
-                  } else if (accuracy >= 0.8 && correctCount >= 3) {
-                    realStats.masteredWords++;
-                    realStats.treasureCount += 3; // 3 treasure per mastered word
-                  } else if (accuracy >= 0.5 && totalAttempts >= 2) {
-                    realStats.learningWords++;
-                    realStats.treasureCount += 1; // 1 treasure per learning word
-                  } else {
-                    realStats.troubleWords++;
-                  }
-                } else {
-                  realStats.newWords++;
-                }
-              });
-              
-              // Calculate days practiced this week
-              const practiceHistory = progressData._practiceHistory || [];
-              const oneWeekAgo = new Date();
-              oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-              
-              const thisWeekDays = [false, false, false, false, false]; // Mon-Fri
-              practiceHistory.forEach((session: any) => {
-                if (session.date) {
-                  const sessionDate = new Date(session.date);
-                  if (sessionDate >= oneWeekAgo) {
-                    const dayOfWeek = sessionDate.getDay(); // 0=Sunday, 1=Monday
-                    if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
-                      thisWeekDays[dayOfWeek - 1] = true;
-                    }
-                  }
-                }
-              });
-              realStats.daysThisWeek = thisWeekDays;
-              
-              // Determine readiness for test
-              const masteryRate = realStats.totalWords > 0 ? realStats.masteredWords / realStats.totalWords : 0;
-              realStats.readyForTest = masteryRate >= 0.7;
-              
-          } catch (e) {
-            console.error('Failed to parse practice progress:', e);
+        const allRecords = Array.isArray(progressRecords) ? progressRecords : [];
+        const activeChildId = wordLists && Array.isArray(wordLists) && wordLists.length > 0
+          ? wordLists[0].childId
+          : null;
+        const records = activeChildId
+          ? allRecords.filter((p: any) => p.childId === activeChildId)
+          : allRecords;
+
+        const sortedRecords = [...records].sort((a: any, b: any) => {
+          const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+          const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+          return dateA - dateB;
+        });
+
+        const wordStreaks: Record<string, { streak: number; wasMastered: boolean; total: number }> = {};
+        sortedRecords.forEach((p: any) => {
+          (p.correctWords || []).forEach((w: string) => {
+            const key = w.toLowerCase();
+            if (!wordStreaks[key]) wordStreaks[key] = { streak: 0, wasMastered: false, total: 0 };
+            wordStreaks[key].streak++;
+            wordStreaks[key].total++;
+            if (wordStreaks[key].streak >= 2) {
+              wordStreaks[key].wasMastered = true;
+            }
+          });
+          (p.incorrectWords || []).forEach((w: string) => {
+            const key = w.toLowerCase();
+            if (!wordStreaks[key]) wordStreaks[key] = { streak: 0, wasMastered: false, total: 0 };
+            wordStreaks[key].streak = 0;
+            wordStreaks[key].total++;
+          });
+        });
+
+        words.forEach((word: string) => {
+          const ws = wordStreaks[word.toLowerCase()];
+          if (!ws || ws.total === 0) {
+            realStats.newWords++;
+          } else if (ws.streak >= 2) {
+            realStats.masteredWords++;
+            realStats.treasureCount += 3;
+          } else if (ws.wasMastered && ws.streak < 2) {
+            realStats.troubleWords++;
+          } else if (ws.total >= 1) {
+            realStats.learningWords++;
+            realStats.treasureCount += 1;
+          } else {
+            realStats.troubleWords++;
           }
-        }
+        });
+
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const thisWeekDays = [false, false, false, false, false];
+        records.forEach((p: any) => {
+          if (p.completedAt) {
+            const sessionDate = new Date(p.completedAt);
+            if (sessionDate >= oneWeekAgo) {
+              const dayOfWeek = sessionDate.getDay();
+              if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                thisWeekDays[dayOfWeek - 1] = true;
+              }
+            }
+          }
+        });
+        realStats.daysThisWeek = thisWeekDays;
+
+        const masteryRate = realStats.totalWords > 0 ? realStats.masteredWords / realStats.totalWords : 0;
+        realStats.readyForTest = masteryRate >= 0.7;
         
         setStats(realStats);
         
-        // Set weekData to prevent null reference errors
         setWeekData({
           words: words || [],
           practiceData: {},
@@ -238,7 +240,6 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     }
   };
 
-  // Load stats and photos on component mount and when wordLists loads
   useEffect(() => {
     try {
       checkWeekStatus();
@@ -247,7 +248,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
     } catch (error) {
       console.error('Error loading stats:', error);
     }
-  }, [wordLists]);
+  }, [wordLists, progressRecords]);
 
   const loadPhotos = async () => {
     try {

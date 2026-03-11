@@ -340,15 +340,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const playerId = req.userId;
 
-      // Get child
       const children = await storage.getChildren(playerId);
       if (children.length === 0) {
         return res.json([]);
       }
       
-      const childId = children[0].id;
-      const progressData = await storage.getProgress(childId);
-      res.json(progressData);
+      const allProgress: any[] = [];
+      for (const child of children) {
+        const childProgress = await storage.getProgress(child.id);
+        allProgress.push(...childProgress);
+      }
+      res.json(allProgress);
     } catch (error) {
       console.error('Error fetching progress:', error);
       res.status(500).json({ message: 'Failed to fetch progress' });
@@ -359,18 +361,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const playerId = req.userId;
 
-      // Validate request body
       const validatedData = insertProgressSchema.parse(req.body);
 
-      // Get child
       const children = await storage.getChildren(playerId);
       if (children.length === 0) {
         return res.status(400).json({ message: 'No child profile found' });
       }
       
-      const childId = children[0].id;
+      let childId = children[0].id;
+
+      if (validatedData.wordListId) {
+        const wordList = await storage.getWordList(validatedData.wordListId);
+        if (wordList) {
+          const ownerChild = children.find(c => c.id === wordList.childId);
+          if (ownerChild) {
+            childId = ownerChild.id;
+          } else {
+            return res.status(403).json({ message: 'Word list does not belong to your children' });
+          }
+        }
+      }
       
-      // Create progress record
       const progressRecord = await storage.createProgress({
         ...validatedData,
         childId,
@@ -841,10 +852,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalWordsInList = currentWordList?.words?.length || 0;
       const totalPracticeSessions = progressData.length;
       
-      // Build word-level analytics from all progress records
-      const wordStats: Record<string, { attempts: number; correct: number; incorrect: number; lastPracticed: string }> = {};
+      const sortedProgress = [...progressData].sort((a: any, b: any) => {
+        const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+        const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+        return dateA - dateB;
+      });
+
+      const wordStats: Record<string, { attempts: number; correct: number; incorrect: number; streak: number; wasMastered: boolean; lastPracticed: string }> = {};
       
-      progressData.forEach((p: any) => {
+      sortedProgress.forEach((p: any) => {
         const correctWords = p.correctWords || [];
         const incorrectWords = p.incorrectWords || [];
         const practiceDate = p.completedAt || new Date().toISOString();
@@ -852,32 +868,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         correctWords.forEach((word: string) => {
           const w = word.toLowerCase();
           if (!wordStats[w]) {
-            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, lastPracticed: practiceDate };
+            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, streak: 0, wasMastered: false, lastPracticed: practiceDate };
           }
           wordStats[w].attempts++;
           wordStats[w].correct++;
+          wordStats[w].streak++;
+          if (wordStats[w].streak >= 2) wordStats[w].wasMastered = true;
           wordStats[w].lastPracticed = practiceDate;
         });
         
         incorrectWords.forEach((word: string) => {
           const w = word.toLowerCase();
           if (!wordStats[w]) {
-            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, lastPracticed: practiceDate };
+            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, streak: 0, wasMastered: false, lastPracticed: practiceDate };
           }
           wordStats[w].attempts++;
           wordStats[w].incorrect++;
+          wordStats[w].streak = 0;
           wordStats[w].lastPracticed = practiceDate;
         });
       });
       
-      // Convert to array with accuracy calculations
       const wordBreakdown = Object.entries(wordStats).map(([word, stats]) => {
         const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0;
         let status: 'mastered' | 'practicing' | 'learning' = 'learning';
-        if (accuracy >= 80 && stats.correct >= 3) {
+        if (stats.streak >= 2) {
           status = 'mastered';
-        } else if (accuracy >= 50) {
+        } else if (stats.wasMastered && stats.streak < 2) {
           status = 'practicing';
+        } else if (stats.attempts >= 1) {
+          status = 'learning';
         }
         return {
           word,

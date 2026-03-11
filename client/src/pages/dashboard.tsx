@@ -27,6 +27,30 @@ export default function Dashboard() {
     retry: false,
   });
 
+  const { data: progressRecords } = useQuery<any[]>({
+    queryKey: ["/api/progress"],
+  });
+
+  const getChildAccuracy = (childId: string): number => {
+    if (!progressRecords || !Array.isArray(progressRecords)) return 0;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const childRecords = progressRecords.filter((p: any) => {
+      if (!p.completedAt || p.childId !== childId) return false;
+      return new Date(p.completedAt) >= oneWeekAgo;
+    });
+    if (childRecords.length === 0) return 0;
+    let totalCorrect = 0;
+    let totalWords = 0;
+    childRecords.forEach((p: any) => {
+      const correct = p.correctWords?.length || 0;
+      const incorrect = p.incorrectWords?.length || 0;
+      totalCorrect += correct;
+      totalWords += correct + incorrect;
+    });
+    return totalWords > 0 ? Math.round((totalCorrect / totalWords) * 100) : 0;
+  };
+
   const addChildMutation = useMutation({
     mutationFn: async (childData: { name: string; age: number; grade: string }) => {
       await apiRequest("POST", "/api/children", childData);
@@ -207,10 +231,10 @@ export default function Dashboard() {
                       <div className="flex justify-between text-sm mb-4">
                         <span className="text-muted-foreground">This Week</span>
                         <span className="font-medium text-foreground" data-testid={`text-child-accuracy-${child.id}`}>
-                          {Math.floor(Math.random() * 30) + 70}% accuracy
+                          {getChildAccuracy(child.id)}% accuracy
                         </span>
                       </div>
-                      <Progress value={Math.floor(Math.random() * 30) + 70} className="h-2 mb-4" />
+                      <Progress value={getChildAccuracy(child.id)} className="h-2 mb-4" />
                       <div className="flex gap-3">
                         <Link href={`/game/${child.id}`} className="flex-1">
                           <Button 
