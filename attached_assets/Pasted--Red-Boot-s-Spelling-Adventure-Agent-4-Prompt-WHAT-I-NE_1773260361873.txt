@@ -1,0 +1,68 @@
+# Red Boot's Spelling Adventure — Agent 4 Prompt
+
+## WHAT I NEED
+
+1. **Wrap this app in Capacitor** for iOS and Android. Do not rewrite anything. Keep all existing code, components, features, and assets exactly as they are.
+2. **Replace Replit Auth** with email + password login so users have a real account that works outside of Replit.
+
+That's it. Do not add new features. Do not change the UI. Do not restructure anything.
+
+---
+
+## CAPACITOR
+
+Install `@capacitor/core`, `@capacitor/cli`, `@capacitor/ios`, `@capacitor/android`.
+
+Plugins to install:
+- `@capacitor/camera` — wire into the existing OCR photo capture flow. Use `Camera.getPhoto()` on native, keep existing browser behavior on web.
+- `@capacitor/splash-screen` — use Red Boot art from `/attached_assets/`
+- `@capacitor/status-bar` — match the pirate theme
+- `@capacitor/keyboard` — handle keyboard for spelling input fields
+
+Generate app icons and splash screen from the Red Boot character art in `/attached_assets/`.
+
+App name: "Red Boot's Spelling Adventure"
+Category: Education / Kids
+
+---
+
+## AUTHENTICATION
+
+Replace Replit Auth with simple email + password.
+
+- Email + password signup
+- Email + password login
+- Forgot password / reset password (send reset link via SendGrid)
+- No email verification needed — sign up and you're in
+- Persistent login session so user doesn't have to log in every time they open the app
+
+Remove all Replit Auth references from the codebase.
+
+---
+
+## EXACT REPLICA
+
+The mobile app must be an identical replica of the existing web app. Same UI, same features, same animations, same characters, same audio, same everything. The only difference is email/password auth instead of Replit Auth.
+
+---
+
+## BUILD ORDER (parallel agents)
+
+1. **Thread 1**: Replace Replit Auth with email/password auth (signup, login, password reset, JWT sessions)
+2. **Thread 2**: Capacitor setup with plugins, camera wiring, app icons, splash screen
+3. **Thread 3**: Verify every existing feature works correctly in the Capacitor build
+
+---
+
+## VERIFY BEFORE DONE
+
+- [ ] Web app still works in browser
+- [ ] iOS build runs correctly
+- [ ] Android build runs correctly
+- [ ] All character images render on mobile
+- [ ] All animations play smoothly
+- [ ] Camera opens and OCR works on device
+- [ ] Audio and TTS work on mobile
+- [ ] Signup and login work
+- [ ] Password reset works
+- [ ] All existing features function exactly as before
