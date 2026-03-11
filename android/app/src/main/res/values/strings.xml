@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Red Boot\'s Spelling Adventure</string>
+    <string name="title_activity_main">Red Boot\'s Spelling Adventure</string>
+    <string name="package_name">com.redbootsadventure.app</string>
+    <string name="custom_url_scheme">com.redbootsadventure.app</string>
+</resources>

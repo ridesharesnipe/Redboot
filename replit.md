@@ -156,6 +156,15 @@ Preferred communication style: Simple, everyday language.
 - **Web Speech API**: Text-to-speech for word pronunciation and speech recognition for voice commands
 - **Camera API**: Photo capture functionality for extracting spelling words from physical documents
 
+### Native Mobile (Capacitor)
+- **Capacitor 7**: Wraps the Vite web app for iOS and Android native deployment
+- **Bundle ID**: `com.redbootsadventure.app`
+- **App Name**: "Red Boot's Spelling Adventure"
+- **Plugins**: `@capacitor/camera` (photo capture on native), `@capacitor/splash-screen`, `@capacitor/status-bar`, `@capacitor/keyboard`
+- **Native Projects**: `ios/` and `android/` directories contain platform-specific code
+- **Build Flow**: `npm run build` → `npx cap sync` → `npx cap open ios` / `npx cap open android`
+- **Camera**: Uses `Capacitor.isNativePlatform()` to detect native vs web; native uses `Camera.getPhoto()`, web uses browser `getUserMedia`
+
 ### Development Tools
 - **Replit Platform**: Integrated development environment with cartographer and dev banner plugins
 - **ESBuild**: Fast bundling for production builds

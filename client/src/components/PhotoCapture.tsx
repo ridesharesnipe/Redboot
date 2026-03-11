@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { Capacitor } from '@capacitor/core';
+import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,11 +61,39 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     }
   }, [stream, isCameraActive]);
 
-  // Start camera
+  // Start camera - uses Capacitor Camera plugin on native, browser getUserMedia on web
   const startCamera = async () => {
     setCameraError(null);
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const photo = await CapCamera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.DataUrl,
+          source: CameraSource.Camera,
+          width: 1280,
+          height: 720,
+        });
+
+        if (photo.dataUrl) {
+          setCapturedImage(photo.dataUrl);
+          processImage(photo.dataUrl);
+          onCapture(photo.dataUrl);
+        }
+      } catch (error) {
+        console.error('Capacitor camera error:', error);
+        setCameraError('Camera access failed. You can still upload a photo instead.');
+        toast({
+          title: "Camera Access Failed",
+          description: "Please allow camera access or use the upload option instead.",
+          variant: "destructive",
+        });
+      }
+      return;
+    }
     
-    // Check if camera is available
+    // Web fallback: use browser getUserMedia
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setCameraError('Camera not available on this device. Please use the upload option.');
       toast({
@@ -77,7 +107,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
-          facingMode: 'environment', // Back camera on mobile
+          facingMode: 'environment',
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }
