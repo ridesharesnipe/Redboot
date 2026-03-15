@@ -1,7 +1,7 @@
 import { useState, useEffect, Component, ReactNode } from "react";
 import { Router, Route, Switch, useLocation, Redirect } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient, getAuthToken, clearAuthToken } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import OnboardingCards from "@/components/OnboardingCards";
@@ -17,10 +17,6 @@ import TreasureVault from "@/pages/TreasureVault";
 import BadgeGallery from "@/pages/BadgeGallery";
 import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ResetPassword from "@/pages/ResetPassword";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
@@ -70,7 +66,7 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
   );
 };
 
-function AuthRouter({ onLogout }: { onLogout: () => void }) {
+function AppRouter() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showChildSetup, setShowChildSetup] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
@@ -159,7 +155,6 @@ function AuthRouter({ onLogout }: { onLogout: () => void }) {
           onViewPractice={() => setLocation('/practice')}
           onStartTest={() => setLocation('/test')}
           onViewGuide={() => setLocation('/guide')}
-          onLogout={onLogout}
         />
       </div>
     );
@@ -237,86 +232,10 @@ function AuthRouter({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-function UnauthRouter({ onLogin }: { onLogin: () => void }) {
-  return (
-    <Router>
-      <TooltipProvider>
-        <Toaster />
-        <Switch>
-          <Route path="/signup">
-            <Signup onLogin={onLogin} />
-          </Route>
-          <Route path="/forgot-password">
-            <ForgotPassword />
-          </Route>
-          <Route path="/reset-password">
-            <ResetPassword onLogin={onLogin} />
-          </Route>
-          <Route>
-            <Login onLogin={onLogin} />
-          </Route>
-        </Switch>
-      </TooltipProvider>
-    </Router>
-  );
-}
-
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const token = getAuthToken();
-    if (!token) {
-      setIsAuthenticated(false);
-      return;
-    }
-
-    fetch("/api/auth/user", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (res.ok) {
-          setIsAuthenticated(true);
-        } else {
-          clearAuthToken();
-          setIsAuthenticated(false);
-        }
-      })
-      .catch(() => {
-        clearAuthToken();
-        setIsAuthenticated(false);
-      });
-  }, []);
-
-  if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="text-4xl mb-4 animate-bounce">🏴‍☠️</div>
-          <p className="text-lg text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    queryClient.clear();
-  };
-
-  const handleLogout = () => {
-    clearAuthToken();
-    setIsAuthenticated(false);
-    queryClient.clear();
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
-      {isAuthenticated ? (
-        <AuthRouter onLogout={handleLogout} />
-      ) : (
-        <UnauthRouter onLogin={handleLogin} />
-      )}
+      <AppRouter />
     </QueryClientProvider>
   );
 }

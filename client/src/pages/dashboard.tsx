@@ -10,9 +10,8 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Child } from "@shared/schema";
-import { Anchor, Crown, LogOut, Upload, Mic, Map, User, TrendingUp, Plus } from "lucide-react";
+import { Anchor, Crown, Upload, Mic, Map, User, TrendingUp, Plus } from "lucide-react";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -66,18 +65,7 @@ export default function Dashboard() {
         description: "New pirate crew member added!",
       });
     },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 500);
-        return;
-      }
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to add child. Please try again.",
@@ -103,10 +91,6 @@ export default function Dashboard() {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("redboot-auth-token");
-    window.location.href = "/";
-  };
 
   if (isLoading) {
     return (
@@ -133,13 +117,6 @@ export default function Dashboard() {
             <span className="text-muted-foreground" data-testid="text-user-greeting">
               Welcome, Captain!
             </span>
-            <Button 
-              variant="ghost"
-              onClick={handleLogout}
-              data-testid="button-logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </nav>

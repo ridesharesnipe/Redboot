@@ -10,7 +10,6 @@ import type { WordProgress } from "@/components/SpellingMemoryGame";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Child, WordList } from "@shared/schema";
 
 export default function Game() {
@@ -59,21 +58,10 @@ export default function Game() {
         description: "Your treasure hunt progress has been recorded.",
       });
     },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized", 
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 500);
-        return;
-      }
+    onError: () => {
       toast({
         title: "Error",
-        description: "Failed to save progress. Please try again.", 
+        description: "Failed to save progress. Please try again.",
         variant: "destructive",
       });
     },

@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import { ArrowLeft, Lock, Shield, Check, Users, CreditCard, Crown, Fish, Dog, Telescope } from "lucide-react";
 
 // Mock Stripe setup for development - will be replaced with real keys later
@@ -105,19 +104,8 @@ export default function Subscribe() {
         setClientSecret(data.clientSecret);
         setIsLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
         setIsLoading(false);
-        if (isUnauthorizedError(error)) {
-          toast({
-            title: "Unauthorized",
-            description: "You are logged out. Logging in again...",
-            variant: "destructive",
-          });
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 500);
-          return;
-        }
         toast({
           title: "Error",
           description: "Failed to initialize subscription. Please try again.",
