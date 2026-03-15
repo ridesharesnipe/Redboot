@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon, LogOut } from 'lucide-react';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon, LogOut, Shield } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 import { useLocation } from "wouter";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -1008,6 +1008,16 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                     Clear Words
                   </Button>
                 )}
+
+                <Button
+                  onClick={() => setLocation("/privacy")}
+                  variant="outline"
+                  className="px-6 py-3 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+                  data-testid="button-privacy-policy"
+                >
+                  <Shield className="w-5 h-5" />
+                  Privacy Policy
+                </Button>
               </div>
             </div>
 

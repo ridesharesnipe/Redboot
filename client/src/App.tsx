@@ -16,6 +16,7 @@ import ParentGuide from "@/components/ParentGuide";
 import TreasureVault from "@/pages/TreasureVault";
 import BadgeGallery from "@/pages/BadgeGallery";
 import ParentAnalytics from "@/pages/ParentAnalytics";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -211,6 +212,7 @@ function AuthRouter({ onLogout }: { onLogout: () => void }) {
           <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
           <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
           <Route path="/analytics" component={withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics")} />
+          <Route path="/privacy" component={withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy")} />
           <Route>
             <Redirect to="/" />
           </Route>
