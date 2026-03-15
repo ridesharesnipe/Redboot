@@ -34,9 +34,10 @@ export default function PrivacyPolicy() {
           <section className="space-y-2">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">2. Information We Collect</h2>
             <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-              The App collects and stores the following information locally on your device:
+              The App may collect and store the following information:
             </p>
             <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-1">
+              <li>Parent email address (used for account creation and communication)</li>
               <li>Child's first name (optional, used for personalized greetings)</li>
               <li>Grade level (optional, to tailor the learning experience)</li>
               <li>Spelling word lists entered or captured via photo</li>
@@ -45,8 +46,8 @@ export default function PrivacyPolicy() {
               <li>Audio and display preferences</li>
             </ul>
             <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-              This data is stored on your device and is not transmitted to external servers unless
-              you choose to create an account for syncing purposes.
+              Most data is stored locally on your device. If you create an account, your email
+              address is stored securely on our servers to enable account management and data syncing.
             </p>
           </section>
 
@@ -60,6 +61,7 @@ export default function PrivacyPolicy() {
               <li>Track learning progress and display it to parents</li>
               <li>Award achievements and treasures based on practice performance</li>
               <li>Remember user preferences between sessions</li>
+              <li>Enable account management and parent communication via email</li>
             </ul>
           </section>
 
