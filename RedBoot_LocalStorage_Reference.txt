@@ -1,0 +1,390 @@
+RED BOOT'S SPELLING ADVENTURE — LOCAL STORAGE REFERENCE
+=========================================================
+
+This document explains how all on-device data is saved and read.
+No server or account is required — everything lives on the device.
+
+
+═══════════════════════════════════════════════════════════════
+FILE 1: client/src/lib/localStorage.ts
+The structured storage class
+Storage key: "redboot-spelling-data"
+═══════════════════════════════════════════════════════════════
+
+PURPOSE:
+Manages the current week's word list, per-word mastery tracking,
+session history, and treasure count using a spaced repetition system.
+
+FULL FILE CONTENTS:
+-------------------
+
+// localStorage service for Red Boot's Spelling Adventure
+// Based on proven memory research with spaced repetition
+
+export interface WordPracticeData {
+  word: string;
+  correctCount: number;
+  totalAttempts: number;
+  lastPracticed: Date | null;
+  consecutiveCorrect: number;
+  status: 'new' | 'learning' | 'mastered' | 'trouble';
+}
+
+export interface WeekData {
+  words: string[];
+  practiceData: { [word: string]: WordPracticeData };
+  weekStart: Date;
+  practiceHistory: { date: Date; wordsCompleted: number; accuracy: number }[];
+  treasureCount: number;
+}
+
+export class SpellingStorage {
+  private readonly STORAGE_KEY = 'redboot-spelling-data';
+
+  getCurrentWeek(): WeekData {
+    const data = this.getRawData();
+    if (this.shouldResetWeek(data?.weekStart)) {
+      return this.initializeNewWeek();
+    }
+    return data || this.initializeNewWeek();
+  }
+
+  saveWordList(words: string[]): void {
+    const weekData = this.getCurrentWeek();
+    const practiceData: { [word: string]: WordPracticeData } = {};
+    words.forEach(word => {
+      practiceData[word.toLowerCase()] = {
+        word: word.toLowerCase(),
+        correctCount: 0,
+        totalAttempts: 0,
+        lastPracticed: null,
+        consecutiveCorrect: 0,
+        status: 'new'
+      };
+    });
+    const updatedData: WeekData = { ...weekData, words, practiceData };
+    this.saveData(updatedData);
+  }
+
+  updateWordPractice(word: string, wasCorrect: boolean): void {
+    const weekData = this.getCurrentWeek();
+    const wordKey = word.toLowerCase();
+    if (!weekData.practiceData[wordKey]) {
+      weekData.practiceData[wordKey] = {
+        word: wordKey,
+        correctCount: 0,
+        totalAttempts: 0,
+        lastPracticed: null,
+        consecutiveCorrect: 0,
+        status: 'new'
+      };
+    }
+    const wordData = weekData.practiceData[wordKey];
+    wordData.totalAttempts++;
+    wordData.lastPracticed = new Date();
+    if (wasCorrect) {
+      wordData.correctCount++;
+      wordData.consecutiveCorrect++;
+      weekData.treasureCount = (weekData.treasureCount || 0) + 1;
+    } else {
+      wordData.consecutiveCorrect = 0;
+    }
+    wordData.status = this.calculateWordStatus(wordData);
+    this.saveData(weekData);
+  }
+
+  recordPracticeSession(wordsCompleted: number, correctCount: number): void {
+    const weekData = this.getCurrentWeek();
+    const accuracy = wordsCompleted > 0 ? (correctCount / wordsCompleted) * 100 : 0;
+    weekData.practiceHistory.push({
+      date: new Date(),
+      wordsCompleted,
+      accuracy
+    });
+    this.saveData(weekData);
+  }
+
+  getPracticeStats(): {
+    totalWords: number;
+    newWords: number;
+    learningWords: number;
+    masteredWords: number;
+    troubleWords: number;
+    daysThisWeek: boolean[];
+    readyForTest: boolean;
+    treasureCount: number;
+  } {
+    const weekData = this.getCurrentWeek();
+    const stats = {
+      totalWords: weekData.words.length,
+      newWords: 0,
+      learningWords: 0,
+      masteredWords: 0,
+      troubleWords: 0,
+      daysThisWeek: this.getDaysPracticedThisWeek(weekData),
+      readyForTest: false,
+      treasureCount: weekData.treasureCount || 0
+    };
+    Object.values(weekData.practiceData).forEach(wordData => {
+      switch (wordData.status) {
+        case 'new': stats.newWords++; break;
+        case 'learning': stats.learningWords++; break;
+        case 'mastered': stats.masteredWords++; break;
+        case 'trouble': stats.troubleWords++; break;
+      }
+    });
+    const learnedWords = stats.learningWords + stats.masteredWords;
+    stats.readyForTest = (learnedWords / stats.totalWords) >= 0.8;
+    return stats;
+  }
+
+  private getRawData(): WeekData | null {
+    try {
+      const data = localStorage.getItem(this.STORAGE_KEY);
+      if (!data) return null;
+      const parsed = JSON.parse(data);
+      if (parsed.weekStart) parsed.weekStart = new Date(parsed.weekStart);
+      if (parsed.practiceHistory) {
+        parsed.practiceHistory = parsed.practiceHistory.map((session: any) => ({
+          ...session,
+          date: new Date(session.date)
+        }));
+      }
+      Object.values(parsed.practiceData || {}).forEach((wordData: any) => {
+        if (wordData.lastPracticed) {
+          wordData.lastPracticed = new Date(wordData.lastPracticed);
+        }
+      });
+      return parsed;
+    } catch (error) {
+      console.error('Error reading spelling data:', error);
+      return null;
+    }
+  }
+
+  private saveData(data: WeekData): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving spelling data:', error);
+    }
+  }
+
+  private calculateWordStatus(wordData: WordPracticeData): 'new' | 'learning' | 'mastered' | 'trouble' {
+    if (wordData.consecutiveCorrect === 0 && wordData.totalAttempts > 0) {
+      return 'trouble';
+    }
+    const successRate = wordData.totalAttempts > 0
+      ? wordData.correctCount / wordData.totalAttempts : 0;
+    if (wordData.correctCount >= 3 && successRate >= 0.8) return 'mastered';
+    if (wordData.correctCount >= 1 && wordData.correctCount <= 2) return 'learning';
+    return 'new';
+  }
+
+  private shouldResetWeek(weekStart?: Date): boolean {
+    if (!weekStart) return true;
+    const lastMonday = this.getLastMonday();
+    const dataMonday = new Date(weekStart);
+    return lastMonday.getTime() > dataMonday.getTime();
+  }
+
+  private getLastMonday(): Date {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(today.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  }
+
+  private initializeNewWeek(): WeekData {
+    return {
+      words: [],
+      practiceData: {},
+      weekStart: this.getLastMonday(),
+      practiceHistory: [],
+      treasureCount: 0
+    };
+  }
+
+  private getDaysPracticedThisWeek(weekData: WeekData): boolean[] {
+    const days = [false, false, false, false, false];
+    weekData.practiceHistory.forEach(session => {
+      const sessionDate = new Date(session.date);
+      const dayIndex = sessionDate.getDay() - 1;
+      if (dayIndex >= 0 && dayIndex <= 4) {
+        days[dayIndex] = true;
+      }
+    });
+    return days;
+  }
+}
+
+export const spellingStorage = new SpellingStorage();
+
+
+EXAMPLE DATA SAVED UNDER "redboot-spelling-data":
+--------------------------------------------------
+{
+  "words": ["cat", "dog", "fish"],
+  "weekStart": "2026-03-17T00:00:00.000Z",
+  "treasureCount": 42,
+  "practiceData": {
+    "cat": {
+      "word": "cat",
+      "correctCount": 4,
+      "totalAttempts": 5,
+      "consecutiveCorrect": 2,
+      "lastPracticed": "2026-03-17T18:00:00.000Z",
+      "status": "learning"
+    },
+    "dog": {
+      "word": "dog",
+      "correctCount": 3,
+      "totalAttempts": 3,
+      "consecutiveCorrect": 3,
+      "lastPracticed": "2026-03-17T18:01:00.000Z",
+      "status": "mastered"
+    }
+  },
+  "practiceHistory": [
+    {
+      "date": "2026-03-17T18:00:00.000Z",
+      "wordsCompleted": 8,
+      "accuracy": 87.5
+    }
+  ]
+}
+
+
+═══════════════════════════════════════════════════════════════
+FILE 2: client/src/components/SimplePractice.tsx
+The practiceProgress read/write section (around line 468)
+Storage key: "practiceProgress"
+═══════════════════════════════════════════════════════════════
+
+PURPOSE:
+Every time a child submits an answer during practice, this code
+saves the result — both the per-word running totals and a full
+history of every single attempt with what the child typed.
+
+RELEVANT CODE SECTION:
+-----------------------
+
+const handleSubmit = () => {
+  if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;
+
+  const currentWord = getCurrentWord();
+  const userAnswer = userInput.trim().toLowerCase();
+  const correct = userAnswer === currentWord.toLowerCase();
+
+  setIsCorrect(correct);
+  setShowFeedback(true);
+
+  // Save progress to localStorage
+  if (currentWord) {
+
+    // READ current data
+    const savedProgress = localStorage.getItem('practiceProgress');
+    let progressData: any = {};
+    try {
+      progressData = savedProgress ? JSON.parse(savedProgress) : {};
+    } catch {
+      progressData = {};
+    }
+
+    // UPDATE per-word totals
+    const wordKey = currentWord.toLowerCase();
+    if (!progressData[wordKey]) {
+      progressData[wordKey] = { correctCount: 0, totalAttempts: 0 };
+    }
+    progressData[wordKey].totalAttempts++;
+    if (correct) {
+      progressData[wordKey].correctCount++;
+    }
+
+    // APPEND to full attempt history
+    if (!progressData._practiceHistory) {
+      progressData._practiceHistory = [];
+    }
+    progressData._practiceHistory.push({
+      date: new Date().toISOString(),
+      word: currentWord,
+      correct: correct,
+      userInput: userInput    // exactly what the child typed
+    });
+
+    // WRITE everything back
+    localStorage.setItem('practiceProgress', JSON.stringify(progressData));
+  }
+};
+
+
+EXAMPLE DATA SAVED UNDER "practiceProgress":
+---------------------------------------------
+{
+  "cat":  { "correctCount": 4, "totalAttempts": 5 },
+  "dog":  { "correctCount": 3, "totalAttempts": 3 },
+  "fish": { "correctCount": 1, "totalAttempts": 3 },
+  "_practiceHistory": [
+    {
+      "date": "2026-03-17T18:00:00.000Z",
+      "word": "cat",
+      "correct": true,
+      "userInput": "cat"
+    },
+    {
+      "date": "2026-03-17T18:01:00.000Z",
+      "word": "fish",
+      "correct": false,
+      "userInput": "fihsh"
+    },
+    {
+      "date": "2026-03-17T18:02:00.000Z",
+      "word": "fish",
+      "correct": true,
+      "userInput": "fish"
+    }
+  ]
+}
+
+
+═══════════════════════════════════════════════════════════════
+ALL OTHER localStorage KEYS USED ACROSS THE APP
+═══════════════════════════════════════════════════════════════
+
+Key                          Written by              What it stores
+---------------------------------------------------------------------------
+redboot-child-name           ChildSetup, Onboarding  Child's first name
+redboot-grade-level          ChildSetup, Onboarding  Grade level (e.g. "Grade 2")
+currentSpellingWords         PhotoCapture, Dashboard  Current word list (JSON array)
+selectedCharacter            Landing page            "redboot" or "diego"
+hasSeenOnboarding            App.tsx                 "true" once shown
+redboot-onboarding-complete  App.tsx, Onboarding     "true" once setup done
+redboot-audio-settings       AudioContext            Volume, music on/off (JSON)
+spelling-theme               ThemeContext            "light" or "dark"
+trickyWordsForPractice       SimplePractice          Words flagged as tricky (JSON)
+redboot-spelling-data        localStorage.ts class   Full week data (JSON — see above)
+practiceProgress             SimplePractice.tsx      All attempts + per-word totals (JSON — see above)
+
+
+═══════════════════════════════════════════════════════════════
+WHAT THE ANALYTICS PAGE NEEDS TO READ (AND FROM WHERE)
+═══════════════════════════════════════════════════════════════
+
+Data needed              Key                       Field
+---------------------------------------------------------------------------
+Child name               redboot-child-name        string value
+Grade level              redboot-grade-level       string value
+Current word list        currentSpellingWords      JSON array of strings
+Per-word mastery         redboot-spelling-data     .practiceData[word]
+Weekly session history   redboot-spelling-data     .practiceHistory[]
+Treasure count           redboot-spelling-data     .treasureCount
+Every attempt ever       practiceProgress          ._practiceHistory[]
+Per-word correct totals  practiceProgress          .[wordKey].correctCount
+Per-word attempt totals  practiceProgress          .[wordKey].totalAttempts
+
+All of this data is already on the device after normal use.
+The analytics page currently ignores all of it and calls the
+server instead — which is why it shows "Unable to load analytics".
+The fix is to read from these keys directly instead of the API.
