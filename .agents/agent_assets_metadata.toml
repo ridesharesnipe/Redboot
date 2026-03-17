@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "ecg3m9eChk4f1fzJQCwof"
+uri = "file://ParentAnalytics.txt"
+type = "text"
+title = "ParentAnalytics.tsx"
