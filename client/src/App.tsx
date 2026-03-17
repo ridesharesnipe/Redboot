@@ -17,7 +17,6 @@ import TreasureVault from "@/pages/TreasureVault";
 import BadgeGallery from "@/pages/BadgeGallery";
 import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import TikTokAd from "@/pages/TikTokAd";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
@@ -209,7 +208,6 @@ function AppRouter() {
           <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
           <Route path="/analytics" component={withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics")} />
           <Route path="/privacy" component={withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy")} />
-          <Route path="/tiktok-ad" component={withErrorBoundary(() => <TikTokAd />, "TikTokAd")} />
           <Route>
             <Redirect to="/" />
           </Route>
