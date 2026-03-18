@@ -792,13 +792,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     );
   }
 
-  // LOADING STATE
+  // LOADING STATE - silent while words initialise from localStorage
   if (practiceWords.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex items-center justify-center">
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 text-center">
-          <p className="text-lg text-slate-600">Loading your practice words...</p>
-        </div>
+        <div className="w-12 h-12 border-4 border-white/40 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
