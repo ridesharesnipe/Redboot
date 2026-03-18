@@ -5,7 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { Headphones, ArrowRightCircle, Sparkles, CheckCircle, XCircle, X, HelpCircle } from 'lucide-react';
 import { getFeedback, resetMessageHistory } from '@/utils/feedbackMessages';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { spellingStorage } from '@/lib/localStorage';
+import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 
@@ -83,64 +84,49 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     }));
   }
 
-  // Check and award achievements
-  const checkAndAwardAchievements = async (results: { correct: number; total: number; treasureEarned: number }, totalTreasures: number): Promise<{ id: string; title: string; icon: string; rarity: string } | null> => {
-    const hadAnyMistake = hadMistakeRef.current;
-    const isPerfectScore = results.total > 0 && !hadAnyMistake;
-    
+  // Check which achievements are newly unlocked after a local data change
+  const checkNewAchievements = (beforeEarnedIds: Set<string>): { id: string; title: string; icon: string; rarity: string } | null => {
     try {
-      const response = await apiRequest('POST', '/api/achievements/check-all', {
-        isPerfect: isPerfectScore,
-        wordsCorrect: results.correct,
-        treasureTotal: totalTreasures
-      });
-      const result = await response.json();
-      
-      if (result.awarded && result.badge) {
-        const badge = {
-          id: result.badge.id,
-          title: result.badge.title,
-          icon: result.badge.icon,
-          rarity: result.badge.rarity
+      const { earned } = buildAchievementsFromLocal();
+      const newlyEarned = earned.filter(ua => !beforeEarnedIds.has(ua.achievementId));
+      if (newlyEarned.length > 0) {
+        const badge = newlyEarned[0];
+        return {
+          id: badge.achievementId,
+          title: badge.achievement.title,
+          icon: badge.achievement.icon,
+          rarity: badge.achievement.rarity
         };
-        setEarnedBadge(badge);
-        return badge;
       }
     } catch (error) {
-      console.error('Failed to check achievements:', error);
-      setEarnedBadge(null);
+      console.error('Failed to check achievements locally:', error);
     }
-    
     return null;
   };
 
-  // Save treasures and complete practice
-  const saveTreasuresAndComplete = async (results: { correct: number; total: number; treasureEarned: number }) => {
+  // Save treasures and complete practice — fully local, no server calls
+  const saveTreasuresAndComplete = (results: { correct: number; total: number; treasureEarned: number }) => {
     let badgeWasEarned = false;
-    
+
     try {
-      const response = await apiRequest('POST', '/api/treasures/add', {
-        character: selectedCharacter,
-        amount: results.treasureEarned
-      });
-      const data = await response.json();
-      const totalTreasures = data.totalTreasures || data.newTotal || 0;
-      
-      const badge = await checkAndAwardAchievements(results, totalTreasures);
-      badgeWasEarned = badge !== null;
-      
-      if (wordListId) {
-        const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
-        await apiRequest('POST', '/api/progress', {
-          wordListId: wordListId,
-          characterUsed: selectedCharacter === 'redboot' ? 'red-boot' : 'diego',
-          correctWords: correctWordsArray,
-          incorrectWords: incorrectWordsArray,
-          timeSpent: sessionDuration,
-          score: Math.round((results.correct / results.total) * 100)
-        });
+      // Snapshot currently earned achievements before updating data
+      let beforeEarnedIds = new Set<string>();
+      try {
+        const { earned } = buildAchievementsFromLocal();
+        beforeEarnedIds = new Set(earned.map(ua => ua.achievementId));
+      } catch { /* empty */ }
+
+      // Add earned treasures to local storage
+      spellingStorage.addTreasures(results.treasureEarned);
+
+      // Check for any newly unlocked achievements
+      const badge = checkNewAchievements(beforeEarnedIds);
+      if (badge) {
+        setEarnedBadge(badge);
+        badgeWasEarned = true;
       }
-      
+
+      // Persist incorrect words for future tricky-words practice
       if (incorrectWordsArray.length > 0) {
         const trickyWordsData = {
           words: incorrectWordsArray,
@@ -151,17 +137,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       } else {
         localStorage.removeItem('trickyWordsForPractice');
       }
-
-      queryClient.invalidateQueries({ queryKey: ['/api/progress'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/word-lists'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/tricky-words'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/achievements/user'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/treasures'] });
     } catch (error) {
-      console.error('Failed to save treasures:', error);
+      console.error('Failed to save session locally:', error);
     }
-    
+
     if (badgeWasEarned) {
       setTimeout(() => {
         onComplete(results);
@@ -513,8 +492,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setCorrectWordsArray(prev => [...prev, currentWord]);
       }
       
-      apiRequest('POST', '/api/tricky-words/attempt', { word: currentWord, correct: true }).catch(() => {});
-      
       speakWordAgain(currentWord);
       setTimeout(() => {
         const feedbackMessage = getFeedback(gradeLevel, true, false);
@@ -547,11 +524,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       if (!showBonusRound && newAttemptCount === 1) {
         if (!trickyWords.includes(currentWord)) {
           setTrickyWords(prev => [...prev, currentWord]);
-          apiRequest('POST', '/api/tricky-words', { word: currentWord }).catch(() => {});
         }
       }
-      
-      apiRequest('POST', '/api/tricky-words/attempt', { word: currentWord, correct: false }).catch(() => {});
       
       playSound('spell_incorrect');
       
@@ -632,7 +606,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     
     if (!trickyWords.includes(currentWord)) {
       setTrickyWords(prev => [...prev, currentWord]);
-      apiRequest('POST', '/api/tricky-words', { word: currentWord }).catch(() => {});
     }
     
     playCharacterVoice('red_boot_skip');

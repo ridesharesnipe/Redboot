@@ -6,7 +6,6 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { spellingStorage } from '@/lib/localStorage';
-import { apiRequest, queryClient } from '@/lib/queryClient';
 import { CheckCircle, XCircle, Award, Clock, FileText, X } from 'lucide-react';
 
 interface TestResult {
@@ -185,40 +184,33 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
     const correctWords = allResults.filter(r => r.isCorrect).map(r => r.word);
     const incorrectWords = allResults.filter(r => !r.isCorrect).map(r => r.word);
 
-    (async () => {
+    // Save all word attempts to practiceProgress history (same format SimplePractice uses)
+    try {
+      const savedProgress = localStorage.getItem('practiceProgress');
+      let progressData: any = {};
+      try { progressData = savedProgress ? JSON.parse(savedProgress) : {}; } catch { progressData = {}; }
+      if (!progressData._practiceHistory) progressData._practiceHistory = [];
+      const sessionTime = new Date().toISOString();
+      allResults.forEach(r => {
+        progressData._practiceHistory.push({
+          date: sessionTime,
+          word: r.word,
+          correct: r.isCorrect,
+          userInput: r.userAnswer
+        });
+      });
+      localStorage.setItem('practiceProgress', JSON.stringify(progressData));
+    } catch (e) {
+      console.error('Failed to save test results locally:', e);
+    }
+
+    // Persist incorrect words for tricky-words practice
+    if (incorrectWords.length > 0) {
       try {
-        let wordListId: string | null = null;
-        const savedWords = localStorage.getItem('currentSpellingWords');
-        if (savedWords) {
-          try {
-            const parsed = JSON.parse(savedWords);
-            wordListId = parsed.wordListId || null;
-          } catch (e) {}
-        }
-
-        if (wordListId) {
-          await apiRequest('POST', '/api/progress', {
-            wordListId,
-            characterUsed: 'red-boot',
-            correctWords,
-            incorrectWords,
-            timeSpent: totalTimeSpent,
-            score: percentage
-          });
-        }
-
-        if (incorrectWords.length > 0) {
-          await apiRequest('POST', '/api/tricky-words/bulk', { words: incorrectWords });
-        }
-
-        queryClient.invalidateQueries({ queryKey: ['/api/progress'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/analytics'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/tricky-words'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/achievements/user'] });
-      } catch (error) {
-        console.error('Failed to save test progress:', error);
-      }
-    })();
+        const trickyData = { words: incorrectWords, savedAt: new Date().toISOString(), character: 'redboot' };
+        localStorage.setItem('trickyWordsForPractice', JSON.stringify(trickyData));
+      } catch { /* empty */ }
+    }
 
     setTimeout(() => {
       onComplete({

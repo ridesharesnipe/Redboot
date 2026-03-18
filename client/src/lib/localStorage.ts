@@ -138,6 +138,14 @@ export class SpellingStorage {
     this.saveData(weekData);
   }
 
+  // Add a bulk treasure amount and return the new total
+  addTreasures(amount: number): number {
+    const weekData = this.getCurrentWeek();
+    weekData.treasureCount = (weekData.treasureCount || 0) + amount;
+    this.saveData(weekData);
+    return weekData.treasureCount;
+  }
+
   // Get Friday test words (all words for the week)
   getFridayTestWords(): string[] {
     const weekData = this.getCurrentWeek();
