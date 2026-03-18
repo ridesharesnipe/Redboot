@@ -20,7 +20,6 @@ export default function PhotoCapturePage() {
   const [extractedWords, setExtractedWords] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [savedWordListId, setSavedWordListId] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   
   // Use refs for save state tracking (prevents stale closure issues)
   const lastSavedTokenRef = useRef<string>(''); // Token of last SUCCESSFUL save
@@ -37,16 +36,21 @@ export default function PhotoCapturePage() {
     if (lastSavedWordListIdRef.current && lastSavedTokenRef.current === saveToken) {
       return; // Already saved these exact words, no-op
     }
-    const localId = `local-${Date.now()}`;
-    const dataToSave = {
-      words: wordsToSave,
-      savedDate: new Date().toISOString(),
-      wordListId: localId,
-    };
-    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-    setSavedWordListId(localId);
-    lastSavedWordListIdRef.current = localId;
-    lastSavedTokenRef.current = saveToken;
+    try {
+      const localId = `local-${Date.now()}`;
+      const dataToSave = {
+        words: wordsToSave,
+        savedDate: new Date().toISOString(),
+        wordListId: localId,
+      };
+      localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+      setSavedWordListId(localId);
+      lastSavedWordListIdRef.current = localId;
+      lastSavedTokenRef.current = saveToken;
+    } catch (err) {
+      console.error('Failed to save words to localStorage:', err);
+      throw err;
+    }
   };
 
 
@@ -132,7 +136,13 @@ export default function PhotoCapturePage() {
       return;
     }
 
-    // Skip database save - proceed directly to practice
+    // Ensure words are persisted to localStorage before navigating
+    try {
+      saveWords(extractedWords);
+    } catch {
+      // localStorage write failed — words won't be available in practice
+    }
+
     toast({
       title: "Starting Adventure!", 
       description: "Get ready to practice with your treasure map words!",
@@ -230,21 +240,11 @@ export default function PhotoCapturePage() {
                     </Button>
                     <Button 
                       onClick={handleStartPractice}
-                      disabled={isSaving}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                       data-testid="button-start-practice"
                     >
-                      {isSaving ? (
-                        <>
-                          <Loader className="w-4 h-4 mr-2 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 mr-2" />
-                          Start Practice
-                        </>
-                      )}
+                      <Play className="w-4 h-4 mr-2" />
+                      Start Practice
                     </Button>
                   </div>
                 </CardContent>
