@@ -74,39 +74,51 @@ function buildAnalyticsFromLocal(): AnalyticsData {
   try {
     const raw = localStorage.getItem('currentSpellingWords');
     if (raw) currentWords = JSON.parse(raw);
-  } catch { /* empty */ }
+    if (!Array.isArray(currentWords)) currentWords = [];
+  } catch { currentWords = []; }
 
   // Structured week data from SpellingStorage class
   let weekData: any = null;
   try {
     const raw = localStorage.getItem('redboot-spelling-data');
     if (raw) weekData = JSON.parse(raw);
-  } catch { /* empty */ }
+    if (typeof weekData !== 'object' || Array.isArray(weekData)) weekData = null;
+  } catch { weekData = null; }
 
   // Raw practice progress from SimplePractice
   let practiceProgress: any = {};
   try {
     const raw = localStorage.getItem('practiceProgress');
     if (raw) practiceProgress = JSON.parse(raw);
-  } catch { /* empty */ }
+    if (typeof practiceProgress !== 'object' || Array.isArray(practiceProgress) || practiceProgress === null) practiceProgress = {};
+  } catch { practiceProgress = {}; }
 
   // Tricky words
   let trickyWordsRaw: string[] = [];
   try {
     const raw = localStorage.getItem('trickyWordsForPractice');
     if (raw) trickyWordsRaw = JSON.parse(raw);
-  } catch { /* empty */ }
+    if (!Array.isArray(trickyWordsRaw)) trickyWordsRaw = [];
+  } catch { trickyWordsRaw = []; }
 
   // --- Extract the raw attempt history ---
+  // Validate each entry and pre-sort by date so all downstream code is consistent
+  const rawHistory = practiceProgress._practiceHistory;
   const attemptHistory: { date: string; word: string; correct: boolean; userInput: string }[] =
-    practiceProgress._practiceHistory || [];
+    Array.isArray(rawHistory)
+      ? rawHistory.filter((a: any) =>
+          a && typeof a.date === 'string' && typeof a.word === 'string' &&
+          !isNaN(new Date(a.date).getTime())
+        )
+      : [];
+  attemptHistory.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   // --- Build per-word details by merging both sources ---
   // Use practiceProgress as the primary source for per-word totals (it has the richest data)
   // Fall back to weekData.practiceData for status/streak info
   const allWords = new Set<string>();
   currentWords.forEach(w => allWords.add(w.toLowerCase()));
-  if (weekData?.words) {
+  if (weekData?.words && Array.isArray(weekData.words)) {
     weekData.words.forEach((w: string) => allWords.add(w.toLowerCase()));
   }
   Object.keys(practiceProgress).forEach(k => {
@@ -188,24 +200,20 @@ function buildAnalyticsFromLocal(): AnalyticsData {
   });
 
   // --- Build session history from attempt history ---
-  // Group attempts by session: attempts within 10 minutes of each other = same session
+  // attemptHistory is already sorted by date; group attempts within 10 minutes as one session
   const sessions: SessionDetail[] = [];
   if (attemptHistory.length > 0) {
-    const sorted = [...attemptHistory].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    let sessionStart = sorted[0];
-    let sessionAttempts = [sorted[0]];
+    let sessionAttempts = [attemptHistory[0]];
 
-    for (let i = 1; i < sorted.length; i++) {
-      const gap = new Date(sorted[i].date).getTime() - new Date(sorted[i - 1].date).getTime();
+    for (let i = 1; i < attemptHistory.length; i++) {
+      const gap = new Date(attemptHistory[i].date).getTime() - new Date(attemptHistory[i - 1].date).getTime();
       if (gap > 10 * 60 * 1000) {
-        // New session — flush previous
         sessions.push(buildSession(sessionAttempts, sessions.length, selectedCharacter));
-        sessionAttempts = [sorted[i]];
+        sessionAttempts = [attemptHistory[i]];
       } else {
-        sessionAttempts.push(sorted[i]);
+        sessionAttempts.push(attemptHistory[i]);
       }
     }
-    // Flush last session
     if (sessionAttempts.length > 0) {
       sessions.push(buildSession(sessionAttempts, sessions.length, selectedCharacter));
     }
@@ -213,15 +221,19 @@ function buildAnalyticsFromLocal(): AnalyticsData {
 
   // Also incorporate weekData.practiceHistory if attemptHistory is empty
   // (covers edge case where structured storage has sessions but raw history doesn't)
-  if (sessions.length === 0 && weekData?.practiceHistory?.length > 0) {
+  if (sessions.length === 0 && Array.isArray(weekData?.practiceHistory) && weekData.practiceHistory.length > 0) {
     weekData.practiceHistory.forEach((ph: any, idx: number) => {
-      const correct = Math.round((ph.accuracy / 100) * ph.wordsCompleted);
+      if (!ph || typeof ph.date !== 'string' || isNaN(new Date(ph.date).getTime())) return;
+      const wordsCompleted = typeof ph.wordsCompleted === 'number' ? ph.wordsCompleted : 0;
+      const accuracy = typeof ph.accuracy === 'number' ? ph.accuracy : 0;
+      const correctCount = Math.round((accuracy / 100) * wordsCompleted);
+      const incorrectCount = wordsCompleted - correctCount;
       sessions.push({
         id: `week-session-${idx}`,
         date: ph.date,
-        correctWords: [],
-        incorrectWords: [],
-        score: Math.round(ph.accuracy),
+        correctWords: Array(correctCount).fill(''),
+        incorrectWords: Array(incorrectCount).fill(''),
+        score: Math.round(accuracy),
         character: selectedCharacter,
         timeSpent: 0,
       });
@@ -1148,7 +1160,7 @@ export default function ParentAnalytics() {
             </div>
           </div>
           
-          <div className="grid grid-cols-10 sm:grid-cols-15 gap-1.5">
+          <div className="grid grid-cols-10 sm:grid-cols-[repeat(15,minmax(0,1fr))] gap-1.5">
             {analytics.streakCalendar.map((day, i) => {
               const d = new Date(day.date);
               const isToday = day.date === new Date().toISOString().split('T')[0];
