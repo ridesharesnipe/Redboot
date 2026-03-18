@@ -397,12 +397,14 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
     );
   }
 
-  // Main test interface - silent spinner while words initialise
+  // Main test interface
   if (testWords.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-white/40 border-t-white rounded-full animate-spin" />
-      </div>
+      <Card className="max-w-2xl mx-auto">
+        <CardContent className="p-8 text-center">
+          <p className="text-lg text-muted-foreground">Loading test words...</p>
+        </CardContent>
+      </Card>
     );
   }
 
