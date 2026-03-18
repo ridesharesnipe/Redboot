@@ -46,17 +46,12 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
   useEffect(() => {
     const fridayWords = spellingStorage.getFridayTestWords();
     if (fridayWords.length === 0) {
-      toast({
-        title: "No Test Available",
-        description: "Add some spelling words first by taking a photo of your list!",
-        variant: "destructive",
-      });
       onCancel();
       return;
     }
     
     setTestWords(fridayWords);
-  }, [onCancel, toast]);
+  }, [onCancel]);
 
   // Test timer
   useEffect(() => {
