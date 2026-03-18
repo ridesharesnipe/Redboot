@@ -294,8 +294,13 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
     }
     
+    toast({
+      title: "No Words to Practice",
+      description: "Add some spelling words first by taking a photo of your list!",
+      variant: "destructive",
+    });
     onCancel();
-  }, [onCancel, playCharacterVoice]);
+  }, [onCancel, playCharacterVoice, toast]);
 
   // Speak word when it changes
   useEffect(() => {
