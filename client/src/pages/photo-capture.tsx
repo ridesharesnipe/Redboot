@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,17 +7,10 @@ import PhotoCapture from "@/components/PhotoCapture";
 import FlashcardGrid from "@/components/FlashcardGrid";
 import RedBootCharacter from "@/components/RedBootCharacter";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { useAudio } from "@/contexts/AudioContext";
 import { ArrowLeft, Save, Play, Upload, RefreshCw, PartyPopper, Flag, Sun, BookOpen, Target, Waves, Loader } from "lucide-react";
 import harborWavesSound from "@assets/amb_harbor_waves-24587_1759648211592.mp3";
 
-// Calculate week number of the year (1-52)
-function getWeekNumber(date: Date): number {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
 
 export default function PhotoCapturePage() {
   const [, setLocation] = useLocation();
@@ -31,8 +23,6 @@ export default function PhotoCapturePage() {
   const [isSaving, setIsSaving] = useState(false);
   
   // Use refs for save state tracking (prevents stale closure issues)
-  const currentSavePromiseRef = useRef<Promise<any> | null>(null);
-  const currentSaveTokenRef = useRef<string>(''); // Token for current save attempt
   const lastSavedTokenRef = useRef<string>(''); // Token of last SUCCESSFUL save
   const lastSavedWordListIdRef = useRef<string | null>(null);
 
@@ -41,65 +31,22 @@ export default function PhotoCapturePage() {
     playAudioFile(harborWavesSound, 0.3);
   }, [playAudioFile]);
 
-  // Centralized save function with promise queuing to prevent race conditions
-  const saveWords = async (wordsToSave: string[]) => {
-    // Wait for any in-flight save to complete before starting new one
-    if (currentSavePromiseRef.current) {
-      try {
-        await currentSavePromiseRef.current;
-      } catch (error) {
-        // Ignore errors from previous save, proceed with current save
-      }
-    }
-    
-    // Recheck after await using lastSavedTokenRef (tracks successful saves only)
+  // Save words to localStorage only (no server dependency)
+  const saveWords = (wordsToSave: string[]) => {
     const saveToken = JSON.stringify(wordsToSave);
     if (lastSavedWordListIdRef.current && lastSavedTokenRef.current === saveToken) {
       return; // Already saved these exact words, no-op
     }
-    
-    // Update token for this save attempt
-    currentSaveTokenRef.current = saveToken;
-    
-    // Create and store the save promise
-    const savePromise = (async () => {
-      const weekNumber = getWeekNumber(new Date());
-      const response = await apiRequest('POST', '/api/word-lists', {
-        weekNumber,
-        words: wordsToSave,
-        practiceCount: 0,
-        bestScore: 0,
-      });
-      const data = await response.json();
-      
-      // Only update if this save is still current (not superseded by retake)
-      if (currentSaveTokenRef.current === saveToken) {
-        setSavedWordListId(data.id);
-        lastSavedWordListIdRef.current = data.id; // Track in ref for fresh reads
-        lastSavedTokenRef.current = saveToken; // Mark these words as successfully saved
-        
-        // Also save to localStorage for backward compatibility
-        const dataToSave = { 
-          words: wordsToSave, 
-          savedDate: new Date().toISOString(),
-          wordListId: data.id 
-        };
-        localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
-      }
-      
-      return data;
-    })();
-    
-    currentSavePromiseRef.current = savePromise;
-    
-    try {
-      return await savePromise;
-    } finally {
-      // Clear promise ref when done
-      if (currentSavePromiseRef.current === savePromise) {
-        currentSavePromiseRef.current = null;
-      }
-    }
+    const localId = `local-${Date.now()}`;
+    const dataToSave = {
+      words: wordsToSave,
+      savedDate: new Date().toISOString(),
+      wordListId: localId,
+    };
+    localStorage.setItem('currentSpellingWords', JSON.stringify(dataToSave));
+    setSavedWordListId(localId);
+    lastSavedWordListIdRef.current = localId;
+    lastSavedTokenRef.current = saveToken;
   };
 
 
@@ -122,7 +69,6 @@ export default function PhotoCapturePage() {
       setSavedWordListId(null);
       lastSavedWordListIdRef.current = null; // Reset ref too
       lastSavedTokenRef.current = ''; // Reset successful save tracker
-      currentSaveTokenRef.current = ''; // Invalidate previous save token
     }
     
     // Save to database when user confirms (shouldSaveToDb = true)
