@@ -50,7 +50,546 @@ interface AnalyticsData {
   recentActivity: { id: string; date: string; correct: number; incorrect: number; score: number; character: string }[];
   trickyWords: { word: string; mistakeCount: number; correctStreak: number }[];
   currentWeek: { words: string[]; practiceCount: number; bestScore: number };
+  // New 2026 features
+  testReadiness: { readyCount: number; totalCount: number; percentage: number; closeWords: string[] };
+  smartNudge: { message: string; type: 'encourage' | 'remind' | 'celebrate' | 'none' } | null;
+  misspellings: { word: string; typed: string; date: string }[];
+  weeklySummary: string;
+  streakCalendar: { date: string; practiced: boolean }[];
 }
+
+// ============================================================
+// LOCAL ANALYTICS BUILDER
+// Reads from localStorage keys instead of calling /api/analytics
+// ============================================================
+
+function buildAnalyticsFromLocal(): AnalyticsData {
+  // --- Read all localStorage keys ---
+  const childName = localStorage.getItem('redboot-child-name') || 'Speller';
+  const gradeLevel = localStorage.getItem('redboot-grade-level') || '';
+  const selectedCharacter = localStorage.getItem('selectedCharacter') || 'redboot';
+
+  // Current word list
+  let currentWords: string[] = [];
+  try {
+    const raw = localStorage.getItem('currentSpellingWords');
+    if (raw) currentWords = JSON.parse(raw);
+  } catch { /* empty */ }
+
+  // Structured week data from SpellingStorage class
+  let weekData: any = null;
+  try {
+    const raw = localStorage.getItem('redboot-spelling-data');
+    if (raw) weekData = JSON.parse(raw);
+  } catch { /* empty */ }
+
+  // Raw practice progress from SimplePractice
+  let practiceProgress: any = {};
+  try {
+    const raw = localStorage.getItem('practiceProgress');
+    if (raw) practiceProgress = JSON.parse(raw);
+  } catch { /* empty */ }
+
+  // Tricky words
+  let trickyWordsRaw: string[] = [];
+  try {
+    const raw = localStorage.getItem('trickyWordsForPractice');
+    if (raw) trickyWordsRaw = JSON.parse(raw);
+  } catch { /* empty */ }
+
+  // --- Extract the raw attempt history ---
+  const attemptHistory: { date: string; word: string; correct: boolean; userInput: string }[] =
+    practiceProgress._practiceHistory || [];
+
+  // --- Build per-word details by merging both sources ---
+  // Use practiceProgress as the primary source for per-word totals (it has the richest data)
+  // Fall back to weekData.practiceData for status/streak info
+  const allWords = new Set<string>();
+  currentWords.forEach(w => allWords.add(w.toLowerCase()));
+  if (weekData?.words) {
+    weekData.words.forEach((w: string) => allWords.add(w.toLowerCase()));
+  }
+  Object.keys(practiceProgress).forEach(k => {
+    if (k !== '_practiceHistory') allWords.add(k.toLowerCase());
+  });
+
+  const wordBreakdown: WordDetail[] = [];
+  const strugglingWords: WordDetail[] = [];
+  const starWords: WordDetail[] = [];
+
+  let totalCorrect = 0;
+  let totalAttempts = 0;
+  let masteredCount = 0;
+  let learningCount = 0;
+  let wordsPracticedCount = 0;
+  let trickyActive = 0;
+  let trickyMastered = 0;
+
+  allWords.forEach(wordKey => {
+    const ppData = practiceProgress[wordKey];
+    const wdData = weekData?.practiceData?.[wordKey];
+
+    const correct = ppData?.correctCount ?? wdData?.correctCount ?? 0;
+    const attempts = ppData?.totalAttempts ?? wdData?.totalAttempts ?? 0;
+    const accuracy = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
+    const consecutiveCorrect = wdData?.consecutiveCorrect ?? 0;
+
+    // Determine status
+    let status: 'mastered' | 'practicing' | 'learning' = 'learning';
+    const wdStatus = wdData?.status;
+    if (wdStatus === 'mastered' || (correct >= 3 && accuracy >= 80)) {
+      status = 'mastered';
+      masteredCount++;
+    } else if (wdStatus === 'learning' || correct >= 1) {
+      status = 'practicing';
+      learningCount++;
+    } else {
+      learningCount++;
+    }
+
+    if (attempts > 0) wordsPracticedCount++;
+
+    totalCorrect += correct;
+    totalAttempts += attempts;
+
+    // Find last practiced date from attempt history
+    const wordAttempts = attemptHistory.filter(a => a.word.toLowerCase() === wordKey);
+    const lastPracticed = wordAttempts.length > 0
+      ? wordAttempts[wordAttempts.length - 1].date
+      : (wdData?.lastPracticed || '');
+
+    const detail: WordDetail = {
+      word: wordKey,
+      attempts,
+      correct,
+      incorrect: attempts - correct,
+      accuracy,
+      status,
+      lastPracticed,
+    };
+
+    wordBreakdown.push(detail);
+
+    if (accuracy < 50 && attempts > 0) {
+      strugglingWords.push(detail);
+    }
+    if (status === 'mastered') {
+      starWords.push(detail);
+    }
+
+    // Tricky word tracking
+    if (trickyWordsRaw.map(w => w.toLowerCase()).includes(wordKey)) {
+      if (status === 'mastered') {
+        trickyMastered++;
+      } else {
+        trickyActive++;
+      }
+    }
+  });
+
+  // --- Build session history from attempt history ---
+  // Group attempts by session: attempts within 10 minutes of each other = same session
+  const sessions: SessionDetail[] = [];
+  if (attemptHistory.length > 0) {
+    const sorted = [...attemptHistory].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let sessionStart = sorted[0];
+    let sessionAttempts = [sorted[0]];
+
+    for (let i = 1; i < sorted.length; i++) {
+      const gap = new Date(sorted[i].date).getTime() - new Date(sorted[i - 1].date).getTime();
+      if (gap > 10 * 60 * 1000) {
+        // New session — flush previous
+        sessions.push(buildSession(sessionAttempts, sessions.length, selectedCharacter));
+        sessionAttempts = [sorted[i]];
+      } else {
+        sessionAttempts.push(sorted[i]);
+      }
+    }
+    // Flush last session
+    if (sessionAttempts.length > 0) {
+      sessions.push(buildSession(sessionAttempts, sessions.length, selectedCharacter));
+    }
+  }
+
+  // Also incorporate weekData.practiceHistory if attemptHistory is empty
+  // (covers edge case where structured storage has sessions but raw history doesn't)
+  if (sessions.length === 0 && weekData?.practiceHistory?.length > 0) {
+    weekData.practiceHistory.forEach((ph: any, idx: number) => {
+      const correct = Math.round((ph.accuracy / 100) * ph.wordsCompleted);
+      sessions.push({
+        id: `week-session-${idx}`,
+        date: ph.date,
+        correctWords: [],
+        incorrectWords: [],
+        score: Math.round(ph.accuracy),
+        character: selectedCharacter,
+        timeSpent: 0,
+      });
+    });
+  }
+
+  // Sort sessions newest first
+  sessions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // --- Build daily progress (last 7 days) ---
+  const dailyProgress: { date: string; words: number; accuracy: number }[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    const dayStr = d.toISOString().split('T')[0];
+
+    const dayAttempts = attemptHistory.filter(a => {
+      const aDate = new Date(a.date);
+      return aDate.toISOString().split('T')[0] === dayStr;
+    });
+
+    const dayCorrect = dayAttempts.filter(a => a.correct).length;
+    const dayTotal = dayAttempts.length;
+
+    dailyProgress.push({
+      date: d.toISOString(),
+      words: dayTotal,
+      accuracy: dayTotal > 0 ? Math.round((dayCorrect / dayTotal) * 100) : 0,
+    });
+  }
+
+  // --- Calculate streaks (consecutive days with practice) ---
+  let currentStreak = 0;
+  let longestStreak = 0;
+  {
+    // Build a set of practice dates
+    const practiceDates = new Set<string>();
+    attemptHistory.forEach(a => {
+      practiceDates.add(new Date(a.date).toISOString().split('T')[0]);
+    });
+    if (weekData?.practiceHistory) {
+      weekData.practiceHistory.forEach((ph: any) => {
+        practiceDates.add(new Date(ph.date).toISOString().split('T')[0]);
+      });
+    }
+
+    // Count current streak (working backwards from today)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let checkDate = new Date(today);
+
+    // Allow today to not count yet (check yesterday first if today has no practice)
+    const todayStr = checkDate.toISOString().split('T')[0];
+    if (!practiceDates.has(todayStr)) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    while (practiceDates.has(checkDate.toISOString().split('T')[0])) {
+      currentStreak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    // Longest streak — sort dates and walk forward
+    const sortedDates = [...practiceDates].sort();
+    let streak = 1;
+    longestStreak = sortedDates.length > 0 ? 1 : 0;
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prev = new Date(sortedDates[i - 1]);
+      const curr = new Date(sortedDates[i]);
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / (86400000));
+      if (diffDays === 1) {
+        streak++;
+        longestStreak = Math.max(longestStreak, streak);
+      } else if (diffDays > 1) {
+        streak = 1;
+      }
+    }
+  }
+
+  // --- Time estimates ---
+  // Estimate ~30 seconds per attempt if we don't have real timing data
+  const estimatedTotalSeconds = attemptHistory.length * 30;
+  const totalMinutes = Math.round(estimatedTotalSeconds / 60);
+  const avgSessionMinutes = sessions.length > 0 ? Math.round(totalMinutes / sessions.length) : 0;
+
+  // --- Treasures ---
+  const treasureCount = weekData?.treasureCount || 0;
+
+  // --- Achievements (simple heuristic) ---
+  let achievementsEarned = 0;
+  if (sessions.length >= 1) achievementsEarned++;  // First session
+  if (sessions.length >= 5) achievementsEarned++;  // 5 sessions
+  if (sessions.length >= 10) achievementsEarned++;  // 10 sessions
+  if (masteredCount >= 1) achievementsEarned++;  // First mastered word
+  if (masteredCount >= 5) achievementsEarned++;  // 5 mastered
+  if (masteredCount >= 10) achievementsEarned++;  // 10 mastered
+  if (currentStreak >= 3) achievementsEarned++;  // 3-day streak
+  if (currentStreak >= 5) achievementsEarned++;  // 5-day streak
+  if (totalAttempts > 0 && Math.round((totalCorrect / totalAttempts) * 100) >= 90) achievementsEarned++;  // 90%+ overall
+  if (treasureCount >= 50) achievementsEarned++;  // 50 treasures
+  if (treasureCount >= 100) achievementsEarned++;  // 100 treasures
+
+  // --- Tricky words for display ---
+  const trickyWordsDisplay = trickyWordsRaw.map(w => {
+    const wl = w.toLowerCase();
+    const ppData = practiceProgress[wl];
+    const wdData = weekData?.practiceData?.[wl];
+    const attempts = ppData?.totalAttempts ?? wdData?.totalAttempts ?? 0;
+    const correct = ppData?.correctCount ?? wdData?.correctCount ?? 0;
+    const consecutiveCorrect = wdData?.consecutiveCorrect ?? 0;
+    return {
+      word: w,
+      mistakeCount: attempts - correct,
+      correctStreak: consecutiveCorrect,
+    };
+  });
+
+  // --- Current week info ---
+  const weekWords = weekData?.words || currentWords;
+  const weekPracticeCount = weekData?.practiceHistory?.length || 0;
+  const weekBestScore = weekData?.practiceHistory?.length > 0
+    ? Math.round(Math.max(...weekData.practiceHistory.map((ph: any) => ph.accuracy || 0)))
+    : 0;
+
+  // --- Recent activity ---
+  const recentActivity = sessions.slice(0, 10).map(s => ({
+    id: s.id,
+    date: s.date,
+    correct: s.correctWords.length,
+    incorrect: s.incorrectWords.length,
+    score: s.score,
+    character: s.character,
+  }));
+
+  // --- Assemble the full AnalyticsData ---
+  const overallAccuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+
+  // ============================================================
+  // NEW FEATURE 1: Test Readiness
+  // Words with mastered status or >=80% accuracy and 3+ correct = "ready"
+  // Words with 60-79% accuracy and 2+ correct = "close"
+  // ============================================================
+  const currentWordSet = (weekData?.words || currentWords).map((w: string) => w.toLowerCase());
+  const readyWords: string[] = [];
+  const closeWords: string[] = [];
+  currentWordSet.forEach((w: string) => {
+    const ppData = practiceProgress[w];
+    const wdData = weekData?.practiceData?.[w];
+    const correct = ppData?.correctCount ?? wdData?.correctCount ?? 0;
+    const attempts_w = ppData?.totalAttempts ?? wdData?.totalAttempts ?? 0;
+    const acc = attempts_w > 0 ? (correct / attempts_w) * 100 : 0;
+    const consec = wdData?.consecutiveCorrect ?? 0;
+    if ((correct >= 3 && acc >= 80) || consec >= 3) {
+      readyWords.push(w);
+    } else if (correct >= 2 && acc >= 60) {
+      closeWords.push(w);
+    }
+  });
+  const testReadiness = {
+    readyCount: readyWords.length,
+    totalCount: currentWordSet.length,
+    percentage: currentWordSet.length > 0 ? Math.round((readyWords.length / currentWordSet.length) * 100) : 0,
+    closeWords,
+  };
+
+  // ============================================================
+  // NEW FEATURE 2: Smart Nudge
+  // Context-aware message based on recent activity
+  // ============================================================
+  let smartNudge: AnalyticsData['smartNudge'] = null;
+  {
+    const now = new Date();
+    const lastAttempt = attemptHistory.length > 0 
+      ? new Date(attemptHistory[attemptHistory.length - 1].date) 
+      : null;
+    const hoursSinceLastPractice = lastAttempt 
+      ? (now.getTime() - lastAttempt.getTime()) / (1000 * 60 * 60) 
+      : Infinity;
+    const daysSinceLastPractice = Math.floor(hoursSinceLastPractice / 24);
+
+    if (sessions.length === 0) {
+      smartNudge = {
+        message: `${childName} hasn't started practicing yet. A quick 5-minute session can make a big difference!`,
+        type: 'remind',
+      };
+    } else if (daysSinceLastPractice >= 3) {
+      smartNudge = {
+        message: `${childName} hasn't practiced in ${daysSinceLastPractice} days. Even a short session tonight can help keep ${closeWords.length > 0 ? closeWords.length + ' almost-mastered word' + (closeWords.length !== 1 ? 's' : '') : 'words'} fresh.`,
+        type: 'remind',
+      };
+    } else if (daysSinceLastPractice >= 1 && closeWords.length > 0) {
+      smartNudge = {
+        message: `${childName} is close to mastering "${closeWords[0]}"${closeWords.length > 1 ? ` and ${closeWords.length - 1} more` : ''}. One more practice session could lock ${closeWords.length === 1 ? 'it' : 'them'} in!`,
+        type: 'encourage',
+      };
+    } else if (currentStreak >= 3) {
+      smartNudge = {
+        message: `${currentStreak}-day streak! ${childName} is building a real habit. Keep it going!`,
+        type: 'celebrate',
+      };
+    } else if (testReadiness.percentage >= 80) {
+      smartNudge = {
+        message: `${childName} has mastered ${testReadiness.readyCount}/${testReadiness.totalCount} words — looking ready for the test!`,
+        type: 'celebrate',
+      };
+    }
+  }
+
+  // ============================================================
+  // NEW FEATURE 3: Misspellings (what they actually typed)
+  // Pull recent incorrect attempts with the child's typed input
+  // ============================================================
+  const misspellings = attemptHistory
+    .filter(a => !a.correct && a.userInput)
+    .slice(-20) // last 20 misspellings
+    .reverse()  // newest first
+    .map(a => ({
+      word: a.word,
+      typed: a.userInput,
+      date: a.date,
+    }));
+
+  // ============================================================
+  // NEW FEATURE 4: Weekly Summary (natural language)
+  // ============================================================
+  let weeklySummary = '';
+  {
+    const thisWeekSessions = sessions.filter(s => {
+      const d = new Date(s.date);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return d >= weekAgo;
+    });
+    const daysWithPractice = new Set(thisWeekSessions.map(s => new Date(s.date).toISOString().split('T')[0])).size;
+
+    if (thisWeekSessions.length === 0) {
+      weeklySummary = `${childName} hasn't practiced this week yet. Starting a session today is a great way to build momentum!`;
+    } else {
+      const weekCorrect = thisWeekSessions.reduce((sum, s) => sum + s.correctWords.length, 0);
+      const weekTotal = thisWeekSessions.reduce((sum, s) => sum + s.correctWords.length + s.incorrectWords.length, 0);
+      const weekAcc = weekTotal > 0 ? Math.round((weekCorrect / weekTotal) * 100) : 0;
+
+      const parts: string[] = [];
+      parts.push(`${childName} practiced ${daysWithPractice} day${daysWithPractice !== 1 ? 's' : ''} this week`);
+      
+      if (weekAcc > 0) {
+        parts[0] += ` with ${weekAcc}% accuracy`;
+      }
+      parts[0] += '.';
+
+      if (readyWords.length > 0 && currentWordSet.length > 0) {
+        parts.push(`${readyWords.length} of ${currentWordSet.length} words are mastered.`);
+      }
+
+      const weekStruggle = thisWeekSessions
+        .flatMap(s => s.incorrectWords)
+        .reduce((acc: Record<string, number>, w) => { acc[w] = (acc[w] || 0) + 1; return acc; }, {});
+      const topStruggle = Object.entries(weekStruggle).sort((a, b) => b[1] - a[1]).slice(0, 2);
+      if (topStruggle.length > 0) {
+        parts.push(`"${topStruggle.map(([w]) => w).join('" and "')}" could use extra practice at home.`);
+      }
+
+      weeklySummary = parts.join(' ');
+    }
+  }
+
+  // ============================================================
+  // NEW FEATURE 5: Streak Calendar (last 30 days)
+  // ============================================================
+  const streakCalendar: { date: string; practiced: boolean }[] = [];
+  {
+    const practiceDateSet = new Set<string>();
+    attemptHistory.forEach(a => {
+      practiceDateSet.add(new Date(a.date).toISOString().split('T')[0]);
+    });
+    if (weekData?.practiceHistory) {
+      weekData.practiceHistory.forEach((ph: any) => {
+        practiceDateSet.add(new Date(ph.date).toISOString().split('T')[0]);
+      });
+    }
+
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      d.setHours(0, 0, 0, 0);
+      const dateStr = d.toISOString().split('T')[0];
+      streakCalendar.push({
+        date: dateStr,
+        practiced: practiceDateSet.has(dateStr),
+      });
+    }
+  }
+
+  return {
+    childName,
+    gradeLevel,
+    stats: {
+      totalWordsInList: allWords.size,
+      totalWordsPracticed: wordsPracticedCount,
+      totalPracticeSessions: sessions.length,
+      overallAccuracy,
+      totalMinutes,
+      avgSessionMinutes,
+      currentStreak,
+      longestStreak,
+      totalTreasures: treasureCount,
+      achievementsEarned,
+      totalAchievements: 24,
+      trickyWordsActive: trickyActive,
+      trickyWordsMastered: trickyMastered,
+    },
+    dailyProgress,
+    wordMastery: {
+      mastered: masteredCount,
+      learning: learningCount,
+      total: allWords.size,
+    },
+    wordBreakdown,
+    strugglingWords,
+    starWords,
+    sessionHistory: sessions,
+    recentActivity,
+    trickyWords: trickyWordsDisplay,
+    currentWeek: {
+      words: weekWords,
+      practiceCount: weekPracticeCount,
+      bestScore: weekBestScore,
+    },
+    // New 2026 features
+    testReadiness,
+    smartNudge,
+    misspellings,
+    weeklySummary,
+    streakCalendar,
+  };
+}
+
+// Helper: build a SessionDetail from a group of attempts
+function buildSession(
+  attempts: { date: string; word: string; correct: boolean; userInput: string }[],
+  index: number,
+  character: string
+): SessionDetail {
+  const correctWords = [...new Set(attempts.filter(a => a.correct).map(a => a.word))];
+  const incorrectWords = [...new Set(attempts.filter(a => !a.correct).map(a => a.word))];
+  const totalCorrect = attempts.filter(a => a.correct).length;
+  const score = attempts.length > 0 ? Math.round((totalCorrect / attempts.length) * 100) : 0;
+
+  const firstTime = new Date(attempts[0].date).getTime();
+  const lastTime = new Date(attempts[attempts.length - 1].date).getTime();
+  const timeSpent = Math.round((lastTime - firstTime) / 1000) + 15; // add ~15s buffer for last answer
+
+  return {
+    id: `session-${index}`,
+    date: attempts[0].date,
+    correctWords,
+    incorrectWords,
+    score,
+    character,
+    timeSpent,
+  };
+}
+
+
+// ============================================================
+// COMPONENT (UI is identical — only data source changed)
+// ============================================================
 
 export default function ParentAnalytics() {
   const [, setLocation] = useLocation();
@@ -58,8 +597,12 @@ export default function ParentAnalytics() {
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
   
+  // *** THE FIX: Read from localStorage instead of /api/analytics ***
   const { data: analytics, isLoading, error } = useQuery<AnalyticsData>({
-    queryKey: ['/api/analytics'],
+    queryKey: ['local-analytics'],
+    queryFn: () => {
+      return Promise.resolve(buildAnalyticsFromLocal());
+    },
     refetchInterval: 30000,
   });
 
@@ -244,6 +787,62 @@ export default function ParentAnalytics() {
           </div>
         </section>
 
+        {/* ============ NEW: Weekly Summary Card ============ */}
+        <section className={`p-5 rounded-2xl border ${
+          isDark 
+            ? 'bg-gradient-to-br from-indigo-900/30 to-purple-900/20 border-indigo-700/50' 
+            : 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200'
+        }`}>
+          <div className="flex items-start gap-3">
+            <span className="text-xl mt-0.5">📝</span>
+            <div className="flex-1">
+              <h3 className={`font-bold text-sm mb-1 ${isDark ? 'text-indigo-300' : 'text-indigo-800'}`}>
+                This Week's Summary
+              </h3>
+              <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                {analytics.weeklySummary}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ NEW: Smart Nudge ============ */}
+        {analytics.smartNudge && analytics.smartNudge.type !== 'none' && (
+          <section className={`p-5 rounded-2xl border ${
+            analytics.smartNudge.type === 'celebrate'
+              ? isDark 
+                ? 'bg-gradient-to-br from-emerald-900/30 to-teal-900/20 border-emerald-700/50'
+                : 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200'
+              : analytics.smartNudge.type === 'remind'
+                ? isDark
+                  ? 'bg-gradient-to-br from-orange-900/30 to-red-900/20 border-orange-700/50'
+                  : 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-200'
+                : isDark
+                  ? 'bg-gradient-to-br from-blue-900/30 to-cyan-900/20 border-blue-700/50'
+                  : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200'
+          }`}>
+            <div className="flex items-start gap-3">
+              <span className="text-xl mt-0.5">
+                {analytics.smartNudge.type === 'celebrate' ? '🎉' : analytics.smartNudge.type === 'remind' ? '⏰' : '💡'}
+              </span>
+              <div className="flex-1">
+                <h3 className={`font-bold text-sm mb-1 ${
+                  analytics.smartNudge.type === 'celebrate' 
+                    ? isDark ? 'text-emerald-300' : 'text-emerald-800'
+                    : analytics.smartNudge.type === 'remind'
+                      ? isDark ? 'text-orange-300' : 'text-orange-800'
+                      : isDark ? 'text-blue-300' : 'text-blue-800'
+                }`}>
+                  {analytics.smartNudge.type === 'celebrate' ? 'Way to Go!' : analytics.smartNudge.type === 'remind' ? 'Friendly Reminder' : 'Almost There'}
+                </h3>
+                <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  {analytics.smartNudge.message}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
@@ -290,6 +889,66 @@ export default function ParentAnalytics() {
             isDark={isDark}
           />
         </section>
+
+        {/* ============ NEW: Test Readiness Meter ============ */}
+        {analytics.testReadiness.totalCount > 0 && (
+          <section className={`p-6 rounded-2xl border ${
+            isDark 
+              ? 'bg-slate-800/50 border-slate-700/50' 
+              : 'bg-white border-slate-100'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">📋</span>
+                <h3 className="font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Ready for Friday's Test?
+                </h3>
+              </div>
+              <span className={`text-2xl font-bold ${
+                analytics.testReadiness.percentage >= 80 
+                  ? 'text-emerald-500' 
+                  : analytics.testReadiness.percentage >= 50 
+                    ? 'text-amber-500' 
+                    : 'text-red-500'
+              }`}>
+                {analytics.testReadiness.percentage}%
+              </span>
+            </div>
+            
+            {/* Progress bar */}
+            <div className={`w-full h-4 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+              <div 
+                className={`h-full rounded-full transition-all duration-1000 ${
+                  analytics.testReadiness.percentage >= 80 
+                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' 
+                    : analytics.testReadiness.percentage >= 50 
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-400' 
+                      : 'bg-gradient-to-r from-red-500 to-orange-400'
+                }`}
+                style={{ width: `${Math.max(analytics.testReadiness.percentage, 2)}%` }}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between mt-3">
+              <span className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                {analytics.testReadiness.readyCount} of {analytics.testReadiness.totalCount} words mastered
+              </span>
+              {analytics.testReadiness.percentage >= 80 && (
+                <span className="text-sm font-bold text-emerald-500">✓ Looking good!</span>
+              )}
+            </div>
+
+            {analytics.testReadiness.closeWords.length > 0 && analytics.testReadiness.percentage < 100 && (
+              <div className={`mt-4 p-3 rounded-xl ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                <span className={`text-sm ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                  🔜 <strong>Almost there:</strong> "{analytics.testReadiness.closeWords.slice(0, 3).join('", "')}" 
+                  {analytics.testReadiness.closeWords.length > 3 ? ` and ${analytics.testReadiness.closeWords.length - 3} more` : ''} 
+                  {analytics.testReadiness.closeWords.length === 1 ? ' is' : ' are'} close to mastered
+                </span>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Needs Extra Help Callout - uses strugglingWords from API (words with <50% accuracy) */}
         {allNeedsHelpWords.length > 0 && (
@@ -459,6 +1118,69 @@ export default function ParentAnalytics() {
                 No activity data yet
               </div>
             )}
+          </div>
+        </section>
+
+        {/* ============ NEW: Streak Calendar (30 days) ============ */}
+        <section className={`p-8 rounded-3xl shadow-sm border ${
+          isDark 
+            ? 'bg-slate-800/50 border-slate-700/50' 
+            : 'bg-white border-slate-100'
+        }`}>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Practice Streak</h2>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Last 30 days</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {stats.currentStreak > 0 && (
+                <span className={`text-sm font-bold px-3 py-1 rounded-full ${
+                  isDark ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-100 text-orange-600'
+                }`}>
+                  🔥 {stats.currentStreak} day{stats.currentStreak !== 1 ? 's' : ''}
+                </span>
+              )}
+              {stats.longestStreak > stats.currentStreak && (
+                <span className={`text-xs font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                  Best: {stats.longestStreak}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-10 sm:grid-cols-15 gap-1.5">
+            {analytics.streakCalendar.map((day, i) => {
+              const d = new Date(day.date);
+              const isToday = day.date === new Date().toISOString().split('T')[0];
+              const dayLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              
+              return (
+                <div
+                  key={i}
+                  title={`${dayLabel}${day.practiced ? ' ✓ Practiced' : ' — No practice'}`}
+                  className={`aspect-square rounded-lg transition-all duration-200 cursor-default ${
+                    isToday
+                      ? day.practiced
+                        ? 'bg-emerald-500 ring-2 ring-emerald-400 ring-offset-1 ' + (isDark ? 'ring-offset-slate-800' : 'ring-offset-white')
+                        : `ring-2 ring-indigo-400 ring-offset-1 ${isDark ? 'ring-offset-slate-800 bg-slate-700' : 'ring-offset-white bg-slate-100'}`
+                      : day.practiced
+                        ? isDark ? 'bg-emerald-600/70' : 'bg-emerald-400'
+                        : isDark ? 'bg-slate-700/50' : 'bg-slate-100'
+                  }`}
+                />
+              );
+            })}
+          </div>
+          
+          <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded ${isDark ? 'bg-emerald-600/70' : 'bg-emerald-400'}`} />
+              <span className={`text-xs font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Practiced</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded ${isDark ? 'bg-slate-700/50' : 'bg-slate-100'}`} />
+              <span className={`text-xs font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No practice</span>
+            </div>
           </div>
         </section>
 
@@ -722,6 +1444,95 @@ export default function ParentAnalytics() {
           </section>
         )}
 
+        {/* ============ NEW: What They Typed — Misspelling Insights ============ */}
+        {analytics.misspellings.length > 0 && (
+          <section className={`p-8 rounded-3xl shadow-sm border ${
+            isDark 
+              ? 'bg-slate-800/50 border-slate-700/50' 
+              : 'bg-white border-slate-100'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>What They Typed</h2>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>See exactly where spelling goes wrong</p>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-1 rounded-md tracking-wider uppercase ${
+                isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-600'
+              }`}>
+                Recent Misses
+              </span>
+            </div>
+            
+            <div className="space-y-2">
+              {analytics.misspellings.slice(0, 8).map((miss, i) => {
+                // Highlight the differences between typed and correct
+                const correctWord = miss.word.toLowerCase();
+                const typedWord = miss.typed.toLowerCase();
+                
+                return (
+                  <div key={i} className={`flex items-center justify-between p-3 rounded-xl ${
+                    isDark ? 'bg-slate-700/30' : 'bg-slate-50'
+                  }`}>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <XIcon className="w-4 h-4 text-red-400 flex-shrink-0" />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`font-mono text-sm px-2 py-0.5 rounded line-through ${
+                          isDark ? 'bg-red-900/30 text-red-300' : 'bg-red-50 text-red-600'
+                        }`}>
+                          {typedWord}
+                        </span>
+                        <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>→</span>
+                        <span className={`font-mono text-sm font-bold px-2 py-0.5 rounded ${
+                          isDark ? 'bg-emerald-900/30 text-emerald-300' : 'bg-emerald-50 text-emerald-600'
+                        }`}>
+                          {correctWord}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] ml-3 flex-shrink-0 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                      {new Date(miss.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {analytics.misspellings.length > 0 && (
+              <div className={`mt-5 p-3 rounded-xl ${isDark ? 'bg-purple-900/20' : 'bg-purple-50'}`}>
+                <span className={`text-sm ${isDark ? 'text-purple-300' : 'text-purple-700'}`}>
+                  🔍 <strong>Pattern tip:</strong> {(() => {
+                    // Detect common patterns in misspellings
+                    const swaps = analytics.misspellings.filter(m => {
+                      const typed = m.typed.toLowerCase();
+                      const correct = m.word.toLowerCase();
+                      // Check for adjacent letter swaps
+                      if (typed.length === correct.length) {
+                        let diffs = 0;
+                        for (let j = 0; j < typed.length; j++) {
+                          if (typed[j] !== correct[j]) diffs++;
+                        }
+                        return diffs <= 2;
+                      }
+                      return false;
+                    });
+                    const extraLetters = analytics.misspellings.filter(m => m.typed.length > m.word.length);
+                    const missingLetters = analytics.misspellings.filter(m => m.typed.length < m.word.length);
+                    
+                    if (missingLetters.length > extraLetters.length && missingLetters.length >= 2) {
+                      return "Your child tends to skip letters. Try sounding out each syllable together slowly.";
+                    } else if (extraLetters.length > missingLetters.length && extraLetters.length >= 2) {
+                      return "Your child sometimes adds extra letters. Practice clapping out syllables to feel the word's rhythm.";
+                    } else if (swaps.length >= 2) {
+                      return "Letter order mix-ups are common. Try tracing each word in the air or on paper while spelling aloud.";
+                    }
+                    return "Review these words together at home — saying each letter aloud while writing helps build muscle memory.";
+                  })()}
+                </span>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Footer */}
         <footer className="text-center py-10">
           <p className={`text-xs font-medium ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
@@ -854,6 +1665,39 @@ export default function ParentAnalytics() {
                 </div>
                 <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                   Words that have been misspelled. The app automatically adds extra practice for these words. The "in a row" badge shows how many times in a row they've gotten it right since missing it.
+                </p>
+              </div>
+
+              {/* Test Readiness */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-green-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📋</span>
+                  <h3 className="font-bold">Test Readiness</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Shows how prepared your child is for their spelling test. A word is "ready" when it's been spelled correctly 3+ times with at least 80% accuracy. "Almost there" words need just a bit more practice to lock in.
+                </p>
+              </div>
+
+              {/* What They Typed */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-purple-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🔍</span>
+                  <h3 className="font-bold">What They Typed</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  See exactly how your child misspelled each word — the actual letters they typed alongside the correct spelling. This reveals specific patterns like letter swaps, missing letters, or extra letters so you can help them practice the tricky parts.
+                </p>
+              </div>
+
+              {/* Practice Streak */}
+              <div className={`p-4 rounded-2xl ${isDark ? 'bg-slate-700/50' : 'bg-orange-50'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🔥</span>
+                  <h3 className="font-bold">Practice Streak</h3>
+                </div>
+                <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  The 30-day calendar shows which days your child practiced. Consistency matters more than marathon sessions — even 5 minutes a day builds lasting spelling skills. The streak counter shows how many days in a row they've practiced.
                 </p>
               </div>
 
