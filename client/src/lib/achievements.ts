@@ -34,12 +34,12 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
   { id: 'treasure_legend', title: 'Treasure Legend', description: 'Collected 500 treasures!', icon: '🏴‍☠️', category: 'treasure', threshold: 500, rarity: 'legendary' },
   { id: 'perfect_score', title: 'Perfect Score', description: 'Got 100% in a practice session!', icon: '🌟', category: 'special', threshold: 100, rarity: 'rare' },
   { id: 'speed_demon', title: 'Speed Demon', description: 'Completed 5 sessions in one day!', icon: '⚡', category: 'special', threshold: 5, rarity: 'epic' },
-  { id: 'comeback_kid', title: 'Comeback Kid', description: 'Improved from under 50% to over 80% in the same week!', icon: '🦋', category: 'special', threshold: 80, rarity: 'rare' },
+  { id: 'comeback_kid', title: 'Comeback Kid', description: 'Improved from under 50% to over 80% across your practice sessions!', icon: '🦋', category: 'special', threshold: 80, rarity: 'rare' },
 ];
 
 function buildSession(batch: any[]): { completedAt: string; correctWords: string[]; incorrectWords: string[]; correct: number; total: number } {
   const lastAttempt = new Map<string, boolean>();
-  batch.forEach((a: any) => lastAttempt.set(String(a.word), !!a.correct));
+  batch.forEach((a: any) => lastAttempt.set(String(a.word).toLowerCase().trim(), !!a.correct));
   const correctWords = [...lastAttempt.entries()].filter(([, c]) => c).map(([w]) => w);
   const incorrectWords = [...lastAttempt.entries()].filter(([, c]) => !c).map(([w]) => w);
   return { completedAt: batch[batch.length - 1].date, correctWords, incorrectWords, correct: correctWords.length, total: lastAttempt.size };
@@ -119,6 +119,11 @@ export function buildAchievementsFromLocal(): { earned: UserAchievement[]; all: 
       return earlyAcc < 0.5 && lateAcc > 0.8;
     })();
 
+    // Load stored earn timestamps; write new ones for first-time unlocks only
+    let storedEarnedAt: Record<string, string> = {};
+    try { const r = localStorage.getItem('redboot-earned-achievements'); if (r) storedEarnedAt = JSON.parse(r) || {}; } catch { /* empty */ }
+    const now = new Date().toISOString();
+
     const earned: UserAchievement[] = ALL_ACHIEVEMENTS.filter(a => {
       if (a.category === 'spelling' && ['first_word', 'spelling_apprentice', 'word_warrior'].includes(a.id)) return totalAttempts >= a.threshold;
       if (a.category === 'spelling') return masteredCount >= a.threshold;
@@ -128,8 +133,12 @@ export function buildAchievementsFromLocal(): { earned: UserAchievement[]; all: 
       if (a.id === 'speed_demon') return todaySessions.length >= a.threshold;
       if (a.id === 'comeback_kid') return hasComeback;
       return false;
-    }).map(a => ({ id: a.id, achievementId: a.id, earnedAt: new Date().toISOString(), achievement: a }));
+    }).map(a => {
+      if (!storedEarnedAt[a.id]) storedEarnedAt[a.id] = now;
+      return { id: a.id, achievementId: a.id, earnedAt: storedEarnedAt[a.id], achievement: a };
+    });
 
+    try { localStorage.setItem('redboot-earned-achievements', JSON.stringify(storedEarnedAt)); } catch { /* empty */ }
     return { earned, all: ALL_ACHIEVEMENTS };
   } catch { return { earned: [], all: ALL_ACHIEVEMENTS }; }
 }
