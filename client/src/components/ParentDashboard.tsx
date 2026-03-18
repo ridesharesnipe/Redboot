@@ -58,8 +58,10 @@ function buildTrickyWordsFromLocal(): Array<{ word: string; status: 'active' | '
   try {
     const raw = localStorage.getItem('trickyWordsForPractice');
     if (!raw) return [];
-    const words = JSON.parse(raw);
-    if (!Array.isArray(words)) return [];
+    const parsed = JSON.parse(raw);
+    // Support both legacy raw-array format and new object format { words, savedAt, character }
+    const words: string[] = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.words) ? parsed.words : []);
+    if (words.length === 0) return [];
     let pp: any = {};
     let weekData: any = null;
     try { const r = localStorage.getItem('practiceProgress'); if (r) pp = JSON.parse(r) || {}; } catch { /* empty */ }

@@ -140,8 +140,10 @@ export class SpellingStorage {
 
   // Add a bulk treasure amount and return the new total
   addTreasures(amount: number): number {
+    const safeAmount = Number.isFinite(amount) && amount > 0 ? Math.floor(amount) : 0;
+    if (safeAmount === 0) return this.getCurrentWeek().treasureCount || 0;
     const weekData = this.getCurrentWeek();
-    weekData.treasureCount = (weekData.treasureCount || 0) + amount;
+    weekData.treasureCount = (weekData.treasureCount || 0) + safeAmount;
     this.saveData(weekData);
     return weekData.treasureCount;
   }
