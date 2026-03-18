@@ -22,6 +22,74 @@ interface UserAchievement {
   achievement: Achievement;
 }
 
+const ALL_ACHIEVEMENTS: Achievement[] = [
+  { id: 'first_word', title: 'First Word', description: 'Practiced your first spelling word!', icon: '📝', category: 'spelling', threshold: 1, rarity: 'common' },
+  { id: 'spelling_apprentice', title: 'Spelling Apprentice', description: 'Practiced 25 words!', icon: '✏️', category: 'spelling', threshold: 25, rarity: 'common' },
+  { id: 'word_warrior', title: 'Word Warrior', description: 'Practiced 50 words!', icon: '⚔️', category: 'spelling', threshold: 50, rarity: 'rare' },
+  { id: 'spelling_master', title: 'Spelling Master', description: 'Mastered 10 words!', icon: '📚', category: 'spelling', threshold: 10, rarity: 'rare' },
+  { id: 'vocabulary_captain', title: 'Vocabulary Captain', description: 'Mastered 25 words!', icon: '🎖️', category: 'spelling', threshold: 25, rarity: 'epic' },
+  { id: 'word_wizard', title: 'Word Wizard', description: 'Mastered 50 words!', icon: '🧙', category: 'spelling', threshold: 50, rarity: 'epic' },
+  { id: 'spelling_legend', title: 'Spelling Legend', description: 'Mastered 100 words!', icon: '👑', category: 'spelling', threshold: 100, rarity: 'legendary' },
+  { id: 'first_streak', title: 'First Streak', description: 'Practiced 2 days in a row!', icon: '🔥', category: 'streak', threshold: 2, rarity: 'common' },
+  { id: 'week_warrior', title: 'Week Warrior', description: 'Practiced 7 days in a row!', icon: '📅', category: 'streak', threshold: 7, rarity: 'rare' },
+  { id: 'fortnight_fighter', title: 'Fortnight Fighter', description: 'Practiced 14 days in a row!', icon: '💪', category: 'streak', threshold: 14, rarity: 'epic' },
+  { id: 'monthly_master', title: 'Monthly Master', description: 'Practiced 30 days in a row!', icon: '🏆', category: 'streak', threshold: 30, rarity: 'epic' },
+  { id: 'streak_legend', title: 'Streak Legend', description: 'Practiced 50 days in a row!', icon: '⭐', category: 'streak', threshold: 50, rarity: 'legendary' },
+  { id: 'first_treasure', title: 'First Treasure', description: 'Earned your first treasure!', icon: '💰', category: 'treasure', threshold: 1, rarity: 'common' },
+  { id: 'treasure_hunter', title: 'Treasure Hunter', description: 'Collected 50 treasures!', icon: '🗺️', category: 'treasure', threshold: 50, rarity: 'rare' },
+  { id: 'treasure_master', title: 'Treasure Master', description: 'Collected 200 treasures!', icon: '💎', category: 'treasure', threshold: 200, rarity: 'epic' },
+  { id: 'treasure_legend', title: 'Treasure Legend', description: 'Collected 500 treasures!', icon: '🏴‍☠️', category: 'treasure', threshold: 500, rarity: 'legendary' },
+  { id: 'perfect_score', title: 'Perfect Score', description: 'Got 100% in a practice session!', icon: '🌟', category: 'special', threshold: 100, rarity: 'rare' },
+  { id: 'speed_demon', title: 'Speed Demon', description: 'Completed 5 sessions in one day!', icon: '⚡', category: 'special', threshold: 5, rarity: 'epic' },
+  { id: 'comeback_kid', title: 'Comeback Kid', description: 'Improved accuracy to over 80%!', icon: '🦋', category: 'special', threshold: 80, rarity: 'rare' },
+];
+
+function buildAchievementsFromLocal(): { earned: UserAchievement[]; all: Achievement[] } {
+  try {
+    let totalAttempts = 0; let masteredCount = 0; let treasureCount = 0; let currentStreak = 0;
+    let history: any[] = [];
+    try {
+      const r = localStorage.getItem('practiceProgress');
+      if (r) { const pp = JSON.parse(r); if (pp && typeof pp === 'object') { history = Array.isArray(pp._practiceHistory) ? pp._practiceHistory : []; totalAttempts = history.length; } }
+    } catch { /* empty */ }
+    try {
+      const r = localStorage.getItem('redboot-spelling-data');
+      if (r) { const wd = JSON.parse(r); if (wd && typeof wd === 'object') { treasureCount = wd.treasureCount || 0; if (Array.isArray(wd.words) && wd.practiceData) { wd.words.forEach((w: string) => { const d = wd.practiceData[w.toLowerCase()]; if (d?.status === 'mastered' || (d?.correctCount >= 3 && d?.totalAttempts > 0 && (d.correctCount / d.totalAttempts) >= 0.8)) masteredCount++; }); } } }
+    } catch { /* empty */ }
+    const practiceDates = new Set(history.filter((a: any) => a?.date).map((a: any) => new Date(a.date).toISOString().split('T')[0]));
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    let check = new Date(today); if (!practiceDates.has(check.toISOString().split('T')[0])) check.setDate(check.getDate() - 1);
+    while (practiceDates.has(check.toISOString().split('T')[0])) { currentStreak++; check.setDate(check.getDate() - 1); }
+
+    const validDates = history.filter((a: any) => a?.date && !isNaN(new Date(a.date).getTime())).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sessions: { completedAt: string; correct: number; total: number }[] = [];
+    if (validDates.length > 0) {
+      let batch = [validDates[0]];
+      for (let i = 1; i < validDates.length; i++) {
+        const gap = new Date(validDates[i].date).getTime() - new Date(validDates[i - 1].date).getTime();
+        if (gap > 10 * 60 * 1000) { sessions.push({ completedAt: batch[batch.length - 1].date, correct: batch.filter((a: any) => a.correct).length, total: batch.length }); batch = [validDates[i]]; }
+        else batch.push(validDates[i]);
+      }
+      sessions.push({ completedAt: batch[batch.length - 1].date, correct: batch.filter((a: any) => a.correct).length, total: batch.length });
+    }
+    const hasPerfect = sessions.some(s => s.total > 0 && s.correct === s.total);
+    const todayStr = today.toISOString().split('T')[0];
+    const todaySessions = sessions.filter(s => new Date(s.completedAt).toISOString().split('T')[0] === todayStr);
+
+    const earned: UserAchievement[] = ALL_ACHIEVEMENTS.filter(a => {
+      if (a.category === 'spelling' && ['first_word', 'spelling_apprentice', 'word_warrior'].includes(a.id)) return totalAttempts >= a.threshold;
+      if (a.category === 'spelling') return masteredCount >= a.threshold;
+      if (a.category === 'streak') return currentStreak >= a.threshold;
+      if (a.category === 'treasure') return treasureCount >= a.threshold;
+      if (a.id === 'perfect_score') return hasPerfect;
+      if (a.id === 'speed_demon') return todaySessions.length >= a.threshold;
+      return false;
+    }).map(a => ({ id: a.id, achievementId: a.id, earnedAt: new Date().toISOString(), achievement: a }));
+
+    return { earned, all: ALL_ACHIEVEMENTS };
+  } catch { return { earned: [], all: ALL_ACHIEVEMENTS }; }
+}
+
 const categoryLabels = {
   spelling: '📚 Spelling',
   streak: '🔥 Streak',
@@ -61,7 +129,9 @@ export default function BadgeGallery() {
   } | null>(null);
   
   const { data: achievementData, isLoading } = useQuery<{ earned: UserAchievement[]; all: Achievement[] }>({
-    queryKey: ['/api/achievements/user'],
+    queryKey: ['local-achievements'],
+    queryFn: () => Promise.resolve(buildAchievementsFromLocal()),
+    refetchInterval: 30000,
   });
 
   const earnedIds = new Set(achievementData?.earned?.map(ua => ua.achievementId) || []);
