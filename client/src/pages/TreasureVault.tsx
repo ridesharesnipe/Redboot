@@ -20,6 +20,34 @@ interface UserTreasures {
   diego: TreasureCount;
 }
 
+function buildTreasuresFromLocal(): UserTreasures {
+  let totalTreasures = 0;
+  try {
+    const raw = localStorage.getItem('redboot-spelling-data');
+    if (raw) {
+      const weekData = JSON.parse(raw);
+      if (weekData && typeof weekData === 'object' && !Array.isArray(weekData)) {
+        totalTreasures = typeof weekData.treasureCount === 'number' ? Math.max(0, weekData.treasureCount) : 0;
+      }
+    }
+  } catch { /* empty */ }
+
+  const distribute = (total: number): TreasureCount => {
+    if (total === 0) return { diamonds: 0, coins: 0, crowns: 0, bags: 0, stars: 0, trophies: 0 };
+    const coins = Math.floor(total * 0.40);
+    const bags = Math.floor(total * 0.25);
+    const stars = Math.floor(total * 0.15);
+    const crowns = Math.floor(total * 0.10);
+    const diamonds = Math.floor(total * 0.07);
+    const trophies = Math.max(0, total - coins - bags - stars - crowns - diamonds);
+    return { diamonds, coins, crowns, bags, stars, trophies };
+  };
+
+  // Treasure is shared across characters — show same total for both
+  const counts = distribute(totalTreasures);
+  return { redboot: counts, diego: counts };
+}
+
 interface FallingTreasure {
   id: number;
   emoji: string;
@@ -45,7 +73,9 @@ export default function TreasureVault() {
   const treasureIdCounter = useRef(0);
 
   const { data: treasures, isLoading } = useQuery<UserTreasures>({
-    queryKey: ['/api/treasures'],
+    queryKey: ['local-treasures'],
+    queryFn: () => Promise.resolve(buildTreasuresFromLocal()),
+    refetchInterval: 30000,
   });
 
   // Treasure visual properties
