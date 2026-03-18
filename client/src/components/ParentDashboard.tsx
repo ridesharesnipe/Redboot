@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
+import { buildAchievementsFromLocal, buildSessionsFromHistory } from '@/lib/achievements';
 import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon, Shield } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 import { useLocation } from "wouter";
@@ -19,12 +20,16 @@ interface ParentDashboardProps {
 // ── localStorage helpers (replace broken API calls) ──────────────────────────
 
 function buildWordListsFromLocal(): Array<{ words: string[]; childId: null; createdDate: string }> {
+  let savedWeekStart: string | null = null;
   try {
     const raw = localStorage.getItem('redboot-spelling-data');
     if (raw) {
       const wd = JSON.parse(raw);
-      if (wd && typeof wd === 'object' && Array.isArray(wd.words) && wd.words.length > 0)
-        return [{ words: wd.words, childId: null, createdDate: wd.weekStart || new Date().toISOString() }];
+      if (wd && typeof wd === 'object') {
+        savedWeekStart = wd.weekStart || null;
+        if (Array.isArray(wd.words) && wd.words.length > 0)
+          return [{ words: wd.words, childId: null, createdDate: savedWeekStart || new Date().toISOString() }];
+      }
     }
   } catch { /* empty */ }
   try {
@@ -32,7 +37,7 @@ function buildWordListsFromLocal(): Array<{ words: string[]; childId: null; crea
     if (raw2) {
       const parsed = JSON.parse(raw2);
       const words = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.words) ? parsed.words : []);
-      if (words.length > 0) return [{ words, childId: null, createdDate: new Date().toISOString() }];
+      if (words.length > 0) return [{ words, childId: null, createdDate: savedWeekStart || new Date().toISOString() }];
     }
   } catch { /* empty */ }
   return [];
@@ -45,31 +50,7 @@ function buildProgressRecordsFromLocal(): Array<{ completedAt: string; correctWo
     const pp = JSON.parse(raw);
     if (typeof pp !== 'object' || Array.isArray(pp) || !pp) return [];
     const history = Array.isArray(pp._practiceHistory) ? pp._practiceHistory : [];
-    const valid = history
-      .filter((a: any) => a && typeof a.date === 'string' && !isNaN(new Date(a.date).getTime()))
-      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    if (valid.length === 0) return [];
-    const sessions: Array<{ completedAt: string; correctWords: string[]; incorrectWords: string[] }> = [];
-    let batch = [valid[0]];
-    for (let i = 1; i < valid.length; i++) {
-      const gap = new Date(valid[i].date).getTime() - new Date(valid[i - 1].date).getTime();
-      if (gap > 10 * 60 * 1000) {
-        sessions.push({
-          completedAt: batch[batch.length - 1].date,
-          correctWords: [...new Set(batch.filter((a: any) => a.correct).map((a: any) => a.word as string))],
-          incorrectWords: [...new Set(batch.filter((a: any) => !a.correct).map((a: any) => a.word as string))],
-        });
-        batch = [valid[i]];
-      } else {
-        batch.push(valid[i]);
-      }
-    }
-    sessions.push({
-      completedAt: batch[batch.length - 1].date,
-      correctWords: [...new Set(batch.filter((a: any) => a.correct).map((a: any) => a.word as string))],
-      incorrectWords: [...new Set(batch.filter((a: any) => !a.correct).map((a: any) => a.word as string))],
-    });
-    return sessions;
+    return buildSessionsFromHistory(history);
   } catch { return []; }
 }
 
@@ -94,59 +75,6 @@ function buildTrickyWordsFromLocal(): Array<{ word: string; status: 'active' | '
       return { word: w, status: mastered ? ('mastered' as const) : ('active' as const) };
     });
   } catch { return []; }
-}
-
-function buildAchievementsFromLocal(): { earned: any[]; all: any[] } {
-  const ALL = [
-    { id: 'first_word', title: 'First Word', icon: '📝', category: 'spelling', threshold: 1, rarity: 'common', description: 'Practiced your first word!' },
-    { id: 'spelling_apprentice', title: 'Spelling Apprentice', icon: '✏️', category: 'spelling', threshold: 25, rarity: 'common', description: 'Practiced 25 words!' },
-    { id: 'word_warrior', title: 'Word Warrior', icon: '⚔️', category: 'spelling', threshold: 50, rarity: 'rare', description: 'Practiced 50 words!' },
-    { id: 'spelling_master', title: 'Spelling Master', icon: '📚', category: 'spelling', threshold: 10, rarity: 'rare', description: 'Mastered 10 words!' },
-    { id: 'vocabulary_captain', title: 'Vocabulary Captain', icon: '🎖️', category: 'spelling', threshold: 25, rarity: 'epic', description: 'Mastered 25 words!' },
-    { id: 'word_wizard', title: 'Word Wizard', icon: '🧙', category: 'spelling', threshold: 50, rarity: 'epic', description: 'Mastered 50 words!' },
-    { id: 'spelling_legend', title: 'Spelling Legend', icon: '👑', category: 'spelling', threshold: 100, rarity: 'legendary', description: 'Mastered 100 words!' },
-    { id: 'first_streak', title: 'First Streak', icon: '🔥', category: 'streak', threshold: 2, rarity: 'common', description: 'Practiced 2 days in a row!' },
-    { id: 'week_warrior', title: 'Week Warrior', icon: '📅', category: 'streak', threshold: 7, rarity: 'rare', description: 'Practiced 7 days in a row!' },
-    { id: 'fortnight_fighter', title: 'Fortnight Fighter', icon: '💪', category: 'streak', threshold: 14, rarity: 'epic', description: 'Practiced 14 days in a row!' },
-    { id: 'monthly_master', title: 'Monthly Master', icon: '🏆', category: 'streak', threshold: 30, rarity: 'epic', description: 'Practiced 30 days in a row!' },
-    { id: 'streak_legend', title: 'Streak Legend', icon: '⭐', category: 'streak', threshold: 50, rarity: 'legendary', description: 'Practiced 50 days in a row!' },
-    { id: 'first_treasure', title: 'First Treasure', icon: '💰', category: 'treasure', threshold: 1, rarity: 'common', description: 'Earned your first treasure!' },
-    { id: 'treasure_hunter', title: 'Treasure Hunter', icon: '🗺️', category: 'treasure', threshold: 50, rarity: 'rare', description: 'Collected 50 treasures!' },
-    { id: 'treasure_master', title: 'Treasure Master', icon: '💎', category: 'treasure', threshold: 200, rarity: 'epic', description: 'Collected 200 treasures!' },
-    { id: 'treasure_legend', title: 'Treasure Legend', icon: '🏴‍☠️', category: 'treasure', threshold: 500, rarity: 'legendary', description: 'Collected 500 treasures!' },
-    { id: 'perfect_score', title: 'Perfect Score', icon: '🌟', category: 'special', threshold: 100, rarity: 'rare', description: 'Got 100% in a practice session!' },
-    { id: 'speed_demon', title: 'Speed Demon', icon: '⚡', category: 'special', threshold: 5, rarity: 'epic', description: 'Completed 5 sessions in one day!' },
-    { id: 'comeback_kid', title: 'Comeback Kid', icon: '🦋', category: 'special', threshold: 80, rarity: 'rare', description: 'Improved accuracy to over 80%!' },
-  ];
-  try {
-    let totalAttempts = 0; let masteredCount = 0; let treasureCount = 0; let currentStreak = 0;
-    let history: any[] = [];
-    try {
-      const r = localStorage.getItem('practiceProgress');
-      if (r) { const pp = JSON.parse(r); if (pp && typeof pp === 'object') { history = Array.isArray(pp._practiceHistory) ? pp._practiceHistory : []; totalAttempts = history.length; } }
-    } catch { /* empty */ }
-    try {
-      const r = localStorage.getItem('redboot-spelling-data');
-      if (r) { const wd = JSON.parse(r); if (wd && typeof wd === 'object') { treasureCount = wd.treasureCount || 0; if (Array.isArray(wd.words) && wd.practiceData) { wd.words.forEach((w: string) => { const d = wd.practiceData[w.toLowerCase()]; if (d?.status === 'mastered' || (d?.correctCount >= 3 && d?.totalAttempts > 0 && (d.correctCount / d.totalAttempts) >= 0.8)) masteredCount++; }); } } }
-    } catch { /* empty */ }
-    const practiceDates = new Set(history.filter((a: any) => a?.date).map((a: any) => new Date(a.date).toISOString().split('T')[0]));
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    let check = new Date(today); if (!practiceDates.has(check.toISOString().split('T')[0])) check.setDate(check.getDate() - 1);
-    while (practiceDates.has(check.toISOString().split('T')[0])) { currentStreak++; check.setDate(check.getDate() - 1); }
-    const sessions = buildProgressRecordsFromLocal();
-    const hasPerfect = sessions.some(s => s.incorrectWords.length === 0 && s.correctWords.length > 0);
-    const todaySessions = sessions.filter(s => new Date(s.completedAt).toISOString().split('T')[0] === today.toISOString().split('T')[0]);
-    const earned = ALL.filter(a => {
-      if (a.category === 'spelling' && ['first_word', 'spelling_apprentice', 'word_warrior'].includes(a.id)) return totalAttempts >= a.threshold;
-      if (a.category === 'spelling') return masteredCount >= a.threshold;
-      if (a.category === 'streak') return currentStreak >= a.threshold;
-      if (a.category === 'treasure') return treasureCount >= a.threshold;
-      if (a.id === 'perfect_score') return hasPerfect;
-      if (a.id === 'speed_demon') return todaySessions.length >= a.threshold;
-      return false;
-    }).map(a => ({ achievementId: a.id, earnedAt: new Date().toISOString(), achievement: a }));
-    return { earned, all: ALL };
-  } catch { return { earned: [], all: ALL }; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
