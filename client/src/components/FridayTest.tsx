@@ -196,18 +196,6 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
           } catch (e) {}
         }
 
-        if (!wordListId) {
-          try {
-            const res = await fetch('/api/word-lists', { credentials: 'include' });
-            if (res.ok) {
-              const lists = await res.json();
-              if (Array.isArray(lists) && lists.length > 0) {
-                wordListId = lists[0].id;
-              }
-            }
-          } catch (e) {}
-        }
-
         if (wordListId) {
           await apiRequest('POST', '/api/progress', {
             wordListId,

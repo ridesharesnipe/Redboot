@@ -306,15 +306,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           setPracticeWords(words);
           if (listId) {
             setWordListId(listId);
-          } else {
-            fetch('/api/word-lists', { credentials: 'include' })
-              .then(res => res.ok ? res.json() : [])
-              .then(lists => {
-                if (Array.isArray(lists) && lists.length > 0) {
-                  setWordListId(lists[0].id);
-                }
-              })
-              .catch(() => {});
           }
           playCharacterVoice('red_boot_ahoy');
           return;
