@@ -9,6 +9,7 @@ import { spellingStorage } from '@/lib/localStorage';
 import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
+import SeaMonsterBattle from './SeaMonsterBattle';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -996,13 +997,21 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
             </div>
           </section>
 
-          {/* RIGHT PANEL - TREASURE MAP */}
+          {/* RIGHT PANEL - TREASURE MAP (Red Boot) or SEA MONSTER BATTLE (Diego) */}
           <section className="flex-1 min-h-[300px] lg:min-h-0">
-            <TreasureRoad 
-              totalWords={getTotalWords()} 
-              masteredWords={correctCount} 
-              treasureJustUnlocked={currentTreasure || undefined}
-            />
+            {selectedCharacter === 'diego' ? (
+              <SeaMonsterBattle
+                totalWords={getTotalWords()}
+                masteredWords={correctCount}
+                treasureJustUnlocked={currentTreasure ? true : undefined}
+              />
+            ) : (
+              <TreasureRoad 
+                totalWords={getTotalWords()} 
+                masteredWords={correctCount} 
+                treasureJustUnlocked={currentTreasure || undefined}
+              />
+            )}
           </section>
         </div>
       </main>
