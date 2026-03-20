@@ -1,0 +1,122 @@
+
+Transcript
+
+0:00
+Is this the future of onboarding? Most users will never get past your first screen. Not because your app is bad, but
+0:07
+7 seconds
+because your onboarding is. You've spent months building features they will never use. For many users, the onboarding
+0:14
+14 seconds
+screen is your app. It's the only thing they will ever use. And it's time to get serious about onboarding because this is
+0:22
+22 seconds
+our single best way to make an impact on converting downloads into sales.
+0:27
+27 seconds
+Recently, I had an experience that made me realize we're thinking about onboarding all wrong. Of all places,
+0:33
+33 seconds
+this happened at the aquarium in Singapore. We're there with our younger children who just absolutely loves sharks. Every time my one-year-old sees
+0:42
+42 seconds
+one, he starts singing Baby Shark. And I was kind of expecting the usual aquarium experience. You go to the attraction,
+0:48
+48 seconds
+wind your way through, and finally end up at the gift shop at the exit. Every parent knows the anxiety and dread that builds as you're making your way to that
+0:57
+57 seconds
+gift shop. You just know it's all going to end in tears. We've had such a good day. Why do you have to ruin it now by wanting an overpriced souvenir? Ah,
+1:06
+1 minute, 6 seconds
+well, what happened next actually shocks me. We know the pattern. Go to the attraction, exit through the gift shop.
+1:13
+1 minute, 13 seconds
+But in Singapore, the aquarium did something a little bit differently.
+1:16
+1 minute, 16 seconds
+There was this mini gift shop right after the shark aquarium. plush toys, including one that included Baby Shark.
+1:23
+1 minute, 23 seconds
+And my guard was down. My defenses were down. Now I have two toddlers at the peak of excitement, begging to buy them
+1:31
+1 minute, 31 seconds
+a Baby Shark plush toy. Spoiler, I bought one. And at that moment, I realized, why do gift shops only exist
+1:38
+1 minute, 38 seconds
+at the end of the attraction when I'm fatigued, when I'm tired, when I just want to go home? moving the gift shop experience to the height of my
+1:46
+1 minute, 46 seconds
+experience in the exact moment I actually want to buy. Why isn't this more common? That gift shop didn't feel
+1:53
+1 minute, 53 seconds
+like a gift shop. And that's when it hit me. What if my payw wall didn't feel like a payw wall? Why do onboarding
+2:01
+2 minutes, 1 second
+flows bore us with one long preamble of what the app can actually do? Why are we following the exact same pattern? Users
+2:09
+2 minutes, 9 seconds
+know what's coming. They're getting ready for that payw wall and they're already preparing themselves. I don't know what the app does yet. Does it even
+2:17
+2 minutes, 17 seconds
+solve my problem? We try to answer these questions with text, maybe some images.
+2:22
+2 minutes, 22 seconds
+And it got me thinking, what if you bring the experience of the app into the onboarding flow? What if the app is the
+2:30
+2 minutes, 30 seconds
+onboarding screen? And that made me question something fundamental about app development that I haven't really considered before. What would an app
+2:37
+2 minutes, 37 seconds
+look like if I built it around the onboarding screen? What if I could capture all of the elements of the Singapore Aquarium and place it into an
+2:45
+2 minutes, 45 seconds
+app? Well, it would look something like this.
+2:55
+2 minutes, 55 seconds
+This is fun when you know the secret. Each of these [music] notes is a letter. This one is C. Now it's your turn.
+3:03
+3 minutes, 3 seconds
+There. See? That's it. That's middle C. And next to it is D, [music] then E.
+3:09
+3 minutes, 9 seconds
+Let's play. Get as many right as you can in 15 seconds. Ready? Go.
+3:24
+3 minutes, 24 seconds
+Welcome to the Piano Pals Music Notes Challenge. This is day one. By the end of this challenge, you'll look at sheet
+3:31
+3 minutes, 31 seconds
+music and actually understand it. Each Piano Pow unlocks a new miniame to show you a new trick. In just over a minute,
+3:40
+3 minutes, 40 seconds
+the user has been introduced to the app,
+3:42
+3 minutes, 42 seconds
+is given the opportunity to actually use it, and then prompted to continue for $24.99.
+3:48
+3 minutes, 48 seconds
+But it doesn't feel like onboarding. The payw wall is part of the process. It only shows at the height of the users's
+3:56
+3 minutes, 56 seconds
+excitement. Well done. You completed the first level. Continue playing to keep learning. Effectively, this is a hard
+4:03
+4 minutes, 3 seconds
+payw wall, but it doesn't feel like it because the user has already tried the app. They're already invested at this point. They know the benefits because
+4:11
+4 minutes, 11 seconds
+they've actually experienced it for themselves. And I'm genuinely proud of this. Not because I know it'll work, but because this is the first time in a long
+4:20
+4 minutes, 20 seconds
+time that I've built something that didn't feel formulaic. Will it convert better than a standard onboarding flow?
+4:27
+4 minutes, 27 seconds
+I have no idea, but I'm about to find out. I'm building both versions and running them head-to-head. Subscribe so you don't miss the results. And if you
+4:36
+4 minutes, 36 seconds
+want to see how I built these animations, how I designed them and created them with AI, the interactive elements, and how it all comes together,
+4:43
+4 minutes, 43 seconds
+let me know in the comments below.
+
+Sync to video time
+
