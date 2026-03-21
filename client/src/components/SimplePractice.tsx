@@ -875,7 +875,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // MAIN GAME UI - NEW 2026 DESIGN
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex flex-col relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex flex-col relative overflow-x-hidden transition-colors duration-300">
       {/* Floating clouds background */}
       <div className="absolute top-10 left-10 opacity-40 animate-float text-white text-9xl blur-sm" style={{ animationDuration: '8s' }}>☁️</div>
       <div className="absolute top-20 right-20 opacity-30 animate-float text-white text-[10rem] blur-md" style={{ animationDuration: '12s', animationDelay: '2s' }}>☁️</div>
@@ -916,7 +916,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         </header>
 
         {/* MAIN CONTENT */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 overflow-hidden pb-4">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 pb-4">
           {/* LEFT PANEL - INPUT */}
           <section className="lg:w-1/3 w-full flex flex-col justify-center">
             <div className="bg-white/75 backdrop-blur-2xl rounded-[3rem] p-6 md:p-8 shadow-2xl border-4 border-white/50 flex flex-col items-center text-center relative overflow-hidden group hover:scale-[1.01] transition-all duration-500">
