@@ -32,7 +32,7 @@ export function LockedPractice() {
 
           {/* Pricing hint */}
           <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#534AB7" }}>From $3.33/month </span>
+            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#534AB7" }}>From $1.99/month </span>
             <span style={{ fontSize: 13, color: "#64748b" }}>with 7-day free trial</span>
           </div>
 
