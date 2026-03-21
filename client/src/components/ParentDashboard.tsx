@@ -113,7 +113,8 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const [showRestoreForm, setShowRestoreForm] = useState(false);
   const [restoreEmail, setRestoreEmail] = useState('');
   const [restoreLoading, setRestoreLoading] = useState(false);
-  const [restoreResult, setRestoreResult] = useState<'idle' | 'success' | 'not-found' | 'error'>('idle');
+  const [restoreResult, setRestoreResult] = useState<'idle' | 'queued' | 'error'>('idle');
+  const [restoreError, setRestoreError] = useState('');
   
   const { data: wordLists } = useQuery({
     queryKey: ['local-word-lists'],
@@ -1097,16 +1098,16 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   <p className="text-sm text-blue-700 dark:text-blue-300 mb-3 font-medium">
                     Enter the email you used when you subscribed and we'll restore your access on this device.
                   </p>
-                  {restoreResult === 'success' ? (
+                  {restoreResult === 'queued' ? (
                     <div className="text-center py-3">
-                      <div className="text-2xl mb-1">✅</div>
-                      <p className="text-sm font-bold text-green-700 dark:text-green-400">Purchase restored!</p>
-                      <p className="text-xs text-green-600 dark:text-green-500 mt-1">Your subscription is now active on this device.</p>
+                      <div className="text-2xl mb-1">📬</div>
+                      <p className="text-sm font-bold text-blue-700 dark:text-blue-300">Request submitted!</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">If a subscription exists for that email, access will be restored on this device. Reload the app in a moment to unlock everything.</p>
                       <button
                         onClick={() => { setShowRestoreForm(false); window.location.reload(); }}
-                        className="mt-3 text-xs text-blue-600 underline"
+                        className="mt-3 text-xs text-blue-600 dark:text-blue-400 underline"
                       >
-                        Reload to unlock everything
+                        Reload now
                       </button>
                     </div>
                   ) : (
@@ -1114,26 +1115,25 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                       <input
                         type="email"
                         value={restoreEmail}
-                        onChange={e => { setRestoreEmail(e.target.value); setRestoreResult('idle'); }}
+                        onChange={e => { setRestoreEmail(e.target.value); setRestoreResult('idle'); setRestoreError(''); }}
                         placeholder="parent@email.com"
                         className="w-full px-3 py-2 rounded-xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         disabled={restoreLoading}
                       />
-                      {restoreResult === 'not-found' && (
-                        <p className="text-xs text-red-600 dark:text-red-400">No active subscription found for that email. Please check the address and try again.</p>
-                      )}
                       {restoreResult === 'error' && (
-                        <p className="text-xs text-red-600 dark:text-red-400">Something went wrong. Please try again in a moment.</p>
+                        <p className="text-xs text-red-600 dark:text-red-400">{restoreError || 'Something went wrong. Please try again in a moment.'}</p>
                       )}
                       <Button
                         onClick={async () => {
                           if (!restoreEmail.trim() || !/\S+@\S+\.\S+/.test(restoreEmail)) return;
                           setRestoreLoading(true);
                           setRestoreResult('idle');
+                          setRestoreError('');
                           try {
-                            const result = await restorePurchase(restoreEmail.trim());
-                            setRestoreResult(result.restored ? 'success' : 'not-found');
-                          } catch {
+                            await restorePurchase(restoreEmail.trim());
+                            setRestoreResult('queued');
+                          } catch (e: any) {
+                            setRestoreError(e?.message || 'Something went wrong. Please try again.');
                             setRestoreResult('error');
                           } finally {
                             setRestoreLoading(false);

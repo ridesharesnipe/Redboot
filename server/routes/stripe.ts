@@ -6,6 +6,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil',
 });
 
+// In-memory rate limiter: 3 attempts per IP per hour for the restore endpoint
+const restoreAttempts = new Map<string, { count: number; resetAt: number }>();
+function checkRestoreRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = restoreAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    restoreAttempts.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    return true;
+  }
+  if (entry.count >= 3) return false;
+  entry.count++;
+  return true;
+}
+
 const PRICE_IDS = {
   annual: process.env.STRIPE_PRICE_ANNUAL,
   annual_no_trial: process.env.STRIPE_PRICE_ANNUAL_NO_TRIAL,
@@ -133,15 +147,23 @@ export function registerDeviceStripeRoutes(app: Express): void {
   // POST /api/restore-purchase — look up active subscription by email, remap to current device
   app.post('/api/restore-purchase', async (req: Request, res: Response) => {
     try {
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+      if (!checkRestoreRateLimit(ip)) {
+        return res.status(429).json({ message: 'Too many attempts. Please try again later.' });
+      }
+
       const { email, deviceId } = req.body;
       if (!email || !deviceId) {
         return res.status(400).json({ message: 'email and deviceId are required' });
       }
 
+      // Generic response sent whether or not a match is found (prevents email enumeration)
+      const genericOk = { queued: true, message: 'If a subscription exists for that email, access will be restored on this device.' };
+
       // Find Stripe customers with this email
       const customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 5 });
       if (!customers.data.length) {
-        return res.json({ restored: false });
+        return res.json(genericOk);
       }
 
       // Check each customer for an active or trialing subscription
@@ -152,7 +174,10 @@ export function registerDeviceStripeRoutes(app: Express): void {
           limit: 5,
         });
 
-        const activeSub = subs.data.find(s => s.status === 'active' || s.status === 'trialing');
+        // Pick the most recently created active or trialing subscription
+        const activeSub = subs.data
+          .filter(s => s.status === 'active' || s.status === 'trialing')
+          .sort((a, b) => b.created - a.created)[0];
         if (!activeSub) continue;
 
         const status = activeSub.status === 'trialing' ? 'trial' : 'active';
@@ -169,21 +194,15 @@ export function registerDeviceStripeRoutes(app: Express): void {
           plan,
         });
 
-        return res.json({
-          restored: true,
-          status,
-          plan,
-          stripeCustomerId: customer.id,
-          subscriptionId: activeSub.id,
-          currentPeriodEnd: currentPeriodEnd.toISOString(),
-        });
+        // Always return the generic message — do not reveal restored: true/false
+        return res.json(genericOk);
       }
 
-      // No active subscription found for this email
-      res.json({ restored: false });
+      // No active subscription found — still return the generic message
+      res.json(genericOk);
     } catch (error: any) {
       console.error('Error restoring purchase:', error);
-      res.status(500).json({ message: error.message || 'Failed to restore purchase' });
+      res.status(500).json({ message: 'Something went wrong. Please try again.' });
     }
   });
 }
