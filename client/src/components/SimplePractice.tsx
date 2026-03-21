@@ -10,6 +10,9 @@ import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 import SeaMonsterBattle from './SeaMonsterBattle';
+import Paywall from './Paywall';
+import SessionStartPaywall from './SessionStartPaywall';
+import { canAccessFeature, getSubscription, setFreeSessionUsed } from '@/lib/subscription';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -29,6 +32,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
   const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
+
+  // Paywall state
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallResults, setPaywallResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
+  const [accessDenied] = useState(() => !canAccessFeature('practice'));
+  const sessionSavedRef = useRef(false);
   
   // Tricky Treasures state
   const [trickyWords, setTrickyWords] = useState<string[]>([]);
@@ -107,6 +116,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Save treasures and complete practice — fully local, no server calls
   const saveTreasuresAndComplete = (results: { correct: number; total: number; treasureEarned: number }) => {
+    if (sessionSavedRef.current) return;
+    sessionSavedRef.current = true;
+
     let badgeWasEarned = false;
 
     try {
@@ -140,6 +152,15 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
     } catch (error) {
       console.error('Failed to save session locally:', error);
+    }
+
+    // PAYWALL: Show paywall after first free session instead of completing
+    const sub = getSubscription();
+    if (!sub.freeSessionUsed) {
+      setFreeSessionUsed();
+      setPaywallResults(results);
+      setShowPaywall(true);
+      return; // Do NOT call onComplete — paywall handles it
     }
 
     if (badgeWasEarned) {
@@ -547,7 +568,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const totalWordsForSession = getTotalWords();
     if (currentWordIndex >= totalWordsForSession - 1) {
       if (showBonusRound) {
-        setIsComplete(true);
         const finalCorrect = correctCount + (isCorrect ? 1 : 0);
         const results = {
           correct: finalCorrect,
@@ -556,11 +576,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         };
         setSessionResults(results);
         
-        playAudioFile(sparkleSound, 0.8);
-        playCharacterVoice('red_boot_adventure_complete');
-        setTimeout(() => {
+        // If first free session, show paywall immediately — don't set isComplete
+        const sub = getSubscription();
+        if (!sub.freeSessionUsed) {
+          playAudioFile(sparkleSound, 0.8);
           saveTreasuresAndComplete(results);
-        }, 2000);
+        } else {
+          setIsComplete(true);
+          playAudioFile(sparkleSound, 0.8);
+          playCharacterVoice('red_boot_adventure_complete');
+          setTimeout(() => {
+            saveTreasuresAndComplete(results);
+          }, 2000);
+        }
       } else {
         setPracticeComplete(true);
         const finalCorrect = correctCount + (isCorrect ? 1 : 0);
@@ -572,12 +600,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setSessionResults(results);
         
         if (trickyWords.length === 0) {
-          setIsComplete(true);
-          playAudioFile(sparkleSound, 0.8);
-          playCharacterVoice('red_boot_adventure_complete');
-          setTimeout(() => {
+          // If first free session, show paywall immediately — don't set isComplete
+          const sub = getSubscription();
+          if (!sub.freeSessionUsed) {
+            playAudioFile(sparkleSound, 0.8);
             saveTreasuresAndComplete(results);
-          }, 2000);
+          } else {
+            setIsComplete(true);
+            playAudioFile(sparkleSound, 0.8);
+            playCharacterVoice('red_boot_adventure_complete');
+            setTimeout(() => {
+              saveTreasuresAndComplete(results);
+            }, 2000);
+          }
         } else {
           if (retryStartedRef.current) return;
           retryStartedRef.current = true;
@@ -672,6 +707,32 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const selected = phrases[rarity] || phrases.common;
     return selected[Math.floor(Math.random() * selected.length)];
   };
+
+  // SECOND SESSION GATE — show paywall for returning users who haven't subscribed
+  if (accessDenied) {
+    return (
+      <SessionStartPaywall
+        onDismiss={onCancel}
+      />
+    );
+  }
+
+  // PAYWALL — show after first free session completes
+  if (showPaywall && paywallResults) {
+    const paywallChildName = localStorage.getItem('redboot-child-name') || 'Your child';
+    return (
+      <Paywall
+        correct={paywallResults.correct}
+        total={paywallResults.total}
+        childName={paywallChildName}
+        onMaybeLater={() => {
+          setShowPaywall(false);
+          const r = paywallResults;
+          if (r) onComplete(r);
+        }}
+      />
+    );
+  }
 
   // COMPLETION SCREEN
   if (isComplete) {
