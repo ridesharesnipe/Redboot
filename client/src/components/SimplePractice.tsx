@@ -31,7 +31,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [isComplete, setIsComplete] = useState(false);
   const [isWordSpoken, setIsWordSpoken] = useState(false);
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
-  const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
+  const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>(
+    () => (localStorage.getItem('selectedCharacter') as 'redboot' | 'diego') || 'redboot'
+  );
   const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
   
   // Tricky Treasures state
@@ -802,21 +804,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     );
   }
 
-  // LOADING STATE
-  if (practiceWords.length === 0) {
+  // Diego character gate — check before loading words so there's no flash
+  if (subLoading && selectedCharacter === 'diego') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex items-center justify-center">
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 text-center">
-          <p className="text-lg text-slate-600">Loading your practice words...</p>
-        </div>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid #e2e8f0', borderTopColor: '#534AB7', animation: 'spin 0.8s linear infinite' }} />
       </div>
     );
   }
-
-  const currentWord = getCurrentWord();
-  const progress = ((currentWordIndex + 1) / getTotalWords()) * 100;
-
-  // Diego character gate — premium only
   if (!subLoading && selectedCharacter === 'diego' && !isPremium) {
     return (
       <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: 20 }}>
@@ -844,6 +839,20 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       </div>
     );
   }
+
+  // LOADING STATE
+  if (practiceWords.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 text-center">
+          <p className="text-lg text-slate-600">Loading your practice words...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentWord = getCurrentWord();
+  const progress = ((currentWordIndex + 1) / getTotalWords()) * 100;
 
   // MAIN GAME UI - NEW 2026 DESIGN
   return (

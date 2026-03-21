@@ -178,7 +178,14 @@ function AppRouter() {
   const TestRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
     const { isPremium, isLoading: subLoading } = useSubscription();
-    if (!subLoading && !isPremium) {
+    if (subLoading) {
+      return (
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid #e2e8f0', borderTopColor: '#534AB7', animation: 'spin 0.8s linear infinite' }} />
+        </div>
+      );
+    }
+    if (!isPremium) {
       return (
         <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '2px solid rgba(255,255,255,0.7)', padding: '32px 24px', maxWidth: 340, width: '100%', textAlign: 'center' }}>
@@ -230,7 +237,14 @@ function AppRouter() {
           <Route path="/analytics" component={withErrorBoundary(() => {
             const [, goTo] = useLocation();
             const { isPremium, isLoading: subLoading } = useSubscription();
-            if (!subLoading && !isPremium) {
+            if (subLoading) {
+              return (
+                <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid #e2e8f0', borderTopColor: '#534AB7', animation: 'spin 0.8s linear infinite' }} />
+                </div>
+              );
+            }
+            if (!isPremium) {
               return (
                 <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                   <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '2px solid rgba(255,255,255,0.7)', padding: '32px 24px', maxWidth: 340, width: '100%', textAlign: 'center' }}>
