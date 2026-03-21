@@ -12,21 +12,3 @@ id = "r4P0XgAP3SNk3V-rLNRYy"
 uri = "file://RedBoot_LocalStorage_Reference.txt"
 type = "text"
 title = "RedBoot Local Storage Reference"
-
-[[outputs]]
-id = "zXeCwh99bbMC58g81S28Q"
-uri = "file://paywall.tar.gz"
-type = "unspecified"
-title = "Paywall Files (tar.gz)"
-
-[[outputs]]
-id = "UAFtaqWM5nLhto-gedGch"
-uri = "file://all-fixes.tar.gz"
-type = "unspecified"
-title = "All Fixed Files (tar.gz)"
-
-[[outputs]]
-id = "JJ_VtT1FTbszj0kPAIrvQ"
-uri = "file://still-broken.tar.gz"
-type = "unspecified"
-title = "Files Still Needing Fixes (tar.gz)"

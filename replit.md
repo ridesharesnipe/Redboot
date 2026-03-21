@@ -48,26 +48,10 @@ Preferred communication style: Simple, everyday language.
 - **Free Tier**: Red Boot character only, one word list per week.
 - **Premium Tier**: All four characters, unlimited word lists, advanced analytics.
 
-### Paywall & Subscription System
-- **Device-UUID-based tracking**: No login required — subscription state is tracked via `redboot-device-id` in localStorage and the `device_subscriptions` DB table.
-- **Subscription state**: Stored in `redboot-subscription` (localStorage) with status: free/trial/active/cancelled/past_due.
-- **Free session**: One free practice session allowed; after completion, `Paywall.tsx` (AhaMoment) is shown.
-- **Second session gate**: `SessionStartPaywall.tsx` shown when `canAccessFeature('practice')` returns false.
-- **Feature gates**: FridayTest.tsx and FridayTestSimulator.tsx show `LockedFeature.tsx` overlay; ParentAnalytics.tsx shows blurred content with LockedFeature/Paywall overlay.
-- **Abandonment recovery**: When Stripe checkout is canceled, `TransactionAbandonmentPaywall.tsx` shown with the abandonment offer.
-- **URL params**: `?success=true` triggers `syncSubscriptionStatus()`; `?canceled=true` triggers abandonment paywall.
-- **Backend routes**: `POST /api/create-checkout-session`, `GET /api/subscription-status`, `POST /api/webhook` (Stripe webhooks) all in `server/routes/stripe.ts`.
-- **Env vars**: STRIPE_PRICE_ANNUAL, STRIPE_PRICE_MONTHLY, STRIPE_PRICE_ABANDONMENT, STRIPE_PRICE_ANNUAL_NO_TRIAL, STRIPE_PRICE_MONTHLY_NO_TRIAL, STRIPE_WEBHOOK_SECRET (pending).
-
 ## External Dependencies
 
 ### Payment Processing
 - **Stripe**: Payment gateway for subscription management and webhooks.
-- **Pricing** (live Stripe Price IDs, product: `prod_UBaIgdIbncWBiW`):
-  - Annual: `price_1TDD7kIKeiiO81plM6B0Qr6E` — $39.96/year ($3.33/mo)
-  - Monthly: `price_1TDD7kIKeiiO81pl2nj2Idxz` — $6.87/month
-  - Abandonment offer: `price_1TDD7kIKeiiO81plWbH5mvUP` — $23.88/year ($1.99/mo, no trial)
-- **Env vars needed**: `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ABANDONMENT`
 
 ### Database Infrastructure
 - **Neon Database**: Serverless PostgreSQL hosting.

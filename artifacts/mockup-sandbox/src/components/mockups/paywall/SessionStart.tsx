@@ -4,7 +4,7 @@ const clay = {
     borderRadius: "24px",
     boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
     border: "2px solid rgba(255,255,255,0.7)",
-  } as const,
+  } as React.CSSProperties,
   statCard: (bg: string) => ({
     background: bg,
     borderRadius: "20px",
@@ -29,6 +29,8 @@ export function SessionStart() {
       {/* Header */}
       <div style={{ background: "linear-gradient(135deg, #1A6BC4 0%, #0E4B8F 100%)", padding: "32px 20px 48px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", bottom: -20, left: 0, right: 0, height: 40, background: "linear-gradient(160deg, #e8f4ff 0%, #fff8f0 100%)", borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }} />
+        
+        {/* Wave decoration */}
         <div style={{ fontSize: 36, marginBottom: 8 }}>⚓</div>
         <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "white", margin: 0, lineHeight: 1.3 }}>
           {childName} spelled {lastCorrect}/{lastTotal} words right last time
@@ -67,7 +69,7 @@ export function SessionStart() {
               Practice every day this week with the full crew — unlimited sessions, all characters.
             </p>
           </div>
-
+          
           <div style={{ padding: "18px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
               {["Unlimited practice sessions", "All 4 pirate characters", "Friday test simulator", "Parent progress reports"].map((feature, i) => (
@@ -80,17 +82,8 @@ export function SessionStart() {
               ))}
             </div>
 
-            {/* Annual best value */}
-            <div style={{ background: "linear-gradient(145deg,#eff8ff,#dbeafe)", border: "1.5px solid #93c5fd", borderRadius: 14, padding: "10px 14px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: "#1e3a5f" }}>Yearly — best value</div>
-                <div style={{ fontSize: 11, color: "#4b7ab5" }}>$3.33/month · 7-day free trial</div>
-              </div>
-              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#1A6BC4" }}>$39.96/yr</div>
-            </div>
-
             <button style={{ width: "100%", padding: "14px", borderRadius: 16, background: "linear-gradient(135deg, #534AB7, #6366f1)", color: "white", fontFamily: "'Fredoka One', cursive", fontSize: 17, border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(83,74,183,0.4)" }}>
-              Start free trial — $6.87/mo ⚓
+              Unlock unlimited practice — $6.99/mo ⚓
             </button>
 
             <div style={{ textAlign: "center", marginTop: 12 }}>

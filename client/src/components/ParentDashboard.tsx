@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { photoStorage, type Photo } from '@/lib/photoStorage';
 import { buildAchievementsFromLocal, buildSessionsFromHistory } from '@/lib/achievements';
-import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon, Shield, RotateCcw } from 'lucide-react';
-import { restorePurchase } from '@/lib/subscription';
+import { Upload, Compass, Ship, Crown, Skull, Clock, Scroll, Anchor, MapPin, Star, HelpCircle, Image, Trash2, RefreshCw, ArrowLeft, Gem, Sun, Moon, Shield } from 'lucide-react';
 import redBootImage from "@assets/unnamed (2)_1758652426094.png";
 import { useLocation } from "wouter";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -110,11 +109,6 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
   const [showPhotoHistory, setShowPhotoHistory] = useState(false);
   const [storageSize, setStorageSize] = useState<string>('');
   const [replacingPhotoId, setReplacingPhotoId] = useState<string | null>(null);
-  const [showRestoreForm, setShowRestoreForm] = useState(false);
-  const [restoreEmail, setRestoreEmail] = useState('');
-  const [restoreLoading, setRestoreLoading] = useState(false);
-  const [restoreResult, setRestoreResult] = useState<'idle' | 'queued' | 'error'>('idle');
-  const [restoreError, setRestoreError] = useState('');
   
   const { data: wordLists } = useQuery({
     queryKey: ['local-word-lists'],
@@ -1081,73 +1075,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                   <Shield className="w-5 h-5" />
                   Privacy Policy
                 </Button>
-
-                <Button
-                  onClick={() => { setShowRestoreForm(f => !f); setRestoreResult('idle'); }}
-                  variant="outline"
-                  className="px-6 py-3 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-2"
-                  data-testid="button-restore-purchase"
-                >
-                  <RotateCcw className="w-5 h-5" />
-                  Restore Purchase
-                </Button>
               </div>
-
-              {showRestoreForm && (
-                <div className="mt-4 p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-3 font-medium">
-                    Enter the email you used when you subscribed and we'll restore your access on this device.
-                  </p>
-                  {restoreResult === 'queued' ? (
-                    <div className="text-center py-3">
-                      <div className="text-2xl mb-1">📬</div>
-                      <p className="text-sm font-bold text-blue-700 dark:text-blue-300">Request submitted!</p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">If a subscription exists for that email, access will be restored on this device within 15 minutes. Reload the app then to unlock everything.</p>
-                      <button
-                        onClick={() => { setShowRestoreForm(false); window.location.reload(); }}
-                        className="mt-3 text-xs text-blue-600 dark:text-blue-400 underline"
-                      >
-                        Reload now
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <input
-                        type="email"
-                        value={restoreEmail}
-                        onChange={e => { setRestoreEmail(e.target.value); setRestoreResult('idle'); setRestoreError(''); }}
-                        placeholder="parent@email.com"
-                        className="w-full px-3 py-2 rounded-xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        disabled={restoreLoading}
-                      />
-                      {restoreResult === 'error' && (
-                        <p className="text-xs text-red-600 dark:text-red-400">{restoreError || 'Something went wrong. Please try again in a moment.'}</p>
-                      )}
-                      <Button
-                        onClick={async () => {
-                          if (!restoreEmail.trim() || !/\S+@\S+\.\S+/.test(restoreEmail)) return;
-                          setRestoreLoading(true);
-                          setRestoreResult('idle');
-                          setRestoreError('');
-                          try {
-                            await restorePurchase(restoreEmail.trim());
-                            setRestoreResult('queued');
-                          } catch (e: any) {
-                            setRestoreError(e?.message || 'Something went wrong. Please try again.');
-                            setRestoreResult('error');
-                          } finally {
-                            setRestoreLoading(false);
-                          }
-                        }}
-                        disabled={restoreLoading || !restoreEmail.trim()}
-                        className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50"
-                      >
-                        {restoreLoading ? 'Checking…' : 'Restore my purchase'}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
           </div>

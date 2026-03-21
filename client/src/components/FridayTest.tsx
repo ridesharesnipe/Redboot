@@ -7,8 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { spellingStorage } from '@/lib/localStorage';
 import { CheckCircle, XCircle, Award, Clock, FileText, X } from 'lucide-react';
-import { isSubscribed } from '@/lib/subscription';
-import LockedFeature from './LockedFeature';
 
 interface TestResult {
   word: string;
@@ -29,7 +27,6 @@ interface FridayTestProps {
 }
 
 export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
-  const [locked] = useState(() => !isSubscribed());
   const [testWords, setTestWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -418,25 +415,6 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
 
   const currentWord = testWords[currentWordIndex];
   const progress = ((currentWordIndex + 1) / testWords.length) * 100;
-
-  if (locked) {
-    return (
-      <LockedFeature
-        heading="Friday Test Simulator"
-        subtext="Practice with a realistic test before Friday arrives"
-        features={[
-          'Timed test — just like the real thing',
-          'Random word order for better memory',
-          'Immediate right/wrong feedback',
-          'Score tracking over time',
-        ]}
-        ctaText="Unlock test simulator — 7-day free trial"
-        onCta={() => { window.location.href = '/practice'; }}
-        onMaybeLater={onCancel}
-        accentColor="#1A6BC4"
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600 p-4">

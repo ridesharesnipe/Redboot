@@ -19,8 +19,6 @@ import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { syncSubscriptionStatus, pollSubscriptionStatus, getSubscription, isSubscribed } from "@/lib/subscription";
-import TransactionAbandonmentPaywall from "@/components/TransactionAbandonmentPaywall";
 
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
   constructor(props: {children: ReactNode, componentName: string}) {
@@ -68,112 +66,15 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
   );
 };
 
-// ─── Module-level stable route components ───────────────────────────────────
-// These MUST live outside AppRouter so their identity never changes between
-// AppRouter re-renders. If they were defined inside AppRouter, React would see
-// a new component type on every re-render and unmount/remount the active route,
-// wiping all internal state (including showPaywall).
-
-function LandingInner() {
-  const [, setLocation] = useLocation();
-  return <Landing onStart={() => setLocation('/dashboard')} />;
-}
-const LandingRoute = withErrorBoundary(LandingInner, "Landing");
-
-function DashboardInner() {
-  const [, setLocation] = useLocation();
-  return (
-    <div className="container mx-auto p-4">
-      <ParentDashboard
-        onTakePhoto={() => setLocation('/photo-capture')}
-        onViewPractice={() => setLocation('/practice')}
-        onStartTest={() => setLocation('/test')}
-        onViewGuide={() => setLocation('/guide')}
-      />
-    </div>
-  );
-}
-const DashboardRoute = withErrorBoundary(DashboardInner, "Dashboard");
-
-function PracticeInner() {
-  const [, setLocation] = useLocation();
-  return (
-    <div className="container mx-auto p-4">
-      <SimplePractice
-        onComplete={() => setLocation('/dashboard')}
-        onCancel={() => setLocation('/dashboard')}
-      />
-    </div>
-  );
-}
-const PracticeRoute = withErrorBoundary(PracticeInner, "Practice");
-
-function TestInner() {
-  const [, setLocation] = useLocation();
-  return (
-    <div className="container mx-auto p-4">
-      <FridayTest
-        onComplete={() => setLocation('/dashboard')}
-        onCancel={() => setLocation('/dashboard')}
-      />
-    </div>
-  );
-}
-const TestRoute = withErrorBoundary(TestInner, "Test");
-
-function GuideInner() {
-  const [, setLocation] = useLocation();
-  return (
-    <div className="container mx-auto p-4">
-      <ParentGuide onBack={() => setLocation('/dashboard')} />
-    </div>
-  );
-}
-const GuideRoute = withErrorBoundary(GuideInner, "Guide");
-
-const PhotoCaptureRoute = withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture");
-const VaultRoute = withErrorBoundary(() => <TreasureVault />, "TreasureVault");
-const BadgesRoute = withErrorBoundary(() => <BadgeGallery />, "BadgeGallery");
-const AnalyticsRoute = withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics");
-const PrivacyRoute = withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy");
-
-function PageTransitionWrapper() {
-  const [location] = useLocation();
-  return (
-    <div key={location} className="page-enter">
-      <Switch>
-        <Route path="/" component={LandingRoute} />
-        <Route path="/photo-capture" component={PhotoCaptureRoute} />
-        <Route path="/dashboard" component={DashboardRoute} />
-        <Route path="/practice" component={PracticeRoute} />
-        <Route path="/test" component={TestRoute} />
-        <Route path="/guide" component={GuideRoute} />
-        <Route path="/vault" component={VaultRoute} />
-        <Route path="/badges" component={BadgesRoute} />
-        <Route path="/analytics" component={AnalyticsRoute} />
-        <Route path="/privacy" component={PrivacyRoute} />
-        <Route>
-          <Redirect to="/" />
-        </Route>
-      </Switch>
-    </div>
-  );
-}
-// ────────────────────────────────────────────────────────────────────────────
-
 function AppRouter() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showChildSetup, setShowChildSetup] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
-  const [showAbandonPaywall, setShowAbandonPaywall] = useState(false);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     const onboardingComplete = localStorage.getItem('redboot-onboarding-complete');
     const splashShown = sessionStorage.getItem('redboot-splash-shown');
-
-    // Sync subscription state in the background on every app load
-    syncSubscriptionStatus().catch(() => {});
 
     if (!hasSeenOnboarding) {
       setShowOnboarding(true);
@@ -182,21 +83,6 @@ function AppRouter() {
     } else if (!splashShown) {
       setShowSplash(true);
       sessionStorage.setItem('redboot-splash-shown', 'true');
-    }
-  }, []);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === 'true') {
-      // Poll until webhook confirms the subscription (up to 5 attempts, 3s apart)
-      pollSubscriptionStatus(5, 3000).catch(() => {});
-      window.history.replaceState({}, '', '/dashboard');
-    } else if (params.get('canceled') === 'true') {
-      const sub = getSubscription();
-      if (sub.freeSessionUsed && !isSubscribed()) {
-        setShowAbandonPaywall(true);
-      }
-      window.history.replaceState({}, '', '/dashboard');
     }
   }, []);
 
@@ -255,14 +141,86 @@ function AppRouter() {
     );
   }
 
+  const LandingRoute = withErrorBoundary(() => {
+    const [, setLocation] = useLocation();
+    return <Landing onStart={() => setLocation('/dashboard')} />;
+  }, "Landing");
+
+  const DashboardRoute = withErrorBoundary(() => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <ParentDashboard
+          onTakePhoto={() => setLocation('/photo-capture')}
+          onViewPractice={() => setLocation('/practice')}
+          onStartTest={() => setLocation('/test')}
+          onViewGuide={() => setLocation('/guide')}
+        />
+      </div>
+    );
+  }, "Dashboard");
+
+  const PracticeRoute = withErrorBoundary(() => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <SimplePractice
+          onComplete={() => setLocation('/dashboard')}
+          onCancel={() => setLocation('/dashboard')}
+        />
+      </div>
+    );
+  }, "Practice");
+
+  const TestRoute = withErrorBoundary(() => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <FridayTest
+          onComplete={() => setLocation('/dashboard')}
+          onCancel={() => setLocation('/dashboard')}
+        />
+      </div>
+    );
+  }, "Test");
+
+  const GuideRoute = withErrorBoundary(() => {
+    const [, setLocation] = useLocation();
+    return (
+      <div className="container mx-auto p-4">
+        <ParentGuide onBack={() => setLocation('/dashboard')} />
+      </div>
+    );
+  }, "Guide");
+
+  const PageTransitionWrapper = () => {
+    const [location] = useLocation();
+    return (
+      <div key={location} className="page-enter">
+        <Switch>
+          <Route path="/" component={LandingRoute} />
+          <Route path="/photo-capture" component={withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture")} />
+          <Route path="/dashboard" component={DashboardRoute} />
+          <Route path="/practice" component={PracticeRoute} />
+          <Route path="/test" component={TestRoute} />
+          <Route path="/guide" component={GuideRoute} />
+          <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
+          <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
+          <Route path="/analytics" component={withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics")} />
+          <Route path="/privacy" component={withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy")} />
+          <Route>
+            <Redirect to="/" />
+          </Route>
+        </Switch>
+      </div>
+    );
+  };
+
   return (
     <ThemeProvider>
       <AudioProvider>
         <TooltipProvider>
           <Toaster />
-          {showAbandonPaywall && (
-            <TransactionAbandonmentPaywall onDismiss={() => setShowAbandonPaywall(false)} />
-          )}
           <Router>
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
               <PageTransitionWrapper />

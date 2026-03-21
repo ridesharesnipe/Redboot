@@ -10,9 +10,6 @@ import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 import SeaMonsterBattle from './SeaMonsterBattle';
-import { canAccessFeature, getSubscription, setFreeSessionUsed } from '@/lib/subscription';
-import Paywall from './Paywall';
-import SessionStartPaywall from './SessionStartPaywall';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -20,9 +17,6 @@ interface SimplePracticeProps {
 }
 
 export default function SimplePractice({ onComplete, onCancel }: SimplePracticeProps) {
-  const [accessDenied] = useState(() => !canAccessFeature('practice'));
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallResults, setPaywallResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   const [practiceWords, setPracticeWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -44,7 +38,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [practiceComplete, setPracticeComplete] = useState(false);
   const retryStartedRef = useRef(false);
   const hadMistakeRef = useRef(false);
-  const sessionSavedRef = useRef(false);
   
   // Analytics tracking
   const [wordListId, setWordListId] = useState<string | null>(null);
@@ -114,9 +107,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Save treasures and complete practice — fully local, no server calls
   const saveTreasuresAndComplete = (results: { correct: number; total: number; treasureEarned: number }) => {
-    if (sessionSavedRef.current) return;
-    sessionSavedRef.current = true;
-
     let badgeWasEarned = false;
 
     try {
@@ -150,15 +140,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
     } catch (error) {
       console.error('Failed to save session locally:', error);
-    }
-
-    // Show paywall after first free session
-    const sub = getSubscription();
-    if (!sub.freeSessionUsed) {
-      setFreeSessionUsed();
-      setPaywallResults(results);
-      setShowPaywall(true);
-      return;
     }
 
     if (badgeWasEarned) {
@@ -269,11 +250,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Initialize practice session
   useEffect(() => {
-    // Guard: if the session has already been saved (paywall showing or complete),
-    // do not re-initialize — this prevents the effect from resetting state when
-    // onCancel/playCharacterVoice/toast get new references.
-    if (sessionSavedRef.current) return;
-
     resetMessageHistory();
     
     const savedWords = localStorage.getItem('currentSpellingWords');
@@ -306,7 +282,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         if (words.length > 0) {
           hadMistakeRef.current = false;
           retryStartedRef.current = false;
-          sessionSavedRef.current = false;
           setEarnedBadge(null);
           setPracticeWords(words);
           if (listId) {
@@ -572,6 +547,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const totalWordsForSession = getTotalWords();
     if (currentWordIndex >= totalWordsForSession - 1) {
       if (showBonusRound) {
+        setIsComplete(true);
         const finalCorrect = correctCount + (isCorrect ? 1 : 0);
         const results = {
           correct: finalCorrect,
@@ -579,18 +555,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           treasureEarned
         };
         setSessionResults(results);
-
-        if (!getSubscription().freeSessionUsed) {
-          // First free session — go straight to paywall, no completion screen
+        
+        playAudioFile(sparkleSound, 0.8);
+        playCharacterVoice('red_boot_adventure_complete');
+        setTimeout(() => {
           saveTreasuresAndComplete(results);
-        } else {
-          setIsComplete(true);
-          playAudioFile(sparkleSound, 0.8);
-          playCharacterVoice('red_boot_adventure_complete');
-          setTimeout(() => {
-            saveTreasuresAndComplete(results);
-          }, 2000);
-        }
+        }, 2000);
       } else {
         setPracticeComplete(true);
         const finalCorrect = correctCount + (isCorrect ? 1 : 0);
@@ -602,17 +572,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setSessionResults(results);
         
         if (trickyWords.length === 0) {
-          if (!getSubscription().freeSessionUsed) {
-            // First free session — go straight to paywall, no completion screen
+          setIsComplete(true);
+          playAudioFile(sparkleSound, 0.8);
+          playCharacterVoice('red_boot_adventure_complete');
+          setTimeout(() => {
             saveTreasuresAndComplete(results);
-          } else {
-            setIsComplete(true);
-            playAudioFile(sparkleSound, 0.8);
-            playCharacterVoice('red_boot_adventure_complete');
-            setTimeout(() => {
-              saveTreasuresAndComplete(results);
-            }, 2000);
-          }
+          }, 2000);
         } else {
           if (retryStartedRef.current) return;
           retryStartedRef.current = true;
@@ -707,32 +672,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const selected = phrases[rarity] || phrases.common;
     return selected[Math.floor(Math.random() * selected.length)];
   };
-
-  // SECOND SESSION GATE — show paywall for returning users who haven't subscribed
-  if (accessDenied) {
-    return (
-      <SessionStartPaywall
-        onDismiss={onCancel}
-      />
-    );
-  }
-
-  // PAYWALL — show after first free session completes
-  if (showPaywall && paywallResults) {
-    const childName = localStorage.getItem('redboot-child-name') || 'Your child';
-    return (
-      <Paywall
-        correct={paywallResults.correct}
-        total={paywallResults.total}
-        childName={childName}
-        onMaybeLater={() => {
-          setShowPaywall(false);
-          const r = paywallResults;
-          if (r) onComplete(r);
-        }}
-      />
-    );
-  }
 
   // COMPLETION SCREEN
   if (isComplete) {
@@ -875,7 +814,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // MAIN GAME UI - NEW 2026 DESIGN
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex flex-col relative overflow-x-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-b from-sky-300 via-cyan-200 to-teal-200 flex flex-col relative overflow-hidden transition-colors duration-300">
       {/* Floating clouds background */}
       <div className="absolute top-10 left-10 opacity-40 animate-float text-white text-9xl blur-sm" style={{ animationDuration: '8s' }}>☁️</div>
       <div className="absolute top-20 right-20 opacity-30 animate-float text-white text-[10rem] blur-md" style={{ animationDuration: '12s', animationDelay: '2s' }}>☁️</div>
@@ -916,7 +855,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         </header>
 
         {/* MAIN CONTENT */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 pb-4">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 overflow-hidden pb-4">
           {/* LEFT PANEL - INPUT */}
           <section className="lg:w-1/3 w-full flex flex-col justify-center">
             <div className="bg-white/75 backdrop-blur-2xl rounded-[3rem] p-6 md:p-8 shadow-2xl border-4 border-white/50 flex flex-col items-center text-center relative overflow-hidden group hover:scale-[1.01] transition-all duration-500">

@@ -6,7 +6,6 @@ import {
   trickyWords,
   achievements,
   userAchievements,
-  deviceSubscriptions,
   type User,
   type Child,
   type InsertChild,
@@ -20,8 +19,6 @@ import {
   type InsertAchievement,
   type UserAchievement,
   type InsertUserAchievement,
-  type DeviceSubscription,
-  type InsertDeviceSubscription,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -68,11 +65,6 @@ export interface IStorage {
   awardAchievement(userId: string, achievementId: string, metadata?: Record<string, any>): Promise<UserAchievement>;
   hasAchievement(userId: string, achievementId: string): Promise<boolean>;
   seedAchievements(): Promise<void>;
-
-  // Device subscription operations (no-login paywall)
-  getDeviceSubscription(deviceId: string): Promise<DeviceSubscription | undefined>;
-  getDeviceSubscriptionByStripeCustomerId(customerId: string): Promise<DeviceSubscription | undefined>;
-  upsertDeviceSubscription(deviceId: string, updates: Partial<InsertDeviceSubscription>): Promise<DeviceSubscription>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -570,42 +562,6 @@ export class DatabaseStorage implements IStorage {
       } catch (error) {
         // Ignore duplicate key errors
       }
-    }
-  }
-
-  async getDeviceSubscription(deviceId: string): Promise<DeviceSubscription | undefined> {
-    try {
-      const [sub] = await db.select().from(deviceSubscriptions).where(eq(deviceSubscriptions.deviceId, deviceId));
-      return sub;
-    } catch {
-      return undefined;
-    }
-  }
-
-  async getDeviceSubscriptionByStripeCustomerId(customerId: string): Promise<DeviceSubscription | undefined> {
-    try {
-      const [sub] = await db.select().from(deviceSubscriptions).where(eq(deviceSubscriptions.stripeCustomerId, customerId));
-      return sub;
-    } catch {
-      return undefined;
-    }
-  }
-
-  async upsertDeviceSubscription(deviceId: string, updates: Partial<InsertDeviceSubscription>): Promise<DeviceSubscription> {
-    const existing = await this.getDeviceSubscription(deviceId);
-    if (existing) {
-      const [updated] = await db
-        .update(deviceSubscriptions)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(deviceSubscriptions.deviceId, deviceId))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(deviceSubscriptions)
-        .values({ deviceId, status: 'free', ...updates })
-        .returning();
-      return created;
     }
   }
 }

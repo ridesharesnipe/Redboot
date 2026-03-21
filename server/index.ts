@@ -1,7 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { registerDeviceStripeWebhook } from "./routes/stripe";
 
 const app = express();
 
@@ -10,9 +9,6 @@ const app = express();
 app.get('/healthz', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
-
-// Stripe webhook must be registered BEFORE express.json() so it receives the raw body
-registerDeviceStripeWebhook(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
