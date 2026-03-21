@@ -49,7 +49,6 @@ waitForPort = 5000
 [userenv]
 
 [userenv.shared]
-VITE_STRIPE_PUBLISHABLE_KEY = "pk_live_51TD9uTIKeiiO81plosmRu5InfeF2949p05j2NGQAPzPRzWpHmhNP9QMAGRuEaTly4pnOnfYIv2pccvF4ZswBxhyH00U40ov8IM"
 
 [postMerge]
 path = "scripts/post-merge.sh"
