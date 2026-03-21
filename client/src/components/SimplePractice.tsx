@@ -712,7 +712,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         childName={childName}
         onMaybeLater={() => {
           setShowPaywall(false);
-          localStorage.setItem('redboot-checkout-abandoned', 'true');
           const r = paywallResults;
           if (r) onComplete(r);
         }}

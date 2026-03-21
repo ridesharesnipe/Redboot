@@ -19,7 +19,7 @@ import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { syncSubscriptionStatus, getSubscription, isSubscribed } from "@/lib/subscription";
+import { syncSubscriptionStatus, pollSubscriptionStatus, getSubscription, isSubscribed } from "@/lib/subscription";
 import TransactionAbandonmentPaywall from "@/components/TransactionAbandonmentPaywall";
 
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
@@ -79,6 +79,9 @@ function AppRouter() {
     const onboardingComplete = localStorage.getItem('redboot-onboarding-complete');
     const splashShown = sessionStorage.getItem('redboot-splash-shown');
 
+    // Sync subscription state in the background on every app load
+    syncSubscriptionStatus().catch(() => {});
+
     if (!hasSeenOnboarding) {
       setShowOnboarding(true);
     } else if (!onboardingComplete) {
@@ -92,7 +95,8 @@ function AppRouter() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
-      syncSubscriptionStatus().catch(() => {});
+      // Poll until webhook confirms the subscription (up to 5 attempts, 3s apart)
+      pollSubscriptionStatus(5, 3000).catch(() => {});
       window.history.replaceState({}, '', '/dashboard');
     } else if (params.get('canceled') === 'true') {
       const sub = getSubscription();

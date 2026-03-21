@@ -96,3 +96,18 @@ export async function syncSubscriptionStatus(): Promise<void> {
     // offline — use cached localStorage value
   }
 }
+
+// After a successful Stripe checkout, the webhook may not have arrived yet.
+// Poll a few times with increasing delays until the status upgrades from 'free'.
+export async function pollSubscriptionStatus(
+  maxAttempts = 5,
+  delayMs = 3000
+): Promise<void> {
+  for (let i = 0; i < maxAttempts; i++) {
+    await syncSubscriptionStatus();
+    if (isSubscribed()) return;
+    if (i < maxAttempts - 1) {
+      await new Promise(r => setTimeout(r, delayMs));
+    }
+  }
+}
