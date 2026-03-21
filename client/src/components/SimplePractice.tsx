@@ -44,6 +44,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [practiceComplete, setPracticeComplete] = useState(false);
   const retryStartedRef = useRef(false);
   const hadMistakeRef = useRef(false);
+  const sessionSavedRef = useRef(false);
   
   // Analytics tracking
   const [wordListId, setWordListId] = useState<string | null>(null);
@@ -113,6 +114,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Save treasures and complete practice — fully local, no server calls
   const saveTreasuresAndComplete = (results: { correct: number; total: number; treasureEarned: number }) => {
+    if (sessionSavedRef.current) return;
+    sessionSavedRef.current = true;
+
     let badgeWasEarned = false;
 
     try {
@@ -297,6 +301,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         if (words.length > 0) {
           hadMistakeRef.current = false;
           retryStartedRef.current = false;
+          sessionSavedRef.current = false;
           setEarnedBadge(null);
           setPracticeWords(words);
           if (listId) {
