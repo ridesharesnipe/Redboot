@@ -6,6 +6,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import RedBootCharacter from "./RedBootCharacter";
 import { Volume2, Trophy, Target, RotateCcw, Home } from "lucide-react";
+import { isSubscribed } from "@/lib/subscription";
+import LockedFeature from "./LockedFeature";
 
 interface TestResult {
   word: string;
@@ -20,6 +22,7 @@ interface FridayTestSimulatorProps {
 }
 
 export default function FridayTestSimulator({ words, onComplete, onExit }: FridayTestSimulatorProps) {
+  const [locked] = useState(() => !isSubscribed());
   const [testPhase, setTestPhase] = useState<"intro" | "testing" | "results">("intro");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState("");
@@ -151,6 +154,25 @@ export default function FridayTestSimulator({ words, onComplete, onExit }: Frida
       return "🌊 Keep practicing! You'll get there, matey!";
     }
   };
+
+  if (locked) {
+    return (
+      <LockedFeature
+        heading="Friday Test Simulator"
+        subtext="Practice with a realistic test before Friday arrives"
+        features={[
+          'Timed test — just like the real thing',
+          'Random word order for better memory',
+          'Immediate right/wrong feedback',
+          'Score tracking and trends',
+        ]}
+        ctaText="Unlock test simulator — 7-day free trial"
+        onCta={() => { window.location.href = '/practice'; }}
+        onMaybeLater={onExit}
+        accentColor="#1A6BC4"
+      />
+    );
+  }
 
   if (testPhase === "intro") {
     return (

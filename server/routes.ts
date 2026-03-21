@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
+import { registerDeviceStripeRoutes, registerDeviceStripeWebhook } from "./routes/stripe";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -1111,6 +1112,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   }
+
+  registerDeviceStripeWebhook(app);
+  registerDeviceStripeRoutes(app);
 
   const server = createServer(app);
   return server;

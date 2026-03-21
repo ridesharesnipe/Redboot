@@ -19,6 +19,8 @@ import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { syncSubscriptionStatus, getSubscription, isSubscribed } from "@/lib/subscription";
+import TransactionAbandonmentPaywall from "@/components/TransactionAbandonmentPaywall";
 
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
   constructor(props: {children: ReactNode, componentName: string}) {
@@ -70,6 +72,7 @@ function AppRouter() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showChildSetup, setShowChildSetup] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
+  const [showAbandonPaywall, setShowAbandonPaywall] = useState(false);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -83,6 +86,20 @@ function AppRouter() {
     } else if (!splashShown) {
       setShowSplash(true);
       sessionStorage.setItem('redboot-splash-shown', 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      syncSubscriptionStatus().catch(() => {});
+      window.history.replaceState({}, '', '/dashboard');
+    } else if (params.get('canceled') === 'true') {
+      const sub = getSubscription();
+      if (sub.freeSessionUsed && !isSubscribed()) {
+        setShowAbandonPaywall(true);
+      }
+      window.history.replaceState({}, '', '/dashboard');
     }
   }, []);
 
@@ -221,6 +238,9 @@ function AppRouter() {
       <AudioProvider>
         <TooltipProvider>
           <Toaster />
+          {showAbandonPaywall && (
+            <TransactionAbandonmentPaywall onDismiss={() => setShowAbandonPaywall(false)} />
+          )}
           <Router>
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950">
               <PageTransitionWrapper />

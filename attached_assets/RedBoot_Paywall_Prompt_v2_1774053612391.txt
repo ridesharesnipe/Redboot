@@ -1,0 +1,411 @@
+PAYWALL IMPLEMENTATION — RED BOOT'S SPELLING ADVENTURE
+=======================================================
+
+IMPORTANT: Do not change any existing UI, styling, components, or functionality.
+Only ADD the paywall system described below. Do not refactor or "improve" anything else.
+Do not touch: Onboarding, ChildSetup, Landing, Dashboard, PhotoCapture, character components, or any game UI.
+
+This is a Stripe-powered paywall for the web app. Not Apple IAP.
+
+
+== THE FLOW ==
+
+Current: onboarding → child setup → dashboard → unlimited practice for free.
+
+New: onboarding → child setup → character select → dashboard → upload words → ONE free practice session → PAYWALL → everything locked until they subscribe.
+
+No paywall appears BEFORE the first practice session. The user experiences the app first, the kid plays the pirate game, the parent sees it work, THEN we ask for money. This is intentional — the paywall hits at the moment of peak excitement, not before they've tried it.
+
+
+== PRICING (read carefully — these are intentional non-round numbers) ==
+
+Do NOT "fix" these to .99 numbers. The non-round pricing is a deliberate conversion tactic —
+$3.33/month feels like a real calculated price, not a marketing trick. Users have built
+defensibility against .99 pricing. Non-round numbers feel more authentic and trustworthy.
+
+Standard plans (with 7-day free trial):
+  - Annual:  $39.96/year  (displayed as "$3.33/month" on the pricing card)
+  - Monthly: $6.87/month
+
+No-trial plans (10% discount for skipping trial):
+  - Annual:  $35.88/year  (displayed as "$2.99/month" on the pricing card)
+  - Monthly: $6.18/month
+
+Transaction abandonment offer (no trial, hard discount):
+  - Annual:  $23.88/year  (displayed as "$1.99/month", shown as "60% off")
+
+The yearly strikethrough price: $82.44 (that's $6.87 x 12 — what monthly would cost for a year)
+
+
+== SUBSCRIPTION STATE ==
+
+Add subscription state to localStorage:
+
+Key: "redboot-subscription"
+Value: JSON object:
+{
+  "status": "free" | "trial" | "active" | "cancelled",
+  "freeSessionUsed": false | true,
+  "stripeCustomerId": null | "cus_xxx",
+  "subscriptionId": null | "sub_xxx",
+  "currentPeriodEnd": null | "2026-04-20T00:00:00Z",
+  "plan": null | "monthly" | "annual"
+}
+
+On first install, status is "free" and freeSessionUsed is false.
+After the first practice session completes (when SimplePractice shows results), set freeSessionUsed to true.
+
+
+== PAYWALL GATE LOGIC ==
+
+Check subscription state before allowing access to:
+- SimplePractice — allow if freeSessionUsed is false OR status is "trial"/"active"
+- FridayTest — locked unless "trial" or "active"
+- FridayTestSimulator — locked unless "trial" or "active"
+- ParentAnalytics — locked unless "trial" or "active" (show blurred preview)
+- TreasureRoad — locked unless "trial" or "active"
+- SeaMonsterBattle — locked unless "trial" or "active"
+
+Always free: dashboard, word list upload/photo capture, treasure vault, badge gallery, onboarding, child setup.
+
+
+== PAYWALL SCREEN: "AHA MOMENT" (the main paywall) ==
+
+This is ONE scrollable screen with three sections. Not three separate pages.
+It appears IMMEDIATELY after the first practice session ends.
+It overlays/replaces the session results screen.
+
+Design: Clean, parent-focused. NOT pirate themed. White/light background.
+This screen talks to the PARENT, not the child. No game elements on the paywall.
+
+--- SECTION 1: Real results from the session ---
+
+HEADER:
+- "[Child's name] spelled [X] out of [Y] words correctly!"
+  Pull REAL data from the session that just ended (correctWords.length, total words)
+- Subtext: "Unlock unlimited practice to be ready for Friday's test"
+
+STATS ROW (3 mini cards side by side):
+- Card 1: Light green bg (#E1F5EE). Shows accuracy percentage. Label: "accuracy"
+- Card 2: Light purple bg (#EEEDFE). Shows "[correct]/[total]". Label: "correct"
+- Card 3: Light amber bg (#FAEEDA). Shows number of missed words. Label: "need work"
+
+All numbers come from the actual session data. Not placeholder numbers.
+
+--- SECTION 2: Trial anxiety removal ---
+
+Small caps: "ZERO RISK" in teal (#1D9E75)
+Heading: "Try it free. Cancel anytime."
+Subtext: "Here's exactly what happens when you start your free trial"
+
+3-step vertical timeline with connecting line (#B5D4F4, 2px):
+
+  Step 1 — Blue circle (#378ADD) with "1"
+    "Today — Start free"
+    "Full access to everything. No charge."
+
+  Step 2 — Amber circle (#FAEEDA) with "2"
+    "Day 5 — We'll remind you"
+    "A notification before your trial ends. No surprises."
+
+  Step 3 — Green circle (#E1F5EE) with "3"
+    "Day 7 — You decide"
+    "Love it? Keep going. Not for you? Cancel with one tap. $0 charged."
+
+KEY PSYCHOLOGY: The word "free" should appear at least 5 times across the entire paywall.
+Do NOT show the trial duration on the pricing cards themselves — only in the timeline above.
+On the pricing card, just say "Try it free" not "7-day free trial, then $39.96/yr."
+This removes the "I have to remember to cancel in 7 days" anxiety.
+
+--- SECTION 3: Pricing ---
+
+Small caps: "CHOOSE YOUR PLAN" in purple (#534AB7)
+Heading: "Start free, pay only if you love it"
+Subtext: "7-day free trial on every plan"
+
+PLAN CARD 1 — YEARLY (pre-selected, highlighted):
+- Border: 2px solid blue (#378ADD)
+- Badge top right: "Save 52%" — blue bg, white text, pill shape
+- Left: "Yearly" (bold), "$3.33/month" (gray)
+- Right: "$39.96" (large bold), "$82.44" (strikethrough gray)
+- DO NOT label it "Annual plan" — just "Yearly"
+
+PLAN CARD 2 — MONTHLY:
+- Border: 0.5px gray
+- Left: "Monthly" (bold), "Flexible, cancel anytime" (gray)
+- Right: "$6.87" (large bold), "/month" (gray)
+
+TRIAL TOGGLE:
+- Gray background row
+- Left: "Include 7-day free trial" (bold)
+- Subtitle when ON: "Recommended — try before you pay"
+- Subtitle when OFF: "Skip trial and save 10% today"
+- Toggle: green when ON (#1D9E75), gray when OFF
+- When toggled OFF:
+    - Yearly becomes $35.88/year (shown as $2.99/month)
+    - Monthly becomes $6.18/month
+    - CTA text changes to "Subscribe now — save 10%"
+
+EMAIL FIELD:
+- Simple input: "Enter your email to get started"
+- Required before checkout — needed for Stripe receipts
+- Store in localStorage as "redboot-parent-email"
+- Pass to Stripe as customer_email
+
+CTA BUTTON:
+- Full width, purple bg (#534AB7), white text
+- With trial ON: "Try free for 7 days"
+- With trial OFF: "Subscribe now — save 10%"
+
+TRUST SIGNALS (below button, single row):
+- "Secure payment" · "Cancel anytime" · "No ads ever"
+- Small gray text, centered
+
+DISMISS:
+- "Maybe later" — underlined gray text
+- Dismisses paywall, returns to locked dashboard
+- Does NOT give another free session
+
+
+== TRANSACTION ABANDONMENT PAYWALL ==
+
+Trigger: User opens Stripe Checkout but closes/abandons without completing payment.
+Show this ONCE on their next action in the app.
+
+Design: Card overlay on semi-transparent backdrop.
+
+Layout:
+- Heading: "Wait, Captain!"
+- Subtext: "A one-time deal, just for you"
+- Large price: "$23.88" (big, bold, centered)
+- Below price: "/year · $1.99 per month"
+- Feature list (checkmarks):
+    ✓ Full year of unlimited practice
+    ✓ All 4 characters + sea monster battles
+    ✓ Friday test simulator & analytics
+    ✓ Access starts immediately today
+- Urgency: "This offer expires in 10 minutes" (with countdown timer)
+- CTA: "Claim this deal — start today" — full width green button (#1D9E75)
+- Below CTA: "No trial needed — pay once, access everything now"
+- Dismiss: "No thanks, I'll pay full price later"
+
+NO free trial on this offer. Hard discount for immediate purchase.
+Store "redboot-abandonment-shown": true in localStorage. Show only ONCE ever.
+
+
+== SESSION START PAYWALL ==
+
+Trigger: Non-subscriber returns to app after free session is used.
+Show ONCE PER DAY on app open. Store last-shown date in localStorage as "redboot-paywall-last-shown".
+
+Layout:
+- Heading: "[Child's name] spelled [X]/[Y] words right last time"
+  Pull from practiceProgress in localStorage — most recent session data
+- Subtext: "Unlock unlimited practice to be ready for Friday's test"
+
+STATS ROW (same 3-card design as aha moment):
+- Accuracy %, correct/total, words needing work
+- Real data from last session
+
+Feature list:
+  ✓ Unlimited practice sessions
+  ✓ All pirate characters
+  ✓ Friday test simulator
+  ✓ Parent progress reports
+
+CTA: "Unlock unlimited practice — $6.87/mo" — purple button
+Below CTA: "Or get the yearly plan — just $3.33/mo"
+Dismiss: X button in corner — closes paywall, shows locked dashboard
+
+
+== LOCKED FEATURE SCREENS ==
+
+When a non-subscriber taps a locked feature:
+
+LOCKED PRACTICE:
+- Heading: "Your free session is done!"
+- Subtext: "Join the crew for unlimited practice and more"
+- Checkmarks:
+    ✓ Unlimited practice sessions
+    ✓ Diego's sea monster battles
+    ✓ Friday test simulator
+- CTA: Subscribe button → opens main paywall
+
+LOCKED ANALYTICS:
+- Show the ACTUAL ParentAnalytics page with CSS blur (filter: blur(8px))
+- Centered card on top: "Subscribe to see [child's name]'s detailed progress"
+- Bullets: Accuracy trends, misspelling insights, test readiness, weekly summary
+- CTA: "Unlock reports" → opens main paywall
+
+LOCKED FRIDAY TEST:
+- Heading: "Friday Test Simulator"
+- Subtext: "Simulate Friday's test with timed questions, random order, and a full score report"
+- Checkmarks:
+    ✓ Timed test mode — just like class
+    ✓ Random word order
+    ✓ Full score report with results
+    ✓ Retake as many times as needed
+- CTA: "Unlock Friday Test" → opens main paywall
+- Below CTA: "7-day free trial included"
+
+
+== STRIPE INTEGRATION ==
+
+Use Stripe Checkout (hosted page) for payment. Keeps PCI compliance simple.
+
+Stripe prices to create (create these in Stripe dashboard, store IDs as env vars):
+  STRIPE_PRICE_MONTHLY            — $6.87/month, 7-day free trial
+  STRIPE_PRICE_ANNUAL             — $39.96/year, 7-day free trial
+  STRIPE_PRICE_MONTHLY_NO_TRIAL   — $6.18/month, no trial
+  STRIPE_PRICE_ANNUAL_NO_TRIAL    — $35.88/year, no trial
+  STRIPE_PRICE_ANNUAL_ABANDONMENT — $23.88/year, no trial
+
+Server endpoints:
+
+POST /api/create-checkout-session
+  Body: { plan: "monthly" | "annual", trial: boolean, offer: "standard" | "abandonment", email: string, deviceId: string }
+  - Look up or create Stripe customer by email
+  - Create Checkout Session with appropriate price ID
+  - If trial is true, set subscription_data.trial_period_days: 7
+  - Set success_url: /dashboard?subscription=success
+  - Set cancel_url: /dashboard?checkout=cancelled
+  Returns: { url } — redirect user to this Stripe Checkout URL
+
+POST /api/webhook
+  Stripe webhook endpoint. Verify signature with STRIPE_WEBHOOK_SECRET.
+  Handle events:
+    checkout.session.completed:
+      - Find device by metadata.deviceId
+      - Store stripeCustomerId, subscriptionId in database
+      - Set status to "trial" (if trial_period) or "active" (if no trial)
+      - Set currentPeriodEnd from subscription data
+      - Set plan to "monthly" or "annual"
+    customer.subscription.updated:
+      - Update status and currentPeriodEnd
+    customer.subscription.deleted:
+      - Set status to "cancelled"
+    invoice.payment_failed:
+      - Set status to "past_due"
+
+GET /api/subscription-status?deviceId=xxx
+  Returns subscription state for the given device
+  Since there's no auth, tie subscription to a device UUID:
+    - Generate UUID on first visit, store as "redboot-device-id" in localStorage
+    - Send deviceId with all API calls
+    - Server stores deviceId → subscription mapping in database
+
+On app load, call GET /api/subscription-status and sync result to localStorage "redboot-subscription".
+This way the app works offline (reads localStorage) but stays in sync when online.
+
+Success flow:
+  - User completes Stripe Checkout → redirected to /dashboard?subscription=success
+  - App detects ?subscription=success query param
+  - Shows a brief celebration: "Welcome aboard, Captain! Full access unlocked."
+  - Updates localStorage subscription status
+  - Removes all paywall gates
+
+Cancel/abandonment flow:
+  - User closes Stripe Checkout → redirected to /dashboard?checkout=cancelled
+  - App detects ?checkout=cancelled query param
+  - Sets "redboot-checkout-abandoned": true in localStorage
+  - On next user action, check this flag and show Transaction Abandonment paywall
+
+
+== ENVIRONMENT VARIABLES ==
+
+STRIPE_SECRET_KEY
+STRIPE_PUBLISHABLE_KEY
+STRIPE_WEBHOOK_SECRET
+STRIPE_PRICE_MONTHLY
+STRIPE_PRICE_ANNUAL
+STRIPE_PRICE_MONTHLY_NO_TRIAL
+STRIPE_PRICE_ANNUAL_NO_TRIAL
+STRIPE_PRICE_ANNUAL_ABANDONMENT
+
+
+== DESIGN RULES ==
+
+- All paywall screens: clean, minimal, parent-focused design
+- NO pirate theme on paywalls — the paywall talks to the adult, not the kid
+  (Exception: transaction abandonment can use "Wait, Captain!" heading)
+- Font: system font stack or whatever the app uses for non-game UI
+- Colors:
+    Blue (#378ADD) — info, highlights, selected plan border
+    Green (#1D9E75) — success, CTA on abandonment offer, trial toggle ON
+    Purple (#534AB7) — primary CTA buttons, section headers
+    Amber (#FAEEDA) — warning backgrounds, timeline step 2
+- The paywall should feel like a premium product page, not a popup ad
+- Mobile-first — must look good on phone screens (this is primarily a mobile web app)
+- Smooth transitions: paywall slides up from bottom or fades in, not a hard cut
+- "Maybe later" / dismiss option must ALWAYS be visible — never hide the exit
+- COPPA: No data collection from the child. Email is collected from the parent only at checkout time.
+
+
+== FILES TO CREATE ==
+
+client/src/components/Paywall.tsx
+  — Main paywall component (all 3 sections: results, timeline, pricing)
+
+client/src/components/TransactionAbandonmentPaywall.tsx
+  — Abandonment discount offer with countdown timer
+
+client/src/components/SessionStartPaywall.tsx
+  — Returning user daily paywall with real session stats
+
+client/src/components/LockedFeature.tsx
+  — Reusable locked feature overlay (takes props: heading, subtext, features list, ctaText)
+
+client/src/lib/subscription.ts
+  — Subscription state management
+  — Functions: getSubscription(), isSubscribed(), setFreeSessionUsed(), canAccessFeature(feature), createCheckoutSession(plan, trial, offer)
+  — Reads/writes "redboot-subscription" localStorage
+  — Calls server APIs for checkout and status sync
+
+server/routes/stripe.ts
+  — POST /api/create-checkout-session
+  — POST /api/webhook
+  — GET /api/subscription-status
+
+
+== FILES TO MODIFY (minimally) ==
+
+SimplePractice.tsx:
+  — After session ends and results display, check if freeSessionUsed is false
+  — If false: set freeSessionUsed to true, then show <Paywall /> component with session results data passed as props
+  — If true and not subscribed: should not have gotten here (gate should have caught it)
+
+FridayTest.tsx:
+  — At component mount, check canAccessFeature("fridayTest")
+  — If false, render <LockedFeature /> instead of the test
+
+FridayTestSimulator.tsx:
+  — Same gate as FridayTest
+
+ParentAnalytics.tsx:
+  — If not subscribed, wrap the existing page in a relative container
+  — Apply CSS filter: blur(8px) and pointer-events: none to the analytics content
+  — Overlay a centered <LockedFeature /> card on top
+
+App.tsx or main router:
+  — On app load, check subscription status
+  — If non-subscriber and freeSessionUsed is true, check if session start paywall should show (once per day)
+  — If checkout=cancelled in URL params, set abandonment flag
+  — If subscription=success in URL params, show celebration and clear paywall state
+
+server/index.ts or server/routes.ts:
+  — Register the stripe routes from server/routes/stripe.ts
+
+
+== TESTING CHECKLIST ==
+
+After building, verify:
+1. New user can go through onboarding → setup → upload words → complete ONE practice session without seeing any paywall
+2. After first session ends, the aha moment paywall appears with real session data
+3. "Maybe later" dismisses paywall and returns to dashboard with locked features
+4. Tapping any locked feature shows the appropriate locked screen
+5. Subscribe button opens Stripe Checkout with correct price
+6. Closing Stripe Checkout triggers abandonment offer on next action
+7. Completing Stripe Checkout unlocks all features
+8. Returning non-subscriber sees session start paywall once per day
+9. Trial toggle correctly switches prices between trial and no-trial amounts
+10. All prices match the spec: $39.96/yr, $6.87/mo, $23.88 abandonment

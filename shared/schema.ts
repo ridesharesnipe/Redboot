@@ -57,6 +57,7 @@ export const users = pgTable("users", {
   // Practice tracking
   practiceCount: integer("practice_count").default(0),
   perfectRunCount: integer("perfect_run_count").default(0), // Track perfect sessions for badge progression
+  sessionToken: varchar("session_token"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -329,6 +330,22 @@ export interface TreasureMapState {
 }
 
 // Default treasure map layout (12 piles scattered across the map - all treasure varieties!)
+// Device-based subscription tracking (no login required)
+export const deviceSubscriptions = pgTable('device_subscriptions', {
+  id: varchar('id').primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: varchar('device_id').unique().notNull(),
+  status: varchar('status').notNull().default('free'),
+  stripeCustomerId: varchar('stripe_customer_id'),
+  subscriptionId: varchar('subscription_id'),
+  currentPeriodEnd: timestamp('current_period_end'),
+  plan: varchar('plan'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export type DeviceSubscription = typeof deviceSubscriptions.$inferSelect;
+export type InsertDeviceSubscription = typeof deviceSubscriptions.$inferInsert;
+
 export const DEFAULT_TREASURE_NODES: Omit<TreasureNode, 'isUnlocked' | 'isDigging' | 'isRevealed'>[] = [
   { id: 'node-1', x: 15, y: 75, treasureType: TreasureType.CROWN, wordIndex: 0 },
   { id: 'node-2', x: 35, y: 45, treasureType: TreasureType.DIAMOND, wordIndex: 1 },

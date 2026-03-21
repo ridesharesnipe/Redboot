@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Moon, Sun, TrendingUp, TrendingDown, Clock, Zap, Star, Rocket, AlertCircle, ChevronDown, ChevronUp, Check, X as XIcon, HelpCircle } from 'lucide-react';
+import { isSubscribed } from '@/lib/subscription';
+import LockedFeature from '@/components/LockedFeature';
+import Paywall from '@/components/Paywall';
 
 interface WordDetail {
   word: string;
@@ -605,6 +608,8 @@ function buildSession(
 
 export default function ParentAnalytics() {
   const [, setLocation] = useLocation();
+  const [subscribed] = useState(() => isSubscribed());
+  const [showFullPaywall, setShowFullPaywall] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -740,7 +745,35 @@ export default function ParentAnalytics() {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase().slice(0, 3);
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'} transition-colors duration-300`}>
+    <div style={{ position: 'relative' }}>
+    {!subscribed && showFullPaywall && (
+      <Paywall
+        correct={0}
+        total={0}
+        childName={localStorage.getItem('redboot-child-name') || 'Your child'}
+        onMaybeLater={() => setShowFullPaywall(false)}
+      />
+    )}
+    {!subscribed && !showFullPaywall && (
+      <LockedFeature
+        heading="Parent Analytics"
+        subtext="See exactly where your child needs more practice"
+        features={[
+          'Weekly accuracy trends & streaks',
+          'Words that need the most practice',
+          'Time spent per session',
+          'Friday test readiness score',
+        ]}
+        ctaText="Unlock analytics — 7-day free trial"
+        onCta={() => setShowFullPaywall(true)}
+        onMaybeLater={() => setLocation('/dashboard')}
+        accentColor="#534AB7"
+      />
+    )}
+    <div
+      className={`min-h-screen ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'} transition-colors duration-300`}
+      style={!subscribed ? { filter: 'blur(8px)', pointerEvents: 'none', userSelect: 'none' } : undefined}
+    >
       {/* Glass Header */}
       <header className={`sticky top-0 z-30 w-full px-4 sm:px-6 py-3 sm:py-4 border-b backdrop-blur-xl ${
         isDark 
@@ -1729,6 +1762,7 @@ export default function ParentAnalytics() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

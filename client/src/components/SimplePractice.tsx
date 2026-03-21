@@ -10,6 +10,9 @@ import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 import SeaMonsterBattle from './SeaMonsterBattle';
+import { canAccessFeature, getSubscription, setFreeSessionUsed } from '@/lib/subscription';
+import Paywall from './Paywall';
+import SessionStartPaywall from './SessionStartPaywall';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -17,6 +20,9 @@ interface SimplePracticeProps {
 }
 
 export default function SimplePractice({ onComplete, onCancel }: SimplePracticeProps) {
+  const [accessDenied] = useState(() => !canAccessFeature('practice'));
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallResults, setPaywallResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   const [practiceWords, setPracticeWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -140,6 +146,15 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
     } catch (error) {
       console.error('Failed to save session locally:', error);
+    }
+
+    // Show paywall after first free session
+    const sub = getSubscription();
+    if (!sub.freeSessionUsed) {
+      setFreeSessionUsed();
+      setPaywallResults(results);
+      setShowPaywall(true);
+      return;
     }
 
     if (badgeWasEarned) {
@@ -672,6 +687,33 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const selected = phrases[rarity] || phrases.common;
     return selected[Math.floor(Math.random() * selected.length)];
   };
+
+  // SECOND SESSION GATE — show paywall for returning users who haven't subscribed
+  if (accessDenied) {
+    return (
+      <SessionStartPaywall
+        onDismiss={onCancel}
+      />
+    );
+  }
+
+  // PAYWALL — show after first free session completes
+  if (showPaywall && paywallResults) {
+    const childName = localStorage.getItem('redboot-child-name') || 'Your child';
+    return (
+      <Paywall
+        correct={paywallResults.correct}
+        total={paywallResults.total}
+        childName={childName}
+        onMaybeLater={() => {
+          setShowPaywall(false);
+          localStorage.setItem('redboot-checkout-abandoned', 'true');
+          const r = paywallResults;
+          if (r) onComplete(r);
+        }}
+      />
+    );
+  }
 
   // COMPLETION SCREEN
   if (isComplete) {

@@ -53,6 +53,11 @@ waitForPort = 5000
 [userenv]
 
 [userenv.shared]
+STRIPE_PRICE_ANNUAL = "price_1TDD7kIKeiiO81plM6B0Qr6E"
+STRIPE_PRICE_MONTHLY = "price_1TDD7kIKeiiO81pl2nj2Idxz"
+STRIPE_PRICE_ABANDONMENT = "price_1TDD7kIKeiiO81plWbH5mvUP"
+STRIPE_PRICE_ANNUAL_NO_TRIAL = "price_1TDDfqIKeiiO81plo93fQrL5"
+STRIPE_PRICE_MONTHLY_NO_TRIAL = "price_1TDDfpIKeiiO81plUjII3xIF"
 
 [postMerge]
 path = "scripts/post-merge.sh"
