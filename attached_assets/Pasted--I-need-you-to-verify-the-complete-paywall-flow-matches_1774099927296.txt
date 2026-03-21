@@ -1,0 +1,19 @@
+"I need you to verify the complete paywall flow matches this exact specification. Walk through each step and confirm it works:
+
+New user opens app → sees onboarding cards (The Science, The Features, Watch Them Shine) → taps Get Started → goes to child setup. NO paywall here. Confirm.
+Child setup → character select → dashboard → uploads word list → starts practice session. NO paywall here. The user plays one full session freely. Confirm.
+First practice session ENDS → the Aha Moment paywall appears IMMEDIATELY and STAYS on screen. It shows the child's real session data (accuracy, correct/total, words needing work). Below the stats it shows the Zero Risk timeline (Today start free, Day 5 reminder, Day 7 you decide). Below that it shows pricing ($39.96/yr shown as $3.33/mo, $6.87/mo) with trial toggle and email field. CTA says 'Try free for 7 days.' There is a 'Maybe later' dismiss link at the bottom. Confirm this all renders and stays visible.
+If user taps 'Maybe later' → returns to dashboard. ALL of these are now locked: practice sessions, Friday test, Friday test simulator, parent analytics (blurred with overlay), treasure road, sea monster battle. Confirm each one shows a locked screen with subscribe button.
+If user taps subscribe → enters email → Stripe Checkout opens with correct price. If they CLOSE Stripe without paying → next time they take any action in the app, the Transaction Abandonment paywall appears: 'Wait, Captain!' with $23.88/yr deal, 10-minute countdown, no trial. This shows ONCE only. Confirm.
+Non-subscriber opens the app the next day → Session Start paywall appears showing their last session stats and a subscribe CTA. Shows once per day. Dismiss X returns to locked dashboard. Confirm.
+Completing Stripe payment → redirected to dashboard with 'Welcome aboard, Captain!' message → all features unlocked → no more paywalls. Confirm.
+Test each step. If any step is missing or broken, fix it. Do not change any existing UI that is not part of the paywall system."
+
+This walks Replit through the entire flow we designed and forces it to verify every piece is working.
+
+
+
+
+
+
+Claude is AI and can mak
