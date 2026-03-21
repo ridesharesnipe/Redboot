@@ -269,6 +269,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   // Initialize practice session
   useEffect(() => {
+    // Guard: if the session has already been saved (paywall showing or complete),
+    // do not re-initialize — this prevents the effect from resetting state when
+    // onCancel/playCharacterVoice/toast get new references.
+    if (sessionSavedRef.current) return;
+
     resetMessageHistory();
     
     const savedWords = localStorage.getItem('currentSpellingWords');
