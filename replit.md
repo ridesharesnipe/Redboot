@@ -52,6 +52,11 @@ Preferred communication style: Simple, everyday language.
 
 ### Payment Processing
 - **Stripe**: Payment gateway for subscription management and webhooks.
+- **Pricing** (live Stripe Price IDs, product: `prod_UBaIgdIbncWBiW`):
+  - Annual: `price_1TDD7kIKeiiO81plM6B0Qr6E` — $39.96/year ($3.33/mo)
+  - Monthly: `price_1TDD7kIKeiiO81pl2nj2Idxz` — $6.87/month
+  - Abandonment offer: `price_1TDD7kIKeiiO81plWbH5mvUP` — $23.88/year ($1.99/mo, no trial)
+- **Env vars needed**: `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ABANDONMENT`
 
 ### Database Infrastructure
 - **Neon Database**: Serverless PostgreSQL hosting.

@@ -34,10 +34,10 @@ export function AhaMoment() {
   const [selectedPlan, setSelectedPlan] = useState<"annual" | "monthly">("annual");
   const [trialOn, setTrialOn] = useState(true);
 
-  const annualPrice = trialOn ? "$39.99" : "$35.99";
-  const annualMonthly = trialOn ? "$3.33" : "$3.00";
-  const monthlyPrice = trialOn ? "$6.99" : "$6.29";
-  const ctaText = trialOn ? "Try free for 7 days ⚓" : "Subscribe now — save 10%";
+  const annualPerMonth = "$3.33";
+  const annualTotal = "$39.96";
+  const monthlyPrice = "$6.87";
+  const ctaText = trialOn ? "Try free for 7 days ⚓" : "Subscribe now — skip trial";
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)", fontFamily: "'Plus Jakarta Sans', sans-serif", overflowY: "auto" }}>
@@ -105,11 +105,10 @@ export function AhaMoment() {
               <div style={{ position: "absolute", top: -10, right: 12, background: "#378ADD", color: "white", fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 20 }}>Save 52%</div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 15, color: "#1e293b" }}>Yearly</div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>{annualMonthly}/month</div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>{annualPerMonth}/month</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1e293b" }}>{annualPrice}</div>
-                {!trialOn && <div style={{ fontSize: 11, color: "#94a3b8", textDecoration: "line-through" }}>$39.99</div>}
+                <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1e293b" }}>{annualTotal}/yr</div>
               </div>
             </div>
 
@@ -120,8 +119,7 @@ export function AhaMoment() {
                 <div style={{ fontSize: 12, color: "#64748b" }}>Flexible, cancel anytime</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1e293b" }}>{monthlyPrice}</div>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>/month</div>
+                <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1e293b" }}>{monthlyPrice}/mo</div>
               </div>
             </div>
 
@@ -129,7 +127,7 @@ export function AhaMoment() {
             <div style={{ background: "#f8fafc", borderRadius: 14, padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, border: "1px solid #e2e8f0" }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 13, color: "#1e293b" }}>Include 7-day free trial</div>
-                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{trialOn ? "Recommended — try before you pay" : "Skip trial and save 10% today"}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{trialOn ? "Recommended — try before you pay" : "Skip trial and start today"}</div>
               </div>
               <div onClick={() => setTrialOn(!trialOn)} style={{ width: 46, height: 26, borderRadius: 13, background: trialOn ? "#1D9E75" : "#cbd5e1", cursor: "pointer", position: "relative", flexShrink: 0 }}>
                 <div style={{ position: "absolute", top: 3, left: trialOn ? 23 : 3, width: 20, height: 20, borderRadius: "50%", background: "white", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "left 0.2s" }} />
