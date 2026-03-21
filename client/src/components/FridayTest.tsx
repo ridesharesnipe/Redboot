@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAudio } from '@/contexts/AudioContext';
 import { spellingStorage } from '@/lib/localStorage';
 import { CheckCircle, XCircle, Award, Clock, FileText, X } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useLocation } from 'wouter';
 
 interface TestResult {
   word: string;
@@ -27,6 +29,8 @@ interface FridayTestProps {
 }
 
 export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
+  const { isPremium, isLoading: subLoading } = useSubscription();
+  const [, setLocation] = useLocation();
   const [testWords, setTestWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -41,6 +45,32 @@ export default function FridayTest({ onComplete, onCancel }: FridayTestProps) {
   
   const { toast } = useToast();
   const { playSound, playCharacterVoice, setFocusMode } = useAudio();
+
+  // Premium gate — must be checked after all hooks
+  if (subLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid #e2e8f0', borderTopColor: '#534AB7', animation: 'spin 0.8s linear infinite' }} />
+      </div>
+    );
+  }
+  if (!isPremium) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '2px solid rgba(255,255,255,0.7)', padding: '32px 24px', maxWidth: 340, width: '100%', textAlign: 'center' }}>
+          <div style={{ fontSize: 56, marginBottom: 12 }}>⏰</div>
+          <div style={{ fontFamily: "'Pirata One', cursive", fontSize: 22, color: '#534AB7', marginBottom: 8 }}>Friday Test Prep</div>
+          <div style={{ fontSize: 15, color: '#374151', lineHeight: 1.6, marginBottom: 20 }}>
+            The Friday test simulator is a premium feature — get voice playback, realistic timing, and full test prep with a free trial!
+          </div>
+          <button onClick={() => setLocation('/paywall?from=test')} style={{ width: '100%', padding: '14px', borderRadius: 18, background: 'linear-gradient(135deg, #534AB7, #6366f1)', color: 'white', fontFamily: "'Fredoka One', cursive", fontSize: 18, border: 'none', cursor: 'pointer', boxShadow: '0 6px 20px rgba(83,74,183,0.4)', marginBottom: 10 }}>
+            Try free for 7 days ⚓
+          </button>
+          <button onClick={() => setLocation('/dashboard')} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Back to dashboard</button>
+        </div>
+      </div>
+    );
+  }
 
   // Initialize test
   useEffect(() => {

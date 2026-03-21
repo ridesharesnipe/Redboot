@@ -69,6 +69,69 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
   );
 };
 
+// ── Stable module-scope route components (defined outside AppRouter so they
+//    never get redefined on parent re-renders, which would cause unmount/remount)
+
+const LandingRoute = withErrorBoundary(() => {
+  const [, setLocation] = useLocation();
+  return <Landing onStart={() => setLocation('/dashboard')} />;
+}, "Landing");
+
+const DashboardRoute = withErrorBoundary(() => {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="container mx-auto p-4">
+      <ParentDashboard
+        onTakePhoto={() => setLocation('/photo-capture')}
+        onViewPractice={() => setLocation('/practice')}
+        onStartTest={() => setLocation('/test')}
+        onViewGuide={() => setLocation('/guide')}
+      />
+    </div>
+  );
+}, "Dashboard");
+
+const PracticeRoute = withErrorBoundary(() => {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="container mx-auto p-4">
+      <SimplePractice
+        onComplete={() => setLocation('/dashboard')}
+        onCancel={() => setLocation('/dashboard')}
+      />
+    </div>
+  );
+}, "Practice");
+
+const TestRoute = withErrorBoundary(() => {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="container mx-auto p-4">
+      <FridayTest
+        onComplete={() => setLocation('/dashboard')}
+        onCancel={() => setLocation('/dashboard')}
+      />
+    </div>
+  );
+}, "Test");
+
+const GuideRoute = withErrorBoundary(() => {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="container mx-auto p-4">
+      <ParentGuide onBack={() => setLocation('/dashboard')} />
+    </div>
+  );
+}, "Guide");
+
+const PhotoCaptureRoute = withErrorBoundary(() => <PhotoCapturePage />, "PhotoCapture");
+const VaultRoute = withErrorBoundary(() => <TreasureVault />, "TreasureVault");
+const BadgesRoute = withErrorBoundary(() => <BadgeGallery />, "BadgeGallery");
+const AnalyticsRoute = withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics");
+const PrivacyRoute = withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy");
+const PaywallRoute = withErrorBoundary(() => <Paywall />, "Paywall");
+const SuccessRoute = withErrorBoundary(() => <SubscribeSuccess />, "SubscribeSuccess");
+
 function AppRouter() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showChildSetup, setShowChildSetup] = useState(false);
