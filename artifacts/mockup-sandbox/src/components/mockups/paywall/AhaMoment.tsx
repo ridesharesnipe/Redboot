@@ -28,9 +28,9 @@ export function AhaMoment() {
   const [selectedPlan, setSelectedPlan] = useState<"annual" | "monthly">("annual");
   const [trialOn, setTrialOn] = useState(true);
 
-  const annualPrice = trialOn ? "$39.96" : "$35.88";
-  const monthlyPrice = trialOn ? "$6.87" : "$6.18";
-  const annualMonthly = trialOn ? "$3.33" : "$2.99";
+  const annualPrice = trialOn ? "$39.99" : "$35.99";
+  const monthlyPrice = trialOn ? "$6.99" : "$6.29";
+  const annualMonthly = trialOn ? "$3.33" : "$3.00";
   const ctaText = trialOn ? "Try free for 7 days ⚓" : "Subscribe now — save 10%";
 
   return (
@@ -117,7 +117,7 @@ export function AhaMoment() {
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1e293b" }}>{annualPrice}</div>
-                {!trialOn && <div style={{ fontSize: 11, color: "#94a3b8", textDecoration: "line-through" }}>$39.96</div>}
+                {!trialOn && <div style={{ fontSize: 11, color: "#94a3b8", textDecoration: "line-through" }}>$39.99</div>}
               </div>
             </div>
 

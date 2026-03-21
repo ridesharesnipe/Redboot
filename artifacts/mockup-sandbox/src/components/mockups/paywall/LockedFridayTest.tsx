@@ -40,7 +40,7 @@ export function LockedFridayTest() {
             {/* Pricing note */}
             <div style={{ textAlign: "center", background: "linear-gradient(145deg, #f5f3ff, #ede9fe)", borderRadius: 14, padding: "12px", marginBottom: 14, border: "1px solid #ddd6fe" }}>
               <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 17, color: "#534AB7" }}>7-day free trial included</div>
-              <div style={{ fontSize: 12, color: "#7c6fcd", marginTop: 2 }}>Then from $1.99/month — cancel anytime</div>
+              <div style={{ fontSize: 12, color: "#7c6fcd", marginTop: 2 }}>Then from $3.33/month — cancel anytime</div>
             </div>
 
             <button style={{ width: "100%", padding: "14px", borderRadius: 16, background: "linear-gradient(135deg, #534AB7, #6366f1)", color: "white", fontFamily: "'Fredoka One', cursive", fontSize: 18, border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(83,74,183,0.4)", marginBottom: 10 }}>

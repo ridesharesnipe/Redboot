@@ -13,21 +13,6 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Device-based subscription table (no-auth paywall)
-export const deviceSubscriptions = pgTable("device_subscriptions", {
-  deviceId: varchar("device_id").primaryKey(),
-  stripeCustomerId: varchar("stripe_customer_id"),
-  stripeSubscriptionId: varchar("stripe_subscription_id"),
-  status: varchar("status"), // 'trialing' | 'active' | 'canceled' | 'past_due'
-  priceId: varchar("price_id"),
-  currentPeriodEnd: timestamp("current_period_end"),
-  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type DeviceSubscription = typeof deviceSubscriptions.$inferSelect;
-
 // Session storage table (required for Replit Auth)
 export const sessions = pgTable(
   "sessions",

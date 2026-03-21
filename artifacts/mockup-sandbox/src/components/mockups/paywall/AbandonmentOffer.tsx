@@ -28,10 +28,10 @@ export function AbandonmentOffer() {
         <div style={{ padding: "20px 20px 24px" }}>
           <div style={{ border: "2px solid #1D9E75", borderRadius: 20, padding: "18px", marginBottom: 16, background: "linear-gradient(145deg, #f0fdf4, #dcfce7)", boxShadow: "0 4px 16px rgba(29,158,117,0.15)" }}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 40, color: "#0d7a52", lineHeight: 1 }}>$23.88</div>
-              <div style={{ fontSize: 13, color: "#0d7a52", fontWeight: 600, marginTop: 4 }}>/year · $1.99 per month</div>
+              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 40, color: "#0d7a52", lineHeight: 1 }}>$24.99</div>
+              <div style={{ fontSize: 13, color: "#0d7a52", fontWeight: 600, marginTop: 4 }}>/year · $2.08 per month</div>
               <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>
-                <span style={{ textDecoration: "line-through" }}>$39.96</span>
+                <span style={{ textDecoration: "line-through" }}>$39.99</span>
                 {" "}— less than a juice box a month
               </div>
             </div>

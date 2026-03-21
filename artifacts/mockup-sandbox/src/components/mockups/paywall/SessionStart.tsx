@@ -83,7 +83,7 @@ export function SessionStart() {
             </div>
 
             <button style={{ width: "100%", padding: "14px", borderRadius: 16, background: "linear-gradient(135deg, #534AB7, #6366f1)", color: "white", fontFamily: "'Fredoka One', cursive", fontSize: 17, border: "none", cursor: "pointer", boxShadow: "0 6px 20px rgba(83,74,183,0.4)" }}>
-              Unlock unlimited practice — $6.87/mo ⚓
+              Unlock unlimited practice — $6.99/mo ⚓
             </button>
 
             <div style={{ textAlign: "center", marginTop: 12 }}>
