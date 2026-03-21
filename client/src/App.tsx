@@ -19,7 +19,9 @@ import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { getSubscription } from "@/lib/subscription";
+import { getSubscription, activatePremium } from "@/lib/subscription";
+import Paywall from "@/components/Paywall";
+import AbandonmentOffer from "@/components/AbandonmentOffer";
 
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
   constructor(props: {children: ReactNode, componentName: string}) {
@@ -67,10 +69,205 @@ const withErrorBoundary = (Component: () => JSX.Element, componentName: string) 
   );
 };
 
+function getLastSessionData() {
+  const childName = localStorage.getItem('redboot-child-name') || 'Your child';
+  try {
+    const raw = localStorage.getItem('practiceProgress');
+    if (raw) {
+      const data = JSON.parse(raw);
+      const history: Array<{ correct: boolean }> = data._practiceHistory || [];
+      const recent = history.slice(-10);
+      if (recent.length > 0) {
+        const correct = recent.filter((h) => h.correct).length;
+        return { correct, total: recent.length, childName };
+      }
+    }
+  } catch {}
+  return { correct: 7, total: 10, childName };
+}
+
+function PracticeRouteInner() {
+  const [, setLocation] = useLocation();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showAbandonment, setShowAbandonment] = useState(() => localStorage.getItem('redboot-stripe-abandoned') === '1');
+  const sub = getSubscription();
+  const isLocked = sub.freeSessionUsed && !sub.isPremium;
+
+  if (isLocked) {
+    if (showAbandonment) {
+      return <AbandonmentOffer onDismiss={() => setShowAbandonment(false)} />;
+    }
+    if (showPaywall) {
+      const { correct, total, childName } = getLastSessionData();
+      return (
+        <Paywall
+          correct={correct}
+          total={total}
+          childName={childName}
+          onMaybeLater={() => setLocation('/dashboard')}
+        />
+      );
+    }
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)' }}>
+        <div className="bg-white rounded-3xl p-6 max-w-sm w-full text-center" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '2px solid rgba(255,255,255,0.7)' }}>
+          <div className="text-5xl mb-4">⚓</div>
+          <h2 className="font-black text-2xl text-slate-800 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>Your free session is done!</h2>
+          <p className="text-slate-500 text-sm mb-5">Join the crew for unlimited practice and more</p>
+          <div className="flex flex-col gap-2 mb-6 text-left">
+            {["Unlimited practice sessions", "Diego's sea monster battles", "Friday test simulator"].map((f, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-slate-700">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-xs text-emerald-600 font-bold flex-shrink-0">✓</div>
+                {f}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowPaywall(true)}
+            className="w-full py-4 rounded-2xl text-white font-black text-lg mb-3 transition-transform active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #534AB7, #6366f1)', fontFamily: "'Fredoka One', cursive", boxShadow: '0 6px 20px rgba(83,74,183,0.4)' }}
+          >
+            Subscribe to keep practicing
+          </button>
+          <button onClick={() => setLocation('/dashboard')} className="text-sm text-slate-400 underline">
+            Back to dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <SimplePractice
+        onComplete={() => setLocation('/dashboard')}
+        onCancel={() => setLocation('/dashboard')}
+      />
+    </div>
+  );
+}
+
+function TestRouteInner() {
+  const [, setLocation] = useLocation();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showAbandonment, setShowAbandonment] = useState(() => localStorage.getItem('redboot-stripe-abandoned') === '1');
+  const sub = getSubscription();
+  const isLocked = sub.freeSessionUsed && !sub.isPremium;
+
+  if (isLocked) {
+    if (showAbandonment) {
+      return <AbandonmentOffer onDismiss={() => setShowAbandonment(false)} />;
+    }
+    if (showPaywall) {
+      const { correct, total, childName } = getLastSessionData();
+      return (
+        <Paywall
+          correct={correct}
+          total={total}
+          childName={childName}
+          onMaybeLater={() => setLocation('/dashboard')}
+        />
+      );
+    }
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)' }}>
+        <div className="bg-white rounded-3xl p-6 max-w-sm w-full text-center" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '2px solid rgba(255,255,255,0.7)' }}>
+          <div className="text-5xl mb-4">📋</div>
+          <h2 className="font-black text-2xl text-slate-800 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>Friday Test Simulator</h2>
+          <p className="text-slate-500 text-sm mb-5">Simulate Friday's test with timed questions, random order, and a full score report</p>
+          <div className="flex flex-col gap-2 mb-6 text-left">
+            {["Timed test mode", "Random word order", "Full score report", "Retake unlimited"].map((f, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-slate-700">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-xs text-emerald-600 font-bold flex-shrink-0">✓</div>
+                {f}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowPaywall(true)}
+            className="w-full py-4 rounded-2xl text-white font-black text-lg mb-2 transition-transform active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #534AB7, #6366f1)', fontFamily: "'Fredoka One', cursive", boxShadow: '0 6px 20px rgba(83,74,183,0.4)' }}
+          >
+            Unlock Friday Test
+          </button>
+          <p className="text-xs text-slate-400 mb-3">7-day free trial included</p>
+          <button onClick={() => setLocation('/dashboard')} className="text-sm text-slate-400 underline">
+            Back to dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <FridayTest
+        onComplete={() => setLocation('/dashboard')}
+        onCancel={() => setLocation('/dashboard')}
+      />
+    </div>
+  );
+}
+
+function AnalyticsRouteInner() {
+  const [, setLocation] = useLocation();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showAbandonment, setShowAbandonment] = useState(() => localStorage.getItem('redboot-stripe-abandoned') === '1');
+  const sub = getSubscription();
+  const isLocked = sub.freeSessionUsed && !sub.isPremium;
+  const childName = localStorage.getItem('redboot-child-name') || 'Your child';
+
+  if (isLocked) {
+    if (showAbandonment) {
+      return <AbandonmentOffer onDismiss={() => setShowAbandonment(false)} />;
+    }
+    if (showPaywall) {
+      const { correct, total } = getLastSessionData();
+      return (
+        <Paywall
+          correct={correct}
+          total={total}
+          childName={childName}
+          onMaybeLater={() => setShowPaywall(false)}
+        />
+      );
+    }
+    return (
+      <div style={{ position: 'relative', minHeight: '100vh' }}>
+        <div style={{ filter: 'blur(8px)', pointerEvents: 'none', userSelect: 'none' }}>
+          <ParentAnalytics />
+        </div>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,30,60,0.45)', padding: 24 }}>
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full text-center" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '2px solid rgba(255,255,255,0.7)' }}>
+            <div className="text-5xl mb-3">📊</div>
+            <h2 className="font-black text-xl text-slate-800 mb-2" style={{ fontFamily: "'Fredoka One', cursive" }}>
+              Subscribe to see {childName}'s detailed progress
+            </h2>
+            <p className="text-slate-500 text-sm mb-5">Accuracy charts, word mastery, session history and more</p>
+            <button
+              onClick={() => setShowPaywall(true)}
+              className="w-full py-4 rounded-2xl text-white font-black text-lg mb-3 transition-transform active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #534AB7, #6366f1)', fontFamily: "'Fredoka One', cursive", boxShadow: '0 6px 20px rgba(83,74,183,0.4)' }}
+            >
+              Subscribe to unlock
+            </button>
+            <button onClick={() => setLocation('/dashboard')} className="text-sm text-slate-400 underline">
+              Back to dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <ParentAnalytics />;
+}
+
 function AppRouter() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showChildSetup, setShowChildSetup] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(false);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -84,6 +281,30 @@ function AppRouter() {
     } else if (!splashShown) {
       setShowSplash(true);
       sessionStorage.setItem('redboot-splash-shown', 'true');
+    }
+  }, []);
+
+  // Handle Stripe payment redirect params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const sessionId = params.get('session_id');
+
+    if (payment === 'success' && sessionId) {
+      window.history.replaceState({}, '', window.location.pathname);
+      fetch(`/api/stripe/subscription-status?sessionId=${encodeURIComponent(sessionId)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.active) {
+            activatePremium(data.plan as 'monthly' | 'annual');
+            setShowWelcomeScreen(true);
+            setTimeout(() => setShowWelcomeScreen(false), 3500);
+          }
+        })
+        .catch(err => console.error('Error verifying payment:', err));
+    } else if (payment === 'canceled') {
+      window.history.replaceState({}, '', window.location.pathname);
+      localStorage.setItem('redboot-stripe-abandoned', '1');
     }
   }, []);
 
@@ -223,29 +444,9 @@ function AppRouter() {
     );
   }, "Dashboard");
 
-  const PracticeRoute = withErrorBoundary(() => {
-    const [, setLocation] = useLocation();
-    return (
-      <div className="container mx-auto p-4">
-        <SimplePractice
-          onComplete={() => setLocation('/dashboard')}
-          onCancel={() => setLocation('/dashboard')}
-        />
-      </div>
-    );
-  }, "Practice");
-
-  const TestRoute = withErrorBoundary(() => {
-    const [, setLocation] = useLocation();
-    return (
-      <div className="container mx-auto p-4">
-        <FridayTest
-          onComplete={() => setLocation('/dashboard')}
-          onCancel={() => setLocation('/dashboard')}
-        />
-      </div>
-    );
-  }, "Test");
+  const PracticeRoute = withErrorBoundary(PracticeRouteInner, "Practice");
+  const TestRoute = withErrorBoundary(TestRouteInner, "Test");
+  const AnalyticsRoute = withErrorBoundary(AnalyticsRouteInner, "Analytics");
 
   const GuideRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
@@ -269,7 +470,7 @@ function AppRouter() {
           <Route path="/guide" component={GuideRoute} />
           <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
           <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
-          <Route path="/analytics" component={withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics")} />
+          <Route path="/analytics" component={AnalyticsRoute} />
           <Route path="/privacy" component={withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy")} />
           <Route>
             <Redirect to="/" />
@@ -289,6 +490,25 @@ function AppRouter() {
               <PageTransitionWrapper />
             </div>
           </Router>
+          {/* Welcome aboard screen — shown for 3.5s after successful payment */}
+          {showWelcomeScreen && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #1A6BC4 0%, #0E4B8F 100%)' }}>
+              <div style={{ textAlign: 'center', padding: 32 }}>
+                <div style={{ fontSize: 72, marginBottom: 16, animation: 'bounce 0.6s ease infinite alternate' }}>🏴‍☠️</div>
+                <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 36, color: 'white', marginBottom: 12 }}>
+                  Welcome aboard, Captain!
+                </h1>
+                <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18, marginBottom: 24 }}>
+                  All features are now unlocked — let the adventure begin!
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+                  {['Unlimited practice ✅', 'Friday Test ✅', 'All characters ✅', 'Analytics ✅'].map((f, i) => (
+                    <div key={i} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '8px 16px', color: 'white', fontSize: 14, fontWeight: 600 }}>{f}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </TooltipProvider>
       </AudioProvider>
     </ThemeProvider>

@@ -1,0 +1,25 @@
+Good — Replit gave an honest audit. Tell it this:
+
+> "Fix everything in this order. Do each step completely before moving to the next. Do not change any existing UI outside of the paywall system.
+> 
+> Step 1: Fix the prices. Change all paywall screens to use $39.96/yr ($3.33/mo) and $6.87/mo. No-trial prices: $35.88/yr ($2.99/mo) and $6.18/mo. Abandonment price: $23.88/yr ($1.99/mo). These are intentional non-round numbers — do not round them to .99.
+> 
+> Step 2: Build individual locked screens. When a non-subscriber taps a locked feature, show a feature-specific locked overlay:
+> - Practice: 'Your free session is done!' with feature list and subscribe button
+> - Friday Test / Friday Test Simulator: 'Friday Test Simulator' description with subscribe button
+> - Parent Analytics: Show the actual analytics page with CSS blur (filter: blur(8px)) and a centered card saying 'Subscribe to see [child name]'s detailed progress' with subscribe button
+> - Treasure Road: 'Continue the treasure hunt — subscribe to unlock'
+> - Sea Monster Battle: 'Battle sea monsters — subscribe to unlock'
+> All subscribe buttons open the full Paywall component.
+> 
+> Step 3: Add once-per-day throttle to SessionStartPaywall. Store 'redboot-paywall-last-shown' date in localStorage. Only show if last shown date is not today. After showing, update the date.
+> 
+> Step 4: Build the Stripe backend — Task #11. Create the checkout session endpoint, webhook endpoint, and subscription status endpoint. Create all 5 Stripe prices using the env vars already set.
+> 
+> Step 5: Build the Transaction Abandonment paywall. If user closes Stripe Checkout without paying (detected via ?canceled=true URL param), set a flag. On next action, show the abandonment offer: $23.88/yr, 'Wait, Captain!', 10-minute countdown, no trial. Show once only.
+> 
+> Step 6: Build the success flow. After Stripe payment completes (?success=true URL param), show 'Welcome aboard, Captain!' confirmation, sync subscription status, unlock all features.
+> 
+> Do all 6 steps in order. Do not skip any."
+
+This gives Replit a clear checklist with no ambiguity. Let it build.

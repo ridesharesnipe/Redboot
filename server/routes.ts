@@ -1110,6 +1110,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ message: "Failed to create payment intent" });
       }
     });
+
+    // Create a Stripe Checkout Session and return the hosted URL
+    // Accepts { plan: 'annual'|'monthly'|'abandonment', includeTrial: boolean, customerEmail?: string }
+    app.post('/api/stripe/create-checkout-session', async (req, res) => {
+      try {
+        const { plan, customerEmail, includeTrial } = req.body;
+
+        const priceMap: Record<string, string | undefined> = {
+          annual_trial:     process.env.STRIPE_PRICE_ANNUAL,
+          annual_notrial:   process.env.STRIPE_PRICE_ANNUAL_NO_TRIAL,
+          monthly_trial:    process.env.STRIPE_PRICE_MONTHLY,
+          monthly_notrial:  process.env.STRIPE_PRICE_MONTHLY_NO_TRIAL,
+          abandonment_notrial: process.env.STRIPE_PRICE_ABANDONMENT,
+        };
+
+        const trialKey = includeTrial ? 'trial' : 'notrial';
+        const priceId = priceMap[`${plan}_${trialKey}`];
+
+        if (!priceId) {
+          return res.status(400).json({ message: `No price configured for plan: ${plan}, trial: ${includeTrial}` });
+        }
+
+        const origin = `${req.protocol}://${req.get('host')}`;
+
+        const sessionParams: Stripe.Checkout.SessionCreateParams = {
+          mode: 'subscription',
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: `${origin}/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${origin}/dashboard?payment=canceled`,
+          allow_promotion_codes: true,
+        };
+
+        if (customerEmail) {
+          sessionParams.customer_email = customerEmail;
+        }
+
+        const session = await stripe!.checkout.sessions.create(sessionParams);
+        res.json({ url: session.url });
+      } catch (error) {
+        console.error('Error creating checkout session:', error);
+        res.status(500).json({ message: 'Failed to create checkout session' });
+      }
+    });
+
+    // Verify a completed checkout session and return subscription status
+    app.get('/api/stripe/subscription-status', async (req, res) => {
+      try {
+        const { sessionId } = req.query;
+        if (!sessionId || typeof sessionId !== 'string') {
+          return res.status(400).json({ message: 'sessionId is required' });
+        }
+
+        const session = await stripe!.checkout.sessions.retrieve(sessionId, {
+          expand: ['subscription'],
+        });
+
+        if (session.payment_status === 'paid' || session.status === 'complete') {
+          const sub = session.subscription as Stripe.Subscription | null;
+          const plan = sub?.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
+          return res.json({ active: true, plan });
+        }
+
+        return res.json({ active: false });
+      } catch (error) {
+        console.error('Error retrieving subscription status:', error);
+        res.status(500).json({ message: 'Failed to retrieve subscription status' });
+      }
+    });
+
+    // Stripe webhook — handles subscription lifecycle events
+    app.post('/api/stripe/webhook', async (req, res) => {
+      const sig = req.headers['stripe-signature'];
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+      let event: Stripe.Event;
+
+      try {
+        if (webhookSecret && sig && Buffer.isBuffer(req.body)) {
+          event = stripe!.webhooks.constructEvent(req.body, sig, webhookSecret);
+        } else {
+          // No webhook secret configured — parse body directly (dev/testing only)
+          const body = Buffer.isBuffer(req.body) ? JSON.parse(req.body.toString()) : req.body;
+          event = body as Stripe.Event;
+        }
+      } catch (err: any) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).json({ message: `Webhook error: ${err.message}` });
+      }
+
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          console.log(`Checkout completed for session: ${session.id}`);
+          break;
+        }
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          console.log(`Subscription cancelled: ${subscription.id}`);
+          break;
+        }
+        case 'invoice.payment_failed': {
+          const invoice = event.data.object as Stripe.Invoice;
+          console.log(`Payment failed for invoice: ${invoice.id}`);
+          break;
+        }
+        default:
+          break;
+      }
+
+      res.json({ received: true });
+    });
   }
 
   const server = createServer(app);

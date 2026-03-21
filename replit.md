@@ -45,8 +45,20 @@ Preferred communication style: Simple, everyday language.
 - **Session Storage**: Secure session management.
 
 ### Premium Features Architecture
-- **Free Tier**: Red Boot character only, one word list per week.
-- **Premium Tier**: All four characters, unlimited word lists, advanced analytics.
+- **Free Tier**: Red Boot character only, one free practice session.
+- **Premium Tier**: All characters, unlimited sessions, Friday test simulator, parent analytics.
+- **Paywall System** (localStorage-based, no auth required):
+  - `subscription.ts` — manages state in `redboot-subscription` localStorage key; exports `getSubscription`, `activatePremium`, `setFreeSessionUsed`, `canAccessFeature`
+  - `Paywall.tsx` — Aha Moment paywall (shows after first session); wired to Stripe Checkout via `POST /api/stripe/create-checkout-session`; prices: $39.96/yr ($3.33/mo), $6.87/mo; trial toggle switches to $35.88/yr ($2.99/mo) / $6.18/mo
+  - `SessionStartPaywall.tsx` — once-per-day paywall for returning non-subscribers; throttled via `redboot-paywall-last-shown` localStorage key
+  - `AbandonmentOffer.tsx` — shown once after user closes Stripe checkout without paying (`redboot-stripe-abandoned` flag); $23.88/yr deal with 10-minute countdown
+  - Per-route locked screens in `App.tsx`: `/practice` → "Your free session is done!", `/test` → "Friday Test Simulator", `/analytics` → blurred page with overlay
+  - Success flow: `?payment=success&session_id=` → verify via `GET /api/stripe/subscription-status` → `activatePremium()` → "Welcome aboard, Captain!" screen (3.5s)
+  - Cancel flow: `?payment=canceled` → sets abandonment flag → shows AbandonmentOffer on next locked action (once only)
+- **Stripe Backend** (`server/routes.ts`):
+  - `POST /api/stripe/create-checkout-session` — accepts `{ plan, includeTrial, customerEmail }`; maps to price IDs from env vars (`STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_ANNUAL_NO_TRIAL`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_MONTHLY_NO_TRIAL`, `STRIPE_PRICE_ABANDONMENT`)
+  - `GET /api/stripe/subscription-status?sessionId=` — verifies completed checkout session
+  - `POST /api/stripe/webhook` — handles `checkout.session.completed`, `customer.subscription.deleted`, `invoice.payment_failed`; raw body middleware added to `server/index.ts` before `express.json()`
 
 ## External Dependencies
 

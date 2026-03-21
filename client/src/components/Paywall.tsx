@@ -11,13 +11,39 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
   const [selectedPlan, setSelectedPlan] = useState<'annual' | 'monthly'>('annual');
   const [trialOn, setTrialOn] = useState(true);
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          includeTrial: trialOn,
+          customerEmail: email || undefined,
+        }),
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('No checkout URL returned:', data);
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setIsLoading(false);
+    }
+  };
 
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
   const missed = total - correct;
 
-  const annualPrice = trialOn ? '$39.99' : '$35.99';
-  const monthlyPrice = trialOn ? '$6.99' : '$6.29';
-  const annualMonthly = trialOn ? '$3.33' : '$3.00';
+  const annualPrice = trialOn ? '$39.96' : '$35.88';
+  const monthlyPrice = trialOn ? '$6.87' : '$6.18';
+  const annualMonthly = trialOn ? '$3.33' : '$2.99';
   const ctaText = trialOn ? 'Try free for 7 days ⚓' : 'Subscribe now — save 10%';
 
   return (
@@ -31,7 +57,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
           {childName} spelled {correct} out of {total} words correctly!
         </h1>
         <p className="text-white/85 text-sm mt-2">
-          Keep the momentum going — subscribe to practice every day this week.
+          Unlock unlimited practice to be ready for Friday's test
         </p>
       </div>
 
@@ -125,7 +151,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
             </div>
             <div className="text-right">
               <div className="font-black text-xl text-slate-800" style={{ fontFamily: "'Fredoka One', cursive" }}>{annualPrice}</div>
-              {!trialOn && <div className="text-xs text-slate-400 line-through">$39.99</div>}
+              {!trialOn && <div className="text-xs text-slate-400 line-through">$39.96</div>}
             </div>
           </div>
 
@@ -177,10 +203,12 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
 
           {/* CTA */}
           <button
-            className="w-full py-4 rounded-2xl text-white font-black text-lg mb-2 transition-transform active:scale-95"
+            onClick={handleSubscribe}
+            disabled={isLoading}
+            className="w-full py-4 rounded-2xl text-white font-black text-lg mb-2 transition-transform active:scale-95 disabled:opacity-70"
             style={{ background: 'linear-gradient(135deg, #534AB7, #6366f1)', fontFamily: "'Fredoka One', cursive", boxShadow: '0 6px 20px rgba(83,74,183,0.4)' }}
           >
-            {ctaText}
+            {isLoading ? 'Redirecting to checkout...' : ctaText}
           </button>
 
           <p className="text-center text-xs text-slate-400 mb-3">🔒 Secure payment · Cancel anytime · No ads ever</p>

@@ -1,0 +1,74 @@
+Yeah, give it the exact specs. Tell it this right after the Option B response:
+
+> "Here are the exact designs for each paywall screen. Match these precisely — colors, layout, copy, everything.
+> 
+> **AHA MOMENT PAYWALL (shows after first session ends):**
+> Full screen overlay, white/light gradient background. NOT pirate themed — this talks to the parent.
+> 
+> Top section — dark blue header (#1A6BC4 to #0E4B8F gradient):
+> - White text: '[Child name] spelled [X] out of [Y] words correctly!'
+> - Subtitle: 'Unlock unlimited practice to be ready for Friday's test'
+> 
+> Stats row — 3 cards side by side:
+> - Green card (#E1F5EE): accuracy percentage, label 'accuracy'
+> - Purple card (#EEEDFE): correct/total, label 'correct'
+> - Amber card (#FEF3C7): missed count, label 'need work'
+> All use REAL data from the session.
+> 
+> Zero Risk section — white card with rounded corners:
+> - Header: 'ZERO RISK' in teal (#1D9E75), 'Try it free. Cancel anytime.'
+> - 3-step vertical timeline with connecting line (#B5D4F4):
+>   1. Blue circle: 'Today — Start free' / 'Full access to everything. No charge.'
+>   2. Amber circle: 'Day 5 — We'll remind you' / 'A notification before your trial ends. No surprises.'
+>   3. Green circle: 'Day 7 — You decide' / 'Love it? Keep going. Not for you? Cancel with one tap. $0 charged.'
+> 
+> Pricing section — white card:
+> - Header: 'CHOOSE YOUR PLAN' in purple (#534AB7), 'Start free, pay only if you love it'
+> - Yearly card (pre-selected, 2px blue border #378ADD): 'Yearly' / '$3.33/month' left, '$39.96/yr' right, 'Save 52%' badge
+> - Monthly card (gray border): 'Monthly' / 'Flexible, cancel anytime' left, '$6.87/mo' right
+> - Trial toggle row: green when ON, 'Include 7-day free trial' / 'Recommended — try before you pay'. When OFF: prices change to $35.88/yr ($2.99/mo) and $6.18/mo, CTA changes to 'Subscribe now — save 10%'
+> - Email input: 'Enter your email to get started'
+> - CTA button: purple (#534AB7), 'Try free for 7 days'
+> - Trust signals: 'Secure payment · Cancel anytime · No ads ever'
+> - Dismiss: 'Maybe later' underlined gray text
+> 
+> **SESSION START PAYWALL (returning non-subscriber, once per day):**
+> - Header: '[Child name] spelled [X]/[Y] words right last time' (real data from localStorage)
+> - Same 3 stat cards as above with last session data
+> - Feature list with checkmarks: Unlimited practice, All pirate characters, Friday test simulator, Parent progress reports
+> - CTA: 'Unlock unlimited practice — $6.87/mo' purple button
+> - Below: 'Or get the yearly plan — just $3.33/mo'
+> - X button to dismiss
+> 
+> **TRANSACTION ABANDONMENT PAYWALL (shows once after closing Stripe checkout):**
+> - Heading: 'Wait, Captain!'
+> - Subtitle: 'A one-time deal, just for you'
+> - Large price: '$23.88' bold centered, '/year · $1.99 per month' below
+> - Feature checkmarks: Full year unlimited practice, All 4 characters + sea monster battles, Friday test simulator & analytics, Access starts immediately today
+> - Countdown: 'This offer expires in 10 minutes' with live timer
+> - CTA: 'Claim this deal — start today' green button (#1D9E75)
+> - Below CTA: 'No trial needed — pay once, access everything now'
+> - Dismiss: 'No thanks, I'll pay full price later'
+> - NO free trial on this offer. Show ONCE only.
+> 
+> **LOCKED PRACTICE:**
+> - 'Your free session is done!'
+> - 'Join the crew for unlimited practice and more'
+> - Checkmarks: Unlimited practice sessions, Diego's sea monster battles, Friday test simulator
+> - Subscribe button opens full paywall
+> 
+> **LOCKED ANALYTICS:**
+> - Show actual ParentAnalytics page with CSS filter: blur(8px) and pointer-events: none
+> - Centered card overlay: 'Subscribe to see [child name]'s detailed progress'
+> - Subscribe button opens full paywall
+> 
+> **LOCKED FRIDAY TEST:**
+> - 'Friday Test Simulator'
+> - 'Simulate Friday's test with timed questions, random order, and a full score report'
+> - Checkmarks: Timed test mode, Random word order, Full score report, Retake unlimited
+> - 'Unlock Friday Test' button opens full paywall
+> - '7-day free trial included' below button
+> 
+> Match these designs exactly. Do not improvise different layouts or copy."
+
+This gives Replit zero room to freelance on the designs.
