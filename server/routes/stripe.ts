@@ -19,6 +19,24 @@ function checkRestoreRateLimit(ip: string): boolean {
   entry.count++;
   return true;
 }
+// Purge expired rate-limiter entries every hour to prevent unbounded Map growth
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of restoreAttempts) {
+    if (now > entry.resetAt) restoreAttempts.delete(ip);
+  }
+}, 60 * 60 * 1000).unref();
+
+// Pending restores: deviceId → subscription fields + the earliest time they may be applied
+interface PendingRestore {
+  stripeCustomerId: string;
+  subscriptionId: string;
+  status: 'active' | 'trial';
+  plan: 'annual' | 'monthly';
+  currentPeriodEnd: Date;
+  applyAt: number; // ms timestamp
+}
+const pendingRestores = new Map<string, PendingRestore>();
 
 const PRICE_IDS = {
   annual: process.env.STRIPE_PRICE_ANNUAL,
@@ -126,6 +144,19 @@ export function registerDeviceStripeRoutes(app: Express): void {
         return res.status(400).json({ message: 'deviceId is required' });
       }
 
+      // Apply any pending restore whose 15-minute delay has elapsed
+      const pending = pendingRestores.get(deviceId);
+      if (pending && Date.now() >= pending.applyAt) {
+        pendingRestores.delete(deviceId);
+        await storage.upsertDeviceSubscription(deviceId, {
+          status: pending.status,
+          stripeCustomerId: pending.stripeCustomerId,
+          subscriptionId: pending.subscriptionId,
+          currentPeriodEnd: pending.currentPeriodEnd,
+          plan: pending.plan,
+        });
+      }
+
       const sub = await storage.getDeviceSubscription(deviceId);
       if (!sub) {
         return res.json({ status: 'free' });
@@ -185,13 +216,14 @@ export function registerDeviceStripeRoutes(app: Express): void {
         const plan = interval === 'year' ? 'annual' : 'monthly';
         const currentPeriodEnd = new Date(activeSub.current_period_end * 1000);
 
-        // Remap to the new device
-        await storage.upsertDeviceSubscription(deviceId, {
-          status,
+        // Queue the restore — applied only after 15 min to prevent status-oracle enumeration
+        pendingRestores.set(deviceId, {
           stripeCustomerId: customer.id,
           subscriptionId: activeSub.id,
-          currentPeriodEnd,
+          status,
           plan,
+          currentPeriodEnd,
+          applyAt: Date.now() + 15 * 60 * 1000,
         });
 
         // Always return the generic message — do not reveal restored: true/false

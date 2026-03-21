@@ -1102,7 +1102,7 @@ export default function ParentDashboard({ onTakePhoto, onViewPractice, onStartTe
                     <div className="text-center py-3">
                       <div className="text-2xl mb-1">📬</div>
                       <p className="text-sm font-bold text-blue-700 dark:text-blue-300">Request submitted!</p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">If a subscription exists for that email, access will be restored on this device. Reload the app in a moment to unlock everything.</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">If a subscription exists for that email, access will be restored on this device within 15 minutes. Reload the app then to unlock everything.</p>
                       <button
                         onClick={() => { setShowRestoreForm(false); window.location.reload(); }}
                         className="mt-3 text-xs text-blue-600 dark:text-blue-400 underline"
