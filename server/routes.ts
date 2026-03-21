@@ -1095,22 +1095,211 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe routes (if Stripe is configured)
-  if (stripe) {
-    app.post('/api/create-payment-intent', async (req, res) => {
-      try {
-        const { amount } = req.body;
-        const paymentIntent = await stripe!.paymentIntents.create({
-          amount,
-          currency: 'usd',
-        });
-        res.json({ clientSecret: paymentIntent.client_secret });
-      } catch (error) {
-        console.error("Error creating payment intent:", error);
-        res.status(500).json({ message: "Failed to create payment intent" });
+  // ── Stripe Paywall Routes ────────────────────────────────────────────────
+  // These are unauthenticated — keyed by device UUID stored in localStorage.
+
+  // GET /api/stripe/subscription-status?deviceId=xxx
+  app.get('/api/stripe/subscription-status', async (req, res) => {
+    try {
+      const deviceId = req.query.deviceId as string;
+      if (!deviceId) return res.status(400).json({ message: 'deviceId required' });
+
+      const sub = await storage.getDeviceSubscription(deviceId);
+      if (!sub) return res.json({ isPremium: false, status: 'none' });
+
+      const isPremium = sub.status === 'active' || sub.status === 'trialing';
+      res.json({
+        isPremium,
+        status: sub.status,
+        currentPeriodEnd: sub.currentPeriodEnd,
+        cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+        priceId: sub.priceId,
+      });
+    } catch (error) {
+      console.error('Error fetching subscription status:', error);
+      res.status(500).json({ message: 'Failed to fetch subscription status' });
+    }
+  });
+
+  // POST /api/stripe/create-checkout-session
+  // Body: { deviceId, priceId, trialEnabled }
+  app.post('/api/stripe/create-checkout-session', async (req, res) => {
+    if (!stripe) return res.status(503).json({ message: 'Stripe not configured' });
+    try {
+      const { deviceId, priceId, trialEnabled } = req.body;
+      if (!deviceId || !priceId) {
+        return res.status(400).json({ message: 'deviceId and priceId are required' });
       }
-    });
-  }
+
+      const origin = req.headers.origin || `${req.protocol}://${req.headers.host}`;
+      const successUrl = `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}&deviceId=${encodeURIComponent(deviceId)}`;
+      const cancelUrl = `${origin}/paywall?abandoned=1&deviceId=${encodeURIComponent(deviceId)}`;
+
+      const sessionParams: Stripe.Checkout.SessionCreateParams = {
+        mode: 'subscription',
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: { deviceId },
+        subscription_data: {
+          metadata: { deviceId },
+          ...(trialEnabled ? { trial_period_days: 7 } : {}),
+        },
+        allow_promotion_codes: true,
+      };
+
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      res.status(500).json({ message: 'Failed to create checkout session' });
+    }
+  });
+
+  // POST /api/stripe/verify-session
+  // Called from success page to confirm and record the subscription
+  app.post('/api/stripe/verify-session', async (req, res) => {
+    if (!stripe) return res.status(503).json({ message: 'Stripe not configured' });
+    try {
+      const { sessionId, deviceId } = req.body;
+      if (!sessionId || !deviceId) {
+        return res.status(400).json({ message: 'sessionId and deviceId required' });
+      }
+
+      const session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['subscription'],
+      });
+
+      if (session.payment_status === 'paid' || session.status === 'complete' || 
+          (session.subscription && (session.subscription as Stripe.Subscription).status === 'trialing')) {
+        const sub = session.subscription as Stripe.Subscription | null;
+        if (sub) {
+          await storage.upsertDeviceSubscription({
+            deviceId,
+            stripeCustomerId: session.customer as string,
+            stripeSubscriptionId: sub.id,
+            status: sub.status,
+            priceId: sub.items.data[0]?.price.id,
+            currentPeriodEnd: new Date(sub.current_period_end * 1000),
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
+          });
+        }
+        res.json({ success: true, status: sub?.status || 'active' });
+      } else {
+        res.json({ success: false, status: session.status });
+      }
+    } catch (error) {
+      console.error('Error verifying session:', error);
+      res.status(500).json({ message: 'Failed to verify session' });
+    }
+  });
+
+  // POST /api/stripe/portal
+  // Opens the Stripe Customer Portal for subscription management
+  app.post('/api/stripe/portal', async (req, res) => {
+    if (!stripe) return res.status(503).json({ message: 'Stripe not configured' });
+    try {
+      const { deviceId } = req.body;
+      if (!deviceId) return res.status(400).json({ message: 'deviceId required' });
+
+      const sub = await storage.getDeviceSubscription(deviceId);
+      if (!sub?.stripeCustomerId) {
+        return res.status(404).json({ message: 'No subscription found for this device' });
+      }
+
+      const origin = req.headers.origin || `${req.protocol}://${req.headers.host}`;
+      const session = await stripe.billingPortal.sessions.create({
+        customer: sub.stripeCustomerId,
+        return_url: `${origin}/dashboard`,
+      });
+
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error('Error creating portal session:', error);
+      res.status(500).json({ message: 'Failed to create portal session' });
+    }
+  });
+
+  // POST /api/stripe/webhook
+  // Receives Stripe events to keep subscription status up to date
+  app.post('/api/stripe/webhook', async (req: any, res) => {
+    if (!stripe) return res.status(503).json({ message: 'Stripe not configured' });
+
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event: Stripe.Event;
+    try {
+      if (webhookSecret && sig && req.rawBody) {
+        event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
+      } else {
+        event = req.body as Stripe.Event;
+      }
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).json({ message: `Webhook Error: ${err.message}` });
+    }
+
+    try {
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          const deviceId = session.metadata?.deviceId;
+          if (deviceId && session.subscription) {
+            const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+            await storage.upsertDeviceSubscription({
+              deviceId,
+              stripeCustomerId: session.customer as string,
+              stripeSubscriptionId: sub.id,
+              status: sub.status,
+              priceId: sub.items.data[0]?.price.id,
+              currentPeriodEnd: new Date(sub.current_period_end * 1000),
+              cancelAtPeriodEnd: sub.cancel_at_period_end,
+            });
+            console.log(`✅ Subscription activated for device ${deviceId.substring(0, 8)}...`);
+          }
+          break;
+        }
+        case 'customer.subscription.updated': {
+          const sub = event.data.object as Stripe.Subscription;
+          const deviceId = sub.metadata?.deviceId;
+          if (deviceId) {
+            await storage.upsertDeviceSubscription({
+              deviceId,
+              stripeCustomerId: sub.customer as string,
+              stripeSubscriptionId: sub.id,
+              status: sub.status,
+              priceId: sub.items.data[0]?.price.id,
+              currentPeriodEnd: new Date(sub.current_period_end * 1000),
+              cancelAtPeriodEnd: sub.cancel_at_period_end,
+            });
+          }
+          break;
+        }
+        case 'customer.subscription.deleted': {
+          const sub = event.data.object as Stripe.Subscription;
+          const deviceId = sub.metadata?.deviceId;
+          if (deviceId) {
+            await storage.upsertDeviceSubscription({
+              deviceId,
+              stripeCustomerId: sub.customer as string,
+              stripeSubscriptionId: sub.id,
+              status: 'canceled',
+              currentPeriodEnd: new Date(sub.current_period_end * 1000),
+              cancelAtPeriodEnd: true,
+            });
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error('Error processing webhook event:', error);
+    }
+
+    res.json({ received: true });
+  });
 
   const server = createServer(app);
   return server;

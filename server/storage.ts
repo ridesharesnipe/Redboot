@@ -6,6 +6,7 @@ import {
   trickyWords,
   achievements,
   userAchievements,
+  deviceSubscriptions,
   type User,
   type Child,
   type InsertChild,
@@ -19,6 +20,7 @@ import {
   type InsertAchievement,
   type UserAchievement,
   type InsertUserAchievement,
+  type DeviceSubscription,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -65,6 +67,10 @@ export interface IStorage {
   awardAchievement(userId: string, achievementId: string, metadata?: Record<string, any>): Promise<UserAchievement>;
   hasAchievement(userId: string, achievementId: string): Promise<boolean>;
   seedAchievements(): Promise<void>;
+
+  // Device subscription operations (no-auth paywall)
+  getDeviceSubscription(deviceId: string): Promise<DeviceSubscription | undefined>;
+  upsertDeviceSubscription(data: Partial<DeviceSubscription> & { deviceId: string }): Promise<DeviceSubscription>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -563,6 +569,24 @@ export class DatabaseStorage implements IStorage {
         // Ignore duplicate key errors
       }
     }
+  }
+
+  // Device subscription operations
+  async getDeviceSubscription(deviceId: string): Promise<DeviceSubscription | undefined> {
+    const [sub] = await db.select().from(deviceSubscriptions).where(eq(deviceSubscriptions.deviceId, deviceId));
+    return sub;
+  }
+
+  async upsertDeviceSubscription(data: Partial<DeviceSubscription> & { deviceId: string }): Promise<DeviceSubscription> {
+    const [sub] = await db
+      .insert(deviceSubscriptions)
+      .values({ ...data, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: deviceSubscriptions.deviceId,
+        set: { ...data, updatedAt: new Date() },
+      })
+      .returning();
+    return sub;
   }
 }
 

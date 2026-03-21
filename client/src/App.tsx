@@ -17,8 +17,11 @@ import TreasureVault from "@/pages/TreasureVault";
 import BadgeGallery from "@/pages/BadgeGallery";
 import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Paywall from "@/pages/Paywall";
+import SubscribeSuccess from "@/pages/SubscribeSuccess";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { useSubscription } from "@/hooks/useSubscription";
 
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
   constructor(props: {children: ReactNode, componentName: string}) {
@@ -174,6 +177,24 @@ function AppRouter() {
 
   const TestRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
+    const { isPremium, isLoading: subLoading } = useSubscription();
+    if (!subLoading && !isPremium) {
+      return (
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '2px solid rgba(255,255,255,0.7)', padding: '32px 24px', maxWidth: 340, width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: 56, marginBottom: 12 }}>⏰</div>
+            <div style={{ fontFamily: "'Pirata One', cursive", fontSize: 22, color: '#534AB7', marginBottom: 8 }}>Friday Test Prep</div>
+            <div style={{ fontSize: 15, color: '#374151', lineHeight: 1.6, marginBottom: 20 }}>
+              The Friday test simulator is a premium feature — get voice playback, realistic timing, and full test prep with a free trial!
+            </div>
+            <button onClick={() => setLocation('/paywall?from=test')} style={{ width: '100%', padding: '14px', borderRadius: 18, background: 'linear-gradient(135deg, #534AB7, #6366f1)', color: 'white', fontFamily: "'Fredoka One', cursive", fontSize: 18, border: 'none', cursor: 'pointer', boxShadow: '0 6px 20px rgba(83,74,183,0.4)', marginBottom: 10 }}>
+              Try free for 7 days ⚓
+            </button>
+            <button onClick={() => setLocation('/dashboard')} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Back to dashboard</button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="container mx-auto p-4">
         <FridayTest
@@ -206,8 +227,31 @@ function AppRouter() {
           <Route path="/guide" component={GuideRoute} />
           <Route path="/vault" component={withErrorBoundary(() => <TreasureVault />, "TreasureVault")} />
           <Route path="/badges" component={withErrorBoundary(() => <BadgeGallery />, "BadgeGallery")} />
-          <Route path="/analytics" component={withErrorBoundary(() => <ParentAnalytics />, "ParentAnalytics")} />
+          <Route path="/analytics" component={withErrorBoundary(() => {
+            const [, goTo] = useLocation();
+            const { isPremium, isLoading: subLoading } = useSubscription();
+            if (!subLoading && !isPremium) {
+              return (
+                <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '2px solid rgba(255,255,255,0.7)', padding: '32px 24px', maxWidth: 340, width: '100%', textAlign: 'center' }}>
+                    <div style={{ fontSize: 56, marginBottom: 12 }}>📊</div>
+                    <div style={{ fontFamily: "'Pirata One', cursive", fontSize: 22, color: '#534AB7', marginBottom: 8 }}>Progress Analytics</div>
+                    <div style={{ fontSize: 15, color: '#374151', lineHeight: 1.6, marginBottom: 20 }}>
+                      Unlock detailed word-by-word analytics, streak tracking, and Reggie's full progress history with premium.
+                    </div>
+                    <button onClick={() => goTo('/paywall?from=analytics')} style={{ width: '100%', padding: '14px', borderRadius: 18, background: 'linear-gradient(135deg, #534AB7, #6366f1)', color: 'white', fontFamily: "'Fredoka One', cursive", fontSize: 18, border: 'none', cursor: 'pointer', boxShadow: '0 6px 20px rgba(83,74,183,0.4)', marginBottom: 10 }}>
+                      Try free for 7 days ⚓
+                    </button>
+                    <button onClick={() => goTo('/dashboard')} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Back to dashboard</button>
+                  </div>
+                </div>
+              );
+            }
+            return <ParentAnalytics />;
+          }, "ParentAnalytics")} />
           <Route path="/privacy" component={withErrorBoundary(() => <PrivacyPolicy />, "PrivacyPolicy")} />
+          <Route path="/paywall" component={withErrorBoundary(() => <Paywall />, "Paywall")} />
+          <Route path="/subscribe/success" component={withErrorBoundary(() => <SubscribeSuccess />, "SubscribeSuccess")} />
           <Route>
             <Redirect to="/" />
           </Route>

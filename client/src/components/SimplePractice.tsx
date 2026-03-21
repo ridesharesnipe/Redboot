@@ -10,6 +10,8 @@ import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 import SeaMonsterBattle from './SeaMonsterBattle';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useLocation } from 'wouter';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -17,6 +19,8 @@ interface SimplePracticeProps {
 }
 
 export default function SimplePractice({ onComplete, onCancel }: SimplePracticeProps) {
+  const { isPremium, isLoading: subLoading } = useSubscription();
+  const [, setLocation] = useLocation();
   const [practiceWords, setPracticeWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -811,6 +815,35 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   const currentWord = getCurrentWord();
   const progress = ((currentWordIndex + 1) / getTotalWords()) * 100;
+
+  // Diego character gate — premium only
+  if (!subLoading && selectedCharacter === 'diego' && !isPremium) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: 20 }}>
+        <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '2px solid rgba(255,255,255,0.7)', padding: '32px 24px', maxWidth: 340, width: '100%', textAlign: 'center' }}>
+          <div style={{ fontSize: 56, marginBottom: 12 }}>🐉</div>
+          <div style={{ fontFamily: "'Pirata One', cursive", fontSize: 22, color: '#534AB7', marginBottom: 8 }}>Diego's Premium</div>
+          <div style={{ fontSize: 15, color: '#374151', lineHeight: 1.6, marginBottom: 20 }}>
+            Diego the Sea Dragon is a premium character! Unlock him plus all features with a 7-day free trial.
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              onClick={() => setLocation('/paywall?from=practice')}
+              style={{ padding: '14px', borderRadius: 18, background: 'linear-gradient(135deg, #534AB7, #6366f1)', color: 'white', fontFamily: "'Fredoka One', cursive", fontSize: 18, border: 'none', cursor: 'pointer', boxShadow: '0 6px 20px rgba(83,74,183,0.4)' }}
+            >
+              Try free for 7 days ⚓
+            </button>
+            <button
+              onClick={() => { localStorage.setItem('selectedCharacter', 'redboot'); onCancel(); }}
+              style={{ padding: '12px', borderRadius: 18, background: 'none', border: '2px solid #e2e8f0', color: '#64748b', fontFamily: "'Fredoka One', cursive", fontSize: 16, cursor: 'pointer' }}
+            >
+              Play as Red Boot instead 🏴‍☠️
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // MAIN GAME UI - NEW 2026 DESIGN
   return (
