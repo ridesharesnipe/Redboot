@@ -19,6 +19,7 @@ import ParentAnalytics from "@/pages/ParentAnalytics";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import { AudioProvider, AudioControls } from "@/contexts/AudioContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { getSubscription } from "@/lib/subscription";
 
 class ErrorBoundary extends Component<{children: ReactNode, componentName: string}, {hasError: boolean}> {
   constructor(props: {children: ReactNode, componentName: string}) {
@@ -148,14 +149,76 @@ function AppRouter() {
 
   const DashboardRoute = withErrorBoundary(() => {
     const [, setLocation] = useLocation();
+    const sub = getSubscription();
+    const isLocked = sub.freeSessionUsed && !sub.isPremium;
+
     return (
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4" style={{ position: 'relative' }}>
         <ParentDashboard
-          onTakePhoto={() => setLocation('/photo-capture')}
-          onViewPractice={() => setLocation('/practice')}
-          onStartTest={() => setLocation('/test')}
-          onViewGuide={() => setLocation('/guide')}
+          onTakePhoto={() => !isLocked && setLocation('/photo-capture')}
+          onViewPractice={() => !isLocked && setLocation('/practice')}
+          onStartTest={() => !isLocked && setLocation('/test')}
+          onViewGuide={() => !isLocked && setLocation('/guide')}
         />
+        {isLocked && (
+          <>
+            {/* Full-screen click blocker */}
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 40,
+                cursor: 'default',
+              }}
+              onClick={e => e.stopPropagation()}
+              onPointerDown={e => e.stopPropagation()}
+            />
+            {/* Frosted subscribe banner pinned to bottom */}
+            <div
+              style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 50,
+                background: 'linear-gradient(135deg, #1A6BC4 0%, #0E4B8F 100%)',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                boxShadow: '0 -4px 24px rgba(0,0,0,0.18)',
+              }}
+            >
+              <div>
+                <div style={{ color: 'white', fontFamily: "'Fredoka One', cursive", fontSize: 16, lineHeight: 1.2 }}>
+                  Subscribe to keep practicing ⚓
+                </div>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, marginTop: 2 }}>
+                  Free trial included — cancel anytime
+                </div>
+              </div>
+              <button
+                onClick={() => setLocation('/practice')}
+                style={{
+                  background: 'linear-gradient(135deg, #F4A438, #e08c20)',
+                  color: 'white',
+                  fontFamily: "'Fredoka One', cursive",
+                  fontSize: 15,
+                  padding: '10px 18px',
+                  borderRadius: 14,
+                  border: 'none',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 12px rgba(244,164,56,0.4)',
+                  flexShrink: 0,
+                }}
+              >
+                Join the crew →
+              </button>
+            </div>
+          </>
+        )}
       </div>
     );
   }, "Dashboard");

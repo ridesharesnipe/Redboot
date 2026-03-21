@@ -31,7 +31,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
           {childName} spelled {correct} out of {total} words correctly!
         </h1>
         <p className="text-white/85 text-sm mt-2">
-          Unlock unlimited practice to be ready for Friday's test
+          Keep the momentum going — subscribe to practice every day this week.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
           <div className="relative pl-9">
             <div className="absolute left-4 top-5 bottom-5 w-0.5 rounded" style={{ background: 'linear-gradient(to bottom, #93c5fd, #86efac)' }} />
             {[
-              { num: '1', color: '#3b82f6', bg: '#dbeafe', title: 'Today — Start free', sub: 'Full access to all treasure maps. No charge.' },
+              { num: '1', color: '#3b82f6', bg: '#dbeafe', title: 'Today — Start free', sub: 'Full access to all features. No charge.' },
               { num: '2', color: '#f59e0b', bg: '#fef3c7', title: 'Day 5 — We\'ll remind you', sub: 'Get a notification before your trial ends. No surprises.' },
               { num: '3', color: '#10b981', bg: '#d1fae5', title: 'Day 7 — You decide', sub: 'Love it? Keep going. Not for you? Cancel with one tap. $0 charged.' },
             ].map((step, i) => (
@@ -76,6 +76,27 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
                   <div className="font-bold text-sm text-slate-800">{step.title}</div>
                   <div className="text-xs text-slate-500 mt-0.5">{step.sub}</div>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* What's included */}
+        <div className="bg-white rounded-3xl p-5" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)', border: '2px solid rgba(255,255,255,0.7)' }}>
+          <div className="text-xs font-bold text-indigo-600 tracking-widest uppercase mb-1">🏴‍☠️ WHAT'S INCLUDED</div>
+          <h2 className="font-black text-slate-800 text-xl mb-4" style={{ fontFamily: "'Fredoka One', cursive" }}>Everything your crew needs</h2>
+
+          <div className="flex flex-col gap-3 mb-5">
+            {[
+              { icon: '⚓', text: 'Unlimited practice sessions — practice as many times a day as you like' },
+              { icon: '🗺️', text: 'Red Boot\'s treasure road and Diego\'s sea monster battles' },
+              { icon: '📋', text: 'Friday test simulator — timed test mode just like the real classroom' },
+              { icon: '📊', text: 'Parent analytics — see which words your child is struggling with' },
+              { icon: '💎', text: 'Treasure vault — collect coins and badges as words are mastered' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                <span className="text-base mt-0.5 flex-shrink-0">{item.icon}</span>
+                <span>{item.text}</span>
               </div>
             ))}
           </div>
