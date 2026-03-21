@@ -572,7 +572,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const totalWordsForSession = getTotalWords();
     if (currentWordIndex >= totalWordsForSession - 1) {
       if (showBonusRound) {
-        setIsComplete(true);
         const finalCorrect = correctCount + (isCorrect ? 1 : 0);
         const results = {
           correct: finalCorrect,
@@ -580,12 +579,18 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
           treasureEarned
         };
         setSessionResults(results);
-        
-        playAudioFile(sparkleSound, 0.8);
-        playCharacterVoice('red_boot_adventure_complete');
-        setTimeout(() => {
+
+        if (!getSubscription().freeSessionUsed) {
+          // First free session — go straight to paywall, no completion screen
           saveTreasuresAndComplete(results);
-        }, 2000);
+        } else {
+          setIsComplete(true);
+          playAudioFile(sparkleSound, 0.8);
+          playCharacterVoice('red_boot_adventure_complete');
+          setTimeout(() => {
+            saveTreasuresAndComplete(results);
+          }, 2000);
+        }
       } else {
         setPracticeComplete(true);
         const finalCorrect = correctCount + (isCorrect ? 1 : 0);
@@ -597,12 +602,17 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         setSessionResults(results);
         
         if (trickyWords.length === 0) {
-          setIsComplete(true);
-          playAudioFile(sparkleSound, 0.8);
-          playCharacterVoice('red_boot_adventure_complete');
-          setTimeout(() => {
+          if (!getSubscription().freeSessionUsed) {
+            // First free session — go straight to paywall, no completion screen
             saveTreasuresAndComplete(results);
-          }, 2000);
+          } else {
+            setIsComplete(true);
+            playAudioFile(sparkleSound, 0.8);
+            playCharacterVoice('red_boot_adventure_complete');
+            setTimeout(() => {
+              saveTreasuresAndComplete(results);
+            }, 2000);
+          }
         } else {
           if (retryStartedRef.current) return;
           retryStartedRef.current = true;
