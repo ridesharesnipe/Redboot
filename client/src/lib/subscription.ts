@@ -97,6 +97,28 @@ export async function syncSubscriptionStatus(): Promise<void> {
   }
 }
 
+// Restore a previous purchase on a new device by looking up the email in Stripe.
+export async function restorePurchase(email: string): Promise<{ restored: boolean; status?: string }> {
+  const deviceId = getDeviceId();
+  const res = await fetch('/api/restore-purchase', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim().toLowerCase(), deviceId }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to restore purchase');
+  if (data.restored) {
+    setSubscription({
+      status: data.status,
+      stripeCustomerId: data.stripeCustomerId ?? null,
+      subscriptionId: data.subscriptionId ?? null,
+      currentPeriodEnd: data.currentPeriodEnd ?? null,
+      plan: data.plan ?? null,
+    });
+  }
+  return { restored: data.restored, status: data.status };
+}
+
 // After a successful Stripe checkout, the webhook may not have arrived yet.
 // Poll a few times with increasing delays until the status upgrades from 'free'.
 export async function pollSubscriptionStatus(

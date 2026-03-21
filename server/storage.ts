@@ -71,6 +71,7 @@ export interface IStorage {
 
   // Device subscription operations (no-login paywall)
   getDeviceSubscription(deviceId: string): Promise<DeviceSubscription | undefined>;
+  getDeviceSubscriptionByStripeCustomerId(customerId: string): Promise<DeviceSubscription | undefined>;
   upsertDeviceSubscription(deviceId: string, updates: Partial<InsertDeviceSubscription>): Promise<DeviceSubscription>;
 }
 
@@ -575,6 +576,15 @@ export class DatabaseStorage implements IStorage {
   async getDeviceSubscription(deviceId: string): Promise<DeviceSubscription | undefined> {
     try {
       const [sub] = await db.select().from(deviceSubscriptions).where(eq(deviceSubscriptions.deviceId, deviceId));
+      return sub;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async getDeviceSubscriptionByStripeCustomerId(customerId: string): Promise<DeviceSubscription | undefined> {
+    try {
+      const [sub] = await db.select().from(deviceSubscriptions).where(eq(deviceSubscriptions.stripeCustomerId, customerId));
       return sub;
     } catch {
       return undefined;

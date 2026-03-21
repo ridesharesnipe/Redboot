@@ -129,6 +129,63 @@ export function registerDeviceStripeRoutes(app: Express): void {
       res.status(500).json({ message: error.message || 'Failed to fetch subscription status' });
     }
   });
+
+  // POST /api/restore-purchase — look up active subscription by email, remap to current device
+  app.post('/api/restore-purchase', async (req: Request, res: Response) => {
+    try {
+      const { email, deviceId } = req.body;
+      if (!email || !deviceId) {
+        return res.status(400).json({ message: 'email and deviceId are required' });
+      }
+
+      // Find Stripe customers with this email
+      const customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 5 });
+      if (!customers.data.length) {
+        return res.json({ restored: false });
+      }
+
+      // Check each customer for an active or trialing subscription
+      for (const customer of customers.data) {
+        const subs = await stripe.subscriptions.list({
+          customer: customer.id,
+          status: 'all',
+          limit: 5,
+        });
+
+        const activeSub = subs.data.find(s => s.status === 'active' || s.status === 'trialing');
+        if (!activeSub) continue;
+
+        const status = activeSub.status === 'trialing' ? 'trial' : 'active';
+        const interval = activeSub.items.data[0]?.price.recurring?.interval;
+        const plan = interval === 'year' ? 'annual' : 'monthly';
+        const currentPeriodEnd = new Date(activeSub.current_period_end * 1000);
+
+        // Remap to the new device
+        await storage.upsertDeviceSubscription(deviceId, {
+          status,
+          stripeCustomerId: customer.id,
+          subscriptionId: activeSub.id,
+          currentPeriodEnd,
+          plan,
+        });
+
+        return res.json({
+          restored: true,
+          status,
+          plan,
+          stripeCustomerId: customer.id,
+          subscriptionId: activeSub.id,
+          currentPeriodEnd: currentPeriodEnd.toISOString(),
+        });
+      }
+
+      // No active subscription found for this email
+      res.json({ restored: false });
+    } catch (error: any) {
+      console.error('Error restoring purchase:', error);
+      res.status(500).json({ message: error.message || 'Failed to restore purchase' });
+    }
+  });
 }
 
 export function registerDeviceStripeWebhook(app: Express): void {
