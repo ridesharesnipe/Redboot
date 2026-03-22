@@ -237,59 +237,6 @@ export function PracticeWithKeyboard() {
           </div>
         ))}
 
-        {/* Bottom action row */}
-        <div style={{
-          display: "flex",
-          gap: 6,
-          marginTop: 8,
-          justifyContent: "center",
-          alignItems: "center",
-        }}>
-          {/* Backspace */}
-          <button
-            onClick={() => handleKey("BACKSPACE")}
-            style={{
-              flex: 1,
-              maxWidth: 72,
-              height: 44,
-              borderRadius: 12,
-              background: "linear-gradient(180deg, #f87171 0%, #dc2626 100%)",
-              border: "none",
-              borderBottom: "3px solid #b91c1c",
-              color: "white",
-              fontSize: 18,
-              cursor: "pointer",
-              boxShadow: "0 2px 0 rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >⌫</button>
-
-          {/* Spacer */}
-          <div style={{ flex: 2 }} />
-
-          {/* Submit */}
-          <button
-            onClick={() => handleKey("SUBMIT")}
-            style={{
-              flex: 3,
-              maxWidth: 140,
-              height: 44,
-              borderRadius: 12,
-              background: "linear-gradient(180deg, #4ade80 0%, #16a34a 100%)",
-              border: "none",
-              borderBottom: "3px solid #15803d",
-              color: "white",
-              fontFamily: "'Fredoka One', cursive",
-              fontSize: 17,
-              letterSpacing: 0.5,
-              cursor: "pointer",
-              boxShadow: "0 2px 0 rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            }}
-          >
-            ✓ Submit
-          </button>
-        </div>
       </div>
 
       <style>{`
