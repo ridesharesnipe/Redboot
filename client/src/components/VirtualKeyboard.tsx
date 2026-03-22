@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
@@ -16,16 +16,30 @@ const PRESSED_SHADOW = '2px 2px 6px rgba(141,212,255,0.3), -1px -1px 4px rgba(18
 const DEFAULT_SHADOW = '6px 6px 16px rgba(141,212,255,0.45), -4px -4px 12px rgba(184,228,255,0.35), inset 0 6px 12px rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,80,0.15)';
 
 export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: VirtualKeyboardProps) {
-  const [pressedKey, setPressedKey] = useState<string | null>(null);
+  // Track which keys are visually pressed; use a ref map for pointerId→key so
+  // multi-touch releases only clear the correct key (not every pressed key).
+  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const pointerMap = useRef<Map<number, string>>(new Map());
 
-  const handlePointerDown = (e: React.PointerEvent, key: string) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>, key: string) => {
     e.preventDefault();
-    setPressedKey(key);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pointerMap.current.set(e.pointerId, key);
+    setPressedKeys(prev => { const next = new Set(prev); next.add(key); return next; });
     onKeyPress(key);
     playSound?.();
   };
 
-  const handlePointerUp = () => setPressedKey(null);
+  const handlePointerRelease = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const key = pointerMap.current.get(e.pointerId);
+    if (key === undefined) return;
+    pointerMap.current.delete(e.pointerId);
+    setPressedKeys(prev => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  };
 
   return (
     <>
@@ -60,14 +74,14 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
             style={{ display: 'flex', justifyContent: 'center', gap: 0 }}
           >
             {row.map(key => {
-              const isPressed = pressedKey === key;
+              const isPressed = pressedKeys.has(key);
               return (
                 <button
                   key={key}
                   onPointerDown={(e) => handlePointerDown(e, key)}
-                  onPointerUp={handlePointerUp}
-                  onPointerLeave={handlePointerUp}
-                  onPointerCancel={handlePointerUp}
+                  onPointerUp={handlePointerRelease}
+                  onPointerLeave={handlePointerRelease}
+                  onPointerCancel={handlePointerRelease}
                   className="vk-clay-key"
                   style={{
                     transform: isPressed ? 'scale(0.9) translateY(2px)' : 'scale(1) translateY(0)',

@@ -463,10 +463,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   };
 
   const handleSubmit = () => {
-    if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;
+    const submittedInput = userInput.trim();
+    if (!submittedInput || currentWordIndex >= getTotalWords()) return;
     
     const currentWord = getCurrentWord();
-    const userAnswer = userInput.trim().toLowerCase();
+    const userAnswer = submittedInput.toLowerCase();
     const correct = userAnswer === currentWord.toLowerCase();
     
     setIsCorrect(correct);
@@ -502,7 +503,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         date: new Date().toISOString(),
         word: currentWord,
         correct: correct,
-        userInput: userInput
+        userInput: submittedInput
       });
       
       localStorage.setItem('practiceProgress', JSON.stringify(progressData));
