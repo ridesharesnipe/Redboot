@@ -1,0 +1,29 @@
+Yeah to all of that. Tell Replit:
+
+> "Switch SimplePractice to use a custom virtual keyboard instead of the native device keyboard. Here are the exact requirements:
+> 
+> BEHAVIOR:
+> - The virtual keyboard should behave like the native device keyboard — it slides up from the bottom when the child taps the answer area, and slides back down/hides when the answer is submitted or the word is complete
+> - It should NOT be permanently visible — only appears when the child needs to type
+> - The native device keyboard must be completely suppressed — use inputMode='none' and readOnly on the input field so the phone keyboard never appears
+> 
+> DESIGN:
+> - Style the keys to match the app's puffy claymorphism design — rounded, soft, 3D-looking buttons with subtle shadows and highlights
+> - All keys should be ONE color: a soft sky blue / sea blue (like #7EC8E3 or similar ocean blue that fits the pirate theme)
+> - White letters on the blue buttons
+> - Keys should have that puffy, pillowy look — border-radius around 12-14px, soft inset shadow on top for the 3D clay effect, slightly darker bottom edge
+> - QWERTY layout, 3 rows of letters
+> - Bottom row: large backspace button on left, spacer, large submit/enter button on right (make the submit button a slightly different shade or green to stand out)
+> - Keys should have a satisfying press animation — scale down slightly on tap (active:scale-95)
+> - The keyboard container should have a subtle frosted glass or light ocean gradient background
+> 
+> ANIMATION:
+> - Slide up from bottom with a smooth transition (300ms ease-out) when activated
+> - Slide back down when dismissed
+> 
+> SOUNDS:
+> - Use the existing playSound function for a subtle tap sound on each key press if available
+> 
+> Do not change any game logic, scoring, word checking, feedback, animations, or any other part of SimplePractice. Only replace how the child inputs their answer."
+
+This gives the kid a keyboard that looks like it belongs in the pirate world — not a boring system keyboard that breaks immersion and lets them cheat with autocomplete.
