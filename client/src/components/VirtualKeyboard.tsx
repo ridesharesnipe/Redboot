@@ -71,6 +71,11 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
     isSwiping.current = false;
   };
 
+  const handleTrayPointerCancel = () => {
+    swipeStartY.current = 0;
+    isSwiping.current = false;
+  };
+
   return (
     <>
       <div
@@ -78,6 +83,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
         onPointerDown={handleTrayPointerDown}
         onPointerMove={handleTrayPointerMove}
         onPointerUp={handleTrayPointerUp}
+        onPointerCancel={handleTrayPointerCancel}
         style={{
           position: 'fixed',
           bottom: 0,
