@@ -52,7 +52,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
 
   // Swipe detection on the keyboard tray (background and handle — not on key buttons)
   const handleTrayPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+    if (!!(e.target as HTMLElement).closest('button')) return;
     swipeStartY.current = e.clientY;
     dismissed.current = false;
     isSwiping.current = true;
@@ -99,17 +99,46 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
           borderRadius: '22px 22px 0 0',
           padding: '12px 4px 24px',
           boxShadow: '0 -8px 32px rgba(26,107,196,0.18)',
+          touchAction: 'none',
         }}
       >
-        {/* Drag handle — visual affordance for swipe-to-dismiss */}
-        <div
-          style={{
-            width: 36, height: 4, borderRadius: 2,
-            background: 'rgba(26,107,196,0.25)',
-            margin: '0 auto 10px',
-            cursor: 'grab',
-          }}
-        />
+        {/* Header row: drag handle (centre) + close button (right) */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: 10 }}>
+          <div
+            style={{
+              width: 36, height: 4, borderRadius: 2,
+              background: 'rgba(26,107,196,0.25)',
+              cursor: 'grab',
+            }}
+          />
+          <button
+            onClick={onDismiss}
+            aria-label="Close keyboard"
+            style={{
+              position: 'absolute',
+              right: 8,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: 28,
+              height: 28,
+              borderRadius: '50%',
+              background: 'linear-gradient(145deg, #B8E4FF 0%, #8DD4FF 100%)',
+              border: 'none',
+              color: 'rgba(26,107,196,0.85)',
+              fontWeight: 900,
+              fontSize: 14,
+              lineHeight: 1,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '2px 2px 6px rgba(141,212,255,0.45), inset 0 3px 6px rgba(255,255,255,0.5)',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
         {QWERTY_ROWS.map((row, ri) => (
           <div
