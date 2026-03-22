@@ -84,6 +84,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
         onPointerMove={handleTrayPointerMove}
         onPointerUp={handleTrayPointerUp}
         onPointerCancel={handleTrayPointerCancel}
+        onPointerLeave={handleTrayPointerCancel}
         style={{
           position: 'fixed',
           bottom: 0,
@@ -112,6 +113,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
             }}
           />
           <button
+            type="button"
             onClick={onDismiss}
             aria-label="Close keyboard"
             style={{
