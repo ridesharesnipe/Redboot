@@ -199,36 +199,36 @@ export function PracticeWithKeyboard() {
           margin: "0 auto 12px",
         }}/>
 
-        {/* QWERTY rows — chunky, gapless, full-width */}
+        {/* QWERTY rows — uniform fixed-size bubble keys, centered */}
         {QWERTY_ROWS.map((row, ri) => (
           <div key={ri} style={{
             display: "flex",
-            width: "100%",
+            justifyContent: "center",
             gap: 0,
             marginBottom: 0,
           }}>
-            {row.map((key, ki) => (
+            {row.map((key) => (
               <button
                 key={key}
                 onClick={() => handleKey(key)}
                 style={{
-                  flex: 1,
+                  width: 37,
                   height: 54,
-                  borderRadius: 16,
-                  background: "linear-gradient(180deg, #8ED6E8 0%, #5BBAD5 100%)",
+                  borderRadius: 14,
+                  background: "#8DD4FF",
                   border: "none",
-                  borderBottom: "4px solid #3A9AB8",
-                  borderRight: ki < row.length - 1 ? "1px solid rgba(255,255,255,0.25)" : "none",
                   color: "white",
                   fontWeight: 800,
                   fontSize: 20,
                   fontFamily: "'Fredoka One', cursive",
                   cursor: "pointer",
-                  boxShadow: "inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.1)",
-                  transition: "transform 80ms",
+                  /* Puffy bubble effect: top-gloss highlight + raised shadow below */
+                  boxShadow: "0 5px 0 #4AADDF, inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -1px 0 rgba(0,0,0,0.08)",
+                  transition: "transform 80ms, box-shadow 80ms",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
                 {key}
