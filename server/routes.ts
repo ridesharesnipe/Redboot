@@ -1156,7 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const words = parsed.filter((w: any) => typeof w === 'string');
-        return res.json({ words, success: true });
+        return res.json({ words, success: words.length > 0 });
       } catch (error) {
         console.error('Gemini OCR error:', error);
         return res.status(500).json({ words: [], success: false });

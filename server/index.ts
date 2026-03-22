@@ -13,6 +13,9 @@ app.get('/healthz', (_req, res) => {
 // Stripe webhook needs raw body — must be before express.json()
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
+// OCR endpoint receives base64 images — needs a larger body limit
+app.use('/api/ocr', express.json({ limit: '10mb' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
