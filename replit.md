@@ -76,6 +76,7 @@ Preferred communication style: Simple, everyday language.
 ### Media Processing
 - **Web Speech API**: Text-to-speech for word pronunciation and speech recognition.
 - **Camera API**: Photo capture functionality for word extraction.
+- **OCR**: Gemini Vision (gemini-2.0-flash) via `POST /api/ocr/extract-words` as primary engine; Tesseract.js retained as automatic fallback if Gemini is unavailable or returns no words. Requires `GEMINI_API_KEY` secret.
 
 ### Native Mobile (Capacitor)
 - **Capacitor 7**: Wraps the web app for iOS and Android deployment.

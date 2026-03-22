@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
 import { insertChildSchema, insertWordListSchema, insertProgressSchema, signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@shared/schema";
 import { z } from "zod";
@@ -18,6 +19,11 @@ if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2025-08-27.basil",
   });
+}
+
+let genAI: GoogleGenerativeAI | null = null;
+if (process.env.GEMINI_API_KEY) {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 }
 
 function signToken(userId: string): string {
@@ -1108,6 +1114,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("Error creating payment intent:", error);
         res.status(500).json({ message: "Failed to create payment intent" });
+      }
+    });
+
+    // Gemini Vision OCR — extract spelling words from a photo
+    app.post('/api/ocr/extract-words', async (req, res) => {
+      try {
+        const { image } = req.body;
+        if (!image || typeof image !== 'string') {
+          return res.status(400).json({ words: [], success: false });
+        }
+        if (!genAI) {
+          return res.status(503).json({ words: [], success: false, message: 'Gemini not configured' });
+        }
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+        const mimeType = (image.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/jpeg') as string;
+
+        const prompt = `You are reading a photo of a child's weekly spelling word list from school. Extract every spelling word from the image. Rules:
+- Return ONLY a JSON array of lowercase strings, nothing else
+- Ignore headers like 'Spelling Words', 'Week of', dates, teacher names
+- Ignore numbers (1., 2., etc.) — just extract the words
+- If words are numbered, preserve the order
+- Fix obvious OCR issues (partial letters, smudges)
+- Only include real English words, skip garbage/noise
+- Maximum 25 words
+- Example output: ["jail","spray","mail","play","paint"]`;
+
+        const result = await model.generateContent([
+          { text: prompt },
+          { inlineData: { data: base64Data, mimeType } },
+        ]);
+
+        const text = result.response.text();
+        const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+
+        if (!Array.isArray(parsed)) {
+          return res.json({ words: [], success: false });
+        }
+
+        const words = parsed.filter((w: any) => typeof w === 'string');
+        return res.json({ words, success: true });
+      } catch (error) {
+        console.error('Gemini OCR error:', error);
+        return res.status(500).json({ words: [], success: false });
       }
     });
 

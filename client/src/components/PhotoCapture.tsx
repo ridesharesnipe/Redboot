@@ -310,44 +310,59 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
     setOcrProgress(0);
     
     try {
-      console.log('🚀 Starting FAST OCR processing...');
-      
-      // Preprocess image for better OCR
-      console.log('📸 Preprocessing image...');
+      console.log('🚀 Starting OCR processing...');
       setOcrProgress(10);
-      const preprocessedImage = await preprocessImageForOCR(imageData);
-      
-      // Lazy-load tesseract.js
-      const { createWorker } = await import('tesseract.js');
-      
-      // Single optimized pass - PSM 6 works well for spelling lists (single block of text)
-      console.log('🔍 Running OCR...');
-      const worker = await createWorker('eng', 1, {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setOcrProgress(20 + Math.round(m.progress * 70)); // 20-90%
+
+      let allWords: string[] = [];
+
+      // Try Gemini Vision first (more accurate)
+      try {
+        console.log('🚀 Sending image to Gemini Vision...');
+        setOcrProgress(30);
+
+        const response = await fetch('/api/ocr/extract-words', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: imageData }),
+        });
+
+        setOcrProgress(80);
+
+        if (response.ok) {
+          const ocrResult = await response.json();
+          if (ocrResult.success && ocrResult.words.length > 0) {
+            allWords = ocrResult.words;
+            console.log(`✅ Gemini found ${allWords.length} words:`, allWords);
           }
         }
-      });
+      } catch (geminiError) {
+        console.log('Gemini unavailable, falling back to Tesseract:', geminiError);
+      }
 
-      await worker.setParameters({
-        // FIX: Include digits 0-9 for numbered lists like "1. word"
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .',
-        tessedit_pageseg_mode: 6 as any, // Single uniform block of text
-        tessedit_ocr_engine_mode: 1 as any,
-      });
+      // Fallback to Tesseract if Gemini returned nothing
+      if (allWords.length === 0) {
+        console.log('🔄 Falling back to Tesseract...');
+        const preprocessedImage = await preprocessImageForOCR(imageData);
+        const { createWorker } = await import('tesseract.js');
+        const worker = await createWorker('eng', 1, {
+          logger: (m) => {
+            if (m.status === 'recognizing text') {
+              setOcrProgress(20 + Math.round(m.progress * 70));
+            }
+          }
+        });
+        await worker.setParameters({
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .',
+          tessedit_pageseg_mode: 6 as any,
+          tessedit_ocr_engine_mode: 1 as any,
+        });
+        const result = await worker.recognize(preprocessedImage);
+        await worker.terminate();
+        const numberedWords = extractWordsFromText(result.data.text);
+        allWords = numberedWords.length > 0 ? numberedWords : extractWordsFromStructuredData(result.data);
+        console.log(`✅ Tesseract found ${allWords.length} words:`, allWords);
+      }
 
-      const result = await worker.recognize(preprocessedImage);
-      await worker.terminate();
-      
-      // FIX: Prioritize numbered words extraction (most spelling lists are numbered)
-      const numberedWords = extractWordsFromText(result.data.text);
-      console.log(`📝 Extracted numbered words:`, numberedWords);
-      
-      // Only use structured data as fallback if numbered extraction found nothing
-      let allWords = numberedWords.length > 0 ? numberedWords : extractWordsFromStructuredData(result.data);
-      
-      console.log(`✅ OCR found ${allWords.length} words:`, allWords);
       setOcrProgress(100);
 
       // Deduplicate and limit to reasonable spelling list size (max 20 words)
