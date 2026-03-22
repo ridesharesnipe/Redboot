@@ -24,3 +24,9 @@ id = "KMj_KQ8tWVgGuqDsgX6px"
 uri = "file://full_server_export.txt"
 type = "text"
 title = "Server source export (all .ts)"
+
+[[outputs]]
+id = "Z5Z2zpsE1xrevqDQG2VlZ"
+uri = "file://full_export.tar.gz"
+type = "unspecified"
+title = "Full source export (client + server)"
