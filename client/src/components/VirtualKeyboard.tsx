@@ -49,19 +49,21 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
     });
   };
 
-  const handleHandlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+  // Swipe detection on the keyboard tray (background and handle — not on key buttons)
+  const handleTrayPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).tagName === 'BUTTON') return;
     swipeStartY.current = e.clientY;
     dismissed.current = false;
   };
 
-  const handleHandlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleTrayPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dismissed.current && e.clientY - swipeStartY.current > 50) {
       dismissed.current = true;
       onDismiss();
     }
   };
 
-  const handleHandlePointerUp = () => {
+  const handleTrayPointerUp = () => {
     swipeStartY.current = 0;
   };
 
@@ -69,6 +71,9 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
     <>
       <div
         data-testid="virtual-keyboard"
+        onPointerDown={handleTrayPointerDown}
+        onPointerMove={handleTrayPointerMove}
+        onPointerUp={handleTrayPointerUp}
         style={{
           position: 'fixed',
           bottom: 0,
@@ -86,17 +91,13 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
           boxShadow: '0 -8px 32px rgba(26,107,196,0.18)',
         }}
       >
-        {/* Drag handle — swipe down here to dismiss */}
+        {/* Drag handle — visual affordance for swipe-to-dismiss */}
         <div
-          onPointerDown={handleHandlePointerDown}
-          onPointerMove={handleHandlePointerMove}
-          onPointerUp={handleHandlePointerUp}
           style={{
             width: 36, height: 4, borderRadius: 2,
             background: 'rgba(26,107,196,0.25)',
             margin: '0 auto 10px',
             cursor: 'grab',
-            touchAction: 'none',
           }}
         />
 
@@ -179,7 +180,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
           border: none;
           color: white;
           font-weight: 800;
-          font-size: 22px;
+          font-size: 20px;
           font-family: 'Fredoka One', cursive;
           text-shadow: 0 1px 2px rgba(80, 0, 0, 0.25);
           cursor: pointer;

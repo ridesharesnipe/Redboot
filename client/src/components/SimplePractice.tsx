@@ -886,7 +886,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
       <main
         className="relative z-10 flex flex-col h-full w-full max-w-7xl mx-auto p-4 md:p-6 gap-4 md:gap-6"
-        style={{ paddingBottom: isKeyboardOpen ? '280px' : undefined }}
+        style={{ paddingBottom: isKeyboardOpen ? '280px' : '0' }}
       >
         {/* HEADER BAR */}
         <header className="clay-header w-full relative overflow-hidden">
