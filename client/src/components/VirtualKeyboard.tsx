@@ -1,59 +1,109 @@
-import { Button } from "@/components/ui/button";
-
 interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
+  isVisible: boolean;
 }
 
-export default function VirtualKeyboard({ onKeyPress }: VirtualKeyboardProps) {
-  const qwertyRows = [
-    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
-  ];
+const QWERTY_ROWS = [
+  ['Q','W','E','R','T','Y','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L'],
+  ['Z','X','C','V','B','N','M'],
+];
 
+export default function VirtualKeyboard({ onKeyPress, isVisible }: VirtualKeyboardProps) {
   return (
-    <div className="space-y-3" data-testid="virtual-keyboard">
-      {qwertyRows.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex justify-center gap-2">
-          {row.map((key) => (
-            <Button
-              key={key}
-              onClick={() => onKeyPress(key)}
-              className="w-10 h-10 p-0 bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition-colors font-bold"
-              data-testid={`key-${key.toLowerCase()}`}
-            >
-              {key}
-            </Button>
-          ))}
-        </div>
-      ))}
-      
-      {/* Action Row */}
-      <div className="flex justify-center gap-3 mt-6">
-        <Button 
-          onClick={() => onKeyPress('BACKSPACE')}
-          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4"
-          data-testid="key-backspace"
-        >
-          <i className="fas fa-backspace"></i>
-        </Button>
-        
-        <Button 
-          onClick={() => onKeyPress('SUBMIT')}
-          className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-8 font-bold"
-          data-testid="key-submit"
-        >
-          <i className="fas fa-check mr-2"></i>Submit
-        </Button>
-        
-        <Button 
-          onClick={() => onKeyPress('HINT')}
-          className="bg-accent text-accent-foreground hover:bg-accent/90 px-4"
-          data-testid="key-hint"
-        >
-          <i className="fas fa-lightbulb"></i>
-        </Button>
+    <>
+      <div
+        data-testid="virtual-keyboard"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 300ms ease-out',
+          zIndex: 50,
+          background: 'linear-gradient(180deg, rgba(224,242,254,0.97) 0%, rgba(186,230,255,0.99) 100%)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderTop: '1.5px solid rgba(126,200,227,0.5)',
+          borderRadius: '22px 22px 0 0',
+          padding: '12px 4px 24px',
+          boxShadow: '0 -8px 32px rgba(26,107,196,0.18)',
+        }}
+      >
+        <div style={{
+          width: 36, height: 4, borderRadius: 2,
+          background: 'rgba(26,107,196,0.25)',
+          margin: '0 auto 10px',
+        }} />
+
+        {QWERTY_ROWS.map((row, ri) => (
+          <div
+            key={ri}
+            style={{ display: 'flex', justifyContent: 'center', gap: 0 }}
+          >
+            {row.map(key => (
+              <button
+                key={key}
+                onPointerDown={(e) => { e.preventDefault(); onKeyPress(key); }}
+                className="vk-clay-key"
+                data-testid={`key-${key.toLowerCase()}`}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        ))}
       </div>
-    </div>
+
+      <style>{`
+        .vk-clay-key {
+          flex: 1;
+          height: 64px;
+          border-radius: 16px;
+          background: linear-gradient(145deg, #B8E4FF 0%, #8DD4FF 50%, #65C3FF 100%);
+          border: none;
+          color: white;
+          font-weight: 800;
+          font-size: 20px;
+          font-family: 'Fredoka One', cursive;
+          text-shadow: 0 1px 2px rgba(0, 0, 80, 0.2);
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow:
+            6px 6px 16px rgba(141, 212, 255, 0.45),
+            -4px -4px 12px rgba(184, 228, 255, 0.35),
+            inset 0 6px 12px rgba(255, 255, 255, 0.45),
+            inset 0 -6px 12px rgba(0, 0, 80, 0.15);
+          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          user-select: none;
+        }
+        .vk-clay-key::before {
+          content: "";
+          position: absolute;
+          top: 5%;
+          left: 7%;
+          width: 60%;
+          height: 30%;
+          background: linear-gradient(to bottom, rgba(255, 255, 255, 0.65), transparent);
+          border-radius: 100% 70% 50% 40%;
+          transform: rotate(-8deg);
+          pointer-events: none;
+        }
+        .vk-clay-key:active {
+          transform: scale(0.92) translateY(2px);
+          box-shadow:
+            3px 3px 10px rgba(141, 212, 255, 0.35),
+            -2px -2px 8px rgba(184, 228, 255, 0.25),
+            inset 0 2px 6px rgba(0, 0, 0, 0.18);
+        }
+      `}</style>
+    </>
   );
 }

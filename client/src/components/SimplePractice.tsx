@@ -10,6 +10,7 @@ import { buildAchievementsFromLocal } from '@/lib/achievements';
 import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 import SeaMonsterBattle from './SeaMonsterBattle';
+import VirtualKeyboard from './VirtualKeyboard';
 import Paywall from './Paywall';
 import { getSubscription, setFreeSessionUsed } from '@/lib/subscription';
 
@@ -454,6 +455,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       }
     }
   }, []);
+
+  const handleVirtualKeyPress = (key: string) => {
+    if (!isWordSpoken) return;
+    setUserInput(prev => prev + key);
+  };
 
   const handleSubmit = () => {
     if (!userInput.trim() || currentWordIndex >= getTotalWords()) return;
@@ -968,11 +974,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                       <div className="relative bg-white rounded-[14px] flex justify-center items-center h-28 overflow-hidden">
                         <Input
                         value={userInput}
-                        onChange={(e) => setUserInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                        readOnly
+                        inputMode="none"
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-text z-20"
                         disabled={!isWordSpoken}
-                        autoFocus={isWordSpoken}
                         data-testid="input-spelling"
                       />
                       <div className="text-5xl font-black tracking-widest uppercase flex gap-1 select-none cursor-text">
@@ -1067,13 +1076,19 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       </main>
       
       {/* Bonus round indicator */}
-      {trickyWords.length > 0 && !showBonusRound && (
-        <div className="fixed bottom-4 right-4 animate-pulse z-50">
+      {trickyWords.length > 0 && !showBonusRound && !isWordSpoken && (
+        <div className="fixed bottom-4 right-4 animate-pulse z-40">
           <div className="bg-yellow-500/20 rounded-full p-3 shadow-lg">
             <span className="text-2xl">⚡</span>
           </div>
         </div>
       )}
+
+      {/* Virtual Keyboard */}
+      <VirtualKeyboard
+        isVisible={isWordSpoken && !showFeedback}
+        onKeyPress={handleVirtualKeyPress}
+      />
     </div>
   );
 }
