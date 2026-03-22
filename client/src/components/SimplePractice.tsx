@@ -459,7 +459,11 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
   const handleVirtualKeyPress = (key: string) => {
     if (!isWordSpoken) return;
-    setUserInput(prev => prev + key);
+    if (key === 'BACKSPACE') {
+      setUserInput(prev => prev.slice(0, -1));
+    } else {
+      setUserInput(prev => prev + key);
+    }
   };
 
   const handleSubmit = () => {
@@ -880,7 +884,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
       <div className="absolute top-10 left-10 opacity-40 animate-float text-white text-9xl blur-sm" style={{ animationDuration: '8s' }}>☁️</div>
       <div className="absolute top-20 right-20 opacity-30 animate-float text-white text-[10rem] blur-md" style={{ animationDuration: '12s', animationDelay: '2s' }}>☁️</div>
 
-      <main className="relative z-10 flex flex-col h-full w-full max-w-7xl mx-auto p-4 md:p-6 gap-4 md:gap-6">
+      <main
+        className="relative z-10 flex flex-col h-full w-full max-w-7xl mx-auto p-4 md:p-6 gap-4 md:gap-6"
+        style={{ paddingBottom: isKeyboardOpen ? '280px' : undefined }}
+      >
         {/* HEADER BAR */}
         <header className="clay-header w-full relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-400 via-yellow-400 to-cyan-400"></div>
@@ -1097,6 +1104,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         isVisible={isKeyboardOpen}
         onKeyPress={handleVirtualKeyPress}
         playSound={() => playSound('anchor_button_click', 0.18)}
+        onDismiss={() => setIsKeyboardOpen(false)}
       />
     </div>
   );

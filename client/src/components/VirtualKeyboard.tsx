@@ -4,22 +4,30 @@ interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   isVisible: boolean;
   playSound?: () => void;
+  onDismiss: () => void;
 }
 
 const QWERTY_ROWS = [
   ['Q','W','E','R','T','Y','U','I','O','P'],
   ['A','S','D','F','G','H','J','K','L'],
-  ['Z','X','C','V','B','N','M'],
+  ['Z','X','C','V','B','N','M','BACKSPACE'],
 ];
 
-const PRESSED_SHADOW = '2px 2px 6px rgba(141,212,255,0.3), -1px -1px 4px rgba(184,228,255,0.2), inset 0 2px 6px rgba(0,0,0,0.18)';
+// Blue key shadows
 const DEFAULT_SHADOW = '6px 6px 16px rgba(141,212,255,0.45), -4px -4px 12px rgba(184,228,255,0.35), inset 0 6px 12px rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,80,0.15)';
+const PRESSED_SHADOW  = '2px 2px 6px rgba(141,212,255,0.3), -1px -1px 4px rgba(184,228,255,0.2), inset 0 2px 6px rgba(0,0,0,0.18)';
 
-export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: VirtualKeyboardProps) {
-  // Track which keys are visually pressed; use a ref map for pointerId→key so
-  // multi-touch releases only clear the correct key (not every pressed key).
+// Red key shadows (backspace)
+const BS_DEFAULT_SHADOW = '6px 6px 16px rgba(255,107,107,0.45), -4px -4px 12px rgba(255,158,158,0.35), inset 0 6px 12px rgba(255,255,255,0.45), inset 0 -6px 12px rgba(80,0,0,0.15)';
+const BS_PRESSED_SHADOW  = '2px 2px 6px rgba(255,107,107,0.3), -1px -1px 4px rgba(255,158,158,0.2), inset 0 2px 6px rgba(0,0,0,0.2)';
+
+export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDismiss }: VirtualKeyboardProps) {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const pointerMap = useRef<Map<number, string>>(new Map());
+
+  // Swipe-to-dismiss tracking (on drag handle)
+  const swipeStartY = useRef(0);
+  const dismissed = useRef(false);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>, key: string) => {
     e.preventDefault();
@@ -39,6 +47,22 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
       next.delete(key);
       return next;
     });
+  };
+
+  const handleHandlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    swipeStartY.current = e.clientY;
+    dismissed.current = false;
+  };
+
+  const handleHandlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dismissed.current && e.clientY - swipeStartY.current > 50) {
+      dismissed.current = true;
+      onDismiss();
+    }
+  };
+
+  const handleHandlePointerUp = () => {
+    swipeStartY.current = 0;
   };
 
   return (
@@ -62,11 +86,19 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
           boxShadow: '0 -8px 32px rgba(26,107,196,0.18)',
         }}
       >
-        <div style={{
-          width: 36, height: 4, borderRadius: 2,
-          background: 'rgba(26,107,196,0.25)',
-          margin: '0 auto 10px',
-        }} />
+        {/* Drag handle — swipe down here to dismiss */}
+        <div
+          onPointerDown={handleHandlePointerDown}
+          onPointerMove={handleHandlePointerMove}
+          onPointerUp={handleHandlePointerUp}
+          style={{
+            width: 36, height: 4, borderRadius: 2,
+            background: 'rgba(26,107,196,0.25)',
+            margin: '0 auto 10px',
+            cursor: 'grab',
+            touchAction: 'none',
+          }}
+        />
 
         {QWERTY_ROWS.map((row, ri) => (
           <div
@@ -74,7 +106,11 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
             style={{ display: 'flex', justifyContent: 'center', gap: 0 }}
           >
             {row.map(key => {
+              const isBackspace = key === 'BACKSPACE';
               const isPressed = pressedKeys.has(key);
+              const defaultShadow = isBackspace ? BS_DEFAULT_SHADOW : DEFAULT_SHADOW;
+              const pressedShadow = isBackspace ? BS_PRESSED_SHADOW : PRESSED_SHADOW;
+
               return (
                 <button
                   key={key}
@@ -82,14 +118,18 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
                   onPointerUp={handlePointerRelease}
                   onPointerLeave={handlePointerRelease}
                   onPointerCancel={handlePointerRelease}
-                  className="vk-clay-key"
+                  className={isBackspace ? 'vk-backspace-key' : 'vk-clay-key'}
                   style={{
-                    transform: isPressed ? 'scale(0.9) translateY(2px)' : 'scale(1) translateY(0)',
-                    boxShadow: isPressed ? PRESSED_SHADOW : DEFAULT_SHADOW,
+                    transform: isPressed ? 'scale(0.85) translateY(3px)' : 'scale(1) translateY(0)',
+                    filter: isPressed ? 'brightness(0.85)' : 'brightness(1)',
+                    boxShadow: isPressed ? pressedShadow : defaultShadow,
+                    transition: isPressed
+                      ? 'transform 50ms ease-in, filter 50ms ease-in, box-shadow 50ms ease-in'
+                      : 'transform 0ms, filter 0ms, box-shadow 0ms',
                   }}
-                  data-testid={`key-${key.toLowerCase()}`}
+                  data-testid={isBackspace ? 'key-backspace' : `key-${key.toLowerCase()}`}
                 >
-                  {key}
+                  {isBackspace ? '←' : key}
                 </button>
               );
             })}
@@ -115,7 +155,6 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
           user-select: none;
@@ -128,6 +167,39 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: Vi
           width: 60%;
           height: 30%;
           background: linear-gradient(to bottom, rgba(255, 255, 255, 0.65), transparent);
+          border-radius: 100% 70% 50% 40%;
+          transform: rotate(-8deg);
+          pointer-events: none;
+        }
+        .vk-backspace-key {
+          flex: 1.6;
+          height: 64px;
+          border-radius: 16px;
+          background: linear-gradient(145deg, #FF9E9E 0%, #FF6B6B 50%, #E84545 100%);
+          border: none;
+          color: white;
+          font-weight: 800;
+          font-size: 22px;
+          font-family: 'Fredoka One', cursive;
+          text-shadow: 0 1px 2px rgba(80, 0, 0, 0.25);
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          user-select: none;
+        }
+        .vk-backspace-key::before {
+          content: "";
+          position: absolute;
+          top: 5%;
+          left: 7%;
+          width: 60%;
+          height: 30%;
+          background: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), transparent);
           border-radius: 100% 70% 50% 40%;
           transform: rotate(-8deg);
           pointer-events: none;
