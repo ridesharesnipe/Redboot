@@ -15,11 +15,16 @@ export function LockedPractice() {
         </div>
 
         <div style={{ padding: "20px" }}>
+          {/* Diego feature — real photo */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", marginBottom: 8, background: "linear-gradient(145deg, #e0f2fe, #f0f9ff)", borderRadius: 14, border: "1px solid #bae6fd" }}>
+            <img src="/__mockup/images/diego.png" alt="Diego the Pup Pup" style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "2px solid #38bdf8", flexShrink: 0 }} />
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#0369a1" }}>Diego's sea monster battles</span>
+          </div>
+
           {/* What they get */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
             {[
               { icon: "🗺️", text: "Unlimited practice sessions" },
-              { icon: "🐕", text: "Diego's sea monster battles" },
               { icon: "📋", text: "Friday test simulator" },
               { icon: "📊", text: "Parent progress dashboard" },
             ].map((item, i) => (

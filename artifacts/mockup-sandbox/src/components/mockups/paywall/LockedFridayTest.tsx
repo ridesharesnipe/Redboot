@@ -19,14 +19,14 @@ export function LockedFridayTest() {
 
           <div style={{ padding: "20px" }}>
             <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, marginBottom: 18, textAlign: "center" }}>
-              Simulate Friday's real test with timed questions, parent voice playback, and a full score report — just like the classroom.
+              Simulate Friday's real test with timed questions, random word order, and a full score report — just like the classroom.
             </p>
 
             {/* Feature highlights */}
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
               {[
                 { icon: "⏱️", text: "Timed test mode — just like class" },
-                { icon: "🎙️", text: "Parent voice word playback" },
+                { icon: "🔀", text: "Random word order every time" },
                 { icon: "📊", text: "Full score report with missed words" },
                 { icon: "🔁", text: "Retake as many times as needed" },
               ].map((item, i) => (
