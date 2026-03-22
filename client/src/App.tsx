@@ -96,6 +96,19 @@ function DashboardRouteInner() {
     const today = new Date().toISOString().slice(0, 10);
     return localStorage.getItem('redboot-paywall-last-shown') !== today;
   });
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  if (showPaywall) {
+    const { correct, total, childName } = getLastSessionData();
+    return (
+      <Paywall
+        correct={correct}
+        total={total}
+        childName={childName}
+        onMaybeLater={() => setShowPaywall(false)}
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto p-4" style={{ position: 'relative' }}>
@@ -130,7 +143,7 @@ function DashboardRouteInner() {
               </div>
             </div>
             <button
-              onClick={() => setLocation('/practice')}
+              onClick={() => setShowPaywall(true)}
               style={{
                 background: 'linear-gradient(135deg, #F4A438, #e08c20)', color: 'white',
                 fontFamily: "'Fredoka One', cursive", fontSize: 15, padding: '10px 18px',
@@ -148,7 +161,7 @@ function DashboardRouteInner() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 90 }}>
           <SessionStartPaywall
             onDismiss={() => setShowSessionStart(false)}
-            onSubscribe={() => { setShowSessionStart(false); setLocation('/practice'); }}
+            onSubscribe={() => { setShowSessionStart(false); setShowPaywall(true); }}
           />
         </div>
       )}

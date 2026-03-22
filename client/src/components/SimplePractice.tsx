@@ -261,7 +261,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     if (character) {
       setSelectedCharacter(character);
     }
-    const savedName = localStorage.getItem('childName');
+    const savedName = localStorage.getItem('redboot-child-name');
     if (savedName) {
       setChildName(savedName);
     }

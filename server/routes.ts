@@ -1146,6 +1146,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sessionParams.customer_email = customerEmail;
         }
 
+        if (includeTrial && plan !== 'abandonment') {
+          sessionParams.subscription_data = { trial_period_days: 7 };
+        }
+
         const session = await stripe!.checkout.sessions.create(sessionParams);
         res.json({ url: session.url });
       } catch (error) {

@@ -1,0 +1,37 @@
+Here's every open item, in priority order. Nothing else.
+
+**Must fix before launch (blockers):**
+
+1. **Verify Stripe trial periods** — Check if the Stripe Price objects have 7-day free trials baked in. If not, the checkout session needs `subscription_data: { trial_period_days: 7 }` added when `includeTrial` is true. Without this, parents get charged immediately instead of getting the free trial you're promising. That's a refund and review disaster.
+
+2. **Confirm STRIPE_WEBHOOK_SECRET is in Replit Secrets** — The architect flagged this is missing. Without it, anyone can POST to your webhook endpoint and fake a payment. Add the `whsec_` value from your Stripe dashboard.
+
+3. **Fix SessionStartPaywall subscribe path** — Two taps to reach checkout. Should be one. The onSubscribe should open the full Paywall directly.
+
+4. **Fix the OCR / PhotoCapture** — You said it broke during the paywall work. Words not being recognized correctly. This is the core feature — if parents can't upload word lists, nothing else matters.
+
+5. **Test the complete payment flow** — Incognito browser, test card `4242 4242 4242 4242`, verify: checkout opens with correct price, trial is applied, redirect works, "Welcome aboard" shows, features unlock, abandonment offer triggers on cancel.
+
+**Should fix but not blocking:**
+
+6. **That white line on the right edge of the landing page** — CSS overflow. Quick fix: `overflow-x: hidden` on the landing container.
+
+7. **SimplePractice childName key mismatch** — The component reads `localStorage.getItem('childName')` for voice announcements but the correct key is `redboot-child-name`. Doesn't affect the paywall but the pirate voice might say the wrong name during practice.
+
+**Prompt to give Replit to fix all of this in one shot:**
+
+> "Here are 5 fixes. Do them in order. Do not change anything else.
+> 
+> Fix 1: In server/routes.ts, in the create-checkout-session endpoint, when includeTrial is true, add subscription_data: { trial_period_days: 7 } to the sessionParams object. This ensures the 7-day free trial actually applies at checkout. When includeTrial is false or plan is 'abandonment', do not add trial_period_days.
+> 
+> Fix 2: Confirm STRIPE_WEBHOOK_SECRET exists in Replit Secrets. If it's missing, tell me — I need to add it manually.
+> 
+> Fix 3: In App.tsx DashboardRouteInner, the SessionStartPaywall onSubscribe currently navigates to /practice. Change it so it directly renders the full Paywall component with the last session data, instead of navigating to the locked practice screen. The parent should go from SessionStartPaywall → Paywall → Stripe in one tap, not two.
+> 
+> Fix 4: The OCR photo capture stopped recognizing words correctly after recent changes. Check if PhotoCapture.tsx was modified during the paywall work. If it was, revert those changes. If it wasn't modified, check if the currentSpellingWords localStorage key format changed — the word list needs to be the same format that SimplePractice reads.
+> 
+> Fix 5: In SimplePractice.tsx, find localStorage.getItem('childName') and change it to localStorage.getItem('redboot-child-name'). This is the correct key used everywhere else in the app.
+> 
+> After all fixes, confirm: the app compiles with no errors, the Stripe checkout includes a 7-day trial when the trial toggle is on, and PhotoCapture correctly reads words from a photo."
+
+Once those 5 are done, publish and test the full flow yourself. If it works end to end — onboarding through payment through unlock — you're ready for market.
