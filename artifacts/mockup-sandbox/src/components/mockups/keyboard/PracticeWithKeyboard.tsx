@@ -199,7 +199,7 @@ export function PracticeWithKeyboard() {
           margin: "0 auto 12px",
         }}/>
 
-        {/* QWERTY rows — uniform fixed-size bubble keys, centered */}
+        {/* QWERTY rows — claymorphism blue keys */}
         {QWERTY_ROWS.map((row, ri) => (
           <div key={ri} style={{
             display: "flex",
@@ -211,25 +211,7 @@ export function PracticeWithKeyboard() {
               <button
                 key={key}
                 onClick={() => handleKey(key)}
-                style={{
-                  width: 37,
-                  height: 54,
-                  borderRadius: 14,
-                  background: "#8DD4FF",
-                  border: "none",
-                  color: "white",
-                  fontWeight: 800,
-                  fontSize: 20,
-                  fontFamily: "'Fredoka One', cursive",
-                  cursor: "pointer",
-                  /* Puffy bubble effect: top-gloss highlight + raised shadow below */
-                  boxShadow: "0 5px 0 #4AADDF, inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -1px 0 rgba(0,0,0,0.08)",
-                  transition: "transform 80ms, box-shadow 80ms",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
+                className="clay-key"
               >
                 {key}
               </button>
@@ -241,7 +223,53 @@ export function PracticeWithKeyboard() {
 
       <style>{`
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        button:active { transform: scale(0.93) !important; box-shadow: none !important; }
+
+        .clay-key {
+          width: 37px;
+          height: 54px;
+          border-radius: 16px;
+          background: linear-gradient(145deg, #B8E4FF 0%, #8DD4FF 50%, #65C3FF 100%);
+          border: none;
+          color: white;
+          font-weight: 800;
+          font-size: 20px;
+          font-family: 'Fredoka One', cursive;
+          text-shadow: 0 1px 2px rgba(0,0,80,0.2);
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow:
+            6px 6px 16px rgba(141,212,255,0.45),
+            -4px -4px 12px rgba(184,228,255,0.35),
+            inset 0 6px 12px rgba(255,255,255,0.45),
+            inset 0 -6px 12px rgba(0,0,80,0.15);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .clay-key::before {
+          content: "";
+          position: absolute;
+          top: 5%;
+          left: 7%;
+          width: 60%;
+          height: 30%;
+          background: linear-gradient(to bottom, rgba(255,255,255,0.65), transparent);
+          border-radius: 100% 70% 50% 40%;
+          transform: rotate(-8deg);
+          pointer-events: none;
+        }
+
+        .clay-key:active {
+          transform: scale(0.94) translateY(1px);
+          box-shadow:
+            3px 3px 10px rgba(141,212,255,0.4),
+            -2px -2px 8px rgba(184,228,255,0.3),
+            inset 0 2px 4px rgba(0,0,0,0.15);
+        }
       `}</style>
     </div>
   );
