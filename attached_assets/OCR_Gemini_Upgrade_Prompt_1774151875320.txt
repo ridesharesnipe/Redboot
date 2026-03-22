@@ -1,0 +1,182 @@
+OCR UPGRADE: SWAP TESSERACT.JS FOR GEMINI VISION
+==================================================
+
+IMPORTANT: Do not change any existing UI, animations, sounds, celebrations, 
+word list saving, navigation, or any other functionality. The ONLY change is 
+replacing the OCR engine inside the processImage function. Everything before 
+and after the OCR call stays exactly the same.
+
+Run the architect review before AND after to confirm zero regressions.
+
+
+== WHAT TO CHANGE ==
+
+Currently: PhotoCapture.tsx uses tesseract.js (client-side, in-browser OCR) 
+to read spelling words from photos. It's inaccurate, especially on phone 
+cameras with handwritten lists, angled shots, or poor lighting.
+
+New: Send the image to a server endpoint that calls Google Gemini Flash 
+vision model. Gemini handles handwriting, angles, poor lighting, and messy 
+formatting far better than Tesseract. Cost is ~$0.0025 per image.
+
+
+== SERVER SIDE — New endpoint ==
+
+Add ONE new endpoint to server/routes.ts:
+
+POST /api/ocr/extract-words
+  - Accepts: { image: string } (base64 data URL of the photo)
+  - Sends the image to Gemini Flash vision with this exact prompt:
+
+    "You are reading a photo of a child's weekly spelling word list from school. 
+    Extract every spelling word from the image. Rules:
+    - Return ONLY a JSON array of lowercase strings, nothing else
+    - Ignore headers like 'Spelling Words', 'Week of', dates, teacher names
+    - Ignore numbers (1., 2., etc.) — just extract the words
+    - If words are numbered, preserve the order
+    - Fix obvious OCR issues (partial letters, smudges)
+    - Only include real English words, skip garbage/noise
+    - Maximum 25 words
+    - Example output: ["jail","spray","mail","play","paint"]"
+
+  - Parse the response, extract the JSON array
+  - Return: { words: string[], success: boolean }
+  - If Gemini fails or returns no words, return { words: [], success: false }
+
+Environment variable needed: GEMINI_API_KEY
+(Jes will add this to Replit Secrets)
+
+Use the Google Generative AI SDK:
+  npm install @google/generative-ai
+
+Server code pattern:
+  import { GoogleGenerativeAI } from '@google/generative-ai';
+  
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  
+  // Convert base64 data URL to the format Gemini expects
+  const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+  const mimeType = image.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/jpeg';
+  
+  const result = await model.generateContent([
+    { text: "... the prompt above ..." },
+    { inlineData: { data: base64Data, mimeType } }
+  ]);
+  
+  const text = result.response.text();
+  // Parse JSON array from response (handle markdown code fences)
+  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const words = JSON.parse(cleaned);
+
+
+== CLIENT SIDE — Update PhotoCapture.tsx processImage function ==
+
+Replace the Tesseract block inside processImage with a fetch call to the new endpoint.
+
+BEFORE (lines ~321-351 approximately — the Tesseract section):
+  const { createWorker } = await import('tesseract.js');
+  ... worker setup, recognize, terminate ...
+  const numberedWords = extractWordsFromText(result.data.text);
+  let allWords = numberedWords.length > 0 ? numberedWords : extractWordsFromStructuredData(result.data);
+
+AFTER:
+  console.log('🚀 Sending image to Gemini Vision...');
+  setOcrProgress(30);
+  
+  const response = await fetch('/api/ocr/extract-words', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: imageData }),
+  });
+  
+  setOcrProgress(80);
+  
+  if (!response.ok) {
+    throw new Error('OCR service failed');
+  }
+  
+  const ocrResult = await response.json();
+  let allWords: string[] = ocrResult.words || [];
+  
+  console.log(`✅ Gemini found ${allWords.length} words:`, allWords);
+
+Everything AFTER this point stays exactly the same — the deduplication, 
+the max 20 limit, the localStorage save, the treasure celebration, 
+the toast notification, the word list display. Do not touch any of that.
+
+
+== KEEP AS FALLBACK ==
+
+Keep the Tesseract code but wrap it as a fallback. If the Gemini endpoint 
+fails (network error, API key missing, etc.), fall back to the existing 
+Tesseract processing. This way the app still works offline or if Gemini 
+is down.
+
+Pattern:
+  let allWords: string[] = [];
+  
+  try {
+    // Try Gemini first (more accurate)
+    const response = await fetch('/api/ocr/extract-words', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: imageData }),
+    });
+    
+    if (response.ok) {
+      const ocrResult = await response.json();
+      if (ocrResult.success && ocrResult.words.length > 0) {
+        allWords = ocrResult.words;
+        console.log('✅ Gemini Vision found words:', allWords);
+      }
+    }
+  } catch (geminiError) {
+    console.log('Gemini unavailable, falling back to Tesseract:', geminiError);
+  }
+  
+  // Fallback to Tesseract if Gemini returned nothing
+  if (allWords.length === 0) {
+    console.log('🔄 Falling back to Tesseract...');
+    // ... existing Tesseract code here ...
+  }
+
+
+== REMOVE ==
+
+Delete the hardcoded fixOCRErrors function (lines ~534-553). It only 
+corrects one specific word list and is useless for all other lists. 
+Gemini doesn't need it, and keeping it could actually corrupt 
+correctly-read words from Gemini.
+
+Keep the isValidSpellingWord function as a final validation filter — 
+apply it to Gemini's output too, just in case.
+
+
+== WHAT NOT TO CHANGE ==
+
+- preprocessImageForOCR function — keep it, still useful for Tesseract fallback
+- invertImage function — keep it
+- extractWordsFromText / extractWordsFromStructuredData — keep as Tesseract fallback helpers
+- isValidSpellingWord — keep as validation filter
+- All UI: camera interface, capture button, progress bar, treasure celebration, word list editor, save flow
+- The localStorage save format: { words: [...], savedDate: "..." } — do not change
+- The onWordsExtracted callback — do not change
+- Any sounds, animations, or toasts
+
+
+== ENVIRONMENT VARIABLE ==
+
+GEMINI_API_KEY — Jes will add this to Replit Secrets from Google AI Studio 
+(https://aistudio.google.com/apikey). Free tier gives 15 requests per minute,
+1,500 per day — more than enough for a spelling app.
+
+
+== TESTING ==
+
+After building, verify:
+1. Take a photo of a spelling word list — Gemini extracts words correctly
+2. Words appear in the treasure celebration and word list editor
+3. Words save to localStorage in the correct format
+4. If GEMINI_API_KEY is removed, Tesseract fallback still works
+5. No changes to any other part of the app
