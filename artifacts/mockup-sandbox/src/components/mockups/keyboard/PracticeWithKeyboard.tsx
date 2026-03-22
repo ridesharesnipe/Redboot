@@ -186,7 +186,7 @@ export function PracticeWithKeyboard() {
         backdropFilter: "blur(16px)",
         borderTop: "1.5px solid rgba(126,200,227,0.5)",
         borderRadius: "22px 22px 0 0",
-        padding: "14px 10px 18px",
+        padding: "14px 4px 18px",
         boxShadow: "0 -8px 32px rgba(26,107,196,0.15)",
         transform: "translateY(0)",
         transition: "transform 300ms ease-out",
@@ -225,8 +225,8 @@ export function PracticeWithKeyboard() {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
         .clay-key {
-          width: 37px;
-          height: 54px;
+          flex: 1;
+          height: 64px;
           border-radius: 16px;
           background: linear-gradient(145deg, #B8E4FF 0%, #8DD4FF 50%, #65C3FF 100%);
           border: none;
@@ -238,7 +238,6 @@ export function PracticeWithKeyboard() {
           cursor: pointer;
           position: relative;
           overflow: hidden;
-          flex-shrink: 0;
           display: flex;
           align-items: center;
           justify-content: center;
