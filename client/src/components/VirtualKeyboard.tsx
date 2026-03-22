@@ -25,9 +25,10 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const pointerMap = useRef<Map<number, string>>(new Map());
 
-  // Swipe-to-dismiss tracking (on drag handle)
+  // Swipe-to-dismiss tracking (on keyboard tray)
   const swipeStartY = useRef(0);
   const dismissed = useRef(false);
+  const isSwiping = useRef(false);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>, key: string) => {
     e.preventDefault();
@@ -54,9 +55,11 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
     if ((e.target as HTMLElement).tagName === 'BUTTON') return;
     swipeStartY.current = e.clientY;
     dismissed.current = false;
+    isSwiping.current = true;
   };
 
   const handleTrayPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isSwiping.current) return;
     if (!dismissed.current && e.clientY - swipeStartY.current > 50) {
       dismissed.current = true;
       onDismiss();
@@ -65,6 +68,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
 
   const handleTrayPointerUp = () => {
     swipeStartY.current = 0;
+    isSwiping.current = false;
   };
 
   return (
