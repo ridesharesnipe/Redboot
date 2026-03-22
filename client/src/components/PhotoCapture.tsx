@@ -330,7 +330,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
 
         if (response.ok) {
           const ocrResult = await response.json();
-          if (ocrResult.success && ocrResult.words.length > 0) {
+          if (ocrResult.success && Array.isArray(ocrResult.words) && ocrResult.words.length > 0) {
             allWords = ocrResult.words;
             console.log(`✅ Gemini found ${allWords.length} words:`, allWords);
           }
@@ -344,13 +344,8 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
         console.log('🔄 Falling back to Tesseract...');
         const preprocessedImage = await preprocessImageForOCR(imageData);
         const { createWorker } = await import('tesseract.js');
-        const worker = await createWorker('eng', 1, {
-          logger: (m) => {
-            if (m.status === 'recognizing text') {
-              setOcrProgress(20 + Math.round(m.progress * 70));
-            }
-          }
-        });
+        // No logger — progress stays at 80% rather than regressing during fallback
+        const worker = await createWorker('eng', 1, {});
         await worker.setParameters({
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .',
           tessedit_pageseg_mode: 6 as any,
