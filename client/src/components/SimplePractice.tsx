@@ -32,6 +32,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [currentTreasure, setCurrentTreasure] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
   const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   // Paywall state
   const [showPaywall, setShowPaywall] = useState(false);
@@ -470,6 +471,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     
     setIsCorrect(correct);
     setShowFeedback(true);
+    setUserInput('');
+    setIsKeyboardOpen(false);
     
     // Save progress to localStorage
     if (currentWord) {
@@ -568,6 +571,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     setUserInput('');
     setShowFeedback(false);
     setIsWordSpoken(false);
+    setIsKeyboardOpen(false);
     
     const totalWordsForSession = getTotalWords();
     if (currentWordIndex >= totalWordsForSession - 1) {
@@ -970,7 +974,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   
                   {/* COLORFUL INPUT */}
                   <div className="relative z-10 w-full mb-6">
-                    <div className="clay-input-container">
+                    <div
+                      className="clay-input-container"
+                      onClick={() => { if (isWordSpoken && !showFeedback) setIsKeyboardOpen(true); }}
+                    >
                       <div className="relative bg-white rounded-[14px] flex justify-center items-center h-28 overflow-hidden">
                         <Input
                         value={userInput}
@@ -1086,8 +1093,9 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
       {/* Virtual Keyboard */}
       <VirtualKeyboard
-        isVisible={isWordSpoken && !showFeedback}
+        isVisible={isKeyboardOpen}
         onKeyPress={handleVirtualKeyPress}
+        playSound={() => playSound('anchor_button_click', 0.18)}
       />
     </div>
   );

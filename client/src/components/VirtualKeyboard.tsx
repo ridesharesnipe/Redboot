@@ -1,6 +1,9 @@
+import { useState } from 'react';
+
 interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   isVisible: boolean;
+  playSound?: () => void;
 }
 
 const QWERTY_ROWS = [
@@ -9,7 +12,21 @@ const QWERTY_ROWS = [
   ['Z','X','C','V','B','N','M'],
 ];
 
-export default function VirtualKeyboard({ onKeyPress, isVisible }: VirtualKeyboardProps) {
+const PRESSED_SHADOW = '2px 2px 6px rgba(141,212,255,0.3), -1px -1px 4px rgba(184,228,255,0.2), inset 0 2px 6px rgba(0,0,0,0.18)';
+const DEFAULT_SHADOW = '6px 6px 16px rgba(141,212,255,0.45), -4px -4px 12px rgba(184,228,255,0.35), inset 0 6px 12px rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,80,0.15)';
+
+export default function VirtualKeyboard({ onKeyPress, isVisible, playSound }: VirtualKeyboardProps) {
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent, key: string) => {
+    e.preventDefault();
+    setPressedKey(key);
+    onKeyPress(key);
+    playSound?.();
+  };
+
+  const handlePointerUp = () => setPressedKey(null);
+
   return (
     <>
       <div
@@ -20,7 +37,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible }: VirtualKeyboa
           left: 0,
           right: 0,
           transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 300ms ease-out',
+          transition: 'transform 150ms ease-out',
           zIndex: 50,
           background: 'linear-gradient(180deg, rgba(224,242,254,0.97) 0%, rgba(186,230,255,0.99) 100%)',
           backdropFilter: 'blur(16px)',
@@ -42,16 +59,26 @@ export default function VirtualKeyboard({ onKeyPress, isVisible }: VirtualKeyboa
             key={ri}
             style={{ display: 'flex', justifyContent: 'center', gap: 0 }}
           >
-            {row.map(key => (
-              <button
-                key={key}
-                onPointerDown={(e) => { e.preventDefault(); onKeyPress(key); }}
-                className="vk-clay-key"
-                data-testid={`key-${key.toLowerCase()}`}
-              >
-                {key}
-              </button>
-            ))}
+            {row.map(key => {
+              const isPressed = pressedKey === key;
+              return (
+                <button
+                  key={key}
+                  onPointerDown={(e) => handlePointerDown(e, key)}
+                  onPointerUp={handlePointerUp}
+                  onPointerLeave={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                  className="vk-clay-key"
+                  style={{
+                    transform: isPressed ? 'scale(0.9) translateY(2px)' : 'scale(1) translateY(0)',
+                    boxShadow: isPressed ? PRESSED_SHADOW : DEFAULT_SHADOW,
+                  }}
+                  data-testid={`key-${key.toLowerCase()}`}
+                >
+                  {key}
+                </button>
+              );
+            })}
           </div>
         ))}
       </div>
@@ -74,12 +101,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible }: VirtualKeyboa
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow:
-            6px 6px 16px rgba(141, 212, 255, 0.45),
-            -4px -4px 12px rgba(184, 228, 255, 0.35),
-            inset 0 6px 12px rgba(255, 255, 255, 0.45),
-            inset 0 -6px 12px rgba(0, 0, 80, 0.15);
-          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
           user-select: none;
@@ -95,13 +117,6 @@ export default function VirtualKeyboard({ onKeyPress, isVisible }: VirtualKeyboa
           border-radius: 100% 70% 50% 40%;
           transform: rotate(-8deg);
           pointer-events: none;
-        }
-        .vk-clay-key:active {
-          transform: scale(0.92) translateY(2px);
-          box-shadow:
-            3px 3px 10px rgba(141, 212, 255, 0.35),
-            -2px -2px 8px rgba(184, 228, 255, 0.25),
-            inset 0 2px 6px rgba(0, 0, 0, 0.18);
         }
       `}</style>
     </>
