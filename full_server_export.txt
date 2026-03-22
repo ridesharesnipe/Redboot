@@ -1,0 +1,2594 @@
+========== server/db.ts ==========
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import * as schema from "@shared/schema";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
+}
+
+// Use HTTP connection without timeout to handle Neon database wake-up from sleep
+// Neon databases can be suspended and may take 30+ seconds to reactivate
+const sql = neon(process.env.DATABASE_URL);
+
+export const db = drizzle(sql, { schema });
+========== server/index.ts ==========
+import express, { type Request, Response, NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { setupVite, serveStatic, log } from "./vite";
+
+const app = express();
+
+// Health check endpoint - responds immediately without any middleware or database
+// This must be BEFORE all other middleware for fast deployment health checks
+app.get('/healthz', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// Stripe webhook needs raw body — must be before express.json()
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path = req.path;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+
+  const originalResJson = res.json;
+  res.json = function (bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path.startsWith("/api")) {
+      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "…";
+      }
+
+      log(logLine);
+    }
+  });
+
+  next();
+});
+
+(async () => {
+  const server = await registerRoutes(app);
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // Set timeout to 60 seconds to allow for database wake-up from sleep
+  server.timeout = 60000;
+  server.headersTimeout = 61000; // Must be greater than timeout
+  server.requestTimeout = 60000;
+
+  // ALWAYS serve the app on the port specified in the environment variable PORT
+  // Other ports are firewalled. Default to 5000 if not specified.
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
+  const port = parseInt(process.env.PORT || '5000', 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
+
+========== server/objectAcl.ts ==========
+import { File } from "@google-cloud/storage";
+
+const ACL_POLICY_METADATA_KEY = "custom:aclPolicy";
+
+// Simple ACL for the spelling adventure app
+export enum ObjectPermission {
+  READ = "read",
+  WRITE = "write",
+}
+
+// The ACL policy of the object.
+export interface ObjectAclPolicy {
+  owner: string;
+  visibility: "public" | "private";
+}
+
+// Sets the ACL policy to the object metadata.
+export async function setObjectAclPolicy(
+  objectFile: File,
+  aclPolicy: ObjectAclPolicy,
+): Promise<void> {
+  const [exists] = await objectFile.exists();
+  if (!exists) {
+    throw new Error(`Object not found: ${objectFile.name}`);
+  }
+
+  await objectFile.setMetadata({
+    metadata: {
+      [ACL_POLICY_METADATA_KEY]: JSON.stringify(aclPolicy),
+    },
+  });
+}
+
+// Gets the ACL policy from the object metadata.
+export async function getObjectAclPolicy(
+  objectFile: File,
+): Promise<ObjectAclPolicy | null> {
+  const [metadata] = await objectFile.getMetadata();
+  const aclPolicy = metadata?.metadata?.[ACL_POLICY_METADATA_KEY];
+  if (!aclPolicy) {
+    return null;
+  }
+  return JSON.parse(aclPolicy as string);
+}
+
+// Checks if the user can access the object.
+export async function canAccessObject({
+  userId,
+  objectFile,
+  requestedPermission,
+}: {
+  userId?: string;
+  objectFile: File;
+  requestedPermission: ObjectPermission;
+}): Promise<boolean> {
+  // Get the ACL policy for the object
+  const aclPolicy = await getObjectAclPolicy(objectFile);
+  if (!aclPolicy) {
+    // No ACL policy means public access for photos
+    return true;
+  }
+
+  // Public objects are always accessible for read
+  if (
+    aclPolicy.visibility === "public" &&
+    requestedPermission === ObjectPermission.READ
+  ) {
+    return true;
+  }
+
+  // For our spelling app, we'll keep photos publicly accessible
+  // since they're just spelling list photos
+  return true;
+}
+========== server/objectStorage.ts ==========
+import { Storage, File } from "@google-cloud/storage";
+import { Response } from "express";
+import { randomUUID } from "crypto";
+import {
+  ObjectAclPolicy,
+  ObjectPermission,
+  canAccessObject,
+  getObjectAclPolicy,
+  setObjectAclPolicy,
+} from "./objectAcl";
+
+const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+
+// The object storage client is used to interact with the object storage service.
+export const objectStorageClient = new Storage({
+  credentials: {
+    audience: "replit",
+    subject_token_type: "access_token",
+    token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+    type: "external_account",
+    credential_source: {
+      url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+      format: {
+        type: "json",
+        subject_token_field_name: "access_token",
+      },
+    },
+    universe_domain: "googleapis.com",
+  },
+  projectId: "",
+});
+
+export class ObjectNotFoundError extends Error {
+  constructor() {
+    super("Object not found");
+    this.name = "ObjectNotFoundError";
+    Object.setPrototypeOf(this, ObjectNotFoundError.prototype);
+  }
+}
+
+// The object storage service is used to interact with the object storage service.
+export class ObjectStorageService {
+  constructor() {}
+
+  // Gets the public object search paths.
+  getPublicObjectSearchPaths(): Array<string> {
+    const pathsStr = process.env.PUBLIC_OBJECT_SEARCH_PATHS || "";
+    const paths = Array.from(
+      new Set(
+        pathsStr
+          .split(",")
+          .map((path) => path.trim())
+          .filter((path) => path.length > 0)
+      )
+    );
+    if (paths.length === 0) {
+      throw new Error(
+        "PUBLIC_OBJECT_SEARCH_PATHS not set. Create a bucket in 'Object Storage' " +
+          "tool and set PUBLIC_OBJECT_SEARCH_PATHS env var (comma-separated paths)."
+      );
+    }
+    return paths;
+  }
+
+  // Gets the private object directory.
+  getPrivateObjectDir(): string {
+    const dir = process.env.PRIVATE_OBJECT_DIR || "";
+    if (!dir) {
+      throw new Error(
+        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
+          "tool and set PRIVATE_OBJECT_DIR env var."
+      );
+    }
+    return dir;
+  }
+
+  // Search for a public object from the search paths.
+  async searchPublicObject(filePath: string): Promise<File | null> {
+    for (const searchPath of this.getPublicObjectSearchPaths()) {
+      const fullPath = `${searchPath}/${filePath}`;
+
+      // Full path format: /<bucket_name>/<object_name>
+      const { bucketName, objectName } = parseObjectPath(fullPath);
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file(objectName);
+
+      // Check if file exists
+      const [exists] = await file.exists();
+      if (exists) {
+        return file;
+      }
+    }
+
+    return null;
+  }
+
+  // Downloads an object to the response.
+  async downloadObject(file: File, res: Response, cacheTtlSec: number = 3600) {
+    try {
+      // Get file metadata
+      const [metadata] = await file.getMetadata();
+      // Get the ACL policy for the object.
+      const aclPolicy = await getObjectAclPolicy(file);
+      const isPublic = aclPolicy?.visibility === "public";
+      // Set appropriate headers
+      res.set({
+        "Content-Type": metadata.contentType || "application/octet-stream",
+        "Content-Length": metadata.size,
+        "Cache-Control": `${
+          isPublic ? "public" : "private"
+        }, max-age=${cacheTtlSec}`,
+      });
+
+      // Stream the file to the response
+      const stream = file.createReadStream();
+
+      stream.on("error", (err: Error) => {
+        console.error("Stream error:", err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Error streaming file" });
+        }
+      });
+
+      stream.pipe(res);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Error downloading file" });
+      }
+    }
+  }
+
+  // Gets the upload URL for an object entity.
+  async getObjectEntityUploadURL(): Promise<string> {
+    const privateObjectDir = this.getPrivateObjectDir();
+    if (!privateObjectDir) {
+      throw new Error(
+        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
+          "tool and set PRIVATE_OBJECT_DIR env var."
+      );
+    }
+
+    const objectId = randomUUID();
+    const fullPath = `${privateObjectDir}/photos/${objectId}.jpg`;
+
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+
+    // Sign URL for PUT method with TTL
+    return signObjectURL({
+      bucketName,
+      objectName,
+      method: "PUT",
+      ttlSec: 900,
+    });
+  }
+
+  // Gets the object entity file from the object path.
+  async getObjectEntityFile(objectPath: string): Promise<File> {
+    if (!objectPath.startsWith("/objects/")) {
+      throw new ObjectNotFoundError();
+    }
+
+    const parts = objectPath.slice(1).split("/");
+    if (parts.length < 2) {
+      throw new ObjectNotFoundError();
+    }
+
+    const entityId = parts.slice(1).join("/");
+    let entityDir = this.getPrivateObjectDir();
+    if (!entityDir.endsWith("/")) {
+      entityDir = `${entityDir}/`;
+    }
+    const objectEntityPath = `${entityDir}${entityId}`;
+    const { bucketName, objectName } = parseObjectPath(objectEntityPath);
+    const bucket = objectStorageClient.bucket(bucketName);
+    const objectFile = bucket.file(objectName);
+    const [exists] = await objectFile.exists();
+    if (!exists) {
+      throw new ObjectNotFoundError();
+    }
+    return objectFile;
+  }
+
+  normalizeObjectEntityPath(
+    rawPath: string,
+  ): string {
+    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
+      return rawPath;
+    }
+  
+    // Extract the path from the URL by removing query parameters and domain
+    const url = new URL(rawPath);
+    const rawObjectPath = url.pathname;
+  
+    let objectEntityDir = this.getPrivateObjectDir();
+    if (!objectEntityDir.endsWith("/")) {
+      objectEntityDir = `${objectEntityDir}/`;
+    }
+  
+    if (!rawObjectPath.startsWith(objectEntityDir)) {
+      return rawObjectPath;
+    }
+  
+    // Extract the entity ID from the path
+    const entityId = rawObjectPath.slice(objectEntityDir.length);
+    return `/objects/${entityId}`;
+  }
+
+  // Tries to set the ACL policy for the object entity and return the normalized path.
+  async trySetObjectEntityAclPolicy(
+    rawPath: string,
+    aclPolicy: ObjectAclPolicy
+  ): Promise<string> {
+    const normalizedPath = this.normalizeObjectEntityPath(rawPath);
+    if (!normalizedPath.startsWith("/")) {
+      return normalizedPath;
+    }
+
+    const objectFile = await this.getObjectEntityFile(normalizedPath);
+    await setObjectAclPolicy(objectFile, aclPolicy);
+    return normalizedPath;
+  }
+
+  // Checks if the user can access the object entity.
+  async canAccessObjectEntity({
+    userId,
+    objectFile,
+    requestedPermission,
+  }: {
+    userId?: string;
+    objectFile: File;
+    requestedPermission?: ObjectPermission;
+  }): Promise<boolean> {
+    return canAccessObject({
+      userId,
+      objectFile,
+      requestedPermission: requestedPermission ?? ObjectPermission.READ,
+    });
+  }
+}
+
+function parseObjectPath(path: string): {
+  bucketName: string;
+  objectName: string;
+} {
+  if (!path.startsWith("/")) {
+    path = `/${path}`;
+  }
+  const pathParts = path.split("/");
+  if (pathParts.length < 3) {
+    throw new Error("Invalid path: must contain at least a bucket name");
+  }
+
+  const bucketName = pathParts[1];
+  const objectName = pathParts.slice(2).join("/");
+
+  return {
+    bucketName,
+    objectName,
+  };
+}
+
+async function signObjectURL({
+  bucketName,
+  objectName,
+  method,
+  ttlSec,
+}: {
+  bucketName: string;
+  objectName: string;
+  method: "GET" | "PUT" | "DELETE" | "HEAD";
+  ttlSec: number;
+}): Promise<string> {
+  const request = {
+    bucket_name: bucketName,
+    object_name: objectName,
+    method,
+    expires_at: new Date(Date.now() + ttlSec * 1000).toISOString(),
+  };
+  const response = await fetch(
+    `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    }
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to sign object URL, errorcode: ${response.status}, ` +
+        `make sure you're running on Replit`
+    );
+  }
+
+  const { signed_url: signedURL } = await response.json();
+  return signedURL;
+}
+========== server/replit_integrations/auth/index.ts ==========
+export { setupAuth, isAuthenticated, getSession } from "./replitAuth";
+export { authStorage, type IAuthStorage } from "./storage";
+export { registerAuthRoutes } from "./routes";
+
+========== server/replit_integrations/auth/replitAuth.ts ==========
+import * as client from "openid-client";
+import { Strategy, type VerifyFunction } from "openid-client/passport";
+
+import passport from "passport";
+import session from "express-session";
+import type { Express, RequestHandler } from "express";
+import memoize from "memoizee";
+import connectPg from "connect-pg-simple";
+import { authStorage } from "./storage";
+
+const getOidcConfig = memoize(
+  async () => {
+    return await client.discovery(
+      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+      process.env.REPL_ID!
+    );
+  },
+  { maxAge: 3600 * 1000 }
+);
+
+export function getSession() {
+  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  const pgStore = connectPg(session);
+  const sessionStore = new pgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: false,
+    ttl: sessionTtl,
+    tableName: "sessions",
+  });
+  return session({
+    secret: process.env.SESSION_SECRET!,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: true,
+      maxAge: sessionTtl,
+    },
+  });
+}
+
+function updateUserSession(
+  user: any,
+  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
+) {
+  user.claims = tokens.claims();
+  user.access_token = tokens.access_token;
+  user.refresh_token = tokens.refresh_token;
+  user.expires_at = user.claims?.exp;
+}
+
+async function upsertUser(claims: any) {
+  await authStorage.upsertUser({
+    id: claims["sub"],
+    email: claims["email"],
+    firstName: claims["first_name"],
+    lastName: claims["last_name"],
+    profileImageUrl: claims["profile_image_url"],
+  });
+}
+
+export async function setupAuth(app: Express) {
+  app.set("trust proxy", 1);
+  app.use(getSession());
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  const config = await getOidcConfig();
+
+  const verify: VerifyFunction = async (
+    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
+    verified: passport.AuthenticateCallback
+  ) => {
+    const user = {};
+    updateUserSession(user, tokens);
+    await upsertUser(tokens.claims());
+    verified(null, user);
+  };
+
+  // Keep track of registered strategies
+  const registeredStrategies = new Set<string>();
+
+  // Helper function to ensure strategy exists for a domain
+  const ensureStrategy = (domain: string) => {
+    const strategyName = `replitauth:${domain}`;
+    if (!registeredStrategies.has(strategyName)) {
+      const strategy = new Strategy(
+        {
+          name: strategyName,
+          config,
+          scope: "openid email profile offline_access",
+          callbackURL: `https://${domain}/api/callback`,
+        },
+        verify
+      );
+      passport.use(strategy);
+      registeredStrategies.add(strategyName);
+    }
+  };
+
+  passport.serializeUser((user: Express.User, cb) => cb(null, user));
+  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+
+  app.get("/api/login", (req, res, next) => {
+    ensureStrategy(req.hostname);
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      prompt: "login consent",
+      scope: ["openid", "email", "profile", "offline_access"],
+    })(req, res, next);
+  });
+
+  app.get("/api/callback", (req, res, next) => {
+    ensureStrategy(req.hostname);
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      successReturnToOrRedirect: "/",
+      failureRedirect: "/api/login",
+    })(req, res, next);
+  });
+
+  app.get("/api/logout", (req, res) => {
+    req.logout(() => {
+      res.redirect(
+        client.buildEndSessionUrl(config, {
+          client_id: process.env.REPL_ID!,
+          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+        }).href
+      );
+    });
+  });
+}
+
+export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  const user = req.user as any;
+
+  if (!req.isAuthenticated() || !user.expires_at) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (now <= user.expires_at) {
+    return next();
+  }
+
+  const refreshToken = user.refresh_token;
+  if (!refreshToken) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const config = await getOidcConfig();
+    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+    updateUserSession(user, tokenResponse);
+    return next();
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+};
+
+========== server/replit_integrations/auth/routes.ts ==========
+import type { Express } from "express";
+import { authStorage } from "./storage";
+import { isAuthenticated } from "./replitAuth";
+
+// Register auth-specific routes
+export function registerAuthRoutes(app: Express): void {
+  // Get current authenticated user
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await authStorage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+}
+
+========== server/replit_integrations/auth/storage.ts ==========
+import { users, type User, type UpsertUser } from "@shared/models/auth";
+import { db } from "../../db";
+import { eq } from "drizzle-orm";
+
+// Interface for auth storage operations
+// (IMPORTANT) These user operations are mandatory for Replit Auth.
+export interface IAuthStorage {
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+}
+
+class AuthStorage implements IAuthStorage {
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+}
+
+export const authStorage = new AuthStorage();
+
+========== server/routes.ts ==========
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import Stripe from "stripe";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { storage } from "./storage";
+import { insertChildSchema, insertWordListSchema, insertProgressSchema, signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@shared/schema";
+import { z } from "zod";
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable must be set");
+}
+const JWT_SECRET: string = process.env.JWT_SECRET;
+
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-08-27.basil",
+  });
+}
+
+function signToken(userId: string): string {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "30d" });
+}
+
+async function requireAuth(req: any, res: any, next: any) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+}
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Simple API routes for basic functionality
+  app.get('/api/status', async (req, res) => {
+    res.json({ status: 'ready', message: 'Red Boot\'s Spelling Adventure is ready!' });
+  });
+
+  // Auth endpoints
+  app.post('/api/auth/signup', async (req, res) => {
+    try {
+      const { email, password, childName } = signupSchema.parse(req.body);
+      
+      const existing = await storage.getUserByEmail(email);
+      if (existing) {
+        return res.status(400).json({ message: "An account with this email already exists" });
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await storage.createUser(email, passwordHash, childName);
+      const token = signToken(user.id);
+      
+      res.json({ token, user: { id: user.id, email: user.email, childName: user.childName } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Signup error:", error);
+      res.status(500).json({ message: "Failed to create account" });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = loginSchema.parse(req.body);
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      const valid = await bcrypt.compare(password, user.passwordHash);
+      if (!valid) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      const token = signToken(user.id);
+      res.json({ token, user: { id: user.id, email: user.email, childName: user.childName } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to log in" });
+    }
+  });
+
+  app.post('/api/auth/logout', (_req, res) => {
+    res.json({ success: true });
+  });
+
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = forgotPasswordSchema.parse(req.body);
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.json({ message: "If an account exists with that email, a reset link has been sent." });
+      }
+      
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const expiry = new Date(Date.now() + 60 * 60 * 1000);
+      await storage.setResetToken(user.id, resetToken, expiry);
+      
+      if (process.env.SENDGRID_API_KEY) {
+        try {
+          const sgMail = await import("@sendgrid/mail");
+          sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
+          
+          const host = req.headers.host || req.hostname;
+          const protocol = req.protocol;
+          const resetUrl = `${protocol}://${host}/reset-password?token=${resetToken}`;
+          
+          await sgMail.default.send({
+            to: email,
+            from: process.env.SENDGRID_FROM_EMAIL || "noreply@redboot.app",
+            subject: "Reset Your Password - Red Boot's Spelling Adventure",
+            html: `<p>You requested a password reset. Click the link below to set a new password:</p><p><a href="${resetUrl}">Reset Password</a></p><p>This link expires in 1 hour.</p><p>If you didn't request this, you can safely ignore this email.</p>`,
+          });
+        } catch (emailError) {
+          console.error("Failed to send reset email:", emailError);
+        }
+      } else {
+        console.log(`Password reset requested for ${email} (SendGrid not configured, email not sent)`);
+      }
+      
+      res.json({ message: "If an account exists with that email, a reset link has been sent." });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Failed to process request" });
+    }
+  });
+
+  app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+      const { token, password } = resetPasswordSchema.parse(req.body);
+      
+      const user = await storage.getUserByResetToken(token);
+      if (!user || !user.resetTokenExpiry || new Date() > user.resetTokenExpiry) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 10);
+      await storage.updateUser(user.id, { passwordHash });
+      await storage.clearResetToken(user.id);
+      
+      const jwtToken = signToken(user.id);
+      res.json({ token: jwtToken, user: { id: user.id, email: user.email, childName: user.childName } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message || "Invalid input" });
+      }
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
+  app.post('/api/auth/migrate', requireAuth, async (req: any, res) => {
+    try {
+      const { oldPlayerId } = req.body;
+      if (!oldPlayerId) {
+        return res.status(400).json({ message: "Old player ID is required" });
+      }
+      
+      await storage.migrateAnonymousData(oldPlayerId, req.userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Migration error:", error);
+      res.status(500).json({ message: "Failed to migrate data" });
+    }
+  });
+
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const user = await storage.getUser(playerId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ id: user.id, email: user.email, childName: user.childName, onboardingComplete: user.onboardingComplete });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Onboarding endpoint (uses anonymous player ID with session validation)
+  app.post('/api/onboarding', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+
+      const { childName, gradeLevel, skip } = req.body;
+      
+      // If skipping, save gradeLevel but use default child name
+      if (skip) {
+        const defaultChildName = "My Child";
+        const updatedUser = await storage.updateUserOnboarding(playerId, defaultChildName, gradeLevel, true);
+        return res.json({ user: updatedUser });
+      }
+
+      // Otherwise save the data (childName optional, gradeLevel required)
+      const finalChildName = childName && childName.trim() ? childName.trim() : "My Child";
+      const updatedUser = await storage.updateUserOnboarding(playerId, finalChildName, gradeLevel, true);
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error saving onboarding data:", error);
+      res.status(500).json({ message: "Failed to save onboarding data" });
+    }
+  });
+
+  // Photos now stored in browser IndexedDB - no server routes needed!
+
+  // Word Lists API routes (uses anonymous player ID with session validation)
+  app.get('/api/word-lists', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+
+      // For now, use the user's childName as the default child
+      // Later can expand to support multiple children
+      const children = await storage.getChildren(playerId);
+      
+      // If no children exist, create a default one from user's childName
+      let childId: string;
+      if (children.length === 0) {
+        const userData = await storage.getUser(playerId);
+        if (!userData || !userData.childName) {
+          return res.json([]);
+        }
+        const newChild = await storage.createChild({
+          parentId: playerId,
+          name: userData.childName,
+          grade: userData.gradeLevel || undefined,
+        });
+        childId = newChild.id;
+      } else {
+        childId = children[0].id;
+      }
+
+      const wordLists = await storage.getWordLists(childId);
+      res.json(wordLists);
+    } catch (error) {
+      console.error('Error fetching word lists:', error);
+      res.status(500).json({ message: 'Failed to fetch word lists' });
+    }
+  });
+
+  app.post('/api/word-lists', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      console.log('📝 Creating word list for player:', playerId.substring(0, 8) + '...', 'Words:', req.body.words?.length);
+
+      // Validate request body (without childId - we'll add it below)
+      const requestSchema = z.object({
+        weekNumber: z.number(),
+        words: z.array(z.string()),
+        practiceCount: z.number().optional().default(0),
+        bestScore: z.number().optional().default(0),
+      });
+      const validatedData = requestSchema.parse(req.body);
+
+      // Get or create child for this user
+      const children = await storage.getChildren(playerId);
+      let childId: string;
+      
+      if (children.length === 0) {
+        console.log('👶 No child found, creating one...');
+        const userData = await storage.getUser(playerId);
+        console.log('👤 User data:', { childName: userData?.childName, gradeLevel: userData?.gradeLevel });
+        
+        // Use child name from user data, or default to "My Child" if not set
+        const childName = userData?.childName || "My Child";
+        const newChild = await storage.createChild({
+          parentId: playerId,
+          name: childName,
+          grade: userData?.gradeLevel || undefined,
+        });
+        console.log('✅ Created child:', newChild.id);
+        childId = newChild.id;
+      } else {
+        childId = children[0].id;
+        console.log('✅ Using existing child:', childId);
+      }
+
+      // Create word list
+      console.log('📋 Creating word list with childId:', childId);
+      const wordList = await storage.createWordList({
+        ...validatedData,
+        childId,
+      });
+      console.log('✅ Word list created:', wordList.id);
+      
+      res.json(wordList);
+    } catch (error) {
+      console.error('❌ Error creating word list:', error);
+      if (error instanceof z.ZodError) {
+        console.error('❌ Validation error:', error.errors);
+        return res.status(400).json({ message: 'Invalid request data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to create word list', error: String(error) });
+    }
+  });
+
+  app.get('/api/word-lists/:id', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+
+      const wordList = await storage.getWordList(req.params.id);
+      if (!wordList) {
+        return res.status(404).json({ message: 'Word list not found' });
+      }
+
+      // Verify ownership: Check that the word list's child belongs to this parent
+      const child = await storage.getChild(wordList.childId);
+      if (!child || child.parentId !== playerId) {
+        return res.status(403).json({ message: 'Access denied: You do not own this word list' });
+      }
+
+      res.json(wordList);
+    } catch (error) {
+      console.error('Error fetching word list:', error);
+      res.status(500).json({ message: 'Failed to fetch word list' });
+    }
+  });
+
+  // Progress API routes (uses anonymous player ID with session validation)
+  app.get('/api/progress', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+
+      const children = await storage.getChildren(playerId);
+      if (children.length === 0) {
+        return res.json([]);
+      }
+      
+      const allProgress: any[] = [];
+      for (const child of children) {
+        const childProgress = await storage.getProgress(child.id);
+        allProgress.push(...childProgress);
+      }
+      res.json(allProgress);
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+      res.status(500).json({ message: 'Failed to fetch progress' });
+    }
+  });
+
+  app.post('/api/progress', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+
+      const validatedData = insertProgressSchema.parse(req.body);
+
+      const children = await storage.getChildren(playerId);
+      if (children.length === 0) {
+        return res.status(400).json({ message: 'No child profile found' });
+      }
+      
+      let childId = children[0].id;
+
+      if (validatedData.wordListId) {
+        const wordList = await storage.getWordList(validatedData.wordListId);
+        if (wordList) {
+          const ownerChild = children.find(c => c.id === wordList.childId);
+          if (ownerChild) {
+            childId = ownerChild.id;
+          } else {
+            return res.status(403).json({ message: 'Word list does not belong to your children' });
+          }
+        }
+      }
+      
+      const progressRecord = await storage.createProgress({
+        ...validatedData,
+        childId,
+      });
+      
+      res.json(progressRecord);
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid request data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to save progress' });
+    }
+  });
+
+  // Treasure Vault API routes (uses anonymous player ID with session validation)
+  app.get('/api/treasures', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const userData = await storage.getUser(playerId);
+      
+      // If user doesn't exist yet, return empty treasure vault (all zeros)
+      if (!userData) {
+        return res.json({
+          redboot: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+          diego: {
+            diamonds: 0,
+            coins: 0,
+            crowns: 0,
+            bags: 0,
+            stars: 0,
+            trophies: 0,
+          },
+        });
+      }
+
+      res.json({
+        redboot: {
+          diamonds: userData.treasureDiamonds || 0,
+          coins: userData.treasureCoins || 0,
+          crowns: userData.treasureCrowns || 0,
+          bags: userData.treasureBags || 0,
+          stars: userData.treasureStars || 0,
+          trophies: userData.treasureTrophies || 0,
+        },
+        diego: {
+          diamonds: userData.diegoTreasureDiamonds || 0,
+          coins: userData.diegoTreasureCoins || 0,
+          crowns: userData.diegoTreasureCrowns || 0,
+          bags: userData.diegoTreasureBags || 0,
+          stars: userData.diegoTreasureStars || 0,
+          trophies: userData.diegoTreasureTrophies || 0,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching treasures:', error);
+      res.status(500).json({ message: 'Failed to fetch treasures' });
+    }
+  });
+
+  app.post('/api/treasures/add', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+
+      const { character, amount } = req.body;
+      if (!character || !amount || amount <= 0) {
+        return res.status(400).json({ message: 'Invalid request' });
+      }
+
+      await storage.addTreasures(playerId, character, amount);
+      
+      // Check for treasure-based achievements after adding treasures
+      const newlyAwarded: string[] = [];
+      const user = await storage.getUser(playerId);
+      if (user) {
+        // Calculate total treasures for this character
+        const totalTreasures = character === 'redboot' 
+          ? (user.treasureDiamonds || 0) + (user.treasureCoins || 0) + (user.treasureCrowns || 0) + 
+            (user.treasureBags || 0) + (user.treasureStars || 0) + (user.treasureTrophies || 0)
+          : (user.diegoTreasureDiamonds || 0) + (user.diegoTreasureCoins || 0) + (user.diegoTreasureCrowns || 0) + 
+            (user.diegoTreasureBags || 0) + (user.diegoTreasureStars || 0) + (user.diegoTreasureTrophies || 0);
+        
+        // Check treasure milestones
+        const treasureAchievements = [
+          { id: 'treasure_50', threshold: 50 },
+          { id: 'treasure_200', threshold: 200 },
+          { id: 'treasure_500', threshold: 500 },
+        ];
+        
+        for (const achievement of treasureAchievements) {
+          if (totalTreasures >= achievement.threshold) {
+            const hasIt = await storage.hasAchievement(playerId, achievement.id);
+            if (!hasIt) {
+              await storage.awardAchievement(playerId, achievement.id, { totalTreasures, character });
+              newlyAwarded.push(achievement.id);
+            }
+          }
+        }
+        
+        // Check character-specific achievements (10 practice sessions)
+        const characterAchievement = character === 'redboot' ? 'treasure_hunter' : 'sea_monster_slayer';
+        const practiceSessions = (user.practiceCount || 0) + 1;
+        if (practiceSessions >= 10) {
+          const hasIt = await storage.hasAchievement(playerId, characterAchievement);
+          if (!hasIt) {
+            await storage.awardAchievement(playerId, characterAchievement, { practiceSessions, character });
+            newlyAwarded.push(characterAchievement);
+          }
+        }
+      }
+      
+      res.json({ success: true, newlyAwarded });
+    } catch (error) {
+      console.error('Error adding treasures:', error);
+      res.status(500).json({ message: 'Failed to add treasures' });
+    }
+  });
+
+  // Tricky Words API routes
+  app.get('/api/tricky-words', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const status = req.query.status as 'active' | 'mastered' | undefined;
+      
+      const trickyWords = await storage.getTrickyWords(playerId, status);
+      res.json(trickyWords);
+    } catch (error) {
+      console.error('Error fetching tricky words:', error);
+      res.status(500).json({ message: 'Failed to fetch tricky words' });
+    }
+  });
+
+  app.post('/api/tricky-words', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { word } = req.body;
+      
+      if (!word || typeof word !== 'string') {
+        return res.status(400).json({ message: 'Word is required' });
+      }
+      
+      const trickyWord = await storage.addTrickyWord(playerId, word);
+      res.json(trickyWord);
+    } catch (error) {
+      console.error('Error adding tricky word:', error);
+      res.status(500).json({ message: 'Failed to add tricky word' });
+    }
+  });
+
+  app.post('/api/tricky-words/attempt', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { word, correct } = req.body;
+      
+      if (!word || typeof word !== 'string' || typeof correct !== 'boolean') {
+        return res.status(400).json({ message: 'Word and correct status are required' });
+      }
+      
+      const trickyWord = await storage.recordTrickyWordAttempt(playerId, word, correct);
+      res.json(trickyWord);
+    } catch (error) {
+      console.error('Error recording tricky word attempt:', error);
+      res.status(500).json({ message: 'Failed to record attempt' });
+    }
+  });
+
+  app.post('/api/tricky-words/bulk', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { words } = req.body;
+      
+      if (!Array.isArray(words)) {
+        return res.status(400).json({ message: 'Words array is required' });
+      }
+      
+      // Add all tricky words
+      const results = await Promise.all(
+        words.map((word: string) => storage.addTrickyWord(playerId, word))
+      );
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Error adding tricky words in bulk:', error);
+      res.status(500).json({ message: 'Failed to add tricky words' });
+    }
+  });
+
+  // Achievement API routes
+  app.get('/api/achievements', requireAuth, async (req: any, res) => {
+    try {
+      // Seed achievements if they don't exist
+      await storage.seedAchievements();
+      
+      const allAchievements = await storage.getAchievements();
+      res.json(allAchievements);
+    } catch (error) {
+      console.error('Error fetching achievements:', error);
+      res.status(500).json({ message: 'Failed to fetch achievements' });
+    }
+  });
+
+  app.get('/api/achievements/user', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      
+      // Seed achievements if they don't exist
+      await storage.seedAchievements();
+      
+      const userAchievements = await storage.getUserAchievements(playerId);
+      const allAchievements = await storage.getAchievements();
+      
+      res.json({
+        earned: userAchievements,
+        all: allAchievements,
+      });
+    } catch (error) {
+      console.error('Error fetching user achievements:', error);
+      res.status(500).json({ message: 'Failed to fetch user achievements' });
+    }
+  });
+
+  app.post('/api/achievements/award', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { achievementId, metadata } = req.body;
+      
+      if (!achievementId) {
+        return res.status(400).json({ message: 'Achievement ID is required' });
+      }
+      
+      // Check if user already has this achievement
+      const hasIt = await storage.hasAchievement(playerId, achievementId);
+      if (hasIt) {
+        return res.json({ awarded: false, message: 'Achievement already earned' });
+      }
+      
+      const userAchievement = await storage.awardAchievement(playerId, achievementId, metadata);
+      res.json({ awarded: true, achievement: userAchievement });
+    } catch (error) {
+      console.error('Error awarding achievement:', error);
+      res.status(500).json({ message: 'Failed to award achievement' });
+    }
+  });
+
+  // Award next perfect run badge in sequence
+  app.post('/api/achievements/perfect-run', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { wordsTotal } = req.body;
+      
+      // Get user's current perfect run count
+      const user = await storage.getUser(playerId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const currentCount = user.perfectRunCount || 0;
+      const newCount = currentCount + 1;
+      
+      // Progressive badges: perfect_run_1 through perfect_run_6
+      const badgeNumber = Math.min(newCount, 6);
+      const achievementId = `perfect_run_${badgeNumber}`;
+      
+      // Badge metadata for display
+      const badgeInfo: { [key: string]: { title: string; icon: string; rarity: string } } = {
+        'perfect_run_1': { title: 'Perfect Voyage', icon: '⭐', rarity: 'common' },
+        'perfect_run_2': { title: 'Gold Compass', icon: '🧭', rarity: 'common' },
+        'perfect_run_3': { title: 'Diamond Helm', icon: '💎', rarity: 'rare' },
+        'perfect_run_4': { title: 'Starry Sextant', icon: '🌟', rarity: 'rare' },
+        'perfect_run_5': { title: 'Treasure Master', icon: '👑', rarity: 'epic' },
+        'perfect_run_6': { title: 'Legendary Captain', icon: '🏴‍☠️', rarity: 'legendary' },
+      };
+      
+      // Check if user already has this specific badge
+      const hasIt = await storage.hasAchievement(playerId, achievementId);
+      
+      if (hasIt) {
+        // User already has all 6 badges, still a perfect run but no new badge
+        // Increment the count to track total perfect runs
+        await storage.updateUser(playerId, { perfectRunCount: newCount });
+        return res.json({ 
+          awarded: false, 
+          message: 'All badges earned! Still a perfect run!',
+          perfectRunCount: newCount,
+          allBadgesEarned: true
+        });
+      }
+      
+      // Award the new badge
+      await storage.awardAchievement(playerId, achievementId, { wordsTotal, perfectRunNumber: newCount });
+      
+      // Increment perfect run count
+      await storage.updateUser(playerId, { perfectRunCount: newCount });
+      
+      const badge = badgeInfo[achievementId];
+      
+      res.json({ 
+        awarded: true, 
+        badge: {
+          id: achievementId,
+          ...badge
+        },
+        perfectRunCount: newCount
+      });
+    } catch (error) {
+      console.error('Error awarding perfect run achievement:', error);
+      res.status(500).json({ message: 'Failed to award perfect run achievement' });
+    }
+  });
+
+  app.post('/api/achievements/check', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { achievementId } = req.body;
+      
+      if (!achievementId) {
+        return res.status(400).json({ message: 'Achievement ID is required' });
+      }
+      
+      const hasAchievement = await storage.hasAchievement(playerId, achievementId);
+      res.json({ hasAchievement });
+    } catch (error) {
+      console.error('Error checking achievement:', error);
+      res.status(500).json({ message: 'Failed to check achievement' });
+    }
+  });
+
+  // Comprehensive badge check - awards ALL relevant badges after practice
+  app.post('/api/achievements/check-all', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      const { isPerfect, wordsCorrect, treasureTotal } = req.body;
+      
+      // All badge definitions with thresholds
+      const allBadges: { [key: string]: { title: string; icon: string; rarity: string; threshold?: number } } = {
+        // Perfect run badges (awarded sequentially)
+        'perfect_run_1': { title: 'Perfect Voyage', icon: '⭐', rarity: 'common' },
+        'perfect_run_2': { title: 'Gold Compass', icon: '🧭', rarity: 'common' },
+        'perfect_run_3': { title: 'Diamond Helm', icon: '💎', rarity: 'rare' },
+        'perfect_run_4': { title: 'Starry Sextant', icon: '🌟', rarity: 'rare' },
+        'perfect_run_5': { title: 'Treasure Master', icon: '👑', rarity: 'epic' },
+        'perfect_run_6': { title: 'Legendary Captain', icon: '🏴‍☠️', rarity: 'legendary' },
+        // Word master badges
+        'first_word': { title: 'First Mate', icon: '⚓', rarity: 'common', threshold: 1 },
+        'word_master_10': { title: 'Word Hunter', icon: '🎯', rarity: 'common', threshold: 10 },
+        'word_master_50': { title: 'Word Wizard', icon: '🧙', rarity: 'rare', threshold: 50 },
+        'word_master_100': { title: 'Spelling Captain', icon: '👑', rarity: 'epic', threshold: 100 },
+        // Treasure badges
+        'treasure_50': { title: 'Treasure Finder', icon: '💎', rarity: 'common', threshold: 50 },
+        'treasure_200': { title: 'Treasure Hunter', icon: '💰', rarity: 'rare', threshold: 200 },
+        'treasure_500': { title: 'Treasure King', icon: '👑', rarity: 'epic', threshold: 500 },
+      };
+      
+      const user = await storage.getUser(playerId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Collect ALL newly earned badges, but only show ONE in celebration
+      const allNewBadges: { id: string; title: string; icon: string; rarity: string }[] = [];
+      
+      // Get historical data PLUS current session for accurate totals
+      const progressRecords = await storage.getProgressByUser(playerId);
+      const historicalWordsCorrect = progressRecords.reduce((sum: number, p: any) => sum + (p.correctWords?.length || 0), 0);
+      // Include current session's words in the total
+      const totalWordsCorrect = historicalWordsCorrect + (wordsCorrect || 0);
+      const totalTreasures = treasureTotal || 0;
+      
+      // Helper to award a badge and track it
+      const tryAwardBadge = async (achievementId: string) => {
+        const hasIt = await storage.hasAchievement(playerId, achievementId);
+        if (!hasIt && allBadges[achievementId]) {
+          await storage.awardAchievement(playerId, achievementId, { 
+            totalWordsCorrect, 
+            totalTreasures,
+            awardedAt: new Date().toISOString()
+          });
+          allNewBadges.push({ id: achievementId, ...allBadges[achievementId] });
+          return true;
+        }
+        return false;
+      };
+      
+      // 1. Check perfect run badges (if this was a perfect session)
+      if (isPerfect) {
+        const currentCount = user.perfectRunCount || 0;
+        const newCount = currentCount + 1;
+        const badgeNumber = Math.min(newCount, 6);
+        const achievementId = `perfect_run_${badgeNumber}`;
+        
+        await tryAwardBadge(achievementId);
+        // Always increment perfect run count
+        await storage.updateUser(playerId, { perfectRunCount: newCount });
+      }
+      
+      // 2. Check word master badges (using total INCLUDING current session)
+      if (totalWordsCorrect >= 1) await tryAwardBadge('first_word');
+      if (totalWordsCorrect >= 10) await tryAwardBadge('word_master_10');
+      if (totalWordsCorrect >= 50) await tryAwardBadge('word_master_50');
+      if (totalWordsCorrect >= 100) await tryAwardBadge('word_master_100');
+      
+      // 3. Check treasure badges
+      if (totalTreasures >= 50) await tryAwardBadge('treasure_50');
+      if (totalTreasures >= 200) await tryAwardBadge('treasure_200');
+      if (totalTreasures >= 500) await tryAwardBadge('treasure_500');
+      
+      // Prioritize showing highest rarity badge in celebration
+      const rarityOrder = ['legendary', 'epic', 'rare', 'common'];
+      let badgeToShow: { id: string; title: string; icon: string; rarity: string } | null = null;
+      
+      for (const rarity of rarityOrder) {
+        const matchingBadge = allNewBadges.find(b => b.rarity === rarity);
+        if (matchingBadge) {
+          badgeToShow = matchingBadge;
+          break;
+        }
+      }
+      
+      res.json({
+        awarded: badgeToShow !== null,
+        badge: badgeToShow,
+        allNewBadges: allNewBadges.length > 0 ? allNewBadges : undefined
+      });
+    } catch (error) {
+      console.error('Error checking all achievements:', error);
+      res.status(500).json({ message: 'Failed to check achievements' });
+    }
+  });
+
+  // Analytics API - Real-time dashboard data with comprehensive word-level breakdown
+  app.get('/api/analytics', requireAuth, async (req: any, res) => {
+    try {
+      const playerId = req.userId;
+      
+      // Get user data
+      const userData = await storage.getUser(playerId);
+      if (!userData) {
+        return res.json({ error: 'User not found' });
+      }
+      
+      // Get children
+      const childrenData = await storage.getChildren(playerId);
+      const child = childrenData[0];
+      
+      // Get word lists
+      const wordListsData = child ? await storage.getWordLists(child.id) : [];
+      const currentWordList = wordListsData[0];
+      
+      // Get progress records
+      const progressData = child ? await storage.getProgress(child.id) : [];
+      
+      // Get tricky words
+      const trickyWordsData = await storage.getTrickyWords(playerId);
+      const activeTrickyWords = trickyWordsData.filter(w => w.status === 'active');
+      const masteredTrickyWords = trickyWordsData.filter(w => w.status === 'mastered');
+      
+      // Get achievements
+      const userAchievements = await storage.getUserAchievements(playerId);
+      
+      // Calculate statistics
+      const totalWordsInList = currentWordList?.words?.length || 0;
+      const totalPracticeSessions = progressData.length;
+      
+      const sortedProgress = [...progressData].sort((a: any, b: any) => {
+        const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+        const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+        return dateA - dateB;
+      });
+
+      const wordStats: Record<string, { attempts: number; correct: number; incorrect: number; streak: number; wasMastered: boolean; lastPracticed: string }> = {};
+      
+      sortedProgress.forEach((p: any) => {
+        const correctWords = p.correctWords || [];
+        const incorrectWords = p.incorrectWords || [];
+        const practiceDate = p.completedAt || new Date().toISOString();
+        
+        correctWords.forEach((word: string) => {
+          const w = word.toLowerCase();
+          if (!wordStats[w]) {
+            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, streak: 0, wasMastered: false, lastPracticed: practiceDate };
+          }
+          wordStats[w].attempts++;
+          wordStats[w].correct++;
+          wordStats[w].streak++;
+          if (wordStats[w].streak >= 2) wordStats[w].wasMastered = true;
+          wordStats[w].lastPracticed = practiceDate;
+        });
+        
+        incorrectWords.forEach((word: string) => {
+          const w = word.toLowerCase();
+          if (!wordStats[w]) {
+            wordStats[w] = { attempts: 0, correct: 0, incorrect: 0, streak: 0, wasMastered: false, lastPracticed: practiceDate };
+          }
+          wordStats[w].attempts++;
+          wordStats[w].incorrect++;
+          wordStats[w].streak = 0;
+          wordStats[w].lastPracticed = practiceDate;
+        });
+      });
+      
+      const wordBreakdown = Object.entries(wordStats).map(([word, stats]) => {
+        const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0;
+        let status: 'mastered' | 'practicing' | 'learning' = 'learning';
+        if (stats.streak >= 2) {
+          status = 'mastered';
+        } else if (stats.wasMastered && stats.streak < 2) {
+          status = 'practicing';
+        } else if (stats.attempts >= 1) {
+          status = 'learning';
+        }
+        return {
+          word,
+          attempts: stats.attempts,
+          correct: stats.correct,
+          incorrect: stats.incorrect,
+          accuracy,
+          status,
+          lastPracticed: stats.lastPracticed
+        };
+      }).sort((a, b) => a.accuracy - b.accuracy);
+      
+      // Calculate accuracy from progress records
+      let totalCorrect = 0;
+      let totalAttempted = 0;
+      progressData.forEach((p: any) => {
+        const correct = p.correctWords?.length || 0;
+        const incorrect = p.incorrectWords?.length || 0;
+        totalCorrect += correct;
+        totalAttempted += correct + incorrect;
+      });
+      const overallAccuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+      
+      // Calculate total time spent (in minutes)
+      const totalTimeSpent = progressData.reduce((sum: number, p: any) => sum + (p.timeSpent || 0), 0);
+      const totalMinutes = Math.round(totalTimeSpent / 60);
+      const avgSessionMinutes = totalPracticeSessions > 0 ? Math.round((totalTimeSpent / 60) / totalPracticeSessions) : 0;
+      
+      // Calculate streak (consecutive days with practice)
+      const uniqueDays = new Set<string>();
+      progressData.forEach((p: any) => {
+        if (p.completedAt) {
+          uniqueDays.add(new Date(p.completedAt).toISOString().split('T')[0]);
+        }
+      });
+      const sortedDays = Array.from(uniqueDays).sort().reverse();
+      
+      let currentStreak = 0;
+      let longestStreak = 0;
+      let tempStreak = 0;
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      
+      if (sortedDays.length > 0) {
+        const firstDay = sortedDays[0];
+        if (firstDay === today || firstDay === yesterday) {
+          currentStreak = 1;
+          for (let i = 1; i < sortedDays.length; i++) {
+            const prevDate = new Date(sortedDays[i - 1]);
+            const currDate = new Date(sortedDays[i]);
+            const diff = (prevDate.getTime() - currDate.getTime()) / 86400000;
+            if (Math.round(diff) === 1) {
+              currentStreak++;
+            } else {
+              break;
+            }
+          }
+        }
+        
+        // Calculate longest streak
+        tempStreak = 1;
+        for (let i = 1; i < sortedDays.length; i++) {
+          const prevDate = new Date(sortedDays[i - 1]);
+          const currDate = new Date(sortedDays[i]);
+          const diff = (prevDate.getTime() - currDate.getTime()) / 86400000;
+          if (Math.round(diff) === 1) {
+            tempStreak++;
+          } else {
+            longestStreak = Math.max(longestStreak, tempStreak);
+            tempStreak = 1;
+          }
+        }
+        longestStreak = Math.max(longestStreak, tempStreak, currentStreak);
+      }
+      
+      // Calculate treasures
+      const totalTreasures = (userData.treasureDiamonds || 0) + (userData.treasureCoins || 0) + 
+        (userData.treasureCrowns || 0) + (userData.treasureBags || 0) + 
+        (userData.treasureStars || 0) + (userData.treasureTrophies || 0) +
+        (userData.diegoTreasureDiamonds || 0) + (userData.diegoTreasureCoins || 0) +
+        (userData.diegoTreasureCrowns || 0) + (userData.diegoTreasureBags || 0) +
+        (userData.diegoTreasureStars || 0) + (userData.diegoTreasureTrophies || 0);
+      
+      // Get daily progress for the last 7 days
+      const now = new Date();
+      const dailyProgress: { date: string; words: number; accuracy: number }[] = [];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        
+        // Filter progress for this day
+        const dayProgress = progressData.filter((p: any) => {
+          if (!p.completedAt) return false;
+          const pDate = new Date(p.completedAt).toISOString().split('T')[0];
+          return pDate === dateStr;
+        });
+        
+        let dayCorrect = 0;
+        let dayTotal = 0;
+        dayProgress.forEach((p: any) => {
+          const correct = p.correctWords?.length || 0;
+          const incorrect = p.incorrectWords?.length || 0;
+          dayCorrect += correct;
+          dayTotal += correct + incorrect;
+        });
+        
+        dailyProgress.push({
+          date: dayName,
+          words: dayTotal,
+          accuracy: dayTotal > 0 ? Math.round((dayCorrect / dayTotal) * 100) : 0
+        });
+      }
+      
+      // Word mastery breakdown - from actual word stats
+      const masteredCount = wordBreakdown.filter(w => w.status === 'mastered').length;
+      const learningCount = wordBreakdown.filter(w => w.status === 'learning').length;
+      const practicingCount = wordBreakdown.filter(w => w.status === 'practicing').length;
+      
+      const wordMastery = {
+        mastered: masteredCount,
+        learning: learningCount + practicingCount,
+        total: wordBreakdown.length
+      };
+      
+      // Session history with word-by-word breakdown (last 10 sessions)
+      const sessionHistory = progressData.slice(0, 10).map((p: any) => ({
+        id: p.id,
+        date: p.completedAt,
+        correctWords: p.correctWords || [],
+        incorrectWords: p.incorrectWords || [],
+        score: p.score || 0,
+        character: p.characterUsed || 'red-boot',
+        timeSpent: p.timeSpent || 0,
+        wordListId: p.wordListId
+      }));
+      
+      // Recent activity (last 5 sessions) - simplified view
+      const recentActivity = progressData.slice(0, 5).map((p: any) => ({
+        id: p.id,
+        date: p.completedAt,
+        correct: p.correctWords?.length || 0,
+        incorrect: p.incorrectWords?.length || 0,
+        score: p.score || 0,
+        character: p.characterUsed || 'red-boot'
+      }));
+      
+      // Struggling words (accuracy < 50%)
+      const strugglingWords = wordBreakdown.filter(w => w.accuracy < 50 && w.attempts >= 2);
+      
+      // Star performers (accuracy >= 90%)
+      const starWords = wordBreakdown.filter(w => w.accuracy >= 90 && w.attempts >= 2);
+      
+      res.json({
+        childName: userData.childName || 'Adventurer',
+        gradeLevel: userData.gradeLevel,
+        stats: {
+          totalWordsInList,
+          totalWordsPracticed: totalAttempted,
+          totalPracticeSessions,
+          overallAccuracy,
+          totalMinutes,
+          avgSessionMinutes,
+          currentStreak,
+          longestStreak,
+          totalTreasures,
+          achievementsEarned: userAchievements.length,
+          totalAchievements: 24,
+          trickyWordsActive: activeTrickyWords.length,
+          trickyWordsMastered: masteredTrickyWords.length
+        },
+        dailyProgress,
+        wordMastery,
+        wordBreakdown,
+        strugglingWords: strugglingWords.slice(0, 5),
+        starWords: starWords.slice(0, 5),
+        sessionHistory,
+        recentActivity,
+        trickyWords: activeTrickyWords.slice(0, 5).map((w: any) => ({
+          word: w.word,
+          mistakeCount: w.mistakeCount,
+          correctStreak: w.correctStreak
+        })),
+        currentWeek: {
+          words: currentWordList?.words || [],
+          practiceCount: currentWordList?.practiceCount || 0,
+          bestScore: currentWordList?.bestScore || 0
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch analytics' });
+    }
+  });
+
+  // Stripe routes (if Stripe is configured)
+  if (stripe) {
+    app.post('/api/create-payment-intent', async (req, res) => {
+      try {
+        const { amount } = req.body;
+        const paymentIntent = await stripe!.paymentIntents.create({
+          amount,
+          currency: 'usd',
+        });
+        res.json({ clientSecret: paymentIntent.client_secret });
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        res.status(500).json({ message: "Failed to create payment intent" });
+      }
+    });
+
+    // Create a Stripe Checkout Session and return the hosted URL
+    // Accepts { plan: 'annual'|'monthly'|'abandonment', includeTrial: boolean, customerEmail?: string }
+    app.post('/api/stripe/create-checkout-session', async (req, res) => {
+      try {
+        const { plan, customerEmail, includeTrial } = req.body;
+
+        const priceMap: Record<string, string | undefined> = {
+          annual_trial:     process.env.STRIPE_PRICE_ANNUAL,
+          annual_notrial:   process.env.STRIPE_PRICE_ANNUAL_NO_TRIAL,
+          monthly_trial:    process.env.STRIPE_PRICE_MONTHLY,
+          monthly_notrial:  process.env.STRIPE_PRICE_MONTHLY_NO_TRIAL,
+          abandonment_notrial: process.env.STRIPE_PRICE_ABANDONMENT,
+        };
+
+        const trialKey = includeTrial ? 'trial' : 'notrial';
+        const priceId = priceMap[`${plan}_${trialKey}`];
+
+        if (!priceId) {
+          return res.status(400).json({ message: `No price configured for plan: ${plan}, trial: ${includeTrial}` });
+        }
+
+        const origin = `${req.protocol}://${req.get('host')}`;
+
+        const sessionParams: Stripe.Checkout.SessionCreateParams = {
+          mode: 'subscription',
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: `${origin}/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${origin}/dashboard?payment=canceled`,
+          allow_promotion_codes: true,
+        };
+
+        if (customerEmail) {
+          sessionParams.customer_email = customerEmail;
+        }
+
+        const session = await stripe!.checkout.sessions.create(sessionParams);
+        res.json({ url: session.url });
+      } catch (error) {
+        console.error('Error creating checkout session:', error);
+        res.status(500).json({ message: 'Failed to create checkout session' });
+      }
+    });
+
+    // Verify a completed checkout session and return subscription status
+    app.get('/api/stripe/subscription-status', async (req, res) => {
+      try {
+        const { sessionId } = req.query;
+        if (!sessionId || typeof sessionId !== 'string') {
+          return res.status(400).json({ message: 'sessionId is required' });
+        }
+
+        const session = await stripe!.checkout.sessions.retrieve(sessionId, {
+          expand: ['subscription'],
+        });
+
+        if (session.payment_status === 'paid' || session.status === 'complete') {
+          const sub = session.subscription as Stripe.Subscription | null;
+          const plan = sub?.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
+          return res.json({ active: true, plan });
+        }
+
+        return res.json({ active: false });
+      } catch (error) {
+        console.error('Error retrieving subscription status:', error);
+        res.status(500).json({ message: 'Failed to retrieve subscription status' });
+      }
+    });
+
+    // Stripe webhook — handles subscription lifecycle events
+    app.post('/api/stripe/webhook', async (req, res) => {
+      const sig = req.headers['stripe-signature'];
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+      let event: Stripe.Event;
+
+      try {
+        if (webhookSecret && sig && Buffer.isBuffer(req.body)) {
+          event = stripe!.webhooks.constructEvent(req.body, sig, webhookSecret);
+        } else {
+          // No webhook secret configured — parse body directly (dev/testing only)
+          const body = Buffer.isBuffer(req.body) ? JSON.parse(req.body.toString()) : req.body;
+          event = body as Stripe.Event;
+        }
+      } catch (err: any) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).json({ message: `Webhook error: ${err.message}` });
+      }
+
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          console.log(`Checkout completed for session: ${session.id}`);
+          break;
+        }
+        case 'customer.subscription.updated': {
+          const subscription = event.data.object as Stripe.Subscription;
+          console.log(`Subscription updated: ${subscription.id}, status: ${subscription.status}`);
+          break;
+        }
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          console.log(`Subscription cancelled: ${subscription.id}`);
+          break;
+        }
+        case 'invoice.payment_failed': {
+          const invoice = event.data.object as Stripe.Invoice;
+          console.log(`Payment failed for invoice: ${invoice.id}`);
+          break;
+        }
+        default:
+          break;
+      }
+
+      res.json({ received: true });
+    });
+  }
+
+  const server = createServer(app);
+  return server;
+}
+========== server/storage.ts ==========
+import {
+  users,
+  children,
+  wordLists,
+  progress,
+  trickyWords,
+  achievements,
+  userAchievements,
+  type User,
+  type Child,
+  type InsertChild,
+  type WordList,
+  type InsertWordList,
+  type Progress,
+  type InsertProgress,
+  type TrickyWord,
+  type InsertTrickyWord,
+  type Achievement,
+  type InsertAchievement,
+  type UserAchievement,
+  type InsertUserAchievement,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, sql } from "drizzle-orm";
+
+export interface IStorage {
+  // User operations (email/password auth)
+  getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(email: string, passwordHash: string, childName?: string): Promise<User>;
+  updateUser(userId: string, updates: Partial<User>): Promise<User>;
+  updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User>;
+  setResetToken(userId: string, token: string, expiry: Date): Promise<void>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
+  clearResetToken(userId: string): Promise<void>;
+  migrateAnonymousData(oldPlayerId: string, newUserId: string): Promise<void>;
+  
+  // Children operations
+  getChildren(parentId: string): Promise<Child[]>;
+  getChild(id: string): Promise<Child | undefined>;
+  createChild(child: InsertChild): Promise<Child>;
+  updateChild(id: string, updates: Partial<InsertChild>): Promise<Child>;
+  
+  // Word lists operations
+  getWordLists(childId: string): Promise<WordList[]>;
+  getWordList(id: string): Promise<WordList | undefined>;
+  createWordList(wordList: InsertWordList): Promise<WordList>;
+  
+  // Progress operations
+  getProgress(childId: string): Promise<Progress[]>;
+  getProgressByUser(userId: string): Promise<Progress[]>;
+  createProgress(progressData: InsertProgress): Promise<Progress>;
+  getWeeklyProgress(childId: string, weekNumber: number): Promise<Progress[]>;
+  
+  // Tricky words operations
+  getTrickyWords(userId: string, status?: 'active' | 'mastered'): Promise<TrickyWord[]>;
+  addTrickyWord(userId: string, word: string): Promise<TrickyWord>;
+  updateTrickyWord(id: string, updates: Partial<TrickyWord>): Promise<TrickyWord>;
+  recordTrickyWordAttempt(userId: string, word: string, correct: boolean): Promise<TrickyWord>;
+  
+  // Achievement operations
+  getAchievements(): Promise<Achievement[]>;
+  getUserAchievements(userId: string): Promise<(UserAchievement & { achievement: Achievement })[]>;
+  awardAchievement(userId: string, achievementId: string, metadata?: Record<string, any>): Promise<UserAchievement>;
+  hasAchievement(userId: string, achievementId: string): Promise<boolean>;
+  seedAchievements(): Promise<void>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    let retries = 3;
+    let lastError;
+    
+    while (retries > 0) {
+      try {
+        const [user] = await db.select().from(users).where(eq(users.id, id));
+        return user;
+      } catch (error: any) {
+        lastError = error;
+        retries--;
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+    throw lastError;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
+    return user;
+  }
+
+  async createUser(email: string, passwordHash: string, childName?: string): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        email: email.toLowerCase(),
+        passwordHash,
+        childName: childName || null,
+        onboardingComplete: false,
+      })
+      .returning();
+    return user;
+  }
+
+  async setResetToken(userId: string, token: string, expiry: Date): Promise<void> {
+    await db
+      .update(users)
+      .set({ resetToken: token, resetTokenExpiry: expiry, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.resetToken, token));
+    return user;
+  }
+
+  async clearResetToken(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ resetToken: null, resetTokenExpiry: null, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async migrateAnonymousData(oldPlayerId: string, newUserId: string): Promise<void> {
+    const oldUser = await this.getUser(oldPlayerId);
+    if (!oldUser) return;
+
+    await db.update(children).set({ parentId: newUserId }).where(eq(children.parentId, oldPlayerId));
+    await db.update(trickyWords).set({ userId: newUserId }).where(eq(trickyWords.userId, oldPlayerId));
+    await db.update(userAchievements).set({ userId: newUserId }).where(eq(userAchievements.userId, oldPlayerId));
+
+    const fieldsToMigrate: Partial<User> = {};
+    if (oldUser.childName) fieldsToMigrate.childName = oldUser.childName;
+    if (oldUser.gradeLevel) fieldsToMigrate.gradeLevel = oldUser.gradeLevel;
+    if (oldUser.onboardingComplete) fieldsToMigrate.onboardingComplete = oldUser.onboardingComplete;
+    if (oldUser.treasureDiamonds) fieldsToMigrate.treasureDiamonds = oldUser.treasureDiamonds;
+    if (oldUser.treasureCoins) fieldsToMigrate.treasureCoins = oldUser.treasureCoins;
+    if (oldUser.treasureCrowns) fieldsToMigrate.treasureCrowns = oldUser.treasureCrowns;
+    if (oldUser.treasureBags) fieldsToMigrate.treasureBags = oldUser.treasureBags;
+    if (oldUser.treasureStars) fieldsToMigrate.treasureStars = oldUser.treasureStars;
+    if (oldUser.treasureTrophies) fieldsToMigrate.treasureTrophies = oldUser.treasureTrophies;
+    if (oldUser.diegoTreasureDiamonds) fieldsToMigrate.diegoTreasureDiamonds = oldUser.diegoTreasureDiamonds;
+    if (oldUser.diegoTreasureCoins) fieldsToMigrate.diegoTreasureCoins = oldUser.diegoTreasureCoins;
+    if (oldUser.diegoTreasureCrowns) fieldsToMigrate.diegoTreasureCrowns = oldUser.diegoTreasureCrowns;
+    if (oldUser.diegoTreasureBags) fieldsToMigrate.diegoTreasureBags = oldUser.diegoTreasureBags;
+    if (oldUser.diegoTreasureStars) fieldsToMigrate.diegoTreasureStars = oldUser.diegoTreasureStars;
+    if (oldUser.diegoTreasureTrophies) fieldsToMigrate.diegoTreasureTrophies = oldUser.diegoTreasureTrophies;
+    if (oldUser.practiceCount) fieldsToMigrate.practiceCount = oldUser.practiceCount;
+    if (oldUser.perfectRunCount) fieldsToMigrate.perfectRunCount = oldUser.perfectRunCount;
+    if (oldUser.isPremium) fieldsToMigrate.isPremium = oldUser.isPremium;
+    if (oldUser.stripeCustomerId) fieldsToMigrate.stripeCustomerId = oldUser.stripeCustomerId;
+    if (oldUser.stripeSubscriptionId) fieldsToMigrate.stripeSubscriptionId = oldUser.stripeSubscriptionId;
+
+    if (Object.keys(fieldsToMigrate).length > 0) {
+      await this.updateUser(newUserId, fieldsToMigrate);
+    }
+  }
+
+  async updateUser(userId: string, updates: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        stripeCustomerId, 
+        stripeSubscriptionId,
+        isPremium: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserOnboarding(userId: string, childName: string | undefined, gradeLevel: string | undefined, onboardingComplete: boolean): Promise<User> {
+    // Retry logic for transient database connection issues (e.g., waking from sleep)
+    let retries = 3;
+    let lastError;
+    
+    while (retries > 0) {
+      try {
+        const [user] = await db
+          .update(users)
+          .set({ 
+            childName: childName || null,
+            gradeLevel: gradeLevel || null,
+            onboardingComplete,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userId))
+          .returning();
+        return user;
+      } catch (error: any) {
+        lastError = error;
+        retries--;
+        if (retries > 0) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
+        }
+      }
+    }
+    
+    throw new Error(`Failed to update user onboarding after 3 retries: ${lastError?.message || 'Unknown error'}`);
+  }
+
+  async addTreasures(userId: string, character: 'redboot' | 'diego', totalAmount: number): Promise<User> {
+    // Distribute treasures evenly across all 6 types
+    const amountPerType = Math.floor(totalAmount / 6);
+    const remainder = totalAmount % 6;
+    
+    // Get current user data
+    const currentUser = await this.getUser(userId);
+    if (!currentUser) {
+      throw new Error('User not found');
+    }
+
+    // Calculate new treasure amounts based on character
+    // Also increment practice count for tracking achievements
+    const updates: any = { 
+      updatedAt: new Date(),
+      practiceCount: (currentUser.practiceCount || 0) + 1
+    };
+    
+    if (character === 'redboot') {
+      updates.treasureDiamonds = (currentUser.treasureDiamonds || 0) + amountPerType + (remainder > 0 ? 1 : 0);
+      updates.treasureCoins = (currentUser.treasureCoins || 0) + amountPerType + (remainder > 1 ? 1 : 0);
+      updates.treasureCrowns = (currentUser.treasureCrowns || 0) + amountPerType + (remainder > 2 ? 1 : 0);
+      updates.treasureBags = (currentUser.treasureBags || 0) + amountPerType + (remainder > 3 ? 1 : 0);
+      updates.treasureStars = (currentUser.treasureStars || 0) + amountPerType + (remainder > 4 ? 1 : 0);
+      updates.treasureTrophies = (currentUser.treasureTrophies || 0) + amountPerType;
+    } else {
+      updates.diegoTreasureDiamonds = (currentUser.diegoTreasureDiamonds || 0) + amountPerType + (remainder > 0 ? 1 : 0);
+      updates.diegoTreasureCoins = (currentUser.diegoTreasureCoins || 0) + amountPerType + (remainder > 1 ? 1 : 0);
+      updates.diegoTreasureCrowns = (currentUser.diegoTreasureCrowns || 0) + amountPerType + (remainder > 2 ? 1 : 0);
+      updates.diegoTreasureBags = (currentUser.diegoTreasureBags || 0) + amountPerType + (remainder > 3 ? 1 : 0);
+      updates.diegoTreasureStars = (currentUser.diegoTreasureStars || 0) + amountPerType + (remainder > 4 ? 1 : 0);
+      updates.diegoTreasureTrophies = (currentUser.diegoTreasureTrophies || 0) + amountPerType;
+    }
+
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  // Children operations
+  async getChildren(parentId: string): Promise<Child[]> {
+    return await db.select().from(children).where(eq(children.parentId, parentId));
+  }
+
+  async getChild(id: string): Promise<Child | undefined> {
+    const [child] = await db.select().from(children).where(eq(children.id, id));
+    return child;
+  }
+
+  async createChild(child: InsertChild): Promise<Child> {
+    const [newChild] = await db.insert(children).values(child as any).returning();
+    return newChild;
+  }
+
+  async updateChild(id: string, updates: Partial<InsertChild>): Promise<Child> {
+    const [child] = await db
+      .update(children)
+      .set({ ...updates, updatedAt: new Date() } as any)
+      .where(eq(children.id, id))
+      .returning();
+    return child;
+  }
+
+  // Word lists operations
+  async getWordLists(childId: string): Promise<WordList[]> {
+    return await db
+      .select()
+      .from(wordLists)
+      .where(eq(wordLists.childId, childId))
+      .orderBy(desc(wordLists.weekNumber));
+  }
+
+  async getWordList(id: string): Promise<WordList | undefined> {
+    const [wordList] = await db.select().from(wordLists).where(eq(wordLists.id, id));
+    return wordList;
+  }
+
+  async createWordList(wordListData: InsertWordList): Promise<WordList> {
+    const [wordList] = await db.insert(wordLists).values(wordListData as any).returning();
+    return wordList;
+  }
+
+  // Progress operations
+  async getProgress(childId: string): Promise<Progress[]> {
+    return await db
+      .select()
+      .from(progress)
+      .where(eq(progress.childId, childId))
+      .orderBy(desc(progress.completedAt));
+  }
+
+  async getProgressByUser(userId: string): Promise<Progress[]> {
+    // Get all children for this user, then get all their progress
+    const userChildren = await this.getChildren(userId);
+    if (userChildren.length === 0) return [];
+    
+    const childIds = userChildren.map(c => c.id);
+    const allProgress: Progress[] = [];
+    
+    for (const childId of childIds) {
+      const childProgress = await this.getProgress(childId);
+      allProgress.push(...childProgress);
+    }
+    
+    return allProgress;
+  }
+
+  async createProgress(progressData: InsertProgress): Promise<Progress> {
+    const [newProgress] = await db.insert(progress).values(progressData as any).returning();
+    return newProgress;
+  }
+
+  async getWeeklyProgress(childId: string, weekNumber: number): Promise<Progress[]> {
+    const result = await db
+      .select()
+      .from(progress)
+      .innerJoin(wordLists, eq(progress.wordListId, wordLists.id))
+      .where(
+        and(
+          eq(progress.childId, childId),
+          eq(wordLists.weekNumber, weekNumber)
+        )
+      );
+    return result.map(row => row.progress);
+  }
+
+  // Tricky words operations
+  async getTrickyWords(userId: string, status?: 'active' | 'mastered'): Promise<TrickyWord[]> {
+    if (status) {
+      return await db
+        .select()
+        .from(trickyWords)
+        .where(and(eq(trickyWords.userId, userId), eq(trickyWords.status, status)))
+        .orderBy(desc(trickyWords.addedAt));
+    }
+    return await db
+      .select()
+      .from(trickyWords)
+      .where(eq(trickyWords.userId, userId))
+      .orderBy(desc(trickyWords.addedAt));
+  }
+
+  async addTrickyWord(userId: string, word: string): Promise<TrickyWord> {
+    // Check if word already exists for this user
+    const [existing] = await db
+      .select()
+      .from(trickyWords)
+      .where(and(eq(trickyWords.userId, userId), eq(trickyWords.word, word.toLowerCase())));
+    
+    if (existing) {
+      // Word exists - increment mistake count and reset to active if mastered
+      const [updated] = await db
+        .update(trickyWords)
+        .set({
+          mistakeCount: (existing.mistakeCount || 0) + 1,
+          status: 'active',
+          correctStreak: 0,
+          lastPracticed: new Date(),
+        })
+        .where(eq(trickyWords.id, existing.id))
+        .returning();
+      return updated;
+    }
+    
+    // Create new tricky word
+    const [newTrickyWord] = await db
+      .insert(trickyWords)
+      .values({
+        userId,
+        word: word.toLowerCase(),
+        status: 'active',
+        mistakeCount: 1,
+        correctStreak: 0,
+      })
+      .returning();
+    return newTrickyWord;
+  }
+
+  async updateTrickyWord(id: string, updates: Partial<TrickyWord>): Promise<TrickyWord> {
+    const [updated] = await db
+      .update(trickyWords)
+      .set({ ...updates, lastPracticed: new Date() })
+      .where(eq(trickyWords.id, id))
+      .returning();
+    return updated;
+  }
+
+  async recordTrickyWordAttempt(userId: string, word: string, correct: boolean): Promise<TrickyWord> {
+    // Find the tricky word
+    const [existing] = await db
+      .select()
+      .from(trickyWords)
+      .where(and(eq(trickyWords.userId, userId), eq(trickyWords.word, word.toLowerCase())));
+    
+    if (!existing) {
+      // If word doesn't exist and they got it wrong, add it
+      if (!correct) {
+        return this.addTrickyWord(userId, word);
+      }
+      // If correct and word doesn't exist, create it as mastered
+      const [newWord] = await db
+        .insert(trickyWords)
+        .values({
+          userId,
+          word: word.toLowerCase(),
+          status: 'mastered',
+          mistakeCount: 0,
+          correctStreak: 1,
+          masteredAt: new Date(),
+        })
+        .returning();
+      return newWord;
+    }
+    
+    if (correct) {
+      const newStreak = (existing.correctStreak || 0) + 1;
+      // Master word after 3 correct answers in a row
+      const isMastered = newStreak >= 3;
+      
+      const [updated] = await db
+        .update(trickyWords)
+        .set({
+          correctStreak: newStreak,
+          status: isMastered ? 'mastered' : 'active',
+          masteredAt: isMastered ? new Date() : existing.masteredAt,
+          lastPracticed: new Date(),
+        })
+        .where(eq(trickyWords.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // Wrong answer - reset streak and increment mistakes
+      const [updated] = await db
+        .update(trickyWords)
+        .set({
+          correctStreak: 0,
+          mistakeCount: (existing.mistakeCount || 0) + 1,
+          status: 'active',
+          lastPracticed: new Date(),
+        })
+        .where(eq(trickyWords.id, existing.id))
+        .returning();
+      return updated;
+    }
+  }
+
+  // Achievement operations
+  async getAchievements(): Promise<Achievement[]> {
+    return await db.select().from(achievements);
+  }
+
+  async getUserAchievements(userId: string): Promise<(UserAchievement & { achievement: Achievement })[]> {
+    const result = await db
+      .select()
+      .from(userAchievements)
+      .innerJoin(achievements, eq(userAchievements.achievementId, achievements.id))
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(desc(userAchievements.earnedAt));
+    
+    return result.map(row => ({
+      ...row.user_achievements,
+      achievement: row.achievements,
+    }));
+  }
+
+  async awardAchievement(userId: string, achievementId: string, metadata?: Record<string, any>): Promise<UserAchievement> {
+    // Check if already awarded
+    const hasIt = await this.hasAchievement(userId, achievementId);
+    if (hasIt) {
+      const [existing] = await db
+        .select()
+        .from(userAchievements)
+        .where(and(eq(userAchievements.userId, userId), eq(userAchievements.achievementId, achievementId)));
+      return existing;
+    }
+    
+    const [newAchievement] = await db
+      .insert(userAchievements)
+      .values({
+        userId,
+        achievementId,
+        metadata,
+      })
+      .returning();
+    return newAchievement;
+  }
+
+  async hasAchievement(userId: string, achievementId: string): Promise<boolean> {
+    const [existing] = await db
+      .select()
+      .from(userAchievements)
+      .where(and(eq(userAchievements.userId, userId), eq(userAchievements.achievementId, achievementId)));
+    return !!existing;
+  }
+
+  async seedAchievements(): Promise<void> {
+    const defaultAchievements: InsertAchievement[] = [
+      // Spelling achievements
+      { id: 'first_word', title: 'First Mate', description: 'Spell your first word correctly', icon: '⚓', category: 'spelling', threshold: 1, rarity: 'common' },
+      { id: 'word_master_10', title: 'Word Hunter', description: 'Master 10 spelling words', icon: '🎯', category: 'spelling', threshold: 10, rarity: 'common' },
+      { id: 'word_master_50', title: 'Word Wizard', description: 'Master 50 spelling words', icon: '🧙', category: 'spelling', threshold: 50, rarity: 'rare' },
+      { id: 'word_master_100', title: 'Spelling Captain', description: 'Master 100 spelling words', icon: '👑', category: 'spelling', threshold: 100, rarity: 'epic' },
+      
+      // Progressive perfect run badges (awarded in sequence)
+      { id: 'perfect_run_1', title: 'Perfect Voyage', description: '1st perfect practice session!', icon: '⭐', category: 'spelling', threshold: 1, rarity: 'common' },
+      { id: 'perfect_run_2', title: 'Gold Compass', description: '2nd perfect practice session!', icon: '🧭', category: 'spelling', threshold: 2, rarity: 'common' },
+      { id: 'perfect_run_3', title: 'Diamond Helm', description: '3rd perfect practice session!', icon: '💎', category: 'spelling', threshold: 3, rarity: 'rare' },
+      { id: 'perfect_run_4', title: 'Starry Sextant', description: '4th perfect practice session!', icon: '🌟', category: 'spelling', threshold: 4, rarity: 'rare' },
+      { id: 'perfect_run_5', title: 'Treasure Master', description: '5th perfect practice session!', icon: '👑', category: 'spelling', threshold: 5, rarity: 'epic' },
+      { id: 'perfect_run_6', title: 'Legendary Captain', description: '6th perfect practice session!', icon: '🏴‍☠️', category: 'spelling', threshold: 6, rarity: 'legendary' },
+      
+      { id: 'perfect_week', title: 'Legendary Week', description: 'Get 100% on your Friday test', icon: '🏆', category: 'spelling', threshold: 1, rarity: 'legendary' },
+      
+      // Streak achievements
+      { id: 'streak_3', title: 'Setting Sail', description: 'Practice 3 days in a row', icon: '⛵', category: 'streak', threshold: 3, rarity: 'common' },
+      { id: 'streak_7', title: 'Week Warrior', description: 'Practice 7 days in a row', icon: '🗓️', category: 'streak', threshold: 7, rarity: 'rare' },
+      { id: 'streak_30', title: 'Ocean Master', description: 'Practice 30 days in a row', icon: '🌊', category: 'streak', threshold: 30, rarity: 'legendary' },
+      
+      // Treasure achievements
+      { id: 'treasure_50', title: 'Treasure Finder', description: 'Collect 50 treasures', icon: '💎', category: 'treasure', threshold: 50, rarity: 'common' },
+      { id: 'treasure_200', title: 'Treasure Hunter', description: 'Collect 200 treasures', icon: '💰', category: 'treasure', threshold: 200, rarity: 'rare' },
+      { id: 'treasure_500', title: 'Treasure King', description: 'Collect 500 treasures', icon: '👑', category: 'treasure', threshold: 500, rarity: 'epic' },
+      
+      // Tricky word achievements
+      { id: 'tricky_conquered_5', title: 'Tricky Tackler', description: 'Master 5 tricky words', icon: '💪', category: 'spelling', threshold: 5, rarity: 'common' },
+      { id: 'tricky_conquered_20', title: 'Tricky Terminator', description: 'Master 20 tricky words', icon: '🦸', category: 'spelling', threshold: 20, rarity: 'rare' },
+      
+      // Special achievements
+      { id: 'sea_monster_slayer', title: 'Sea Monster Slayer', description: 'Complete 10 practice sessions with Diego', icon: '🐙', category: 'special', threshold: 10, rarity: 'rare' },
+      { id: 'treasure_hunter', title: 'Red Boot\'s Treasure Hunter', description: 'Complete 10 practice sessions with Red Boot', icon: '🏴‍☠️', category: 'special', threshold: 10, rarity: 'rare' },
+    ];
+
+    // Insert achievements, ignoring conflicts
+    for (const achievement of defaultAchievements) {
+      try {
+        await db
+          .insert(achievements)
+          .values(achievement)
+          .onConflictDoNothing();
+      } catch (error) {
+        // Ignore duplicate key errors
+      }
+    }
+  }
+}
+
+export const storage = new DatabaseStorage();
+
+========== server/vite.ts ==========
+import express, { type Express } from "express";
+import fs from "fs";
+import path from "path";
+import { createServer as createViteServer, createLogger } from "vite";
+import { type Server } from "http";
+import viteConfig from "../vite.config";
+import { nanoid } from "nanoid";
+
+const viteLogger = createLogger();
+
+export function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+
+export async function setupVite(app: Express, server: Server) {
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true as const,
+  };
+
+  const vite = await createViteServer({
+    ...viteConfig,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
+      },
+    },
+    server: serverOptions,
+    appType: "custom",
+  });
+
+  app.use(vite.middlewares);
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+
+    try {
+      const clientTemplate = path.resolve(
+        import.meta.dirname,
+        "..",
+        "client",
+        "index.html",
+      );
+
+      // always reload the index.html file from disk incase it changes
+      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid()}"`,
+      );
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e as Error);
+      next(e);
+    }
+  });
+}
+
+export function serveStatic(app: Express) {
+  const distPath = path.resolve(import.meta.dirname, "public");
+
+  if (!fs.existsSync(distPath)) {
+    throw new Error(
+      `Could not find the build directory: ${distPath}, make sure to build the client first`,
+    );
+  }
+
+  app.use(express.static(distPath));
+
+  // fall through to index.html if the file doesn't exist
+  app.use("*", (_req, res) => {
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
+}
+

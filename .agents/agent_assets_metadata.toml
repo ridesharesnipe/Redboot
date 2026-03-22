@@ -12,3 +12,15 @@ id = "r4P0XgAP3SNk3V-rLNRYy"
 uri = "file://RedBoot_LocalStorage_Reference.txt"
 type = "text"
 title = "RedBoot Local Storage Reference"
+
+[[outputs]]
+id = "XPgItVQBvVL2f6lc562vS"
+uri = "file://full_client_export.txt"
+type = "text"
+title = "Client source export (all .tsx/.ts)"
+
+[[outputs]]
+id = "KMj_KQ8tWVgGuqDsgX6px"
+uri = "file://full_server_export.txt"
+type = "text"
+title = "Server source export (all .ts)"
