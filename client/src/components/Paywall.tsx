@@ -151,7 +151,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
             </div>
             <div className="text-right">
               <div className="font-black text-xl text-slate-800" style={{ fontFamily: "'Fredoka One', cursive" }}>{annualPrice}</div>
-              {!trialOn && <div className="text-xs text-slate-400 line-through">$39.96</div>}
+              {trialOn && <div className="text-xs text-slate-400 line-through">$82.44</div>}
             </div>
           </div>
 

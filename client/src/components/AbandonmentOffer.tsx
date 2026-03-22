@@ -10,6 +10,7 @@ export default function AbandonmentOffer({ onDismiss }: AbandonmentOfferProps) {
 
   useEffect(() => {
     if (timeLeft <= 0) {
+      localStorage.removeItem('redboot-stripe-abandoned');
       onDismiss();
       return;
     }
@@ -17,6 +18,7 @@ export default function AbandonmentOffer({ onDismiss }: AbandonmentOfferProps) {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
+          localStorage.removeItem('redboot-stripe-abandoned');
           onDismiss();
           return 0;
         }

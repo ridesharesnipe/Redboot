@@ -1205,6 +1205,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`Checkout completed for session: ${session.id}`);
           break;
         }
+        case 'customer.subscription.updated': {
+          const subscription = event.data.object as Stripe.Subscription;
+          console.log(`Subscription updated: ${subscription.id}, status: ${subscription.status}`);
+          break;
+        }
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
           console.log(`Subscription cancelled: ${subscription.id}`);

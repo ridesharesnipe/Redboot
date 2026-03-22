@@ -11,8 +11,7 @@ import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
 import TreasureRoad from './TreasureRoad';
 import SeaMonsterBattle from './SeaMonsterBattle';
 import Paywall from './Paywall';
-import SessionStartPaywall from './SessionStartPaywall';
-import { canAccessFeature, getSubscription, setFreeSessionUsed } from '@/lib/subscription';
+import { getSubscription, setFreeSessionUsed } from '@/lib/subscription';
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
@@ -36,7 +35,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   // Paywall state
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallResults, setPaywallResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
-  const [accessDenied] = useState(() => !canAccessFeature('practice'));
   const sessionSavedRef = useRef(false);
   
   // Tricky Treasures state
@@ -707,15 +705,6 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const selected = phrases[rarity] || phrases.common;
     return selected[Math.floor(Math.random() * selected.length)];
   };
-
-  // SECOND SESSION GATE — show paywall for returning users who haven't subscribed
-  if (accessDenied) {
-    return (
-      <SessionStartPaywall
-        onDismiss={onCancel}
-      />
-    );
-  }
 
   // PAYWALL — show after first free session completes
   if (showPaywall && paywallResults) {
