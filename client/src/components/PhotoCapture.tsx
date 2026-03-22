@@ -1103,7 +1103,7 @@ export default function PhotoCapture({ onCapture, onWordsExtracted, onCancel }: 
                     <Input
                       value={word}
                       onChange={(e) => updateWord(index, e.target.value)}
-                      className="flex-1 border-cyan-200 focus:border-cyan-400 rounded-lg bg-white"
+                      className="flex-1 border-cyan-200 focus:border-cyan-400 rounded-lg bg-white text-slate-900 font-medium"
                       placeholder="Enter word"
                       data-testid={`input-word-${index}`}
                     />
