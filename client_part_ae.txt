@@ -1,0 +1,2558 @@
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* Results Screen */
+            <div className="space-y-6">
+              {/* Success Card */}
+              <Card className="bg-white border-0 shadow-lg rounded-2xl">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <RefreshCw className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-2" data-testid="text-success-title">
+                    Words Extracted!
+                  </h2>
+                  <p className="text-gray-500 mb-6" data-testid="text-success-message">
+                    Found {extractedWords.length} spelling words
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      onClick={handleRetake}
+                      variant="outline"
+                      className="border-gray-300"
+                      data-testid="button-retake"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Retake
+                    </Button>
+                    <Button 
+                      onClick={handleStartPractice}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      data-testid="button-start-practice"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Start Practice
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Words List */}
+              <Card className="bg-white border-0 shadow-lg rounded-2xl">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Your Words
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {extractedWords.map((word, index) => (
+                      <span 
+                        key={index}
+                        className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                      >
+                        {word}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Original Photo (Small) */}
+              {capturedImage && (
+                <Card className="bg-white border-0 shadow-lg rounded-2xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-500" data-testid="text-original-image">
+                      Original Photo
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <img 
+                      src={capturedImage} 
+                      alt="Original spelling list photo" 
+                      className="w-full max-h-32 object-contain rounded-lg bg-gray-50"
+                      data-testid="image-captured"
+                    />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+      </div>
+    </div>
+  );
+}
+========== client/src/pages/PrivacyPolicy.tsx ==========
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+
+export default function PrivacyPolicy() {
+  const [, setLocation] = useLocation();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950 p-4 md:p-8">
+      <div className="max-w-3xl mx-auto">
+        <Button
+          variant="ghost"
+          onClick={() => setLocation("/dashboard")}
+          className="mb-4 flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 space-y-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Privacy Policy</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Last updated: March 15, 2026</p>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">1. Overview</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              Red Boot's Spelling Adventure ("the App") is a children's educational spelling game designed
+              for use by children under the supervision of a parent or guardian. We are committed to
+              protecting the privacy of our users, especially children. This policy explains what
+              information the App collects, how it is used, and your rights regarding that information.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">2. Information We Collect</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              The App may collect and store the following information:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-1">
+              <li>Parent email address (used for account creation and communication)</li>
+              <li>Child's first name (optional, used for personalized greetings)</li>
+              <li>Grade level (optional, to tailor the learning experience)</li>
+              <li>Spelling word lists entered or captured via photo</li>
+              <li>Practice session scores and learning progress</li>
+              <li>Achievements, badges, and treasure counts</li>
+              <li>Audio and display preferences</li>
+            </ul>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              Most data is stored locally on your device. If you create an account, your email
+              address is stored securely on our servers to enable account management and data syncing.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">3. How We Use Your Information</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              The information collected is used solely to:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-1">
+              <li>Provide personalized spelling practice and feedback</li>
+              <li>Track learning progress and display it to parents</li>
+              <li>Award achievements and treasures based on practice performance</li>
+              <li>Remember user preferences between sessions</li>
+              <li>Enable account management and parent communication via email</li>
+            </ul>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">4. Payments</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              All purchases and subscriptions are processed entirely through the Apple App Store or
+              Google Play Store. We do not collect, store, or have access to any payment information
+              such as credit card numbers or billing details. Please refer to
+              Apple's or Google's privacy policies for information about how they handle payment data.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">5. Children's Privacy</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              The App is designed for use by children under parent or guardian supervision.
+              We do not knowingly collect personal information from children beyond what is described
+              in this policy. The child's first name is optional and is only used locally on the device
+              to personalize the in-app experience. We do not sell, share, or transmit children's
+              data to third parties.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">6. Data Sharing</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              We do not sell, rent, or share your personal information with third parties. Your data
+              stays on your device. We do not use advertising networks or analytics services that
+              track children.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">7. Data Storage & Security</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              All app data is stored locally on your device using standard browser or app storage.
+              Clearing the app's data or uninstalling the app will permanently remove all stored
+              information. We recommend parents periodically review the data stored within the app.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">8. Your Rights</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              You have the right to:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-1">
+              <li>View all data the App has stored (accessible within the app's parent dashboard)</li>
+              <li>Delete all stored data at any time by clearing the app data or using the "Clear Words" option in settings</li>
+              <li>Request information about what data is stored by contacting us</li>
+            </ul>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">9. Changes to This Policy</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              We may update this Privacy Policy from time to time. Any changes will be reflected
+              within the app with an updated "Last updated" date. Continued use of the App after
+              changes constitutes acceptance of the revised policy.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">10. Contact Us</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              If you have questions about this Privacy Policy or wish to request data deletion,
+              please contact us at:
+            </p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium">
+              Email: empire813transport@gmail.com
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+========== client/src/pages/progress.tsx ==========
+import { useParams, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TreasureMap from "@/components/TreasureMap";
+import { ArrowLeft, Trophy, Flame, Crown, Ship, Map } from "lucide-react";
+import type { Child, Progress, WordList } from "@shared/schema";
+
+export default function ProgressPage() {
+  const { childId } = useParams();
+  const [, setLocation] = useLocation();
+
+  const { data: child } = useQuery<Child>({
+    queryKey: ["/api/children", childId],
+    retry: false,
+  });
+
+  const { data: progress } = useQuery<Progress[]>({
+    queryKey: ["/api/children", childId, "progress"],
+    retry: false,
+  });
+
+  const { data: wordLists } = useQuery<WordList[]>({
+    queryKey: ["/api/children", childId, "wordlists"],
+    retry: false,
+  });
+
+  if (!child) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  const recentProgress = progress?.slice(0, 5) || [];
+  const averageAccuracy = recentProgress.length > 0 
+    ? Math.round(recentProgress.reduce((sum, p) => sum + (p.score || 0), 0) / recentProgress.length)
+    : 0;
+  const totalWordspracticed = progress?.reduce((sum, p) => sum + (p.correctWords?.length || 0) + (p.incorrectWords?.length || 0), 0) || 0;
+  const totalTimeSpent = progress?.reduce((sum, p) => sum + (p.timeSpent || 0), 0) || 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-card border-b border-border px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="ghost"
+              onClick={() => setLocation("/")}
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </div>
+          <h1 className="text-xl font-bold" data-testid="text-page-title">
+            {child.name}'s Progress
+          </h1>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Page Title */}
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-fun text-foreground mb-4" data-testid="text-treasure-map-title">
+            {child.name}'s Treasure Map
+          </h2>
+          <p className="text-muted-foreground" data-testid="text-treasure-map-subtitle">
+            Track your spelling adventure progress across the seven seas
+          </p>
+        </div>
+
+        {/* Interactive Treasure Map */}
+        <TreasureMap 
+          totalWords={wordLists?.reduce((sum, wl) => sum + wl.words.length, 0) || 0}
+          masteredWords={progress?.reduce((sum, p) => sum + (p.correctWords?.length || 0), 0) || 0}
+        />
+
+        {/* Achievement Badges */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+          <Card className="p-4 text-center shadow-lg">
+            <CardContent className="pt-4">
+              <div className="w-12 h-12 bg-treasure-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <Trophy className="w-8 h-8 text-treasure-50" />
+              </div>
+              <h4 className="font-bold text-foreground" data-testid="text-badge-first-treasure">First Treasure</h4>
+              <p className="text-xs text-muted-foreground">Completed first word list</p>
+            </CardContent>
+          </Card>
+
+          <Card className={`p-4 text-center shadow-lg ${(child.weeklyStreak || 0) >= 5 ? '' : 'opacity-50'}`}>
+            <CardContent className="pt-4">
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                (child.weeklyStreak || 0) >= 5 ? 'bg-secondary' : 'bg-muted'
+              }`}>
+                <Flame className={`w-8 h-8 ${
+                  (child.weeklyStreak || 0) >= 5 ? 'text-secondary-foreground' : 'text-muted-foreground'
+                }`} />
+              </div>
+              <h4 className={`font-bold ${
+                (child.weeklyStreak || 0) >= 5 ? 'text-foreground' : 'text-muted-foreground'
+              }`} data-testid="text-badge-hot-streak">
+                Hot Streak
+              </h4>
+              <p className="text-xs text-muted-foreground">5 days in a row</p>
+            </CardContent>
+          </Card>
+
+          <Card className={`p-4 text-center shadow-lg ${averageAccuracy >= 100 ? '' : 'opacity-50'}`}>
+            <CardContent className="pt-4">
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                averageAccuracy >= 100 ? 'bg-accent' : 'bg-muted'
+              }`}>
+                <Crown className={`w-8 h-8 ${
+                  averageAccuracy >= 100 ? 'text-accent-foreground' : 'text-muted-foreground'
+                }`} />
+              </div>
+              <h4 className={`font-bold ${
+                averageAccuracy >= 100 ? 'text-foreground' : 'text-muted-foreground'
+              }`} data-testid="text-badge-spelling-master">
+                Spelling Master
+              </h4>
+              <p className="text-xs text-muted-foreground">Perfect week</p>
+            </CardContent>
+          </Card>
+
+          <Card className={`p-4 text-center shadow-lg ${(child.unlockedCharacters || []).length >= 4 ? '' : 'opacity-50'}`}>
+            <CardContent className="pt-4">
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                (child.unlockedCharacters || []).length >= 4 ? 'bg-primary' : 'bg-muted'
+              }`}>
+                <Ship className={`w-8 h-8 ${
+                  (child.unlockedCharacters || []).length >= 4 ? 'text-primary-foreground' : 'text-muted-foreground'
+                }`} />
+              </div>
+              <h4 className={`font-bold ${
+                (child.unlockedCharacters || []).length >= 4 ? 'text-foreground' : 'text-muted-foreground'
+              }`} data-testid="text-badge-captains-choice">
+                Captain's Choice
+              </h4>
+              <p className="text-xs text-muted-foreground">Unlock all characters</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Weekly Statistics */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold" data-testid="text-stats-title">
+              This Week's Adventure
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-accent" data-testid="text-accuracy-stat">
+                  {averageAccuracy}%
+                </div>
+                <p className="text-muted-foreground">Spelling Accuracy</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-secondary" data-testid="text-words-stat">
+                  {totalWordspracticed}
+                </div>
+                <p className="text-muted-foreground">Words Practiced</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary" data-testid="text-time-stat">
+                  {Math.floor(totalTimeSpent / 60)}min
+                </div>
+                <p className="text-muted-foreground">Time Adventuring</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Sessions */}
+        {recentProgress.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold" data-testid="text-recent-sessions-title">
+                Recent Adventures
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentProgress.map((session, index) => (
+                  <div key={session.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
+                        <Map className="w-4 h-4 text-accent-foreground" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold" data-testid={`text-session-${index}-title`}>
+                          Treasure Hunt #{recentProgress.length - index}
+                        </h4>
+                        <p className="text-sm text-muted-foreground" data-testid={`text-session-${index}-date`}>
+                          {session.completedAt ? new Date(session.completedAt).toLocaleDateString() : 'Recent'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-accent" data-testid={`text-session-${index}-score`}>
+                        {session.score}%
+                      </div>
+                      <p className="text-sm text-muted-foreground" data-testid={`text-session-${index}-time`}>
+                        {Math.floor((session.timeSpent || 0) / 60)}:{((session.timeSpent || 0) % 60).toString().padStart(2, '0')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}
+
+========== client/src/pages/subscribe.tsx ==========
+import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'wouter';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Lock, Shield, Check, Users, CreditCard, Crown, Fish, Dog, Telescope } from "lucide-react";
+
+// Mock Stripe setup for development - will be replaced with real keys later
+const MOCK_STRIPE_KEY = 'pk_test_mock_key_for_development';
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  : loadStripe(MOCK_STRIPE_KEY);
+
+const SubscribeForm = () => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.origin,
+      },
+    });
+
+    setIsProcessing(false);
+
+    if (error) {
+      toast({
+        title: "Payment Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Welcome to Premium!",
+        description: "You now have access to all characters and features!",
+      });
+      setTimeout(() => {
+        setLocation("/");
+      }, 2000);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-muted/50 p-4 rounded-lg">
+        <PaymentElement />
+      </div>
+      <Button 
+        type="submit"
+        disabled={!stripe || isProcessing}
+        variant="default" className="w-full text-lg font-bold"
+        data-testid="button-subscribe"
+      >
+        {isProcessing ? (
+          <>
+            <div className="animate-spin w-4 h-4 border-2 border-treasure-50 border-t-transparent rounded-full mr-2" />
+            Processing...
+          </>
+        ) : (
+          <>
+            <Lock className="w-4 h-4 mr-2" />
+            Start Premium Adventure
+          </>
+        )}
+      </Button>
+      <p className="text-center text-muted-foreground text-sm">
+        <Shield className="w-4 h-4 mr-1" />
+        Secure payment • Cancel anytime • 7-day free trial
+      </p>
+    </form>
+  );
+};
+
+export default function Subscribe() {
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [clientSecret, setClientSecret] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Note: This page is for subscription features - may not be needed in free version
+
+    // Create subscription
+    apiRequest("POST", "/api/get-or-create-subscription")
+      .then((res) => res.json())
+      .then((data) => {
+        setClientSecret(data.clientSecret);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+        toast({
+          title: "Error",
+          description: "Failed to initialize subscription. Please try again.",
+          variant: "destructive",
+        });
+        setLocation("/");
+      });
+  }, [toast, setLocation]);
+
+  if (isLoading || !clientSecret) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="bg-card border-b border-border px-4 py-3">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <Button 
+              variant="ghost"
+              onClick={() => setLocation("/dashboard")}
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-xl font-bold" data-testid="text-page-title">
+              Premium Subscription
+            </h1>
+          </div>
+        </div>
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-muted-foreground" data-testid="text-loading">
+              Preparing your premium adventure...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <div className="bg-card border-b border-border px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Button 
+            variant="ghost"
+            onClick={() => setLocation("/dashboard")}
+            data-testid="button-back"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-xl font-bold" data-testid="text-page-title">
+            Premium Subscription
+          </h1>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h2 className="text-4xl font-fun text-foreground mb-4" data-testid="text-subscription-title">
+            Unlock the Full Adventure
+          </h2>
+          <p className="text-xl text-muted-foreground" data-testid="text-subscription-subtitle">
+            Join the premium crew and access all characters and features
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Plan Details */}
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-br from-treasure-400 to-treasure-600 text-treasure-50 relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-white text-treasure-600 px-3 py-1 rounded-full text-sm font-bold">
+                Most Popular
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl mb-4" data-testid="text-plan-title">
+                  Premium Adventure
+                </CardTitle>
+                <div className="flex items-baseline">
+                  <span className="text-4xl font-bold" data-testid="text-plan-price">$2.99</span>
+                  <span className="text-treasure-100 ml-2">per month</span>
+                </div>
+                <p className="text-treasure-100" data-testid="text-trial-info">
+                  7-day free trial • Cancel anytime
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center">
+                    <Check className="w-4 h-4 text-white mr-3" />
+                    <span>All 4 characters (Red Boot, Ray Ray, Salty, Ocean Blue)</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-4 h-4 text-white mr-3" />
+                    <span>Unlimited word lists</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-4 h-4 text-white mr-3" />
+                    <span>Advanced progress analytics</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-4 h-4 text-white mr-3" />
+                    <span>Photo word list capture</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-4 h-4 text-white mr-3" />
+                    <span>Test simulator with voice recording</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-4 h-4 text-white mr-3" />
+                    <span>Priority support</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Character Showcase */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center" data-testid="text-characters-title">
+                  <Users className="w-4 h-4 mr-2 text-secondary" />
+                  Meet Your Crew
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-pirate-50 rounded-lg">
+                    <div className="w-12 h-12 bg-pirate-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Crown className="w-6 h-6 text-pirate-50" />
+                    </div>
+                    <div className="font-bold text-sm">Red Boot</div>
+                    <div className="text-xs text-muted-foreground">Free • Wild Captain</div>
+                  </div>
+                  <div className="text-center p-3 bg-ocean-50 rounded-lg border-2 border-accent">
+                    <div className="w-12 h-12 bg-ocean-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Fish className="w-6 h-6 text-ocean-50" />
+                    </div>
+                    <div className="font-bold text-sm">Ray Ray</div>
+                    <div className="text-xs text-accent font-medium">Premium • Gentle Guide</div>
+                  </div>
+                  <div className="text-center p-3 bg-amber-50 rounded-lg border-2 border-accent">
+                    <div className="w-12 h-12 bg-amber-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Dog className="w-6 h-6 text-amber-50" />
+                    </div>
+                    <div className="font-bold text-sm">Salty</div>
+                    <div className="text-xs text-accent font-medium">Premium • Puppy Friend</div>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg border-2 border-accent">
+                    <div className="w-12 h-12 bg-blue-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Telescope className="w-6 h-6 text-blue-50" />
+                    </div>
+                    <div className="font-bold text-sm">Ocean Blue</div>
+                    <div className="text-xs text-accent font-medium">Premium • Smart Explorer</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Payment Form */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center" data-testid="text-payment-title">
+                  <CreditCard className="w-4 h-4 mr-2 text-treasure-500" />
+                  Payment Information
+                </CardTitle>
+                <p className="text-center text-muted-foreground text-sm">
+                  Start your 7-day free trial today
+                </p>
+              </CardHeader>
+              <CardContent>
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <SubscribeForm />
+                </Elements>
+              </CardContent>
+            </Card>
+
+            {/* Security Badges */}
+            <div className="flex justify-center space-x-4">
+              <Badge variant="secondary" className="px-3 py-1">
+                <Shield className="w-4 h-4 mr-1" />
+                SSL Secured
+              </Badge>
+              <Badge variant="secondary" className="px-3 py-1">
+                <i className="fab fa-stripe mr-1"></i>
+                Stripe Protected
+              </Badge>
+              <Badge variant="secondary" className="px-3 py-1">
+                <i className="fas fa-lock mr-1"></i>
+                PCI Compliant
+              </Badge>
+            </div>
+
+            {/* FAQ */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg" data-testid="text-faq-title">
+                  Frequently Asked Questions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-bold text-sm mb-4">Can I cancel anytime?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Yes! Cancel your subscription anytime from your account settings. No commitments.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm mb-4">What happens during the free trial?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    You get full access to all premium features for 7 days. You won't be charged until after the trial ends.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm mb-4">How many children can use one account?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    You can add unlimited children to your parent account. Each child gets their own progress tracking.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+========== client/src/pages/test-simulator.tsx ==========
+import { useState, useEffect } from "react";
+import { useParams, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Play, Volume2, SkipBack, SkipForward, Clock } from "lucide-react";
+import type { Child, WordList } from "@shared/schema";
+
+export default function TestSimulator() {
+  const { childId } = useParams();
+  const [, setLocation] = useLocation();
+  
+  const [testConfig, setTestConfig] = useState({
+    pauseDuration: 10,
+    testMode: "friday-test",
+    hasParentVoice: false,
+  });
+  
+  const [testStarted, setTestStarted] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [currentAnswer, setCurrentAnswer] = useState("");
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [testCompleted, setTestCompleted] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+
+  const { data: child } = useQuery<Child>({
+    queryKey: ["/api/children", childId],
+    retry: false,
+  });
+
+  const { data: wordLists } = useQuery<WordList[]>({
+    queryKey: ["/api/children", childId, "wordlists"],
+    retry: false,
+  });
+
+  const currentWordList = wordLists?.[0];
+  const words = currentWordList?.words || [];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (testStarted && !testCompleted && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            handleNextWord();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [testStarted, testCompleted, timeRemaining]);
+
+  const startTest = () => {
+    if (words.length === 0) {
+      return;
+    }
+    setTestStarted(true);
+    setUserAnswers(new Array(words.length).fill(""));
+    setTimeRemaining(testConfig.pauseDuration);
+    speakWord(words[0]);
+  };
+
+  const speakWord = (word: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.rate = 0.7;
+      utterance.pitch = 1.0;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleNextWord = () => {
+    const newAnswers = [...userAnswers];
+    newAnswers[currentWordIndex] = currentAnswer;
+    setUserAnswers(newAnswers);
+    setCurrentAnswer("");
+
+    if (currentWordIndex < words.length - 1) {
+      const nextIndex = currentWordIndex + 1;
+      setCurrentWordIndex(nextIndex);
+      setTimeRemaining(testConfig.pauseDuration);
+      speakWord(words[nextIndex]);
+    } else {
+      setTestCompleted(true);
+    }
+  };
+
+  const handlePreviousWord = () => {
+    if (currentWordIndex > 0) {
+      const newAnswers = [...userAnswers];
+      newAnswers[currentWordIndex] = currentAnswer;
+      setUserAnswers(newAnswers);
+      
+      const prevIndex = currentWordIndex - 1;
+      setCurrentWordIndex(prevIndex);
+      setCurrentAnswer(userAnswers[prevIndex] || "");
+      setTimeRemaining(testConfig.pauseDuration);
+    }
+  };
+
+  const calculateResults = () => {
+    let correct = 0;
+    const results = words.map((word, index) => {
+      const isCorrect = userAnswers[index]?.toLowerCase() === word.toLowerCase();
+      if (isCorrect) correct++;
+      return {
+        word,
+        userAnswer: userAnswers[index] || "",
+        isCorrect,
+      };
+    });
+    return { results, score: Math.round((correct / words.length) * 100) };
+  };
+
+  const startRecording = () => {
+    setIsRecording(true);
+    // In a real implementation, this would start voice recording
+    setTimeout(() => {
+      setIsRecording(false);
+      setTestConfig(prev => ({ ...prev, hasParentVoice: true }));
+    }, 3000);
+  };
+
+  if (!child) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (testCompleted) {
+    const { results, score } = calculateResults();
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="bg-card border-b border-border px-4 py-3">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <Button 
+              variant="ghost"
+              onClick={() => setLocation("/dashboard")}
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-xl font-bold" data-testid="text-page-title">
+              Test Results
+            </h1>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto p-6">
+          <Card className="text-center mb-6">
+            <CardHeader>
+              <CardTitle className="text-2xl font-fun" data-testid="text-test-complete-title">
+                Test Complete!
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 text-accent" data-testid="text-final-test-score">
+                {score}%
+              </div>
+              <p className="text-base sm:text-lg text-muted-foreground mb-3 sm:mb-4" data-testid="text-score-message">
+                {score >= 90 ? "Excellent work!" : score >= 70 ? "Good job!" : "Keep practicing!"}
+              </p>
+              <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
+                <div>
+                  <span className="font-bold text-secondary">{results.filter(r => r.isCorrect).length}</span> Correct
+                </div>
+                <div>
+                  <span className="font-bold text-destructive">{results.filter(r => !r.isCorrect).length}</span> Incorrect
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle data-testid="text-detailed-results-title">Detailed Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {results.map((result, index) => (
+                  <div 
+                    key={index}
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      result.isCorrect ? 'bg-secondary/10' : 'bg-destructive/10'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        result.isCorrect ? 'bg-secondary text-secondary-foreground' : 'bg-destructive text-destructive-foreground'
+                      }`}>
+                        <i className={`fas ${result.isCorrect ? 'fa-check' : 'fa-times'} text-sm`}></i>
+                      </div>
+                      <div>
+                        <div className="font-medium" data-testid={`text-result-word-${index}`}>
+                          {result.word}
+                        </div>
+                        {!result.isCorrect && (
+                          <div className="text-sm text-muted-foreground" data-testid={`text-result-answer-${index}`}>
+                            Your answer: {result.userAnswer || "(no answer)"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-card border-b border-border px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Button 
+            variant="ghost"
+            onClick={() => setLocation("/dashboard")}
+            data-testid="button-back"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-xl font-bold" data-testid="text-page-title">
+            Friday Test Simulator
+          </h1>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto p-6">
+        {!testStarted ? (
+          /* Test Setup */
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-fun text-foreground mb-4" data-testid="text-simulator-title">
+                Friday Test Simulator
+              </h2>
+              <p className="text-muted-foreground" data-testid="text-simulator-subtitle">
+                Practice like it's test day with realistic timing and conditions
+              </p>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle data-testid="text-config-title">Test Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="parent-voice" data-testid="label-parent-voice">
+                    Parent Voice Recording
+                  </Label>
+                  <Button 
+                    onClick={startRecording}
+                    disabled={isRecording}
+                    className={`${testConfig.hasParentVoice ? 'bg-secondary' : 'bg-red-500'} text-white hover:opacity-90`}
+                    data-testid="button-record-voice"
+                  >
+                    <i className={`fas ${isRecording ? 'fa-circle' : 'fa-microphone'} mr-2`}></i>
+                    {isRecording ? "Recording..." : testConfig.hasParentVoice ? "Recorded" : "Record"}
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="pause-duration" data-testid="label-pause-duration">
+                    Word Pause Duration
+                  </Label>
+                  <Select 
+                    value={testConfig.pauseDuration.toString()} 
+                    onValueChange={(value) => setTestConfig(prev => ({ ...prev, pauseDuration: parseInt(value) }))}
+                  >
+                    <SelectTrigger className="w-32" data-testid="select-pause-duration">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10 seconds</SelectItem>
+                      <SelectItem value="15">15 seconds</SelectItem>
+                      <SelectItem value="20">20 seconds</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="test-mode" data-testid="label-test-mode">Test Mode</Label>
+                  <Select 
+                    value={testConfig.testMode} 
+                    onValueChange={(value) => setTestConfig(prev => ({ ...prev, testMode: value }))}
+                  >
+                    <SelectTrigger className="w-48" data-testid="select-test-mode">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="friday-test">Friday Test Practice</SelectItem>
+                      <SelectItem value="quick-review">Quick Review</SelectItem>
+                      <SelectItem value="timed-challenge">Timed Challenge</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="text-lg font-bold mb-2" data-testid="text-words-to-test">
+                    {words.length} words to test
+                  </div>
+                  <p className="text-muted-foreground mb-6" data-testid="text-test-description">
+                    Listen carefully to each word and type your answer. You'll have {testConfig.pauseDuration} seconds per word.
+                  </p>
+                  <Button 
+                    onClick={startTest}
+                    disabled={words.length === 0}
+                    variant="default"
+                    data-testid="button-start-test"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Test
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          /* Test Interface */
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center mb-6">
+                  <h4 className="text-xl font-bold text-foreground mb-4" data-testid="text-question-counter">
+                    Question {currentWordIndex + 1} of {words.length}
+                  </h4>
+                  <div className="w-24 h-24 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer"
+                       onClick={() => speakWord(words[currentWordIndex])}>
+                    <Volume2 className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <p className="text-muted-foreground" data-testid="text-listen-instruction">
+                    Listen carefully and write the word
+                  </p>
+                </div>
+
+                <div className="mb-6">
+                  <Input 
+                    type="text"
+                    placeholder="Type your answer here..."
+                    className="text-center text-xl font-medium h-16"
+                    value={currentAnswer}
+                    onChange={(e) => setCurrentAnswer(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleNextWord()}
+                    data-testid="input-test-answer"
+                  />
+                </div>
+
+                <div className="flex space-x-3 mb-6">
+                  <Button 
+                    variant="outline"
+                    onClick={handlePreviousWord}
+                    disabled={currentWordIndex === 0}
+                    className="flex-1"
+                    data-testid="button-previous-word"
+                  >
+                    <SkipBack className="w-4 h-4 mr-2" />Previous
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => speakWord(words[currentWordIndex])}
+                    className="flex-1"
+                    data-testid="button-replay-audio"
+                  >
+                    Replay Audio
+                  </Button>
+                  <Button 
+                    onClick={handleNextWord}
+                    variant="default" className="flex-1"
+                    data-testid="button-next-word"
+                  >
+                    {currentWordIndex === words.length - 1 ? "Finish" : "Next"}
+                    <SkipForward className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+
+                <div className="text-center">
+                  <div className="inline-flex items-center space-x-2 bg-muted rounded-full px-4 py-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-bold text-foreground" data-testid="text-timer">
+                      0:{timeRemaining.toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Progress 
+                    value={((currentWordIndex + 1) / words.length) * 100} 
+                    className="h-2"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+========== client/src/pages/TreasureVault.tsx ==========
+import { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
+import { useAudio } from '@/contexts/AudioContext';
+import redBootImage from '@assets/17586438224363330781733458024019_1758643831046.png';
+import diegoImage from '@assets/17586535267086549247092506575635_1758653585024.png';
+import sparkleSound from '@assets/sparkle-355937_1765236810252.mp3';
+
+interface TreasureCount {
+  diamonds: number;
+  coins: number;
+  crowns: number;
+  bags: number;
+  stars: number;
+  trophies: number;
+}
+
+interface UserTreasures {
+  redboot: TreasureCount;
+  diego: TreasureCount;
+}
+
+function buildTreasuresFromLocal(): UserTreasures {
+  let totalTreasures = 0;
+  try {
+    const raw = localStorage.getItem('redboot-spelling-data');
+    if (raw) {
+      const weekData = JSON.parse(raw);
+      if (weekData && typeof weekData === 'object' && !Array.isArray(weekData)) {
+        totalTreasures = typeof weekData.treasureCount === 'number' ? Math.max(0, weekData.treasureCount) : 0;
+      }
+    }
+  } catch { /* empty */ }
+
+  const distribute = (total: number): TreasureCount => {
+    if (total === 0) return { diamonds: 0, coins: 0, crowns: 0, bags: 0, stars: 0, trophies: 0 };
+    const coins = Math.floor(total * 0.40);
+    const bags = Math.floor(total * 0.25);
+    const stars = Math.floor(total * 0.15);
+    const crowns = Math.floor(total * 0.10);
+    const diamonds = Math.floor(total * 0.07);
+    const trophies = Math.max(0, total - coins - bags - stars - crowns - diamonds);
+    return { diamonds, coins, crowns, bags, stars, trophies };
+  };
+
+  // Treasure is shared across characters — show same total for both
+  const counts = distribute(totalTreasures);
+  return { redboot: counts, diego: counts };
+}
+
+interface FallingTreasure {
+  id: number;
+  emoji: string;
+  x: number;
+  y: number;
+  rotation: number;
+  velocity: number;
+  delay: number;
+}
+
+export default function TreasureVault() {
+  const [, setLocation] = useLocation();
+  const { playSound, playAudioFile } = useAudio();
+  const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego'>('redboot');
+  const [chestOpen, setChestOpen] = useState(false);
+  const [fallingTreasures, setFallingTreasures] = useState<FallingTreasure[]>([]);
+  const [showTreasurePiles, setShowTreasurePiles] = useState(false);
+  const canvasRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
+  const bubblesRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>();
+  const treasureIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const treasurePileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const treasureIdCounter = useRef(0);
+
+  const { data: treasures, isLoading } = useQuery<UserTreasures>({
+    queryKey: ['local-treasures'],
+    queryFn: () => Promise.resolve(buildTreasuresFromLocal()),
+    refetchInterval: 30000,
+  });
+
+  // Treasure visual properties
+  const treasureVisuals = {
+    diamonds: { emoji: '💎', color: '#b9f2ff', size: 15 },
+    coins: { emoji: '🪙', color: '#ffd700', size: 12 },
+    crowns: { emoji: '👑', color: '#ffd700', size: 20 },
+    bags: { emoji: '💰', color: '#8b7355', size: 18 },
+    stars: { emoji: '⭐', color: '#ffeb3b', size: 16 },
+    trophies: { emoji: '🏆', color: '#ff9800', size: 18 },
+  };
+
+  const getTotalTreasures = (treasureCount: TreasureCount): number => {
+    return Object.values(treasureCount).reduce((sum, count) => sum + count, 0);
+  };
+
+  // Continuous treasure shower - spawns treasures continuously
+  const startContinuousTreasureShower = () => {
+    const allTreasureEmojis = ['💎', '🪙', '👑', '💰', '⭐', '🏆'];
+    
+    // Clear any existing interval and timeout
+    if (treasureIntervalRef.current) {
+      clearInterval(treasureIntervalRef.current);
+    }
+    if (treasurePileTimeoutRef.current) {
+      clearTimeout(treasurePileTimeoutRef.current);
+    }
+    
+    setShowTreasurePiles(false);
+    
+    // Spawn new treasures every 150ms for continuous effect
+    treasureIntervalRef.current = setInterval(() => {
+      setFallingTreasures(prev => {
+        // Create 2-3 new treasures each cycle
+        const newTreasures: FallingTreasure[] = [];
+        const count = 2 + Math.floor(Math.random() * 2); // 2-3 treasures
+        
+        for (let i = 0; i < count; i++) {
+          treasureIdCounter.current += 1;
+          newTreasures.push({
+            id: treasureIdCounter.current,
+            emoji: allTreasureEmojis[Math.floor(Math.random() * allTreasureEmojis.length)],
+            x: Math.random() * 100,
+            y: -20,
+            rotation: Math.random() * 360,
+            velocity: 2 + Math.random() * 3,
+            delay: 0, // No delay needed since we're spawning continuously
+          });
+        }
+        
+        // Add new treasures and keep only the last 50 to prevent memory issues
+        // Treasures older than 50 have already fallen off screen
+        const updated = [...prev, ...newTreasures].slice(-50);
+        return updated;
+      });
+    }, 150); // Spawn every 150ms
+    
+    // Show treasure piles after 2 seconds but keep rain going
+    treasurePileTimeoutRef.current = setTimeout(() => {
+      setShowTreasurePiles(true);
+    }, 2000);
+  };
+
+  // Stop the continuous treasure shower
+  const stopTreasureShower = () => {
+    if (treasureIntervalRef.current) {
+      clearInterval(treasureIntervalRef.current);
+      treasureIntervalRef.current = null;
+    }
+    if (treasurePileTimeoutRef.current) {
+      clearTimeout(treasurePileTimeoutRef.current);
+      treasurePileTimeoutRef.current = null;
+    }
+    // Fade out existing treasures
+    setTimeout(() => {
+      setFallingTreasures([]);
+    }, 500);
+  };
+
+  // Create underwater bubbles
+  const createBubbles = () => {
+    if (!bubblesRef.current) return;
+    bubblesRef.current.innerHTML = '';
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.style.left = Math.random() * 100 + '%';
+      bubble.style.width = bubble.style.height = (Math.random() * 20 + 10) + 'px';
+      bubble.style.animationDelay = Math.random() * 10 + 's';
+      bubble.style.animationDuration = (10 + Math.random() * 10) + 's';
+      bubblesRef.current.appendChild(bubble);
+    }
+  };
+
+  // Draw treasure pile on canvas
+  const drawTreasurePile = (type: keyof TreasureCount) => {
+    const canvas = canvasRefs.current[type];
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const count = treasures?.[selectedCharacter]?.[type] || 0;
+    const visual = treasureVisuals[type];
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (count === 0) return;
+    
+    // Calculate grid layout
+    const maxPerRow = Math.min(15, Math.ceil(Math.sqrt(count * 2)));
+    const itemSize = visual.size;
+    const spacing = itemSize * 0.3;
+    
+    // Draw each item
+    let drawn = 0;
+    for (let row = 0; drawn < count; row++) {
+      const rowCount = Math.min(maxPerRow - Math.floor(row / 2), count - drawn);
+      const startX = (canvas.width - (rowCount * (itemSize + spacing))) / 2;
+      const y = canvas.height - (row + 1) * (itemSize + spacing);
+      
+      for (let col = 0; col < rowCount && drawn < count; col++) {
+        const x = startX + col * (itemSize + spacing);
+        
+        // Add slight randomization for natural pile look
+        const offsetX = (Math.random() - 0.5) * 4;
+        const offsetY = (Math.random() - 0.5) * 4;
+        
+        // Draw emoji
+        ctx.font = `${itemSize}px Arial`;
+        ctx.fillText(visual.emoji, x + offsetX, y + offsetY);
+        
+        drawn++;
+      }
+    }
+  };
+
+  // Initialize bubbles on mount
+  useEffect(() => {
+    createBubbles();
+  }, []);
+
+  // Cleanup interval and timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (treasureIntervalRef.current) {
+        clearInterval(treasureIntervalRef.current);
+      }
+      if (treasurePileTimeoutRef.current) {
+        clearTimeout(treasurePileTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Initialize canvases and draw treasures when chest opens
+  useEffect(() => {
+    if (chestOpen && treasures) {
+      // Initialize canvas dimensions first
+      Object.keys(canvasRefs.current).forEach(key => {
+        const canvas = canvasRefs.current[key];
+        if (canvas) {
+          canvas.width = canvas.offsetWidth;
+          canvas.height = 120;
+        }
+      });
+
+      // Then draw the treasure piles
+      Object.keys(treasureVisuals).forEach(type => {
+        drawTreasurePile(type as keyof TreasureCount);
+      });
+    }
+  }, [chestOpen, treasures, selectedCharacter]);
+
+  // Open chest animation
+  const openChest = () => {
+    if (!chestOpen) {
+      playSound('treasure_chest_open');
+      playAudioFile(sparkleSound, 0.7); // Play sparkle sound when jewels rain down
+      setChestOpen(true);
+      startContinuousTreasureShower(); // Start continuous treasure shower animation
+      
+      // Play character-specific sound
+      if (selectedCharacter === 'diego') {
+        const audio = new Audio('/attached_assets/chihuahua-barks-75088_1759205101905.mp3');
+        audio.volume = 0.4;
+        audio.play().catch(console.error);
+      } else {
+        setTimeout(() => {
+          const utterance = new SpeechSynthesisUtterance("Arrr, me treasure!");
+          utterance.rate = 0.75;
+          utterance.pitch = 0.9;
+          utterance.lang = 'en-GB';
+          speechSynthesis.speak(utterance);
+        }, 500);
+      }
+    } else {
+      setChestOpen(false);
+      stopTreasureShower(); // Stop the continuous rain
+      setShowTreasurePiles(false);
+    }
+  };
+
+  const switchVault = (character: 'redboot' | 'diego') => {
+    setSelectedCharacter(character);
+    // Keep chest state when switching - don't auto-close
+  };
+
+  if (isLoading || !treasures) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom, #87CEEB 0%, #1e3c72 30%, #0b1929 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ color: '#fff', fontSize: '24px' }}>Loading treasure vault...</div>
+      </div>
+    );
+  }
+
+  const currentTreasures = treasures[selectedCharacter];
+  const totalCount = getTotalTreasures(currentTreasures);
+
+  // Determine chest level based on total treasures
+  const getChestLevel = (total: number): { name: string; color: string; glow: string } => {
+    if (total >= 500) return { name: 'Legendary', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.6)' };
+    if (total >= 200) return { name: 'Gold', color: '#eab308', glow: 'rgba(234, 179, 8, 0.6)' };
+    if (total >= 50) return { name: 'Silver', color: '#94a3b8', glow: 'rgba(148, 163, 184, 0.6)' };
+    return { name: 'Wooden', color: '#8b4513', glow: 'rgba(180, 83, 9, 0.6)' };
+  };
+
+  const chestLevel = getChestLevel(totalCount);
+
+  return (
+    <div>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Fredoka:wght@400;600;700&display=swap');
+        
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Ocean waves animation */
+        .ocean {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 40%;
+          background: linear-gradient(to bottom, rgba(0,119,190,0.8) 0%, rgba(0,50,100,1) 100%);
+          overflow: hidden;
+          z-index: 1;
+        }
+
+        .wave {
+          position: absolute;
+          width: 200%;
+          height: 200%;
+          top: -50%;
+          left: -50%;
+          background: radial-gradient(ellipse at center, transparent, rgba(255,255,255,0.1));
+          animation: wave 8s infinite ease-in-out;
+        }
+
+        .wave:nth-child(2) {
+          animation-delay: -2s;
+          opacity: 0.5;
+          animation-duration: 10s;
+        }
+
+        .wave:nth-child(3) {
+          animation-delay: -4s;
+          opacity: 0.3;
+          animation-duration: 12s;
+        }
+
+        @keyframes wave {
+          0%, 100% {
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            transform: rotate(180deg) scale(1.1);
+          }
+        }
+
+        /* Underwater bubbles */
+        .bubbles {
+          position: fixed;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          overflow: hidden;
+        }
+
+        .bubble {
+          position: absolute;
+          bottom: -100px;
+          width: 20px;
+          height: 20px;
+          background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+          border-radius: 50%;
+          animation: rise 10s infinite ease-in;
+        }
+
+        @keyframes rise {
+          to {
+            transform: translateY(-120vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+
+        /* Fish swimming */
+        .fish {
+          position: fixed;
+          width: 60px;
+          height: 30px;
+          opacity: 0.6;
+          z-index: 0;
+          animation: swim 20s infinite ease-in-out;
+        }
+
+        .fish::before {
+          content: '🐠';
+          font-size: 40px;
+          position: absolute;
+        }
+
+        @keyframes swim {
+          0%, 100% {
+            transform: translateX(-100px) scaleX(1);
+          }
+          50% {
+            transform: translateX(calc(100vw + 100px)) scaleX(-1);
+          }
+        }
+
+        /* Treasure shower animations */
+        @keyframes fall {
+          0% {
+            top: -10%;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            top: 100%;
+            opacity: 0;
+          }
+        }
+
+        @keyframes twinkle {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1.3);
+            opacity: 0.8;
+          }
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        /* Navigation */
+        .vault-nav {
+          display: flex;
+          gap: 15px;
+          padding: 20px;
+          justify-content: center;
+          z-index: 10;
+          position: relative;
+        }
+
+        .vault-tab {
+          padding: 15px 30px;
+          border-radius: 15px;
+          font-weight: 600;
+          font-size: 18px;
+          color: #fff;
+          border: 3px solid #d4af37;
+          cursor: pointer;
+          transition: all 0.3s;
+          background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .vault-tab.active {
+          background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+          transform: scale(1.1);
+          box-shadow: 0 8px 25px rgba(212,175,55,0.5);
+        }
+
+        .vault-tab:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        /* Main container */
+        .container {
+          flex: 1;
+          padding: 20px;
+          max-width: 1400px;
+          width: 100%;
+          margin: 0 auto;
+          position: relative;
+          z-index: 5;
+        }
+
+        /* Header */
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+
+        .vault-title {
+          font-family: 'Pirata One', cursive;
+          font-size: 48px;
+          color: #ffd700;
+          text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                       0 0 30px rgba(255,215,0,0.5);
+          margin-bottom: 10px;
+          animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+          0%, 100% {
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                        0 0 30px rgba(255,215,0,0.5);
+          }
+          50% {
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                        0 0 50px rgba(255,215,0,0.8);
+          }
+        }
+
+        /* Total count */
+        .total-display {
+          text-align: center;
+          margin: 20px 0;
+        }
+
+        .total-label {
+          color: #fff;
+          font-size: 20px;
+          text-transform: uppercase;
+          letter-spacing: 3px;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .total-count {
+          font-size: 64px;
+          font-weight: 700;
+          color: #ffd700;
+          text-shadow: 0 0 20px rgba(255,215,0,0.6),
+                       3px 3px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Pirate Chest 3D */
+        .chest-container {
+          perspective: 1000px;
+          margin: 40px auto;
+          width: 280px;
+          height: 200px;
+          cursor: pointer;
+          position: relative;
+        }
+
+        .chest-3d {
+          width: 100%;
+          height: 100%;
+          position: relative;
+          transform-style: preserve-3d;
+          transition: transform 0.8s;
+          transform: rotateY(-15deg);
+        }
+
+        .chest-3d:hover {
+          transform: rotateY(0deg) scale(1.05);
+        }
+
+        .chest-body {
+          position: absolute;
+          width: 280px;
+          height: 160px;
+          bottom: 0;
+          background: linear-gradient(to bottom, 
+            #8b4513 0%, #654321 10%, 
+            #8b4513 20%, #654321 30%,
+            #8b4513 40%, #654321 50%,
+            #8b4513 60%, #654321 70%,
+            #8b4513 80%, #654321 90%,
+            #8b4513 100%);
+          border-radius: 0 0 10px 10px;
+          box-shadow: inset 0 0 30px rgba(0,0,0,0.5),
+                      0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .chest-body::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          background: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 20px,
+            rgba(0,0,0,0.3) 20px,
+            rgba(0,0,0,0.3) 22px
+          );
+          border-radius: 0 0 10px 10px;
+        }
+
+        /* Metal bands */
+        .metal-band {
+          position: absolute;
+          width: 100%;
+          height: 15px;
+          background: linear-gradient(to bottom, #707070 0%, #404040 50%, #707070 100%);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .metal-band.top {
+          top: 20px;
+        }
+
+        .metal-band.bottom {
+          bottom: 20px;
+        }
+
+        /* Chest lid */
+        .chest-lid {
+          position: absolute;
+          width: 280px;
+          height: 80px;
+          top: -40px;
+          background: linear-gradient(135deg, 
+            #a0522d 0%, #8b4513 25%, 
+            #654321 50%, #8b4513 75%, 
+            #a0522d 100%);
+          border-radius: 140px 140px 0 0;
+          transform-origin: bottom;
+          transition: transform 0.5s;
+          box-shadow: inset 0 -5px 20px rgba(0,0,0,0.4),
+                      0 -5px 15px rgba(0,0,0,0.3);
+        }
+
+        .chest-3d.open .chest-lid {
+          transform: rotateX(-110deg);
+        }
+
+        /* Lock */
+        .chest-lock {
+          position: absolute;
+          bottom: 60px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 60px;
+          height: 60px;
+          background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
+          border-radius: 50%;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.5),
+                      inset 0 -3px 10px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 30px;
+          z-index: 10;
+        }
+
+        .chest-lock::after {
+          content: '🔓';
+          filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.5));
+        }
+
+        /* Treasure display area */
+        .treasure-area {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin-top: 50px;
+          padding: 20px;
+          background: rgba(0,0,0,0.3);
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
+        }
+
+        /* Individual treasure pile */
+        .treasure-pile {
+          background: rgba(255,255,255,0.1);
+          border-radius: 15px;
+          padding: 20px;
+          text-align: center;
+          position: relative;
+          min-height: 200px;
+          border: 2px solid rgba(212,175,55,0.5);
+          transition: all 0.3s;
+          overflow: visible;
+        }
+
+        .treasure-pile::before {
+          content: '✨';
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          font-size: 20px;
+          animation: sparkle-pulse 2s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        .treasure-pile::after {
+          content: '✨';
+          position: absolute;
+          bottom: -8px;
+          left: -8px;
+          font-size: 16px;
+          animation: sparkle-pulse 2s ease-in-out infinite 1s;
+          pointer-events: none;
+        }
+
+        @keyframes sparkle-pulse {
+          0%, 100% { 
+            opacity: 0.3;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% { 
+            opacity: 1;
+            transform: scale(1.2) rotate(180deg);
+          }
+        }
+
+        .treasure-pile:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 30px rgba(255, 215, 0, 0.3);
+          background: rgba(255,255,255,0.2);
+        }
+
+        .treasure-pile-label {
+          font-size: 18px;
+          font-weight: 600;
+          color: #ffd700;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 10px;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+          position: relative;
+        }
+
+        /* Canvas for treasure visualization */
+        .treasure-canvas {
+          width: 100%;
+          height: 120px;
+          margin: 10px 0;
+        }
+
+        .treasure-count-display {
+          font-size: 36px;
+          font-weight: 700;
+          color: #fff;
+          text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        /* Back button */
+        .back-btn {
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          z-index: 1000;
+          padding: 12px 24px;
+          background: rgba(255,255,255,0.9);
+          border: none;
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+          background: #fff;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .vault-title {
+            font-size: 36px;
+          }
+          
+          .treasure-area {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+
+      <div style={{
+        fontFamily: "'Fredoka', sans-serif",
+        background: 'linear-gradient(to bottom, #87CEEB 0%, #1e3c72 30%, #0b1929 100%)',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflowX: 'hidden',
+        position: 'relative'
+      }}>
+        {/* Ocean waves */}
+        <div className="ocean">
+          <div className="wave"></div>
+          <div className="wave"></div>
+          <div className="wave"></div>
+        </div>
+
+        {/* Underwater bubbles */}
+        <div className="bubbles" ref={bubblesRef}></div>
+
+        {/* Swimming fish */}
+        <div className="fish" style={{ top: '60%', animationDelay: '0s' }}></div>
+        <div className="fish" style={{ top: '70%', animationDelay: '5s' }}></div>
+        <div className="fish" style={{ top: '50%', animationDelay: '10s' }}></div>
+
+        {/* Back button */}
+        <button 
+          className="back-btn" 
+          onClick={() => setLocation('/dashboard')}
+          data-testid="button-back-to-dashboard"
+        >
+          ← Back to Adventures
+        </button>
+
+        {/* Navigation */}
+        <div className="vault-nav">
+          <button 
+            className={`vault-tab ${selectedCharacter === 'redboot' ? 'active' : ''}`}
+            onClick={() => switchVault('redboot')}
+            data-testid="button-select-redboot"
+          >
+            <img 
+              src={redBootImage} 
+              alt="Red Boot" 
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                marginRight: '8px',
+                border: '2px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            />
+            Red Boot's Hidden Treasure
+          </button>
+          <button 
+            className={`vault-tab ${selectedCharacter === 'diego' ? 'active' : ''}`}
+            onClick={() => switchVault('diego')}
+            data-testid="button-select-diego"
+          >
+            <img 
+              src={diegoImage} 
+              alt="Diego the Pup Pup" 
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                marginRight: '8px',
+                border: '2px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            />
+            Diego's Hidden Treasure
+          </button>
+        </div>
+
+        {/* Main container */}
+        <div className="container">
+          {/* Header */}
+          <div className="header">
+            <h1 className="vault-title">⚓ {selectedCharacter === 'redboot' ? "Red Boot's" : "Diego's"} Treasure Vault ⚓</h1>
+          </div>
+
+          {/* Total display */}
+          <div className="total-display">
+            <div className="total-label">Total Plunder</div>
+            <div className="total-count">{totalCount}</div>
+          </div>
+
+          {/* Chest Level Badge */}
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}>
+            <div style={{
+              display: 'inline-block',
+              padding: '10px 20px',
+              borderRadius: '20px',
+              backgroundColor: chestLevel.color,
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '18px',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+              boxShadow: `0 4px 20px ${chestLevel.glow}`,
+            }}>
+              ✨ {chestLevel.name} Chest ✨
+            </div>
+          </div>
+
+          {/* Pirate Chest */}
+          <div className="chest-container" onClick={openChest} data-testid="button-treasure-chest">
+            <div className={`chest-3d ${chestOpen ? 'open' : ''}`}>
+              <div className="chest-lid" style={{
+                filter: `drop-shadow(0 0 15px ${chestLevel.glow})`
+              }}>
+                <div className="metal-band" style={{ top: '20px' }}></div>
+              </div>
+              <div className="chest-body" style={{
+                boxShadow: `inset 0 0 30px rgba(0,0,0,0.5), 0 10px 30px ${chestLevel.glow}`
+              }}>
+                <div className="metal-band top"></div>
+                <div className="metal-band bottom"></div>
+                <div className="chest-lock" style={{
+                  boxShadow: `0 5px 15px ${chestLevel.glow}, inset 0 -3px 10px rgba(0,0,0,0.3)`
+                }}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Falling treasure shower animation */}
+          {fallingTreasures.length > 0 && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'none',
+              zIndex: 1000,
+              overflow: 'hidden'
+            }}>
+              {fallingTreasures.map((treasure, index) => (
+                <div
+                  key={treasure.id}
+                  className="falling-treasure"
+                  style={{
+                    position: 'absolute',
+                    left: `${treasure.x}%`,
+                    top: `${treasure.y}%`,
+                    fontSize: '40px',
+                    animation: `fall 2s ease-in forwards, twinkle 0.5s infinite alternate, spin 1.5s linear infinite`,
+                    animationDelay: `${treasure.delay}ms`,
+                    filter: 'drop-shadow(0 0 10px gold) drop-shadow(0 0 20px yellow)',
+                    textShadow: '0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ffd700, 0 0 40px #ffd700',
+                  }}
+                >
+                  {treasure.emoji}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Treasure display area */}
+          {showTreasurePiles && (
+            <div className="treasure-area">
+              {/* Diamonds pile */}
+              <div className="treasure-pile" data-testid="treasure-diamonds">
+                <div className="treasure-pile-label">💎 Diamonds</div>
+                <canvas 
+                  className="treasure-canvas" 
+                  ref={(el) => { canvasRefs.current.diamonds = el; }}
+                />
+                <div className="treasure-count-display">{currentTreasures.diamonds}</div>
+              </div>
+
+              {/* Gold Coins pile */}
+              <div className="treasure-pile" data-testid="treasure-gold-coins">
+                <div className="treasure-pile-label">🪙 Gold Coins</div>
+                <canvas 
+                  className="treasure-canvas" 
+                  ref={(el) => { canvasRefs.current.coins = el; }}
+                />
+                <div className="treasure-count-display">{currentTreasures.coins}</div>
+              </div>
+
+              {/* Crowns pile */}
+              <div className="treasure-pile" data-testid="treasure-crowns">
+                <div className="treasure-pile-label">👑 Royal Crowns</div>
+                <canvas 
+                  className="treasure-canvas" 
+                  ref={(el) => { canvasRefs.current.crowns = el; }}
+                />
+                <div className="treasure-count-display">{currentTreasures.crowns}</div>
+              </div>
+
+              {/* Money Bags pile */}
+              <div className="treasure-pile" data-testid="treasure-money-bags">
+                <div className="treasure-pile-label">💰 Money Bags</div>
+                <canvas 
+                  className="treasure-canvas" 
+                  ref={(el) => { canvasRefs.current.bags = el; }}
+                />
+                <div className="treasure-count-display">{currentTreasures.bags}</div>
+              </div>
+
+              {/* Stars pile */}
+              <div className="treasure-pile" data-testid="treasure-stars">
+                <div className="treasure-pile-label">⭐ Stars</div>
+                <canvas 
+                  className="treasure-canvas" 
+                  ref={(el) => { canvasRefs.current.stars = el; }}
+                />
+                <div className="treasure-count-display">{currentTreasures.stars}</div>
+              </div>
+
+              {/* Trophies pile */}
+              <div className="treasure-pile" data-testid="treasure-trophies">
+                <div className="treasure-pile-label">🏆 Trophies</div>
+                <canvas 
+                  className="treasure-canvas" 
+                  ref={(el) => { canvasRefs.current.trophies = el; }}
+                />
+                <div className="treasure-count-display">{currentTreasures.trophies}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Progress to Next Level */}
+          {totalCount < 500 && (
+            <div style={{
+              marginTop: '30px',
+              padding: '20px',
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '15px',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid rgba(255,255,255,0.2)',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                color: '#fff',
+                fontSize: '16px',
+                fontWeight: 600,
+                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+              }}>
+                {totalCount < 50 && `Collect ${50 - totalCount} more treasures to unlock the Silver Chest!`}
+                {totalCount >= 50 && totalCount < 200 && `Collect ${200 - totalCount} more treasures to unlock the Gold Chest!`}
+                {totalCount >= 200 && totalCount < 500 && `Collect ${500 - totalCount} more treasures to unlock the Legendary Chest!`}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+========== client/src/utils/feedbackMessages.ts ==========
+export const feedbackMessages = {
+  kindergarten: {
+    correct: [
+      "Yay! You did it!",
+      "Super job!",
+      "You got it right!",
+      "Hooray! Perfect!",
+      "Wow! Great work!",
+      "Yes! That's right!",
+      "Amazing! You're so smart!",
+      "Wonderful job!",
+      "You're a star!",
+      "Excellent! Keep going!"
+    ],
+    wrongFirstAttempt: [
+      "You're so brave for trying! Every pirate falls down before finding treasure!",
+      "That was a tough one! Your brain is getting stronger every time you try!",
+      "Real pirates never give up! We'll conquer this word together!",
+      "You're learning so much! Let's find another treasure!",
+      "That word is no match for a brave captain like you!",
+      "Wow, you tried so hard! That's what heroes do!",
+      "That's tricky! Moving on!",
+      "We'll come back to that one!",
+      "Let's try a different word!",
+      "That's okay! Next word!",
+      "We'll practice that later!",
+      "Let's keep going!",
+      "Next word, captain!"
+    ],
+    wrongRetry: [
+      "Let's try this word again!",
+      "Remember this one? You can do it!",
+      "Time to practice this again!",
+      "Let's give this another try!",
+      "Ready to try this word?",
+      "Let's see if you got it now!",
+      "Can you spell this one?",
+      "Let's practice this again!",
+      "Try this word again!",
+      "Remember this tricky one?"
+    ]
+  },
+  "1st": {
+    correct: [
+      "Perfect! You got it, matey!",
+      "Excellent work! Red Boot is so proud!",
+      "Amazing! You're a spelling superstar!",
+      "Yes! That's exactly right!",
+      "Fantastic! You nailed that word!",
+      "Brilliant! Keep up the great work!",
+      "Wonderful! You're getting stronger!",
+      "Super job! That was perfect!",
+      "Hooray! You spelled it right!",
+      "Awesome! You're a spelling champion!"
+    ],
+    wrongFirstAttempt: [
+      "You're so brave for trying! Every pirate falls down before finding treasure!",
+      "That was a tough one! Your brain is getting stronger every time you try!",
+      "Real pirates never give up! We'll conquer this word together!",
+      "You're learning so much! Let's find another treasure!",
+      "That word is no match for a brave captain like you!",
+      "Wow, you tried so hard! That's what heroes do!",
+      "That's a tricky word! Moving to the next one!",
+      "Almost! We'll come back to it!",
+      "That one's sneaky! Let's try the next word!",
+      "Good try! We'll retry that later!",
+      "That's tough! Moving ahead!",
+      "We'll work on that one more! Next word!",
+      "Tricky letters! We'll come back!",
+      "Nice effort! Let's try another!"
+    ],
+    wrongRetry: [
+      "Let's try this tricky word again, matey!",
+      "Remember this one? Give it another shot!",
+      "Time to practice this word again!",
+      "Let's see if you've got it now!",
+      "This word came back! Can you spell it?",
+      "Ready to try this one again?",
+      "Let's give this another go!",
+      "This word needs more practice! Try again!",
+      "Remember this sneaky word? You can do it!",
+      "Let's practice this tough one again!"
+    ]
+  },
+  "2nd": {
+    correct: [
+      "Correct! Excellent work, matey!",
+      "Perfect! You're doing great!",
+      "That's right! Keep it up!",
+      "Wonderful! You got it!",
+      "Yes! That's exactly right!",
+      "Great job! You nailed it!",
+      "Fantastic spelling! Well done!",
+      "Brilliant! You're getting stronger!",
+      "Awesome work! That's correct!",
+      "Super! You're a spelling star!"
+    ],
+    wrongFirstAttempt: [
+      "You're so brave for trying! Every pirate falls down before finding treasure!",
+      "That was a tough one! Your brain is getting stronger every time you try!",
+      "Real pirates never give up! We'll conquer this word together!",
+      "You're learning so much! Let's find another treasure!",
+      "That word is no match for a brave captain like you!",
+      "Wow, you tried so hard! That's what heroes do!",
+      "That one's challenging! Moving to the next word!",
+      "Almost! Let's keep going forward!",
+      "That's a tough one! We'll come back to it!",
+      "Good try! On to the next adventure!",
+      "Tricky word! Let's try another one!",
+      "Nice effort! Moving ahead!"
+    ],
+    wrongRetry: [
+      "Let's try this tricky word again!",
+      "Remember this one? You can do it!",
+      "Time to practice this word again!",
+      "Let's see if you've got it now!",
+      "This word needs more work! Try again!",
+      "Ready to try this one again?",
+      "Let's give this another try!",
+      "Can you spell it this time?",
+      "Remember this tough one? Give it a shot!",
+      "Let's practice this word once more!"
+    ]
+  },
+  "3rd": {
+    correct: [
+      "Correct! Well done!",
+      "That's right! Excellent work!",
+      "Perfect spelling! Keep it up!",
+      "Exactly right! Great job!",
+      "Yes! You've got this!",
+      "Nicely done! That's correct!",
+      "Spot on! Moving forward!",
+      "Right answer! You're doing great!",
+      "Correct! You're mastering these words!",
+      "Perfect! You're on a roll!"
+    ],
+    wrongFirstAttempt: [
+      "Mistakes are how champions learn! Let's keep building your skills!",
+      "Every spelling master was once a learner. You're on your way!",
+      "That word won't beat you! We'll come back stronger!",
+      "Your determination is what makes you great. Keep pushing!",
+      "Challenges make us stronger. You've got this!",
+      "Great effort! Learning happens when we try hard things!",
+      "Not quite right. We'll practice this again!",
+      "Not this time. We'll retry it later!",
+      "That needs work. Let's continue!",
+      "Not quite. We'll review this!"
+    ],
+    wrongRetry: [
+      "Let's retry this word.",
+      "Time to practice this one again.",
+      "Can you spell this word now?",
+      "Let's give this another try.",
+      "This word needs more work. Try again.",
+      "Ready to retry this one?",
+      "Let's practice this word again.",
+      "Can you get it this time?",
+      "Time to try this again.",
+      "Let's work on this word once more."
+    ]
+  },
+  "4th": {
+    correct: [
+      "Correct! Good work!",
+      "Right! Well done!",
+      "Correct! Keep going!",
+      "That's right! Excellent!",
+      "Perfect! Nice job!",
+      "Correct! Moving on!",
+      "Right answer! Great!",
+      "That's correct! Well done!",
+      "Perfect! Continue!",
+      "Correct! You're doing well!"
+    ],
+    wrongFirstAttempt: [
+      "Mistakes are how champions learn! Let's keep building your skills!",
+      "Every spelling master was once a learner. You're on your way!",
+      "That word won't beat you! We'll come back stronger!",
+      "Your determination is what makes you great. Keep pushing!",
+      "Challenges make us stronger. You've got this!",
+      "Great effort! Learning happens when we try hard things!",
+      "Not right. We'll practice this again.",
+      "Not correct. We'll come back to it.",
+      "Not right. We'll review this.",
+      "We'll try again later. Keep going!"
+    ],
+    wrongRetry: [
+      "Let's retry this word.",
+      "Practice this one again.",
+      "Try this word again.",
+      "Let's work on this one.",
+      "Retry this word.",
+      "Practice this again.",
+      "Try this one more time.",
+      "Let's review this word.",
+      "Attempt this again.",
+      "Try spelling this again."
+    ]
+  },
+  "5th": {
+    correct: [
+      "Correct! Well done!",
+      "Right! Keep it up!",
+      "Correct! Excellent work!",
+      "That's right! Good job!",
+      "Perfect! Moving forward!",
+      "Correct! Nice work!",
+      "Right answer! Continue!",
+      "That's correct! Great!",
+      "Perfect! Well done!",
+      "Correct! You're doing great!"
+    ],
+    wrongFirstAttempt: [
+      "Mistakes are how champions learn! Let's keep building your skills!",
+      "Every spelling master was once a learner. You're on your way!",
+      "That word won't beat you! We'll come back stronger!",
+      "Your determination is what makes you great. Keep pushing!",
+      "Challenges make us stronger. You've got this!",
+      "Great effort! Learning happens when we try hard things!",
+      "Not right. We'll review this later.",
+      "Keep going. We'll try again later.",
+      "Let's continue. You're getting stronger!",
+      "Moving on. You'll master this!"
+    ],
+    wrongRetry: [
+      "Retry this word.",
+      "Practice this again.",
+      "Try this word again.",
+      "Work on this one.",
+      "Attempt this again.",
+      "Practice this word.",
+      "Try once more.",
+      "Review this word.",
+      "Try again.",
+      "Spell this again."
+    ]
+  }
+};
+
+// Track recently used messages to avoid immediate repeats
+let recentMessages: string[] = [];
+
+export function getFeedback(gradeLevel: string | null, isCorrect: boolean, isRetryAttempt: boolean = false): string {
+  // Normalize grade level
+  const normalizedGrade = normalizeGradeLevel(gradeLevel);
+  
+  // Get appropriate message array
+  let messages: string[];
+  if (isCorrect) {
+    messages = feedbackMessages[normalizedGrade].correct;
+  } else if (isRetryAttempt) {
+    messages = feedbackMessages[normalizedGrade].wrongRetry;
+  } else {
+    messages = feedbackMessages[normalizedGrade].wrongFirstAttempt;
+  }
+  
+  // Filter out recently used messages (last 5)
+  const availableMessages = messages.filter(msg => !recentMessages.includes(msg));
+  
+  // If all messages used recently, reset pool
+  const messagePool = availableMessages.length > 0 ? availableMessages : messages;
+  
+  // Random selection
+  const selectedMessage = messagePool[Math.floor(Math.random() * messagePool.length)];
+  
+  // Track usage
+  recentMessages.push(selectedMessage);
+  if (recentMessages.length > 5) {
+    recentMessages.shift(); // Keep only last 5
+  }
+  
+  return selectedMessage;
+}
+
+function normalizeGradeLevel(grade: string | null): keyof typeof feedbackMessages {
+  // Handle different grade formats
+  if (!grade) return "2nd"; // default
+  
+  const gradeStr = grade.toString().toLowerCase();
+  
+  if (gradeStr.includes('k')) return 'kindergarten';
+  if (gradeStr.includes('1')) return '1st';
+  if (gradeStr.includes('2')) return '2nd';
+  if (gradeStr.includes('3')) return '3rd';
+  if (gradeStr.includes('4')) return '4th';
+  if (gradeStr.includes('5')) return '5th';
+  
+  return '2nd'; // default fallback
+}
+
+// Reset message history (call at start of new practice session)
+export function resetMessageHistory() {
+  recentMessages = [];
+}
+

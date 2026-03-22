@@ -23,10 +23,40 @@ title = "Client source export (all .tsx/.ts)"
 id = "KMj_KQ8tWVgGuqDsgX6px"
 uri = "file://full_server_export.txt"
 type = "text"
-title = "Server source export (all .ts)"
+title = "Server source — complete"
 
 [[outputs]]
 id = "Z5Z2zpsE1xrevqDQG2VlZ"
 uri = "file://full_export.tar.gz"
 type = "unspecified"
 title = "Full source export (client + server)"
+
+[[outputs]]
+id = "vBykihxF0z9Jqnf17mlD5"
+uri = "file://client_part_aa.txt"
+type = "text"
+title = "Client source — Part 1 of 5"
+
+[[outputs]]
+id = "gvJ6IWdEijVmUzvcSoUX1"
+uri = "file://client_part_ab.txt"
+type = "text"
+title = "Client source — Part 2 of 5"
+
+[[outputs]]
+id = "LLrbbgi16_bVFMOWumDzO"
+uri = "file://client_part_ac.txt"
+type = "text"
+title = "Client source — Part 3 of 5"
+
+[[outputs]]
+id = "V77ZuKI9wJp6DQZ1zRq0t"
+uri = "file://client_part_ad.txt"
+type = "text"
+title = "Client source — Part 4 of 5"
+
+[[outputs]]
+id = "LgOVthv-WFKnpDWg5Ai6W"
+uri = "file://client_part_ae.txt"
+type = "text"
+title = "Client source — Part 5 of 5"
