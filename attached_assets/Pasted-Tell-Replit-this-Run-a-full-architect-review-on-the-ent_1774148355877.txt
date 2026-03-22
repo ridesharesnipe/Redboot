@@ -1,0 +1,43 @@
+Tell Replit this:
+
+> "Run a full architect review on the entire paywall system. I need you to verify every single piece end-to-end. Do not fix anything yet — just report what's broken.
+> 
+> TEST 1 — First session flow:
+> Open the app as a brand new user (clear all localStorage). Go through onboarding, child setup, upload a word list, start a practice session, complete it. Does the Aha Moment paywall appear immediately after the session ends? Does it stay on screen? Does it show the correct stats from the session? Does the design match: blue header with child's name and results, 3 stat cards (green/purple/amber), Zero Risk timeline with 3 steps, pricing cards at $39.96/yr and $6.87/mo, trial toggle, email field, purple CTA button, 'Maybe later' link?
+> 
+> TEST 2 — Locked features after dismissing paywall:
+> Tap 'Maybe later' on the paywall. Now tap each of these and report what happens:
+> - Practice → should show 'Your free session is done!' locked screen
+> - Friday Test → should show 'Friday Test Simulator' locked screen with checkmarks
+> - Friday Test Simulator → same lock screen
+> - Parent Analytics → should show the real analytics page blurred with subscribe overlay
+> - Treasure Road → should show locked screen
+> - Sea Monster Battle → should show locked screen
+> Report which ones work and which ones don't.
+> 
+> TEST 3 — Subscribe button flow:
+> Tap any subscribe button. Does it open the full Paywall component? Does the email field work? Does tapping the CTA trigger a call to /api/stripe/create-checkout-session? Does the server respond with a valid Stripe Checkout URL? Does the browser redirect to Stripe? Check the server logs for errors.
+> 
+> TEST 4 — Stripe Checkout completion:
+> After completing payment on Stripe (test mode), does the app redirect back with ?payment=success? Does it call /api/stripe/subscription-status? Does localStorage update with status 'active' or 'trial'? Does 'Welcome aboard, Captain!' appear? Do all features unlock after?
+> 
+> TEST 5 — Transaction abandonment:
+> Start Stripe Checkout but close it without paying. Does the app detect ?canceled=true or equivalent? On the next action, does the 'Wait, Captain!' abandonment offer appear with $23.88/yr, countdown timer, and green CTA? Does it only show once?
+> 
+> TEST 6 — Session Start paywall:
+> As a non-subscriber with freeSessionUsed=true, open the app. Does the Session Start paywall appear? Does it show real data from the last session? Does the once-per-day throttle work (showing only once per calendar day)? Does the X button dismiss it?
+> 
+> TEST 7 — Stripe webhook:
+> Is the webhook endpoint at /api/stripe/webhook registered and accepting POST requests? Does it verify the Stripe signature using STRIPE_WEBHOOK_SECRET? Does it handle checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, and invoice.payment_failed? Check server logs for any webhook errors.
+> 
+> TEST 8 — Price accuracy:
+> Verify every price displayed in the app matches:
+> - With trial: $39.96/yr ($3.33/mo), $6.87/mo
+> - Without trial: $35.88/yr ($2.99/mo), $6.18/mo  
+> - Abandonment: $23.88/yr ($1.99/mo)
+> - Strikethrough on yearly: $82.44
+> Check Paywall.tsx, SessionStartPaywall.tsx, AbandonmentOffer.tsx, and any locked screen that shows prices.
+> 
+> Give me a pass/fail for each test with specific details on what's broken. Do not fix anything until I review the report."
+
+This forces Replit to audit everything before touching code. You'll get a clear picture of what's working and what's not.
