@@ -199,33 +199,33 @@ export function PracticeWithKeyboard() {
           margin: "0 auto 12px",
         }}/>
 
-        {/* QWERTY rows */}
+        {/* QWERTY rows — chunky, gapless, full-width */}
         {QWERTY_ROWS.map((row, ri) => (
           <div key={ri} style={{
             display: "flex",
-            justifyContent: "center",
-            gap: 5,
-            marginBottom: ri === 2 ? 0 : 6,
+            width: "100%",
+            gap: 0,
+            marginBottom: 0,
           }}>
-            {row.map(key => (
+            {row.map((key, ki) => (
               <button
                 key={key}
                 onClick={() => handleKey(key)}
                 style={{
-                  width: ri === 0 ? 31 : ri === 1 ? 34 : 40,
-                  height: 42,
-                  borderRadius: 12,
+                  flex: 1,
+                  height: 54,
+                  borderRadius: 16,
                   background: "linear-gradient(180deg, #8ED6E8 0%, #5BBAD5 100%)",
                   border: "none",
-                  borderBottom: "3px solid #3A9AB8",
+                  borderBottom: "4px solid #3A9AB8",
+                  borderRight: ki < row.length - 1 ? "1px solid rgba(255,255,255,0.25)" : "none",
                   color: "white",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 800,
+                  fontSize: 20,
+                  fontFamily: "'Fredoka One', cursive",
                   cursor: "pointer",
-                  boxShadow: "0 2px 0 rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.35)",
-                  transition: "transform 80ms, box-shadow 80ms",
-                  flexShrink: 0,
+                  boxShadow: "inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.1)",
+                  transition: "transform 80ms",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
