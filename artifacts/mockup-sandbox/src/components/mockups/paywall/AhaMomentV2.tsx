@@ -39,18 +39,24 @@ export function AhaMomentV2() {
       {/* White header — no gradient, no wave divider */}
       <div style={{ background: "white", padding: "28px 20px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
         <div style={{
-          width: 110, height: 110,
+          width: 150, height: 150,
           borderRadius: "50%",
           overflow: "hidden",
           border: "4px solid #1A6BC4",
-          boxShadow: "0 4px 18px rgba(26,107,196,0.28)",
+          boxShadow: "0 4px 20px rgba(26,107,196,0.30)",
           marginBottom: 14,
           flexShrink: 0,
         }}>
           <img
             src="/__mockup/images/redboot-dab.jpg"
             alt="Red Boot"
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: "scale(2.4)",
+              transformOrigin: "50% 42%",
+            }}
           />
         </div>
         <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 24, color: "#1A6BC4", margin: 0, lineHeight: 1.25 }}>
