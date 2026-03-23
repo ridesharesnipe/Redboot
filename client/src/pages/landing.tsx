@@ -136,8 +136,8 @@ export default function Landing({ onStart }: LandingProps) {
               </div>
               {/* Red Boot name and title - positioned below image */}
               <div className="mt-4 text-center">
-                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-2 text-red-500 drop-shadow-lg" style={{ 
-                  fontFamily: "'Fredoka One', cursive"
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-2 text-red-500 drop-shadow-lg" style={{ 
+                  fontFamily: "'Pirata One', cursive"
                 }} data-testid="text-hero-title">Red Boot</h1>
                 <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-sky-200 drop-shadow-md" style={{ 
                   fontFamily: "'Pirata One', cursive"
