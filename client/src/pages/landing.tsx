@@ -136,7 +136,7 @@ export default function Landing({ onStart }: LandingProps) {
               </div>
               {/* Red Boot name and title - positioned below image */}
               <div className="mt-4 text-center">
-                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-2 text-red-500 drop-shadow-lg" style={{ 
+                <h1 className="text-6xl sm:text-7xl md:text-8xl font-bold mb-2 text-red-500 drop-shadow-lg" style={{ 
                   fontFamily: "'Pirata One', cursive"
                 }} data-testid="text-hero-title">Red Boot</h1>
                 <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-sky-200 drop-shadow-md" style={{ 
@@ -278,7 +278,7 @@ export default function Landing({ onStart }: LandingProps) {
                     <h3 className="font-bold text-lg text-slate-800">Ray Ray</h3>
                     <span className="puffy-tag puffy-tag-gray">Coming Soon</span>
                   </div>
-                  <p className="text-slate-500 text-sm font-medium mb-1">🐠 Coral Reef Explorer</p>
+                  <p className="text-sm font-medium mb-1" style={{ color: '#1A6BC4' }}>🐠 Coral Reef Explorer</p>
                   <p className="text-slate-400 text-xs">Explore the coral reef — coming soon!</p>
                 </div>
               </div>
@@ -302,7 +302,7 @@ export default function Landing({ onStart }: LandingProps) {
                     <h3 className="font-bold text-lg text-slate-800">Ocean Blue</h3>
                     <span className="puffy-tag puffy-tag-gray">Coming Soon</span>
                   </div>
-                  <p className="text-slate-500 text-sm font-medium mb-1">🔭 Star Map Navigator</p>
+                  <p className="text-sm font-medium mb-1" style={{ color: '#FF1493' }}>🔭 Star Map Navigator</p>
                   <p className="text-slate-400 text-xs">Navigate by the stars — coming soon!</p>
                 </div>
               </div>
