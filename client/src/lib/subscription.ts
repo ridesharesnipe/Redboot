@@ -20,7 +20,7 @@ function defaultSubscription(): Subscription {
 
 export function getSubscription(): Subscription {
   // TESTING BYPASS — remove to re-enable paywall
-  return { isPremium: true, freeSessionUsed: false, plan: 'annual', expiresAt: null, startedAt: null };
+  return { isPremium: true, freeSessionUsed: true, plan: 'annual', expiresAt: null, startedAt: null };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultSubscription();

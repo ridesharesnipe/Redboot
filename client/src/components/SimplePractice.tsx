@@ -70,7 +70,8 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; treasureEarned: number } | null>(null);
   
   const { toast } = useToast();
-  const { playSound, playCharacterVoice, speakFeedback, playAudioFile } = useAudio();
+  const { playSound, playCharacterVoice, speakFeedback, playAudioFile, fadeOutBackgroundMusic } = useAudio();
+  const musicFadedRef = useRef(false);
 
   // Escalating treasure reward system
   const getTreasureAmount = (correctCount: number): number => {
@@ -333,6 +334,10 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
     const totalWords = getTotalWords();
     if (totalWords > 0 && currentWordIndex < totalWords && !showFeedback) {
       setIsWordSpoken(false);
+      if (currentWordIndex === 0 && !musicFadedRef.current) {
+        musicFadedRef.current = true;
+        fadeOutBackgroundMusic(1500);
+      }
       setTimeout(() => {
         speakCurrentWord();
       }, currentWordIndex === 0 ? 3000 : 1000);

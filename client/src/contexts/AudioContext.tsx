@@ -18,6 +18,7 @@ interface AudioContextType {
   playAudioFile: (audioFilePath: string, volume?: number, startFromMiddle?: boolean) => void;
   startBackgroundMusic: (musicType: BackgroundMusicType) => void;
   stopBackgroundMusic: () => void;
+  fadeOutBackgroundMusic: (durationMs?: number) => void;
   playCharacterVoice: (voiceType: CharacterVoiceType) => void;
   speakFeedback: (message: string) => void;
   setFocusMode: (enabled: boolean) => void;
@@ -552,6 +553,22 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       backgroundMusicRef.current.pause();
       backgroundMusicRef.current = null;
     }
+  };
+
+  // Fade out background music smoothly, then stop
+  const fadeOutBackgroundMusic = (durationMs = 1500) => {
+    if (!musicGainRef.current || !audioContextRef.current) {
+      stopBackgroundMusic();
+      return;
+    }
+    const gain = musicGainRef.current;
+    const ctx = audioContextRef.current;
+    const now = ctx.currentTime;
+    const durationSec = durationMs / 1000;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + durationSec);
+    setTimeout(() => stopBackgroundMusic(), durationMs + 50);
   };
 
   // Track current speech session to prevent canceled speech from continuing
@@ -1123,6 +1140,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     playAudioFile,
     startBackgroundMusic,
     stopBackgroundMusic,
+    fadeOutBackgroundMusic,
     playCharacterVoice,
     speakFeedback,
     setFocusMode,
