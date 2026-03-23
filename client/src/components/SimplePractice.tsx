@@ -990,56 +990,102 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                       className="clay-input-container"
                       onClick={() => { if (IS_TOUCH_DEVICE && isWordSpoken && !showFeedback) setIsKeyboardOpen(true); }}
                     >
-                      <div className="relative bg-white rounded-[14px] flex justify-center items-center h-28 overflow-hidden">
+                      <div className="relative bg-white rounded-[14px] flex justify-center items-center h-36 overflow-hidden px-3">
                         <Input
-                        value={userInput}
-                        readOnly={IS_TOUCH_DEVICE}
-                        inputMode={IS_TOUCH_DEVICE ? 'none' : undefined}
-                        onChange={IS_TOUCH_DEVICE ? undefined : (e) => { if (isWordSpoken && !showFeedback) setUserInput(e.target.value); }}
-                        autoComplete="off"
-                        autoCorrect="off"
-                        autoCapitalize="off"
-                        spellCheck={false}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-text z-20"
-                        disabled={!isWordSpoken}
-                        data-testid="input-spelling"
-                      />
-                      <div className="text-5xl font-black tracking-widest uppercase flex gap-1 select-none cursor-text">
-                        {userInput ? (
-                          userInput.toUpperCase().split('').map((letter, index) => {
-                            const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
-                            return (
-                              <span 
-                                key={index} 
-                                className="animate-bounce-letter"
-                                style={{ 
-                                  color: colors[index % colors.length],
-                                  animationDelay: `${index * 0.1}s`
-                                }}
-                              >
-                                {letter}
-                              </span>
-                            );
-                          })
-                        ) : (
-                          ['T', 'Y', 'P', 'E'].map((letter, index) => {
-                            const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6'];
-                            return (
-                              <span 
-                                key={index}
-                                className="animate-bounce-letter opacity-40"
-                                style={{ 
-                                  color: colors[index],
-                                  animationDelay: `${index * 0.1}s`
-                                }}
-                              >
-                                {letter}
-                              </span>
-                            );
-                          })
-                        )}
+                          value={userInput}
+                          readOnly={IS_TOUCH_DEVICE}
+                          inputMode={IS_TOUCH_DEVICE ? 'none' : undefined}
+                          onChange={IS_TOUCH_DEVICE ? undefined : (e) => { if (isWordSpoken && !showFeedback) setUserInput(e.target.value); }}
+                          autoComplete="off"
+                          autoCorrect="off"
+                          autoCapitalize="off"
+                          spellCheck={false}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-text z-20"
+                          disabled={!isWordSpoken}
+                          data-testid="input-spelling"
+                        />
+                        <div className="flex gap-2 select-none cursor-text flex-wrap justify-center items-center">
+                          {userInput ? (
+                            <>
+                              {userInput.toUpperCase().split('').map((letter, index) => {
+                                const CLAY_COLORS = [
+                                  { light: '#FF7B7B', dark: '#EF4444', glow: 'rgba(239,68,68,0.45)' },
+                                  { light: '#FCD34D', dark: '#F59E0B', glow: 'rgba(245,158,11,0.45)' },
+                                  { light: '#4ADE80', dark: '#10B981', glow: 'rgba(16,185,129,0.45)' },
+                                  { light: '#60A5FA', dark: '#3B82F6', glow: 'rgba(59,130,246,0.45)' },
+                                  { light: '#C084FC', dark: '#8B5CF6', glow: 'rgba(139,92,246,0.45)' },
+                                  { light: '#F472B6', dark: '#EC4899', glow: 'rgba(236,72,153,0.45)' },
+                                ];
+                                const c = CLAY_COLORS[index % CLAY_COLORS.length];
+                                return (
+                                  <div
+                                    key={index}
+                                    style={{
+                                      width: 50,
+                                      height: 60,
+                                      borderRadius: 13,
+                                      background: `linear-gradient(150deg, ${c.light} 0%, ${c.dark} 100%)`,
+                                      boxShadow: `4px 4px 12px ${c.glow}, -2px -2px 6px rgba(255,255,255,0.2), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.12)`,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontFamily: "'Fredoka One', cursive",
+                                      fontSize: 30,
+                                      color: 'white',
+                                      textShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {letter}
+                                  </div>
+                                );
+                              })}
+                              <div style={{
+                                width: 3,
+                                height: 50,
+                                borderRadius: 2,
+                                background: '#1A6BC4',
+                                boxShadow: '0 0 6px rgba(26,107,196,0.55)',
+                                animation: 'blink-cursor 0.9s ease-in-out infinite',
+                                flexShrink: 0,
+                              }} />
+                            </>
+                          ) : (
+                            ['T', 'Y', 'P', 'E'].map((letter, index) => {
+                              const PLACEHOLDER_COLORS = [
+                                { light: '#FCA5A5', dark: '#F87171' },
+                                { light: '#FDE68A', dark: '#FBBF24' },
+                                { light: '#6EE7B7', dark: '#34D399' },
+                                { light: '#93C5FD', dark: '#60A5FA' },
+                              ];
+                              const p = PLACEHOLDER_COLORS[index];
+                              return (
+                                <div
+                                  key={index}
+                                  style={{
+                                    width: 50,
+                                    height: 60,
+                                    borderRadius: 13,
+                                    background: `linear-gradient(150deg, ${p.light} 0%, ${p.dark} 100%)`,
+                                    boxShadow: `3px 3px 10px rgba(0,0,0,0.08), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.07)`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontFamily: "'Fredoka One', cursive",
+                                    fontSize: 30,
+                                    color: 'white',
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                                    opacity: 0.38,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {letter}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                   
