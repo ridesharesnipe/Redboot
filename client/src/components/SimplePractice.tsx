@@ -14,6 +14,10 @@ import VirtualKeyboard from './VirtualKeyboard';
 import Paywall from './Paywall';
 import { getSubscription, setFreeSessionUsed } from '@/lib/subscription';
 
+const IS_TOUCH_DEVICE =
+  typeof window !== 'undefined' &&
+  (window.matchMedia?.('(pointer: coarse)').matches || 'ontouchstart' in window);
+
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
   onCancel: () => void;
@@ -886,7 +890,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
 
       <main
         className="relative z-10 flex flex-col h-full w-full max-w-7xl mx-auto p-4 md:p-6 gap-4 md:gap-6"
-        style={{ paddingBottom: isKeyboardOpen ? '280px' : '0' }}
+        style={{ paddingBottom: IS_TOUCH_DEVICE && isKeyboardOpen ? '280px' : '0' }}
       >
         {/* HEADER BAR */}
         <header className="clay-header w-full relative overflow-hidden">
@@ -984,13 +988,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                   <div className="relative z-10 w-full mb-6">
                     <div
                       className="clay-input-container"
-                      onClick={() => { if (isWordSpoken && !showFeedback) setIsKeyboardOpen(true); }}
+                      onClick={() => { if (IS_TOUCH_DEVICE && isWordSpoken && !showFeedback) setIsKeyboardOpen(true); }}
                     >
                       <div className="relative bg-white rounded-[14px] flex justify-center items-center h-28 overflow-hidden">
                         <Input
                         value={userInput}
-                        readOnly
-                        inputMode="none"
+                        readOnly={IS_TOUCH_DEVICE}
+                        inputMode={IS_TOUCH_DEVICE ? 'none' : undefined}
+                        onChange={IS_TOUCH_DEVICE ? undefined : (e) => { if (isWordSpoken && !showFeedback) setUserInput(e.target.value); }}
                         autoComplete="off"
                         autoCorrect="off"
                         autoCapitalize="off"
@@ -1099,13 +1104,15 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
         </div>
       )}
 
-      {/* Virtual Keyboard */}
-      <VirtualKeyboard
-        isVisible={isKeyboardOpen}
-        onKeyPress={handleVirtualKeyPress}
-        playSound={() => playSound('anchor_button_click', 0.18)}
-        onDismiss={() => setIsKeyboardOpen(false)}
-      />
+      {/* Virtual Keyboard — touch devices only */}
+      {IS_TOUCH_DEVICE && (
+        <VirtualKeyboard
+          isVisible={isKeyboardOpen}
+          onKeyPress={handleVirtualKeyPress}
+          playSound={() => playSound('anchor_button_click', 0.18)}
+          onDismiss={() => setIsKeyboardOpen(false)}
+        />
+      )}
     </div>
   );
 }
