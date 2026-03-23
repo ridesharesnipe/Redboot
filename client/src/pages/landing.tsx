@@ -136,8 +136,8 @@ export default function Landing({ onStart }: LandingProps) {
               </div>
               {/* Red Boot name and title - positioned below image */}
               <div className="mt-4 text-center">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-2 text-red-500 drop-shadow-lg" style={{ 
-                  fontFamily: "'Pirata One', cursive"
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-2 text-red-500 drop-shadow-lg" style={{ 
+                  fontFamily: "'Fredoka One', cursive"
                 }} data-testid="text-hero-title">Red Boot</h1>
                 <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-sky-200 drop-shadow-md" style={{ 
                   fontFamily: "'Pirata One', cursive"
@@ -263,7 +263,7 @@ export default function Landing({ onStart }: LandingProps) {
             {/* Ray Ray Card - Coming Soon */}
             <div
               className="puffy-character-card"
-              style={{ filter: 'grayscale(1)', opacity: 0.65, cursor: 'not-allowed' }}
+              style={{ cursor: 'not-allowed' }}
             >
               <div className="flex items-center gap-4 relative z-10">
                 <div className="puffy-avatar w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gradient-to-br from-slate-200 to-slate-300">
@@ -287,7 +287,7 @@ export default function Landing({ onStart }: LandingProps) {
             {/* Ocean Blue Card - Coming Soon */}
             <div
               className="puffy-character-card"
-              style={{ filter: 'grayscale(1)', opacity: 0.65, cursor: 'not-allowed' }}
+              style={{ cursor: 'not-allowed' }}
             >
               <div className="flex items-center gap-4 relative z-10">
                 <div className="puffy-avatar w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gradient-to-br from-slate-200 to-slate-300">
