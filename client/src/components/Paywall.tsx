@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import redBootArrr from '@assets/1049_1774266965699.jpg';
+import redBootArrr from '@assets/1765312985991_1774268643034.jpg';
 
 interface PaywallProps {
   correct: number;
@@ -50,14 +50,15 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
   return (
     <div className="min-h-screen overflow-y-auto" style={{ background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 50%, #fef3e2 100%)', fontFamily: 'inherit' }}>
 
-      {/* Ocean wave header */}
-      <div style={{ background: 'linear-gradient(135deg, #1A6BC4 0%, #0E4B8F 100%)', padding: '28px 20px 48px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', bottom: -20, left: 0, right: 0, height: 40, background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 100%)', borderRadius: '50% 50% 0 0 / 100% 100% 0 0' }} />
-        <img src={redBootArrr} alt="Red Boot" style={{ width: 110, height: 110, objectFit: 'contain', marginBottom: 8 }} />
-        <h1 className="text-white font-black text-2xl leading-tight mb-2" style={{ fontFamily: "'Fredoka One', 'Nunito', cursive" }}>
+      {/* White header */}
+      <div style={{ background: 'white', padding: '28px 20px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <div style={{ width: 150, height: 150, borderRadius: '50%', overflow: 'hidden', border: '4px solid #1A6BC4', boxShadow: '0 4px 20px rgba(26,107,196,0.30)', marginBottom: 14, flexShrink: 0 }}>
+          <img src={redBootArrr} alt="Red Boot" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.52)', transformOrigin: '50% 42%' }} />
+        </div>
+        <h1 className="font-black text-2xl leading-tight mb-2" style={{ fontFamily: "'Fredoka One', 'Nunito', cursive", color: '#1A6BC4' }}>
           {childName} spelled {correct} out of {total} words correctly!
         </h1>
-        <p className="text-white/85 text-sm mt-2">
+        <p className="text-sm mt-2" style={{ color: '#64748B' }}>
           Unlock unlimited practice to be ready for Friday's test
         </p>
       </div>
