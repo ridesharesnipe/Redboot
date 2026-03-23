@@ -1088,7 +1088,7 @@ export default function ParentAnalytics() {
             </div>
           </div>
 
-          {dailyProgress.length === 0 || dailyProgress.every(d => d.words === 0) ? (
+          {dailyProgress.length === 0 ? (
             /* Empty state */
             <div className={`flex flex-col items-center justify-center py-16 rounded-2xl ${isDark ? 'bg-slate-700/30' : 'bg-slate-50'}`}>
               <span className="text-5xl mb-3">🧭</span>
@@ -1121,11 +1121,6 @@ export default function ParentAnalytics() {
                     const dayAbbr = getDayAbbr(day.date);
                     const isToday = dayAbbr === today;
                     const hasPractice = day.words > 0;
-                    const accColor = day.accuracy >= 80
-                      ? (isDark ? '#4ade80' : '#16a34a')
-                      : day.accuracy >= 50
-                        ? (isDark ? '#fb923c' : '#ea580c')
-                        : (isDark ? '#f87171' : '#dc2626');
 
                     return (
                       <div
