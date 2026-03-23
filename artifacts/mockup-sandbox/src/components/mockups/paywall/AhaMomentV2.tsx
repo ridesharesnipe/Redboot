@@ -54,7 +54,7 @@ export function AhaMomentV2() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              transform: "scale(1.65)",
+              transform: "scale(1.52)",
               transformOrigin: "50% 42%",
             }}
           />
