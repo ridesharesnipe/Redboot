@@ -1009,12 +1009,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                             <>
                               {userInput.toUpperCase().split('').map((letter, index) => {
                                 const CLAY_COLORS = [
-                                  { light: '#FF7B7B', dark: '#EF4444', glow: 'rgba(239,68,68,0.45)' },
-                                  { light: '#FCD34D', dark: '#F59E0B', glow: 'rgba(245,158,11,0.45)' },
-                                  { light: '#4ADE80', dark: '#10B981', glow: 'rgba(16,185,129,0.45)' },
-                                  { light: '#60A5FA', dark: '#3B82F6', glow: 'rgba(59,130,246,0.45)' },
-                                  { light: '#C084FC', dark: '#8B5CF6', glow: 'rgba(139,92,246,0.45)' },
-                                  { light: '#F472B6', dark: '#EC4899', glow: 'rgba(236,72,153,0.45)' },
+                                  { light: '#FF7B7B', dark: '#EF4444' },
+                                  { light: '#FCD34D', dark: '#F59E0B' },
+                                  { light: '#4ADE80', dark: '#10B981' },
+                                  { light: '#60A5FA', dark: '#3B82F6' },
+                                  { light: '#C084FC', dark: '#8B5CF6' },
+                                  { light: '#F472B6', dark: '#EC4899' },
                                 ];
                                 const c = CLAY_COLORS[index % CLAY_COLORS.length];
                                 return (
@@ -1025,14 +1025,14 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                                       height: 60,
                                       borderRadius: 13,
                                       background: `linear-gradient(150deg, ${c.light} 0%, ${c.dark} 100%)`,
-                                      boxShadow: `4px 4px 12px ${c.glow}, -2px -2px 6px rgba(255,255,255,0.2), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.12)`,
+                                      boxShadow: `inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.08)`,
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
                                       fontFamily: "'Fredoka One', cursive",
                                       fontSize: 30,
                                       color: 'white',
-                                      textShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                                      textShadow: '0 1px 3px rgba(0,0,0,0.2)',
                                       flexShrink: 0,
                                     }}
                                   >
@@ -1040,15 +1040,28 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                                   </div>
                                 );
                               })}
-                              <div style={{
-                                width: 3,
-                                height: 50,
-                                borderRadius: 2,
-                                background: '#1A6BC4',
-                                boxShadow: '0 0 6px rgba(26,107,196,0.55)',
-                                animation: 'blink-cursor 0.9s ease-in-out infinite',
-                                flexShrink: 0,
-                              }} />
+                              {(() => {
+                                const CLAY_COLORS = [
+                                  { light: '#FF7B7B', dark: '#EF4444' },
+                                  { light: '#FCD34D', dark: '#F59E0B' },
+                                  { light: '#4ADE80', dark: '#10B981' },
+                                  { light: '#60A5FA', dark: '#3B82F6' },
+                                  { light: '#C084FC', dark: '#8B5CF6' },
+                                  { light: '#F472B6', dark: '#EC4899' },
+                                ];
+                                const cur = CLAY_COLORS[userInput.length % CLAY_COLORS.length];
+                                return (
+                                  <div style={{
+                                    width: 5,
+                                    height: 60,
+                                    borderRadius: 4,
+                                    background: `linear-gradient(150deg, ${cur.light} 0%, ${cur.dark} 100%)`,
+                                    boxShadow: `inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.08)`,
+                                    animation: 'blink-cursor 0.9s ease-in-out infinite',
+                                    flexShrink: 0,
+                                  }} />
+                                );
+                              })()}
                             </>
                           ) : (
                             ['T', 'Y', 'P', 'E'].map((letter, index) => {
@@ -1067,7 +1080,7 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                                     height: 60,
                                     borderRadius: 13,
                                     background: `linear-gradient(150deg, ${p.light} 0%, ${p.dark} 100%)`,
-                                    boxShadow: `3px 3px 10px rgba(0,0,0,0.08), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.07)`,
+                                    boxShadow: `inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.06)`,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
