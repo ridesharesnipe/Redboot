@@ -286,6 +286,8 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                       fontSize: 28, fontWeight: 900,
                       fontFamily: "'Fredoka One', cursive",
                       textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      display: 'inline-block',
+                      animation: `demo-letter-bounce 0.6s ease-in-out ${i * 0.07}s infinite alternate`,
                     }}>
                       {letter}
                     </span>
@@ -314,6 +316,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   };
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className="max-w-4xl max-h-[90vh] overflow-y-auto p-0"
@@ -544,5 +547,13 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
         </div>
       </DialogContent>
     </Dialog>
+
+    <style>{`
+      @keyframes demo-letter-bounce {
+        from { transform: translateY(0px); }
+        to   { transform: translateY(-6px); }
+      }
+    `}</style>
+    </>
   );
 }
