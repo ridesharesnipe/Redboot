@@ -6,6 +6,7 @@ export const modules: ModuleMap = {
   "./components/mockups/keyboard/PracticeWithKeyboard.tsx": () => import("../components/mockups/keyboard/PracticeWithKeyboard.tsx"),
   "./components/mockups/paywall/AbandonmentOffer.tsx": () => import("../components/mockups/paywall/AbandonmentOffer.tsx"),
   "./components/mockups/paywall/AhaMoment.tsx": () => import("../components/mockups/paywall/AhaMoment.tsx"),
+  "./components/mockups/paywall/AhaMomentV2.tsx": () => import("../components/mockups/paywall/AhaMomentV2.tsx"),
   "./components/mockups/paywall/LockedAnalytics.tsx": () => import("../components/mockups/paywall/LockedAnalytics.tsx"),
   "./components/mockups/paywall/LockedFridayTest.tsx": () => import("../components/mockups/paywall/LockedFridayTest.tsx"),
   "./components/mockups/paywall/LockedPractice.tsx": () => import("../components/mockups/paywall/LockedPractice.tsx"),
