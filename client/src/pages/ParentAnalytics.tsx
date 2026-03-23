@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Moon, Sun, TrendingUp, TrendingDown, Clock, Zap, Star, Rocket, AlertCircle, ChevronDown, ChevronUp, Check, X as XIcon, HelpCircle } from 'lucide-react';
@@ -608,6 +608,13 @@ export default function ParentAnalytics() {
   const [isDark, setIsDark] = useState(false);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const helpModalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showHelpModal && helpModalRef.current) {
+      helpModalRef.current.scrollTop = 0;
+    }
+  }, [showHelpModal]);
   
   // *** THE FIX: Read from localStorage instead of /api/analytics ***
   const { data: analytics, isLoading, error } = useQuery<AnalyticsData>({
@@ -1697,6 +1704,7 @@ export default function ParentAnalytics() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           
           <div 
+            ref={helpModalRef}
             className={`relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl ${
               isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white'
             }`}
