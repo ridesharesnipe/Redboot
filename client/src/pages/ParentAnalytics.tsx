@@ -1072,65 +1072,196 @@ export default function ParentAnalytics() {
         </section>
 
         {/* Practice This Week Chart */}
-        <section className={`p-8 rounded-3xl shadow-sm border ${
-          isDark 
-            ? 'bg-slate-800/50 border-slate-700/50' 
+        <section className={`p-6 sm:p-8 rounded-3xl shadow-sm border ${
+          isDark
+            ? 'bg-slate-800 border-slate-700/60'
             : 'bg-white border-slate-100'
         }`}>
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Practice This Week</h2>
-              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Daily words practiced</p>
+              <p className={`text-sm mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Daily words practiced</p>
             </div>
-            <div className="flex items-center gap-4 text-xs font-semibold">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Practice</span>
-              </div>
-              <select className={`text-xs rounded-lg py-1 px-3 border-none ${
-                isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-50 text-slate-600'
-              } focus:ring-indigo-500`}>
-                <option>Last 7 Days</option>
-                <option>This Month</option>
-              </select>
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <span className="w-3 h-3 rounded-full inline-block" style={{ background: 'linear-gradient(to top, #1A6BC4, #1DD4A8)' }} />
+              <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Words practiced</span>
             </div>
           </div>
-          
-          <div className={`h-64 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 border-b overflow-x-auto ${
-            isDark ? 'border-slate-700' : 'border-slate-100'
-          }`}>
-            {dailyProgress.map((day, i) => {
-              const height = maxWords > 0 ? (day.words / maxWords) * 100 : 0;
-              const dayAbbr = getDayAbbr(day.date);
-              const isToday = dayAbbr === today;
-              
-              return (
-                <div key={i} className="flex-1 min-w-[2rem] flex flex-col items-center gap-2 group">
-                  <div 
-                    className={`w-full rounded-t-lg transition-all duration-300 cursor-pointer ${
-                      isToday 
-                        ? `${isDark ? 'bg-indigo-500/20 border-t-2 border-indigo-500' : 'bg-indigo-100 border-t-2 border-indigo-500'} group-hover:bg-indigo-500`
-                        : `${isDark ? 'bg-slate-700' : 'bg-slate-100'} group-hover:bg-indigo-500`
-                    }`}
-                    style={{ height: `${Math.max(height, 5)}%` }}
-                    title={`${day.words} words · ${day.accuracy}% accuracy`}
-                  />
-                  <span className={`text-xs font-medium uppercase ${
-                    isToday 
-                      ? 'text-indigo-500 font-bold' 
-                      : isDark ? 'text-slate-500' : 'text-slate-400'
-                  }`}>
-                    {dayAbbr}
-                  </span>
+
+          {dailyProgress.length === 0 || dailyProgress.every(d => d.words === 0) ? (
+            /* Empty state */
+            <div className={`flex flex-col items-center justify-center py-16 rounded-2xl ${isDark ? 'bg-slate-700/30' : 'bg-slate-50'}`}>
+              <span className="text-5xl mb-3">🧭</span>
+              <p className={`text-sm font-semibold text-center max-w-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Start a practice session to see your weekly progress here!
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Chart area */}
+              <div className="relative">
+                {/* Horizontal grid lines */}
+                <div className="absolute inset-x-0 top-0 bottom-10 pointer-events-none flex flex-col justify-between">
+                  {[0, 1, 2, 3].map(i => (
+                    <div
+                      key={i}
+                      className="w-full"
+                      style={{
+                        borderTop: `1px dashed ${isDark ? 'rgba(148,163,184,0.12)' : 'rgba(148,163,184,0.25)'}`,
+                      }}
+                    />
+                  ))}
                 </div>
-              );
-            })}
-            {dailyProgress.length === 0 && (
-              <div className={`w-full h-full flex items-center justify-center ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                No activity data yet
+
+                {/* Bars row */}
+                <div className="flex items-end justify-between gap-1.5 sm:gap-3 px-1" style={{ height: 220 }}>
+                  {dailyProgress.map((day, i) => {
+                    const rawHeight = maxWords > 0 ? (day.words / maxWords) * 85 : 0;
+                    const barHeight = day.words > 0 ? Math.max(rawHeight, 15) : 0;
+                    const dayAbbr = getDayAbbr(day.date);
+                    const isToday = dayAbbr === today;
+                    const hasPractice = day.words > 0;
+                    const accColor = day.accuracy >= 80
+                      ? (isDark ? '#4ade80' : '#16a34a')
+                      : day.accuracy >= 50
+                        ? (isDark ? '#fb923c' : '#ea580c')
+                        : (isDark ? '#f87171' : '#dc2626');
+
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 flex flex-col items-center"
+                        style={{ height: '100%', justifyContent: 'flex-end' }}
+                      >
+                        {/* Word count above bar */}
+                        <span
+                          className="text-xs font-bold mb-1 leading-none"
+                          style={{
+                            color: hasPractice
+                              ? (isDark ? '#e2e8f0' : '#1e293b')
+                              : 'transparent',
+                            fontFamily: "'Fredoka One', cursive",
+                            fontSize: 13,
+                          }}
+                        >
+                          {hasPractice ? day.words : '·'}
+                        </span>
+
+                        {/* Bar */}
+                        <div
+                          style={{
+                            width: '100%',
+                            height: `${hasPractice ? barHeight : 15}%`,
+                            borderRadius: '8px 8px 3px 3px',
+                            background: hasPractice
+                              ? 'linear-gradient(to top, #1A6BC4, #1DD4A8)'
+                              : 'transparent',
+                            border: hasPractice
+                              ? 'none'
+                              : `2px dashed ${isDark ? 'rgba(148,163,184,0.25)' : 'rgba(148,163,184,0.4)'}`,
+                            boxShadow: hasPractice
+                              ? isToday
+                                ? '0 4px 20px rgba(29,212,168,0.45), 0 0 0 3px rgba(29,212,168,0.2)'
+                                : '0 4px 12px rgba(26,107,196,0.25)'
+                              : 'none',
+                            transition: 'height 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+                            position: 'relative',
+                          }}
+                          title={hasPractice ? `${day.words} words · ${day.accuracy}% accuracy` : 'No practice'}
+                        >
+                          {/* Gloss highlight on bar face */}
+                          {hasPractice && (
+                            <div style={{
+                              position: 'absolute',
+                              top: 2,
+                              left: '15%',
+                              width: '40%',
+                              height: '35%',
+                              borderRadius: 4,
+                              background: 'rgba(255,255,255,0.22)',
+                              pointerEvents: 'none',
+                            }} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Day labels row */}
+                <div className="flex justify-between gap-1.5 sm:gap-3 px-1 mt-2">
+                  {dailyProgress.map((day, i) => {
+                    const dayAbbr = getDayAbbr(day.date);
+                    const isToday = dayAbbr === today;
+                    const hasPractice = day.words > 0;
+                    const accColor = day.accuracy >= 80
+                      ? (isDark ? '#4ade80' : '#16a34a')
+                      : day.accuracy >= 50
+                        ? (isDark ? '#fb923c' : '#ea580c')
+                        : (isDark ? '#f87171' : '#dc2626');
+
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+                        <span
+                          className="text-xs font-bold uppercase leading-none"
+                          style={{
+                            color: isToday
+                              ? '#1DD4A8'
+                              : isDark ? '#94a3b8' : '#64748b',
+                            fontFamily: "'Space Grotesk', sans-serif",
+                          }}
+                        >
+                          {dayAbbr}
+                        </span>
+                        {hasPractice ? (
+                          <span
+                            className="text-xs font-semibold leading-none"
+                            style={{ color: accColor, fontSize: 10 }}
+                          >
+                            {day.accuracy}%
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 10, color: 'transparent' }}>·</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Summary row */}
+              {(() => {
+                const practicedDays = dailyProgress.filter(d => d.words > 0);
+                const totalWords = practicedDays.reduce((s, d) => s + d.words, 0);
+                const avgAcc = practicedDays.length > 0
+                  ? Math.round(practicedDays.reduce((s, d) => s + d.accuracy, 0) / practicedDays.length)
+                  : 0;
+                return practicedDays.length > 0 ? (
+                  <div
+                    className="mt-5 pt-4 flex items-center justify-center gap-2 flex-wrap"
+                    style={{ borderTop: `1px solid ${isDark ? 'rgba(148,163,184,0.12)' : 'rgba(148,163,184,0.2)'}` }}
+                  >
+                    <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                      {totalWords} words practiced
+                    </span>
+                    <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>·</span>
+                    <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                      {practicedDays.length} day{practicedDays.length !== 1 ? 's' : ''}
+                    </span>
+                    <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>·</span>
+                    <span
+                      className="text-sm font-bold"
+                      style={{
+                        color: avgAcc >= 80 ? '#1DD4A8' : avgAcc >= 50 ? '#fb923c' : '#f87171',
+                      }}
+                    >
+                      {avgAcc}% avg accuracy
+                    </span>
+                  </div>
+                ) : null;
+              })()}
+            </>
+          )}
         </section>
 
         {/* ============ NEW: Streak Calendar (30 days) ============ */}
