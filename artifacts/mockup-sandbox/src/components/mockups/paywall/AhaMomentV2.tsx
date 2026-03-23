@@ -38,11 +38,21 @@ export function AhaMomentV2() {
 
       {/* White header — no gradient, no wave divider */}
       <div style={{ background: "white", padding: "28px 20px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-        <img
-          src="/__mockup/images/redboot-dab.jpg"
-          alt="Red Boot"
-          style={{ width: 120, height: 120, objectFit: "contain", marginBottom: 12 }}
-        />
+        <div style={{
+          width: 110, height: 110,
+          borderRadius: "50%",
+          overflow: "hidden",
+          border: "4px solid #1A6BC4",
+          boxShadow: "0 4px 18px rgba(26,107,196,0.28)",
+          marginBottom: 14,
+          flexShrink: 0,
+        }}>
+          <img
+            src="/__mockup/images/redboot-dab.jpg"
+            alt="Red Boot"
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }}
+          />
+        </div>
         <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 24, color: "#1A6BC4", margin: 0, lineHeight: 1.25 }}>
           {childName} spelled {correct} out of {total} words correctly!
         </h1>
