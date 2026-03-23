@@ -19,9 +19,6 @@ function defaultSubscription(): Subscription {
 }
 
 export function getSubscription(): Subscription {
-  // TESTING BYPASS — remove this block to re-enable paywall
-  return { isPremium: true, freeSessionUsed: false, plan: 'annual', expiresAt: null, startedAt: null };
-  // END TESTING BYPASS
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultSubscription();
@@ -55,9 +52,6 @@ export function setFreeSessionUsed(): void {
 }
 
 export function canAccessFeature(_feature: string): boolean {
-  // TESTING BYPASS — remove this line to re-enable paywall
-  return true;
-  // END TESTING BYPASS
   const sub = getSubscription();
   if (sub.isPremium) return true;
 
