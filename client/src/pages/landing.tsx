@@ -9,7 +9,7 @@ import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
 import seagullSound from "@assets/seagull-sound-effect-272695_1759647609171.mp3";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
-import { Users, Compass, Anchor, Play, Star, Check, Crown, Shield, Gem } from "lucide-react";
+import { Users, Compass, Anchor, Star, Check, Crown, Shield, Gem } from "lucide-react";
 import { useLocation } from "wouter";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
@@ -192,8 +192,8 @@ export default function Landing({ onStart }: LandingProps) {
               className="btn-puffy-demo"
               data-testid="button-watch-demo"
             >
-              <Play className="w-5 h-5 relative z-10" />
-              <span className="relative z-10">Watch Demo</span>
+              <Compass className="w-5 h-5 relative z-10" />
+              <span className="relative z-10">How to Play</span>
             </button>
           </div>
         </div>
