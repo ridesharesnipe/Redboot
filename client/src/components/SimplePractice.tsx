@@ -16,7 +16,7 @@ import { getSubscription, setFreeSessionUsed } from '@/lib/subscription';
 
 const IS_TOUCH_DEVICE =
   typeof window !== 'undefined' &&
-  (window.matchMedia?.('(pointer: coarse)').matches || 'ontouchstart' in window);
+  window.matchMedia?.('(pointer: coarse)').matches === true;
 
 interface SimplePracticeProps {
   onComplete: (score: { correct: number; total: number; treasureEarned: number }) => void;
