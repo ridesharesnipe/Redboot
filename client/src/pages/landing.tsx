@@ -9,8 +9,7 @@ import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
 import seagullSound from "@assets/seagull-sound-effect-272695_1759647609171.mp3";
 import DemoModal from "@/components/DemoModal";
 import { useAudio } from "@/contexts/AudioContext";
-import { Users, Compass, Anchor, Star, Check, Crown, Shield, Gem } from "lucide-react";
-import { useLocation } from "wouter";
+import { Users, Compass, Anchor, Star, Check, Crown, Shield } from "lucide-react";
 import redBootIcon from "@assets/1758546464581685620984935859986_1758574136389.png";
 import redBootCrew from "@assets/1758546464581685620984935859986_1758574287269.png";
 import redBootLandingHead from "@assets/17585900152718502939350575537720_1758590021649.png";
@@ -24,7 +23,6 @@ export default function Landing({ onStart }: LandingProps) {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<'redboot' | 'diego' | null>(null);
   const { playSound, startBackgroundMusic, playCharacterVoice, playAudioFile } = useAudio();
-  const [, setLocation] = useLocation();
   const seagullTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
 
@@ -164,29 +162,7 @@ export default function Landing({ onStart }: LandingProps) {
             </p>
           </div>
           {/* Puffy Action Buttons */}
-          <div className="flex flex-wrap justify-center gap-4 px-4 safe-area-x">
-            <button 
-              onClick={handleStartAdventure}
-              className="btn-puffy-start"
-              data-testid="button-start-adventure"
-            >
-              <Compass className="w-5 h-5 relative z-10" />
-              <span className="relative z-10">Start Adventure</span>
-            </button>
-            
-            <button 
-              onClick={() => {
-                initializeAudio();
-                playSound('treasure_chest_open');
-                setLocation('/vault');
-              }}
-              className="btn-puffy-vault"
-              data-testid="button-treasure-vault"
-            >
-              <Gem className="w-5 h-5 relative z-10" />
-              <span className="relative z-10">Treasure Vault</span>
-            </button>
-            
+          <div className="flex flex-col items-center gap-4 px-4 safe-area-x">
             <button 
               onClick={handleDemo}
               className="btn-puffy-demo"
@@ -194,6 +170,15 @@ export default function Landing({ onStart }: LandingProps) {
             >
               <Compass className="w-5 h-5 relative z-10" />
               <span className="relative z-10">How to Play</span>
+            </button>
+
+            <button 
+              onClick={handleStartAdventure}
+              className="btn-puffy-start"
+              data-testid="button-start-adventure"
+            >
+              <Compass className="w-5 h-5 relative z-10" />
+              <span className="relative z-10">Start Adventure</span>
             </button>
           </div>
         </div>
