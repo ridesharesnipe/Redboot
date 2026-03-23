@@ -1004,100 +1004,81 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                           disabled={!isWordSpoken}
                           data-testid="input-spelling"
                         />
-                        <div className="flex gap-2 select-none cursor-text flex-wrap justify-center items-center">
-                          {userInput ? (
-                            <>
-                              {userInput.toUpperCase().split('').map((letter, index) => {
-                                const CLAY_COLORS = [
-                                  { light: '#FF7B7B', dark: '#EF4444' },
-                                  { light: '#FCD34D', dark: '#F59E0B' },
-                                  { light: '#4ADE80', dark: '#10B981' },
-                                  { light: '#60A5FA', dark: '#3B82F6' },
-                                  { light: '#C084FC', dark: '#8B5CF6' },
-                                  { light: '#F472B6', dark: '#EC4899' },
-                                ];
-                                const c = CLAY_COLORS[index % CLAY_COLORS.length];
-                                return (
-                                  <div
-                                    key={index}
-                                    style={{
-                                      width: 50,
-                                      height: 60,
-                                      borderRadius: 13,
-                                      background: `linear-gradient(150deg, ${c.light} 0%, ${c.dark} 100%)`,
-                                      boxShadow: `inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.08)`,
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      fontFamily: "'Fredoka One', cursive",
-                                      fontSize: 30,
-                                      color: 'white',
-                                      textShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                                      flexShrink: 0,
-                                    }}
-                                  >
-                                    {letter}
-                                  </div>
-                                );
-                              })}
-                              {(() => {
-                                const CLAY_COLORS = [
-                                  { light: '#FF7B7B', dark: '#EF4444' },
-                                  { light: '#FCD34D', dark: '#F59E0B' },
-                                  { light: '#4ADE80', dark: '#10B981' },
-                                  { light: '#60A5FA', dark: '#3B82F6' },
-                                  { light: '#C084FC', dark: '#8B5CF6' },
-                                  { light: '#F472B6', dark: '#EC4899' },
-                                ];
-                                const cur = CLAY_COLORS[userInput.length % CLAY_COLORS.length];
-                                return (
-                                  <div style={{
-                                    width: 5,
-                                    height: 60,
-                                    borderRadius: 4,
-                                    background: `linear-gradient(150deg, ${cur.light} 0%, ${cur.dark} 100%)`,
-                                    boxShadow: `inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.08)`,
-                                    animation: 'blink-cursor 0.9s ease-in-out infinite',
-                                    flexShrink: 0,
-                                  }} />
-                                );
-                              })()}
-                            </>
-                          ) : (
-                            ['T', 'Y', 'P', 'E'].map((letter, index) => {
-                              const PLACEHOLDER_COLORS = [
-                                { light: '#FCA5A5', dark: '#F87171' },
-                                { light: '#FDE68A', dark: '#FBBF24' },
-                                { light: '#6EE7B7', dark: '#34D399' },
-                                { light: '#93C5FD', dark: '#60A5FA' },
-                              ];
-                              const p = PLACEHOLDER_COLORS[index];
-                              return (
-                                <div
-                                  key={index}
-                                  style={{
-                                    width: 50,
-                                    height: 60,
-                                    borderRadius: 13,
-                                    background: `linear-gradient(150deg, ${p.light} 0%, ${p.dark} 100%)`,
-                                    boxShadow: `inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.06)`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontFamily: "'Fredoka One', cursive",
-                                    fontSize: 30,
-                                    color: 'white',
-                                    textShadow: '0 1px 2px rgba(0,0,0,0.15)',
-                                    opacity: 0.38,
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {letter}
-                                </div>
-                              );
-                            })
-                          )}
-                        </div>
+                        {(() => {
+                          const LETTER_COLORS = [
+                            { color: '#FF3B30', shadow: '0 -1px 0 rgba(255,210,200,0.8), 0 1px 0 #CC1500, 0 2px 0 #990000, 0 3px 5px rgba(0,0,0,0.28)' },
+                            { color: '#FF9500', shadow: '0 -1px 0 rgba(255,240,190,0.8), 0 1px 0 #CC6600, 0 2px 0 #994C00, 0 3px 5px rgba(0,0,0,0.28)' },
+                            { color: '#E6B800', shadow: '0 -1px 0 rgba(255,255,200,0.9), 0 1px 0 #B38900, 0 2px 0 #806200, 0 3px 5px rgba(0,0,0,0.22)' },
+                            { color: '#30D158', shadow: '0 -1px 0 rgba(190,255,210,0.8), 0 1px 0 #1A9940, 0 2px 0 #0E6628, 0 3px 5px rgba(0,0,0,0.28)' },
+                            { color: '#0A84FF', shadow: '0 -1px 0 rgba(170,225,255,0.8), 0 1px 0 #0055CC, 0 2px 0 #003BAA, 0 3px 5px rgba(0,0,0,0.28)' },
+                            { color: '#BF5AF2', shadow: '0 -1px 0 rgba(235,200,255,0.8), 0 1px 0 #8B30BB, 0 2px 0 #601499, 0 3px 5px rgba(0,0,0,0.28)' },
+                          ];
+                          const len = userInput.length || 4;
+                          const fontSize = len <= 4 ? 54 : len <= 6 ? 46 : len <= 8 ? 38 : len <= 10 ? 31 : len <= 12 ? 25 : 20;
+                          const gap = len <= 4 ? 8 : len <= 6 ? 6 : len <= 8 ? 5 : 4;
+
+                          if (userInput) {
+                            return (
+                              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap, userSelect: 'none', cursor: 'text' }}>
+                                {userInput.toUpperCase().split('').map((letter, index) => {
+                                  const c = LETTER_COLORS[index % LETTER_COLORS.length];
+                                  return (
+                                    <span
+                                      key={index}
+                                      style={{
+                                        fontFamily: "'Fredoka One', cursive",
+                                        fontSize,
+                                        fontWeight: 700,
+                                        color: c.color,
+                                        textShadow: c.shadow,
+                                        lineHeight: 1,
+                                        flexShrink: 0,
+                                        display: 'inline-block',
+                                      }}
+                                    >
+                                      {letter}
+                                    </span>
+                                  );
+                                })}
+                                <span style={{
+                                  display: 'inline-block',
+                                  width: 3,
+                                  height: fontSize + 10,
+                                  borderRadius: 2,
+                                  background: '#94a3b8',
+                                  animation: 'blink-cursor 0.9s ease-in-out infinite',
+                                  flexShrink: 0,
+                                  alignSelf: 'center',
+                                }} />
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: 8, userSelect: 'none', cursor: 'text', opacity: 0.28 }}>
+                                {['T','Y','P','E'].map((letter, index) => {
+                                  const c = LETTER_COLORS[index % LETTER_COLORS.length];
+                                  return (
+                                    <span
+                                      key={index}
+                                      style={{
+                                        fontFamily: "'Fredoka One', cursive",
+                                        fontSize: 54,
+                                        fontWeight: 700,
+                                        color: c.color,
+                                        textShadow: c.shadow,
+                                        lineHeight: 1,
+                                        flexShrink: 0,
+                                        display: 'inline-block',
+                                      }}
+                                    >
+                                      {letter}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            );
+                          }
+                        })()}
                       </div>
                     </div>
                   </div>
