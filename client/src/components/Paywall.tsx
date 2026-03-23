@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import redBootArrr from '@assets/1049_1774266965699.jpg';
 
 interface PaywallProps {
   correct: number;
@@ -52,7 +53,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
       {/* Ocean wave header */}
       <div style={{ background: 'linear-gradient(135deg, #1A6BC4 0%, #0E4B8F 100%)', padding: '28px 20px 48px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', bottom: -20, left: 0, right: 0, height: 40, background: 'linear-gradient(160deg, #e8f4ff 0%, #fff8f0 100%)', borderRadius: '50% 50% 0 0 / 100% 100% 0 0' }} />
-        <div className="text-4xl mb-2">🏴‍☠️</div>
+        <img src={redBootArrr} alt="Red Boot" style={{ width: 72, height: 72, objectFit: 'contain', marginBottom: 8 }} />
         <h1 className="text-white font-black text-2xl leading-tight mb-2" style={{ fontFamily: "'Fredoka One', 'Nunito', cursive" }}>
           {childName} spelled {correct} out of {total} words correctly!
         </h1>
@@ -211,7 +212,7 @@ export default function Paywall({ correct, total, childName, onMaybeLater }: Pay
             {isLoading ? 'Redirecting to checkout...' : ctaText}
           </button>
 
-          <p className="text-center text-xs text-slate-400 mb-3">🔒 Secure payment · Cancel anytime · No ads ever</p>
+          <p className="text-center text-xs text-slate-400 mb-3">🔒 Stripe payment · Cancel anytime · No ads ever</p>
 
           <div className="text-center">
             <button onClick={onMaybeLater} className="text-sm text-slate-400 underline">
