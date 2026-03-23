@@ -1006,12 +1006,12 @@ export default function SimplePractice({ onComplete, onCancel }: SimplePracticeP
                         />
                         {(() => {
                           const LETTER_COLORS = [
-                            { color: '#FF3B30', shadow: '0 -1px 0 rgba(255,210,200,0.8), 0 1px 0 #CC1500, 0 2px 0 #990000, 0 3px 5px rgba(0,0,0,0.28)' },
-                            { color: '#FF9500', shadow: '0 -1px 0 rgba(255,240,190,0.8), 0 1px 0 #CC6600, 0 2px 0 #994C00, 0 3px 5px rgba(0,0,0,0.28)' },
-                            { color: '#E6B800', shadow: '0 -1px 0 rgba(255,255,200,0.9), 0 1px 0 #B38900, 0 2px 0 #806200, 0 3px 5px rgba(0,0,0,0.22)' },
-                            { color: '#30D158', shadow: '0 -1px 0 rgba(190,255,210,0.8), 0 1px 0 #1A9940, 0 2px 0 #0E6628, 0 3px 5px rgba(0,0,0,0.28)' },
-                            { color: '#0A84FF', shadow: '0 -1px 0 rgba(170,225,255,0.8), 0 1px 0 #0055CC, 0 2px 0 #003BAA, 0 3px 5px rgba(0,0,0,0.28)' },
-                            { color: '#BF5AF2', shadow: '0 -1px 0 rgba(235,200,255,0.8), 0 1px 0 #8B30BB, 0 2px 0 #601499, 0 3px 5px rgba(0,0,0,0.28)' },
+                            { color: '#FF4D40', shadow: '0 -2px 0 rgba(255,255,255,0.55), 0 1px 0 #D41000, 0 2px 0 #AA0000, 0 3px 0 #880000, 0 4px 0 #660000, 0 5px 12px rgba(0,0,0,0.3)' },
+                            { color: '#FF9500', shadow: '0 -2px 0 rgba(255,255,255,0.55), 0 1px 0 #CC6600, 0 2px 0 #AA4C00, 0 3px 0 #883800, 0 4px 0 #662800, 0 5px 12px rgba(0,0,0,0.28)' },
+                            { color: '#FFD000', shadow: '0 -2px 0 rgba(255,255,255,0.7), 0 1px 0 #C8A000, 0 2px 0 #9A7800, 0 3px 0 #7A5E00, 0 4px 0 #5A4400, 0 5px 12px rgba(0,0,0,0.22)' },
+                            { color: '#2ECC71', shadow: '0 -2px 0 rgba(255,255,255,0.55), 0 1px 0 #20A05A, 0 2px 0 #167844, 0 3px 0 #0E5830, 0 4px 0 #0A3C20, 0 5px 12px rgba(0,0,0,0.28)' },
+                            { color: '#2196F3', shadow: '0 -2px 0 rgba(255,255,255,0.55), 0 1px 0 #1565C0, 0 2px 0 #0D47A1, 0 3px 0 #0A3480, 0 4px 0 #072060, 0 5px 12px rgba(0,0,0,0.3)' },
+                            { color: '#9C27B0', shadow: '0 -2px 0 rgba(255,255,255,0.55), 0 1px 0 #6A1B9A, 0 2px 0 #4A0E7A, 0 3px 0 #360860, 0 4px 0 #240440, 0 5px 12px rgba(0,0,0,0.3)' },
                           ];
                           const len = userInput.length || 4;
                           const fontSize = len <= 4 ? 54 : len <= 6 ? 46 : len <= 8 ? 38 : len <= 10 ? 31 : len <= 12 ? 25 : 20;
