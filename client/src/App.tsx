@@ -91,6 +91,9 @@ function DashboardRouteInner() {
   const [, setLocation] = useLocation();
   const sub = getSubscription();
   const isLocked = sub.freeSessionUsed && !sub.isPremium;
+  const [showAbandonment, setShowAbandonment] = useState(() => {
+    return localStorage.getItem('redboot-stripe-abandoned') === '1';
+  });
   const [showSessionStart, setShowSessionStart] = useState(() => {
     if (!isLocked) return false;
     const today = new Date().toISOString().slice(0, 10);
@@ -156,8 +159,19 @@ function DashboardRouteInner() {
           </div>
         </>
       )}
+      {/* Abandonment Offer — highest priority, shown when user cancels Stripe */}
+      {isLocked && showAbandonment && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+          <AbandonmentOffer
+            onDismiss={() => {
+              localStorage.removeItem('redboot-stripe-abandoned');
+              setShowAbandonment(false);
+            }}
+          />
+        </div>
+      )}
       {/* Session Start Paywall — shown once per day on app open for non-subscribers */}
-      {showSessionStart && (
+      {!showAbandonment && showSessionStart && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 90 }}>
           <SessionStartPaywall
             onDismiss={() => setShowSessionStart(false)}
