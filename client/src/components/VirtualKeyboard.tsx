@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
@@ -76,7 +77,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
     isSwiping.current = false;
   };
 
-  return (
+  return createPortal(
     <>
       <div
         data-testid="virtual-keyboard"
@@ -92,7 +93,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
           right: 0,
           transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 150ms ease-out',
-          zIndex: 50,
+          zIndex: 100,
           background: 'linear-gradient(180deg, rgba(224,242,254,0.97) 0%, rgba(186,230,255,0.99) 100%)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -247,6 +248,7 @@ export default function VirtualKeyboard({ onKeyPress, isVisible, playSound, onDi
           pointer-events: none;
         }
       `}</style>
-    </>
+    </>,
+    document.body
   );
 }
