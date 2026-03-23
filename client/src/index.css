@@ -3075,6 +3075,23 @@ button, [role="button"], a {
   pointer-events: none;
 }
 
+.puffy-tag-gray {
+  background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+  color: #475569;
+}
+
+.puffy-tag-gray::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 40%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
 /* ==========================================
    MAP ELEMENTS - PUFFY STYLE
    ========================================== */

@@ -5,6 +5,8 @@ import RedBootCharacter from "@/components/RedBootCharacter";
 import SaltyCharacter from "@/components/SaltyCharacter";
 import DiegoCharacter from "@/components/DiegoCharacter";
 import diegoImage from "@assets/17586535267086549247092506575635_1758653585024.png";
+import rayRayImage from "@assets/17585606742753339219605210888153_1774274010930.png";
+import oceanBlueImage from "@assets/17585605808844297950721614449099_1758609283325_1774274010940.png";
 import diegoBarkSound from "@assets/chihuahua-barks-75088_1759205101905.mp3";
 import seagullSound from "@assets/seagull-sound-effect-272695_1759647609171.mp3";
 import DemoModal from "@/components/DemoModal";
@@ -195,7 +197,7 @@ export default function Landing({ onStart }: LandingProps) {
           </div>
           
           {/* Side-by-side character grid - Puffy */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Red Boot Card - Puffy */}
             <div 
               className={`puffy-character-card ${selectedCharacter === 'redboot' ? 'selected-redboot' : ''}`}
@@ -257,6 +259,55 @@ export default function Landing({ onStart }: LandingProps) {
                 </div>
               </div>
             </div>
+
+            {/* Ray Ray Card - Coming Soon */}
+            <div
+              className="puffy-character-card"
+              style={{ filter: 'grayscale(1)', opacity: 0.65, cursor: 'not-allowed' }}
+            >
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="puffy-avatar w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gradient-to-br from-slate-200 to-slate-300">
+                  <img
+                    src={rayRayImage}
+                    alt="Ray Ray"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-lg text-slate-800">Ray Ray</h3>
+                    <span className="puffy-tag puffy-tag-gray">Coming Soon</span>
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium mb-1">🐠 Coral Reef Explorer</p>
+                  <p className="text-slate-400 text-xs">Explore the coral reef — coming soon!</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Ocean Blue Card - Coming Soon */}
+            <div
+              className="puffy-character-card"
+              style={{ filter: 'grayscale(1)', opacity: 0.65, cursor: 'not-allowed' }}
+            >
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="puffy-avatar w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gradient-to-br from-slate-200 to-slate-300">
+                  <img
+                    src={oceanBlueImage}
+                    alt="Ocean Blue"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-lg text-slate-800">Ocean Blue</h3>
+                    <span className="puffy-tag puffy-tag-gray">Coming Soon</span>
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium mb-1">🔭 Star Map Navigator</p>
+                  <p className="text-slate-400 text-xs">Navigate by the stars — coming soon!</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
